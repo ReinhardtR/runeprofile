@@ -1,0 +1,21 @@
+{
+  "name": "internal",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon -r dotenv/config --watch src -e ts src/index.ts",
+    "start": "node -r dotenv/config dist/index.js"
+  },
+  "dependencies": {
+    "@interval/sdk": "^0.21.0",
+    "db": "*",
+    "dotenv": "^16.0.1",
+    "zod-schemas": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "nodemon": "^1.3.3",
+    "ts-node": "^10.4.0",
+    "typescript": "4.5.x"
+  }
+}
