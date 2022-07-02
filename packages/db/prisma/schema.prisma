@@ -48,12 +48,12 @@ model Account {
   modelMtl Bytes @db.Blob
 
   // Collection Log
-  collectionLog CollectionLog?
+  CollectionLog CollectionLog?
 }
 
 model CollectionLog {
+  Account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade, onUpdate: Cascade)
   accountHash BigInt  @id
-  account     Account @relation(fields: [accountHash], references: [accountHash])
 
   totalObtained  Int
   totalItems     Int
@@ -62,8 +62,8 @@ model CollectionLog {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  killCounts     KillCount[]
-  collectedItems CollectedItem[]
+  KillCounts     KillCount[]
+  CollectedItems CollectedItem[]
 }
 
 model KillCount {
@@ -72,11 +72,11 @@ model KillCount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  CollectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade, onUpdate: Cascade)
   accountHash   BigInt
-  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash])
 
+  ItemSource     ItemSource @relation(fields: [itemSourceName], references: [name], onDelete: Cascade, onUpdate: Cascade)
   itemSourceName String
-  itemSource     ItemSource @relation(fields: [itemSourceName], references: [name])
 
   @@id(name: "killCountId", [accountHash, name])
 }
@@ -86,11 +86,11 @@ model CollectedItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  CollectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade, onUpdate: Cascade)
   accountHash   BigInt
-  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash])
 
+  Item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   itemId Int
-  item   Item @relation(fields: [itemId], references: [id])
 
   @@id(name: "collectedItemId", [accountHash, itemId])
 }
@@ -100,8 +100,8 @@ model ItemSource {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items      Item[]
-  killCounts KillCount[]
+  KillCounts KillCount[]
+  Items      Item[]
 }
 
 model Item {
@@ -110,8 +110,8 @@ model Item {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  itemSources    ItemSource[]
-  collectedItems CollectedItem[]
+  CollectedItems CollectedItem[]
+  ItemSources    ItemSource[]
 }
 
 enum AccountType {

@@ -27,10 +27,10 @@ fastify.post("/submit", async (req, res) => {
       accountHash,
     },
     include: {
-      collectionLog: {
+      CollectionLog: {
         include: {
-          collectedItems: true,
-          killCounts: true,
+          CollectedItems: true,
+          KillCounts: true,
         },
       },
     },
@@ -60,13 +60,13 @@ fastify.post("/submit", async (req, res) => {
         ...skills,
         modelObj: modelBuffer.obj,
         modelMtl: modelBuffer.mtl,
-        collectionLog: collectionLogArgs,
+        CollectionLog: collectionLogArgs,
       },
       include: {
-        collectionLog: {
+        CollectionLog: {
           include: {
-            collectedItems: true,
-            killCounts: true,
+            CollectedItems: true,
+            KillCounts: true,
           },
         },
       },
@@ -96,7 +96,7 @@ fastify.post("/submit", async (req, res) => {
 
           if (!killCountAmount) return;
 
-          const killCountExists = account?.collectionLog?.killCounts.some(
+          const killCountExists = account?.CollectionLog?.KillCounts.some(
             (kc) => kc.name === sourceName
           );
 
@@ -123,7 +123,7 @@ fastify.post("/submit", async (req, res) => {
         source.items.forEach((item) => {
           if (!item.quantity) return;
 
-          const itemExists = account?.collectionLog?.collectedItems.some(
+          const itemExists = account?.CollectionLog?.CollectedItems.some(
             (ci) => ci.itemId === item.id
           );
 
@@ -152,14 +152,14 @@ fastify.post("/submit", async (req, res) => {
       totalObtained: collectionLog.total_obtained,
       uniqueItems: collectionLog.unique_items,
       uniqueObtained: collectionLog.unique_obtained,
-      collectedItems: {
+      CollectedItems: {
         createMany: {
           data: collectedsItemsToCreate,
           skipDuplicates: true,
         },
         updateMany: collecItemsToUpdate,
       },
-      killCounts: {
+      KillCounts: {
         createMany: {
           data: killCountsToCreate,
           skipDuplicates: true,
@@ -178,7 +178,7 @@ fastify.post("/submit", async (req, res) => {
       modelObj: modelBuffer.obj,
       modelMtl: modelBuffer.mtl,
       ...skills,
-      collectionLog: {
+      CollectionLog: {
         update: collectionLogUpdateArgs,
       },
     },

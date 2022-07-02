@@ -16,7 +16,7 @@ const interval = new Interval({
           name: true,
           createdAt: true,
           updatedAt: true,
-          itemSources: {
+          ItemSources: {
             select: {
               name: true,
             },
@@ -45,67 +45,105 @@ const interval = new Interval({
 
       const collectionLog = result.data;
 
-      const itemSources: Prisma.ItemSourceCreateWithoutKillCountsInput[] = [];
-      const items: Prisma.ItemCreateManyInput[] = [];
+      const queries: PrismaPromise<any>[] = [];
+
+      const itemsCreatedInPreviousLoops: number[] = [];
 
       Object.values(collectionLog.tabs).forEach((tab) => {
         Object.entries(tab).forEach(([sourceName, source]) => {
-          itemSources.push({
-            name: sourceName,
-            items: {
-              connect: source.items.map((item) => ({
-                id: item.id,
-              })),
-            },
+          const itemSourceExists = currentItems.some((item) => {
+            return item.ItemSources.some(
+              (itemSource) => itemSource.name === sourceName
+            );
           });
 
+          const items = {
+            create: [] as Prisma.ItemCreateWithoutItemSourcesInput[],
+            connect: [] as Prisma.ItemWhereUniqueInput[],
+          };
+
           source.items.forEach((item) => {
-            items.push({
-              id: item.id,
-              name: item.name,
-            });
+            const itemExists =
+              currentItems.some((currentItem) => {
+                return currentItem.id === item.id;
+              }) || itemsCreatedInPreviousLoops.some((id) => id === item.id);
+
+            if (itemExists) {
+              // Items to connect
+              items.connect.push({
+                id: item.id,
+              });
+            } else {
+              // Items to create
+              items.create.push({
+                id: item.id,
+                name: item.name,
+              });
+            }
           });
+
+          if (!itemSourceExists) {
+            // Create ItemSource
+            queries.push(
+              prisma.itemSource.create({
+                data: {
+                  name: sourceName,
+                  Items: items,
+                },
+              })
+            );
+          } else {
+            // Update ItemSource to connect with new items
+            const itemsNotAlreadyConnected = items.connect.filter((item) => {
+              currentItems.some((currentItem) => {
+                const sameId = currentItem.id === item.id;
+                const sameSource = currentItem.ItemSources.some(
+                  (currentItemSource) => currentItemSource.name === sourceName
+                );
+
+                return sameId && !sameSource;
+              });
+            });
+
+            items.connect = itemsNotAlreadyConnected;
+
+            const changesMade = items.connect.length || items.create.length;
+            if (changesMade) {
+              queries.push(
+                prisma.itemSource.update({
+                  where: {
+                    name: sourceName,
+                  },
+                  data: {
+                    Items: items,
+                  },
+                })
+              );
+            }
+          }
+
+          items.create.forEach((item) =>
+            itemsCreatedInPreviousLoops.push(item.id)
+          );
         });
       });
 
-      const queries: PrismaPromise<any>[] = [];
+      let finalHeading;
 
-      await ctx.loading.start({
-        title: "Updating Item Schema",
-        description: "Deleting old Item Sources",
-      });
-      await prisma.itemSource.deleteMany();
+      if (queries.length) {
+        finalHeading = "New Item Schema";
 
-      await ctx.loading.update({
-        description: "Deleting old Items",
-      });
-      await prisma.item.deleteMany();
+        await ctx.loading.update({
+          description: "Executing queries",
+          itemsInQueue: queries.length,
+        });
 
-      await ctx.loading.update({
-        description: "Creating new Items",
-      });
-      await prisma.item.createMany({
-        data: items,
-        skipDuplicates: true,
-      });
-
-      itemSources.forEach((itemSource) => {
-        queries.push(
-          prisma.itemSource.create({
-            data: itemSource,
-          })
-        );
-      });
-
-      await ctx.loading.update({
-        description:
-          "Creating new Item Sources and connecting them to the new Items",
-        itemsInQueue: queries.length,
-      });
-
-      for (const query of queries) {
-        await query;
-        await ctx.loading.completeOne();
+        for (const query of queries) {
+          await query;
+          await ctx.loading.completeOne();
+        }
+      } else {
+        finalHeading = "No Changes";
       }
 
       const newItemSchema = await prisma.item.findMany({
@@ -114,7 +152,7 @@ const interval = new Interval({
           name: true,
           createdAt: true,
           updatedAt: true,
-          itemSources: {
+          ItemSources: {
             select: {
               name: true,
             },
@@ -122,7 +160,7 @@ const interval = new Interval({
         },
       });
 
-      await io.display.table("Current Item Schema", {
+      await io.display.table(finalHeading, {
         helpText: `There is currently ${newItemSchema.length} items in the database.`,
         data: newItemSchema,
       });
