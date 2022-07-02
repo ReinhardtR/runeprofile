@@ -9,10 +9,6 @@
     },
     "dev": {
       "cache": false
-    },
-    "deploy": {
-      "dependsOn": ["lint", "build"],
-      "outputs": ["dist/**", ".next/**"]
     }
   }
 }
