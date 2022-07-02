@@ -10,13 +10,6 @@
     "dev": {
       "cache": false
     },
-    "start": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
-    },
-    "db:push": {
-      "outputs": []
-    },
     "deploy": {
       "dependsOn": ["lint", "build"],
       "outputs": ["dist/**", ".next/**"]
