@@ -10,10 +10,10 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:push": "turbo run db:push"
   },
   "devDependencies": {
-    "eslint-config-custom": "workspace:*",
     "prettier": "latest",
     "turbo": "latest"
   },
@@ -22,5 +22,5 @@
     "node": ">=14.0.0"
   },
   "dependencies": {},
-  "packageManager": "pnpm@7.2.1"
+  "packageManager": "npm@8.6.0"
 }

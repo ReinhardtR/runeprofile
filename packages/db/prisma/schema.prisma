@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Account {
+  accountHash BigInt      @id
+  username    String      @unique
+  accountType AccountType
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Skills
+  attack       Int
+  defence      Int
+  strength     Int
+  hitpoints    Int
+  ranged       Int
+  prayer       Int
+  magic        Int
+  cooking      Int
+  woodcutting  Int
+  fletching    Int
+  fishing      Int
+  firemaking   Int
+  crafting     Int
+  smithing     Int
+  mining       Int
+  herblore     Int
+  agility      Int
+  thieving     Int
+  slayer       Int
+  farming      Int
+  runecraft    Int
+  hunter       Int
+  construction Int
+  overall      Int
+
+  // Model
+  modelObj Bytes @db.Blob
+  modelMtl Bytes @db.Blob
+
+  // Collection Log
+  collectionLog CollectionLog?
+}
+
+model CollectionLog {
+  accountHash BigInt  @id
+  account     Account @relation(fields: [accountHash], references: [accountHash])
+
+  totalObtained  Int
+  totalItems     Int
+  uniqueObtained Int
+  uniqueItems    Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  killCounts     KillCount[]
+  collectedItems CollectedItem[]
+}
+
+model KillCount {
+  name      String
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountHash   BigInt
+  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash])
+
+  itemSourceName String
+  itemSource     ItemSource @relation(fields: [itemSourceName], references: [name])
+
+  @@id(name: "killCountId", [accountHash, name])
+}
+
+model CollectedItem {
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountHash   BigInt
+  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash])
+
+  itemId Int
+  item   Item @relation(fields: [itemId], references: [id])
+
+  @@id(name: "collectedItemId", [accountHash, itemId])
+}
+
+model ItemSource {
+  name      String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items      Item[]
+  killCounts KillCount[]
+}
+
+model Item {
+  id        Int      @id
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  itemSources    ItemSource[]
+  collectedItems CollectedItem[]
+}
+
+enum AccountType {
+  NORMAL
+  IRONMAN
+  HARDCORE_IRONMAN
+  ULTIMATE_IRONMAN
+  GROUP_IRONMAN
+  HARDCORE_GROUP_IRONMAN
+}

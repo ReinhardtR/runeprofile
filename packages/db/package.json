@@ -1,0 +1,33 @@
+{
+  "name": "db",
+  "version": "0.0.0",
+  "description": "Prisma client",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./client": "./dist/client.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ],
+      "client": [
+        "./dist/client.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "prisma generate && tsc",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^4.0.0",
+    "tsconfig": "*",
+    "typescript": "^4.7.4"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "zod-schemas",
+  "version": "0.0.0",
+  "description": "Zod schemas",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "zod": "^3.17.3"
+  },
+  "devDependencies": {
+    "tsconfig": "*",
+    "typescript": "^4.7.4"
+  }
+}
