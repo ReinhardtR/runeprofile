@@ -7,6 +7,10 @@
     "lint": {
       "outputs": []
     },
+    "start": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
     "dev": {
       "cache": false
     }
