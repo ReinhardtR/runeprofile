@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon -r dotenv/config --watch src -e ts src/index.ts",
-    "start": "node -r dotenv/config dist/index.js"
+    "start": "node -r dotenv/config dist/index.js",
+    "dev": "nodemon -r dotenv/config --watch src -e ts src/index.ts"
   },
   "dependencies": {
     "@interval/sdk": "^0.21.0",

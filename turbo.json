@@ -7,11 +7,15 @@
     "lint": {
       "outputs": []
     },
-    "db:push": {
-      "outputs": []
-    },
     "dev": {
       "cache": false
+    },
+    "start": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "db:push": {
+      "outputs": []
     }
   }
 }

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "start": "node -r dotenv/config dist/index.js",
     "dev": "nodemon --watch src -e ts src/index.ts"
   },
   "dependencies": {
