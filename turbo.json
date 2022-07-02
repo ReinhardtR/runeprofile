@@ -8,7 +8,7 @@
       "outputs": []
     },
     "start": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["build"],
       "outputs": []
     },
     "dev": {
