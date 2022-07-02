@@ -16,6 +16,10 @@
     },
     "db:push": {
       "outputs": []
+    },
+    "deploy": {
+      "dependsOn": ["lint", "build"],
+      "outputs": ["dist/**", ".next/**"]
     }
   }
 }

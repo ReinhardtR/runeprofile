@@ -1,16 +1,60 @@
-import Fastify from "fastify";
+import { AccountType, Prisma } from "db";
 import { prisma } from "db/client";
-import { playerDataSchema } from "./lib/data-schema";
-import { getKillCountParts } from "./lib/utils";
-import { Prisma } from "db";
+import { NextApiRequest, NextApiResponse } from "next";
 
-const fastify = Fastify({
-  logger: true,
+import { z } from "zod";
+import { collectionLogSchema } from "zod-schemas";
+
+const getKillCountParts = (killCount: string) => {
+  const parts = killCount.split(": ");
+
+  const name = parts[0];
+  const amount = Number(parts[1]);
+
+  return [name, amount] as [string, number];
+};
+
+const playerDataSchema = z.object({
+  accountHash: z.number(),
+  username: z.string(),
+  accountType: z.nativeEnum(AccountType),
+  model: z.object({
+    obj: z.string(),
+    mtl: z.string(),
+  }),
+  skills: z.object({
+    attack: z.number(),
+    hitpoints: z.number(),
+    mining: z.number(),
+    strength: z.number(),
+    agility: z.number(),
+    smithing: z.number(),
+    defence: z.number(),
+    herblore: z.number(),
+    fishing: z.number(),
+    ranged: z.number(),
+    thieving: z.number(),
+    cooking: z.number(),
+    prayer: z.number(),
+    crafting: z.number(),
+    firemaking: z.number(),
+    magic: z.number(),
+    fletching: z.number(),
+    woodcutting: z.number(),
+    runecraft: z.number(),
+    slayer: z.number(),
+    farming: z.number(),
+    construction: z.number(),
+    hunter: z.number(),
+    overall: z.number(),
+  }),
+  collectionLog: collectionLogSchema.optional(),
 });
 
-const port = 3002;
-
-fastify.post("/submit", async (req, res) => {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   console.log("SUBMITTED TO SERVER");
 
   const input = playerDataSchema.parse(req.body);
@@ -81,7 +125,7 @@ fastify.post("/submit", async (req, res) => {
   if (collectionLog) {
     const collectedsItemsToCreate: Prisma.CollectedItemCreateManyCollectionLogInput[] =
       [];
-    const collecItemsToUpdate: Prisma.CollectedItemUpdateManyWithWhereWithoutCollectionLogInput[] =
+    const collectedItemsToUpdate: Prisma.CollectedItemUpdateManyWithWhereWithoutCollectionLogInput[] =
       [];
     const killCountsToCreate: Prisma.KillCountCreateManyCollectionLogInput[] =
       [];
@@ -128,7 +172,7 @@ fastify.post("/submit", async (req, res) => {
           );
 
           if (itemExists) {
-            collecItemsToUpdate.push({
+            collectedItemsToUpdate.push({
               where: {
                 accountHash,
                 itemId: item.id,
@@ -157,7 +201,7 @@ fastify.post("/submit", async (req, res) => {
           data: collectedsItemsToCreate,
           skipDuplicates: true,
         },
-        updateMany: collecItemsToUpdate,
+        updateMany: collectedItemsToUpdate,
       },
       KillCounts: {
         createMany: {
@@ -184,9 +228,5 @@ fastify.post("/submit", async (req, res) => {
     },
   });
 
-  return res.status(200).send({ message: "Success" });
-});
-
-fastify.listen({ port }, (err, address) => {
-  if (err) throw err;
-});
+  return res.status(200).json({ message: "Success" });
+}
