@@ -214,7 +214,7 @@ export default async function handler(
   }
 
   // Update the account with the new data.
-  await prisma.account.update({
+  const updatedAccount = await prisma.account.update({
     where: { accountHash },
     data: {
       username,
@@ -228,5 +228,6 @@ export default async function handler(
     },
   });
 
+  res.revalidate(`/u/${updatedAccount.username}`);
   return res.status(200).json({ message: "Success" });
 }

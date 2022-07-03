@@ -11,12 +11,12 @@
   "dependencies": {
     "@react-three/drei": "^9.14.1",
     "@react-three/fiber": "^8.0.27",
-    "next": "12.1.6",
+    "db": "*",
+    "next": "^12.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "three": "^0.141.0",
     "zod": "^3.17.3",
-    "db": "*",
     "zod-schemas": "*"
   },
   "devDependencies": {
@@ -26,12 +26,12 @@
     "@types/three": "^0.141.0",
     "autoprefixer": "^10.4.7",
     "eslint": "8.18.0",
-    "eslint-config-next": "12.1.6",
+    "eslint-config-next": "12.2.0",
     "postcss": "^8.4.14",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.11",
     "tailwindcss": "^3.1.4",
-    "typescript": "4.7.4",
-    "tsconfig": "*"
+    "tsconfig": "*",
+    "typescript": "4.7.4"
   }
 }
