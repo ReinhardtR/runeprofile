@@ -1,12 +1,6 @@
-import {
-  Center,
-  Html,
-  OrbitControls,
-  Stage,
-  useProgress,
-} from "@react-three/drei";
+import { Html, useProgress } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { MutableRefObject, Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { BufferGeometry, Group, Material, Mesh } from "three";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
@@ -22,9 +16,7 @@ export const PlayerModel: React.FC<PlayerModelProps> = ({ model }) => {
   return (
     <Canvas>
       <Suspense fallback={<Loader />}>
-        <Stage intensity={1}>
-          <Model model={model} />
-        </Stage>
+        <Model model={model} />
       </Suspense>
     </Canvas>
   );
@@ -34,34 +26,47 @@ type ModelProps = PlayerModelProps;
 
 const Model: React.FC<ModelProps> = ({ model }) => {
   const mesh = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
-  const obj = useRef<Group>();
+  const [obj, setObj] = useState<Group>();
 
-  useEffect(() => {
+  useMemo(() => {
     const mtlBlob = new Blob([model.mtl], { type: "text/plain" });
     const mtlURL = URL.createObjectURL(mtlBlob);
-
-    const objBlob = new Blob([model.obj], { type: "text/plain" });
-    const objURL = URL.createObjectURL(objBlob);
 
     new MTLLoader().load(mtlURL, (materials) => {
       materials.preload();
 
-      new OBJLoader().setMaterials(materials).load(objURL, (object) => {
-        obj.current = object;
-      });
+      const objBlob = new Blob([model.obj], { type: "text/plain" });
+      const objURL = URL.createObjectURL(objBlob);
+
+      return new OBJLoader()
+        .setMaterials(materials)
+        .load(objURL, (objectGroup) => {
+          setObj(objectGroup);
+
+          URL.revokeObjectURL(objURL);
+          URL.revokeObjectURL(mtlURL);
+        });
     });
-  }, [model]);
+  }, [model.obj, model.mtl]);
+
+  console.log(obj);
 
   useFrame(({ clock }) => {
-    if (!obj.current) return;
+    const m = mesh.current;
+    if (!m) return;
 
-    obj.current.rotation.x = Math.sin(clock.getElapsedTime());
+    m.rotation.y = Math.sin(clock.getElapsedTime());
   });
 
   return (
-    <mesh ref={mesh}>
-      {obj.current && <primitive object={obj.current} scale={0.025} />}
-    </mesh>
+    <>
+      <ambientLight />
+      {!!obj && (
+        <mesh ref={mesh} position={[0, -2, 1.1]} rotation={[0.3, 0, 0]}>
+          <primitive object={obj} scale={0.02} />
+        </mesh>
+      )}
+    </>
   );
 };
 

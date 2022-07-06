@@ -44,8 +44,8 @@ model Account {
   overall      Int
 
   // Model
-  modelObj Bytes @db.Blob
-  modelMtl Bytes @db.Blob
+  modelObj Bytes @db.LongBlob
+  modelMtl Bytes @db.LongBlob
 
   // Collection Log
   CollectionLog CollectionLog?

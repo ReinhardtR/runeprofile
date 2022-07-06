@@ -63,16 +63,13 @@ export const SkillElement: React.FC<SkillElementProps> = ({
   iconPath,
 }) => {
   return (
-    <div className="runescape-stats-tile flex items-center justify-between px-3 font-runescape">
+    <div className="runescape-stats-tile flex items-center justify-between px-3">
       {!!iconPath && (
         <Image src={iconPath} className="w-[25px]" quality={100} />
       )}
-      <div className="ml-1 flex grow flex-col items-center justify-center">
-        <div className="text-center font-bold leading-none">
-          <p className="text-lg text-yellow-osrs">{level}</p>
-          {/* <p className="text-xs opacity-60">{formatXP(xp)}</p> */}
-        </div>
-      </div>
+      <p className="ml-1 grow text-center font-runescape text-lg font-bold leading-none text-yellow-osrs">
+        {level}
+      </p>
     </div>
   );
 };

@@ -4,26 +4,30 @@ import { SkillsCard } from "@/components/Profile/SkillsCard";
 import type { InferNextProps } from "@/lib/infer-next-props-type";
 import { prisma } from "db/client";
 import type { GetStaticPropsContext, NextPage } from "next";
+import { useState } from "react";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
   return (
-    <div className="flex flex-wrap gap-4 p-4">
-      <Card>
-        <div className="flex flex-col">
-          <span className="text-center font-runescape text-4xl text-yellow-osrs">
-            {account.username}
-          </span>
+    <div className="flex min-h-screen flex-wrap gap-4 p-4">
+      <div>
+        <Card>
+          <div className="flex flex-col">
+            <span className="text-center font-runescape text-4xl text-yellow-osrs">
+              {account.username}
+            </span>
 
-          <div className="h-[300px] w-[200px]">
-            <PlayerModel
-              model={{
-                obj: account.modelObj,
-                mtl: account.modelMtl,
-              }}
-            />
+            {/* TODO: fix size */}
+            <div className="h-[286px] w-[200px]">
+              <PlayerModel
+                model={{
+                  obj: account.modelObj,
+                  mtl: account.modelMtl,
+                }}
+              />
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       <div>
         <SkillsCard
