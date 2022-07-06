@@ -5,9 +5,9 @@ import {
   Stage,
   useProgress,
 } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect, useState } from "react";
-import { Group } from "three";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { MutableRefObject, Suspense, useEffect, useRef, useState } from "react";
+import { BufferGeometry, Group, Material, Mesh } from "three";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
@@ -20,23 +20,21 @@ type PlayerModelProps = {
 
 export const PlayerModel: React.FC<PlayerModelProps> = ({ model }) => {
   return (
-    <div className="h-[500px] w-[250px]">
-      <Canvas>
-        <Suspense fallback={<Loader />}>
-          <Stage intensity={1}>
-            <Model model={model} />
-          </Stage>
-          <OrbitControls />
-        </Suspense>
-      </Canvas>
-    </div>
+    <Canvas>
+      <Suspense fallback={<Loader />}>
+        <Stage intensity={1}>
+          <Model model={model} />
+        </Stage>
+      </Suspense>
+    </Canvas>
   );
 };
 
 type ModelProps = PlayerModelProps;
 
 const Model: React.FC<ModelProps> = ({ model }) => {
-  const [obj, setObj] = useState<Group>();
+  const mesh = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
+  const obj = useRef<Group>();
 
   useEffect(() => {
     const mtlBlob = new Blob([model.mtl], { type: "text/plain" });
@@ -49,12 +47,22 @@ const Model: React.FC<ModelProps> = ({ model }) => {
       materials.preload();
 
       new OBJLoader().setMaterials(materials).load(objURL, (object) => {
-        setObj(object);
+        obj.current = object;
       });
     });
   }, [model]);
 
-  return <>{obj && <primitive object={obj} scale={0.025} />}</>;
+  useFrame(({ clock }) => {
+    if (!obj.current) return;
+
+    obj.current.rotation.x = Math.sin(clock.getElapsedTime());
+  });
+
+  return (
+    <mesh ref={mesh}>
+      {obj.current && <primitive object={obj.current} scale={0.025} />}
+    </mesh>
+  );
 };
 
 const Loader: React.FC = () => {

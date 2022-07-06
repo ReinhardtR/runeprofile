@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: runescape;
+  src: url("/assets/fonts/runescape.woff2");
+}
+
+@font-face {
+  font-family: runescape;
+  font-weight: bold;
+  src: url("/assets/fonts/runescape-bold.woff2");
+}
+
+.runescape-stats-tile {
+  background-image: url("/assets/stats/tile.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  /* Aspect Ratio of the real image */
+  aspect-ratio: 1.96774193548;
+
+  width: 80px;
+}
+
+.runescape-panel {
+  background-image: url("/assets/panel/background.png");
+  background-size: cover;
+  background-clip: padding-box;
+
+  border: solid transparent;
+  border-image-slice: 10 10 10 10;
+  border-image-width: 16px 16px 16px 16px;
+  border-image-outset: 0px 0px 0px 0px;
+  border-image-repeat: repeat;
+  border-image-source: url("/assets/panel/square.png");
+}

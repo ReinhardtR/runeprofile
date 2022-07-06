@@ -140,20 +140,24 @@ export default async function handler(
 
           if (!killCountAmount) return;
 
-          const killCountExists = account?.CollectionLog?.KillCounts.some(
-            (kc) => kc.name === sourceName
+          const storedKillCount = account?.CollectionLog?.KillCounts.find(
+            (kc) => kc.name === killCountName
           );
 
-          if (killCountExists) {
-            killCountsToUpdate.push({
-              where: {
-                accountHash,
-                name: killCountName,
-              },
-              data: {
-                amount: killCountAmount,
-              },
-            });
+          if (storedKillCount) {
+            const hasChanged = killCountAmount !== storedKillCount.amount;
+
+            if (hasChanged) {
+              killCountsToUpdate.push({
+                where: {
+                  accountHash,
+                  name: killCountName,
+                },
+                data: {
+                  amount: killCountAmount,
+                },
+              });
+            }
           } else {
             killCountsToCreate.push({
               name: killCountName,
@@ -167,20 +171,24 @@ export default async function handler(
         source.items.forEach((item) => {
           if (!item.quantity) return;
 
-          const itemExists = account?.CollectionLog?.CollectedItems.some(
+          const storedItem = account?.CollectionLog?.CollectedItems.find(
             (ci) => ci.itemId === item.id
           );
 
-          if (itemExists) {
-            collectedItemsToUpdate.push({
-              where: {
-                accountHash,
-                itemId: item.id,
-              },
-              data: {
-                quantity: item.quantity,
-              },
-            });
+          if (storedItem) {
+            const hasChanged = item.quantity != storedItem.quantity;
+
+            if (hasChanged) {
+              collectedItemsToUpdate.push({
+                where: {
+                  accountHash,
+                  itemId: item.id,
+                },
+                data: {
+                  quantity: item.quantity,
+                },
+              });
+            }
           } else {
             collectedsItemsToCreate.push({
               itemId: item.id,
@@ -190,6 +198,11 @@ export default async function handler(
         });
       });
     });
+
+    console.log("Item to create:", collectedsItemsToCreate.length);
+    console.log("Item to update:", collectedItemsToUpdate.length);
+    console.log("Kill Count to create:", killCountsToCreate.length);
+    console.log("Kill Count to update:", killCountsToUpdate.length);
 
     collectionLogUpdateArgs = {
       totalItems: collectionLog.total_items,
