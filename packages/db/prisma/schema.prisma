@@ -51,6 +51,15 @@ model Account {
   CollectionLog CollectionLog?
 }
 
+enum AccountType {
+  NORMAL
+  IRONMAN
+  HARDCORE_IRONMAN
+  ULTIMATE_IRONMAN
+  GROUP_IRONMAN
+  HARDCORE_GROUP_IRONMAN
+}
+
 model CollectionLog {
   Account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade, onUpdate: Cascade)
   accountHash BigInt  @id
@@ -96,9 +105,10 @@ model CollectedItem {
 }
 
 model ItemSource {
-  name      String   @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  name      String           @id
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  tab       CollectionLogTab
 
   KillCounts KillCount[]
   Items      Item[]
@@ -114,11 +124,10 @@ model Item {
   ItemSources    ItemSource[]
 }
 
-enum AccountType {
-  NORMAL
-  IRONMAN
-  HARDCORE_IRONMAN
-  ULTIMATE_IRONMAN
-  GROUP_IRONMAN
-  HARDCORE_GROUP_IRONMAN
+enum CollectionLogTab {
+  BOSSES
+  RAIDS
+  CLUES
+  MINIGAMES
+  OTHER
 }

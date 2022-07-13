@@ -56,6 +56,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   console.log("SUBMITTED TO SERVER");
+  console.log(req.body);
 
   const input = playerDataSchema.parse(req.body);
   const { accountHash, username, accountType, skills, model, collectionLog } =
