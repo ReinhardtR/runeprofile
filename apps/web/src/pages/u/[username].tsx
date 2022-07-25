@@ -3,77 +3,76 @@ import { CollectionLog } from "@/components/Profile/CollectionLog";
 import { PlayerModel } from "@/components/Profile/PlayerModel";
 import { SkillsCard } from "@/components/Profile/SkillsCard";
 import type { InferNextProps } from "@/lib/infer-next-props-type";
-import { prisma } from "db/client";
 import type { GetStaticPropsContext, NextPage } from "next";
-import { useState } from "react";
+import fakeData from "@/assets/fake-data.json";
+import { PlayerDataSchema } from "@/lib/data-schema";
+import { AchievementDiaries } from "@/components/Profile/AchievementDiaries";
+import { CombatAchievements } from "@/components/Profile/CombatAchievements";
+import { QuestList } from "@/components/Profile/QuestList";
+import Image from "next/future/image";
+import { AccountType } from "db";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
   return (
-    <div className="flex min-h-screen flex-wrap gap-4 p-4">
-      <div>
-        <Card>
-          <div className="flex flex-col">
-            <span className="text-center font-runescape text-4xl text-yellow-osrs">
-              {account.username}
-            </span>
+    <div className="flex min-h-screen flex-wrap justify-center gap-4 p-4">
+      <Card className="flex max-w-[260px] flex-col">
+        <div className="flex items-center justify-center space-x-2 pt-2">
+          {account.accountType != AccountType.NORMAL && (
+            <Image
+              src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
+              quality={100}
+              className="aspect-[10/13] w-[20px] drop-shadow-solid"
+            />
+          )}
+          <p className="text-shadow font-runescape text-4xl font-bold leading-none text-white">
+            {account.username}
+          </p>
+        </div>
 
-            {/* TODO: fix size */}
-            <div className="h-[286px] w-[200px]">
-              <PlayerModel
-                model={{
-                  obj: account.modelObj,
-                  mtl: account.modelMtl,
-                }}
-              />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <div>
-        <SkillsCard
-          accountSkills={{
-            attack: account.attack,
-            hitpoints: account.hitpoints,
-            mining: account.mining,
-            strength: account.strength,
-            agility: account.agility,
-            smithing: account.smithing,
-            defence: account.defence,
-            herblore: account.herblore,
-            fishing: account.fishing,
-            ranged: account.ranged,
-            thieving: account.thieving,
-            cooking: account.cooking,
-            prayer: account.prayer,
-            crafting: account.crafting,
-            firemaking: account.firemaking,
-            magic: account.magic,
-            fletching: account.fletching,
-            woodcutting: account.woodcutting,
-            runecraft: account.runecraft,
-            slayer: account.slayer,
-            farming: account.farming,
-            construction: account.construction,
-            hunter: account.hunter,
+        <PlayerModel
+          model={{
+            obj: account.model.obj,
+            mtl: account.model.mtl,
           }}
-          overallXP={account.overall}
         />
-      </div>
+      </Card>
 
-      <div>
-        <Card>
-          <h3>Quests</h3>
-        </Card>
-      </div>
+      <SkillsCard
+        accountSkills={{
+          attack: account.skills.attack,
+          hitpoints: account.skills.hitpoints,
+          mining: account.skills.mining,
+          strength: account.skills.strength,
+          agility: account.skills.agility,
+          smithing: account.skills.smithing,
+          defence: account.skills.defence,
+          herblore: account.skills.herblore,
+          fishing: account.skills.fishing,
+          ranged: account.skills.ranged,
+          thieving: account.skills.thieving,
+          cooking: account.skills.cooking,
+          prayer: account.skills.prayer,
+          crafting: account.skills.crafting,
+          firemaking: account.skills.firemaking,
+          magic: account.skills.magic,
+          fletching: account.skills.fletching,
+          woodcutting: account.skills.woodcutting,
+          runecraft: account.skills.runecraft,
+          slayer: account.skills.slayer,
+          farming: account.skills.farming,
+          construction: account.skills.construction,
+          hunter: account.skills.hunter,
+        }}
+        overallXP={account.skills.overall}
+      />
 
-      <div>
-        <Card>
-          <h3>Achievement Diaries</h3>
-        </Card>
-      </div>
+      <QuestList />
 
-      <CollectionLog />
+      <AchievementDiaries />
+
+      <CollectionLog collectionLog={account.collectionLog} />
+
+      <CombatAchievements />
     </div>
   );
 };
@@ -83,44 +82,61 @@ export default Home;
 export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   const username = params?.username as string;
 
-  if (!username) {
+  // if (!username) {
+  //   return { notFound: true } as const;
+  // }
+
+  // const [account] = await prisma.$transaction([
+  //   prisma.account.findUnique({
+  //     where: {
+  //       username,
+  //     },
+  //     select: accountSelect,
+  //   }),
+  // ]);
+
+  // if (!account) {
+  //   return { notFound: true } as const;
+  // }
+
+  // return {
+  //   props: {
+  //     account: {
+  //       ...account,
+  //       updatedAt: account.updatedAt.toISOString(),
+  //       modelObj: account.modelObj.toString("utf-8"),
+  //       modelMtl: account.modelMtl.toString("utf-8"),
+  //     },
+  //   },
+  // };
+
+  if (username != "test") {
     return { notFound: true } as const;
   }
 
-  const [account] = await prisma.$transaction([
-    prisma.account.findUnique({
-      where: {
-        username,
-      },
-      select: accountSelect,
-    }),
-  ]);
-
-  if (!account) {
-    return { notFound: true } as const;
-  }
+  const data = PlayerDataSchema.parse(fakeData);
 
   return {
     props: {
-      account: {
-        ...account,
-        updatedAt: account.updatedAt.toISOString(),
-        modelObj: account.modelObj.toString("utf-8"),
-        modelMtl: account.modelMtl.toString("utf-8"),
-      },
+      account: data,
     },
   };
 };
 
 export const getStaticPaths = async () => {
-  const accounts = await prisma.account.findMany({
-    select: { username: true },
-  });
+  // const accounts = await prisma.account.findMany({
+  //   select: { username: true },
+  // });
+
+  // return {
+  //   paths: accounts.map((account) => ({
+  //     params: { username: account.username },
+  //   })),
+  //   fallback: "blocking",
+  // };
 
   return {
-    paths: accounts.map((account) => ({
-      params: { username: account.username },
-    })),
+    paths: [{ params: { username: "test" } }],
     fallback: "blocking",
   };
 };

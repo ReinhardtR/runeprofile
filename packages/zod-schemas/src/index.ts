@@ -16,7 +16,16 @@ export const collectionLogSchema = z.object({
             obtained: z.boolean(),
           })
         ),
-        kill_count: z.array(z.string()).optional(),
+        killCounts: z
+          .array(
+            z.record(
+              z.object({
+                name: z.string(),
+                amount: z.number(),
+              })
+            )
+          )
+          .optional(),
       })
     )
   ),

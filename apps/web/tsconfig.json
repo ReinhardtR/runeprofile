@@ -1,6 +1,7 @@
 {
   "extends": "tsconfig/nextjs.json",
   "compilerOptions": {
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

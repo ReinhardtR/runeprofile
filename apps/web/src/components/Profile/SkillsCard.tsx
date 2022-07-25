@@ -24,28 +24,20 @@ export const SkillsCard: React.FC<SkillsCardProps> = ({
   );
 
   return (
-    <div className="min-h-full min-w-full">
-      <Card>
-        {/* <h3 className="mb-1 pt-2 text-center text-xl font-bold">
-          <div className="flex items-center justify-center gap-x-2">
-            <Image src={`/assets/skill-icons/overall.png`} className="w-8" />
-            <span>Skills</span>
-          </div>
-        </h3> */}
-        <div className="grid-rows-8 grid grid-cols-3">
-          {Object.entries(accountSkills).map(([skill, xp]) => (
-            <SkillElement
-              key={skill}
-              skill={skill}
-              level={getLevelFromXP(xp)}
-              xp={xp}
-              iconPath={`/assets/skill-icons/${skill}.png`}
-            />
-          ))}
-          <SkillElement skill={"Overall"} level={overallLevel} xp={overallXP} />
-        </div>
-      </Card>
-    </div>
+    <Card>
+      <div className="grid-rows-8 grid grid-cols-3 p-1">
+        {Object.entries(accountSkills).map(([skill, xp]) => (
+          <SkillElement
+            key={skill}
+            skill={skill}
+            level={getLevelFromXP(xp)}
+            xp={xp}
+            iconPath={`/assets/skill-icons/${skill}.png`}
+          />
+        ))}
+        <SkillElement skill={"Overall"} level={overallLevel} xp={overallXP} />
+      </div>
+    </Card>
   );
 };
 
@@ -65,9 +57,9 @@ export const SkillElement: React.FC<SkillElementProps> = ({
   return (
     <div className="runescape-stats-tile flex items-center justify-between px-3">
       {!!iconPath && (
-        <Image src={iconPath} className="w-[25px]" quality={100} />
+        <Image src={iconPath} className="w-[25px] drop-shadow" quality={100} />
       )}
-      <p className="ml-1 grow text-center font-runescape text-lg font-bold leading-none text-yellow-osrs">
+      <p className="text-shadow ml-1 grow text-center font-runescape text-lg font-bold leading-none text-osrs-yellow">
         {level}
       </p>
     </div>

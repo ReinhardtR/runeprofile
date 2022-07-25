@@ -9,15 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.6.6",
     "@react-three/drei": "^9.14.1",
     "@react-three/fiber": "^8.0.27",
+    "clsx": "^1.2.1",
     "db": "*",
     "next": "^12.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "tailwind-merge": "^1.5.1",
     "three": "^0.141.0",
-    "zod": "^3.17.3",
-    "zod-schemas": "*"
+    "zod": "^3.17.3"
   },
   "devDependencies": {
     "@types/node": "18.0.0",

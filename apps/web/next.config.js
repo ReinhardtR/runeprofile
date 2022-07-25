@@ -6,4 +6,7 @@ module.exports = {
       allowFutureImage: true,
     },
   },
+  images: {
+    domains: ["www.osrsbox.com"],
+  },
 };

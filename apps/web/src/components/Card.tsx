@@ -1,11 +1,20 @@
-type CardProps = {
+import { twMerge } from "tailwind-merge";
+
+type CardProps = React.HTMLProps<HTMLDivElement> & {
   children?: React.ReactNode;
 };
 
-export const Card: React.FC<CardProps> = ({ children }) => {
+export const Card: React.FC<CardProps> = ({
+  children,
+  className,
+  ...restProps
+}) => {
   return (
-    <div className="runescape-panel shadow-lg">
-      <div className="p-3">{children}</div>
+    <div
+      className={twMerge("runescape-panel h-[353px] p-2 shadow-lg", className)}
+      {...restProps}
+    >
+      {children}
     </div>
   );
 };

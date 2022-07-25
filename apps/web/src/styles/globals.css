@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .text-shadow {
+    text-shadow: 1px 1px black, 1.5px 1.5px black, 2px 2px black;
+  }
+  .text-shadow-none {
+    text-shadow: none;
+  }
+}
+
 @font-face {
   font-family: runescape;
   src: url("/assets/fonts/runescape.woff2");
@@ -24,6 +33,19 @@
   width: 80px;
 }
 
+.runescape-combat-achievement-tier {
+  border-style: solid;
+  border-width: 12px 12px 12px 12px;
+  -moz-border-image: url("/assets/combat-achievement-icons/border.png") 9 9 9 9
+    round round;
+  -webkit-border-image: url("/assets/combat-achievement-icons/border.png") 9 9 9
+    9 round round;
+  -o-border-image: url("/assets/combat-achievement-icons/border.png") 9 9 9 9
+    round round;
+  border-image: url("/assets/combat-achievement-icons/border.png") 9 9 9 9 round
+    round;
+}
+
 .runescape-panel {
   background-image: url("/assets/panel/background.png");
   background-size: cover;
@@ -35,4 +57,47 @@
   border-image-outset: 0px 0px 0px 0px;
   border-image-repeat: repeat;
   border-image-source: url("/assets/panel/square.png");
+}
+
+::-webkit-scrollbar {
+  width: 22px;
+}
+
+::-webkit-scrollbar-button {
+  display: block;
+  background-size: cover;
+}
+
+/* This seems so upside down idk why this is how it works, but it does */
+::-webkit-scrollbar-button:vertical:start:increment {
+  display: none;
+}
+
+::-webkit-scrollbar-button:vertical:start:decrement {
+  background-image: url("/assets/scrollbar/arrow_up.png");
+  height: 22px;
+}
+
+::-webkit-scrollbar-button:vertical:end:increment {
+  background-image: url("/assets/scrollbar/arrow_down.png");
+  height: 22px;
+}
+
+::-webkit-scrollbar-button:vertical:end:decrement {
+  display: none;
+}
+
+/* Using border-image to stretch the middle part of the thumb */
+::-webkit-scrollbar-thumb {
+  border-style: solid;
+  border-image-source: url("/assets/scrollbar/thumb.png");
+  border-image-slice: 7;
+  border-image-width: 16px;
+  border-image-repeat: stretch;
+  height: 40%;
+}
+
+::-webkit-scrollbar-track {
+  background-image: url("/assets/scrollbar/track.png");
+  background-size: contain;
 }
