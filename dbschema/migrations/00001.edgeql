@@ -1,9 +1,7 @@
-CREATE MIGRATION m1q5cqp35fm5jyfmae27tb6dyhhs2vdl7t2easdngumjtlowmzs63q
+CREATE MIGRATION m1scbwruaidi2m4n3pi4qxngdekn77thamqhnmmd5v5kmqgtwqxtpa
     ONTO initial
 {
-  CREATE TYPE default::Person {
-      CREATE REQUIRED PROPERTY name -> std::str {
-          CREATE CONSTRAINT std::exclusive;
-      };
-  };
+    CREATE TYPE default::Person {
+        CREATE REQUIRED PROPERTY name -> std::str;
+    };
 };
