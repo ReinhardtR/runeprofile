@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm edgeql-gen && next build",
     "start": "next start",
     "lint": "next lint",
-    "prebuild": "pnpx edgeql-js"
+    "edgeql-gen": "pnpm exec edgeql-js"
   },
   "dependencies": {
     "@headlessui/react": "^1.6.6",
