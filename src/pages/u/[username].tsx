@@ -10,7 +10,6 @@ import { AchievementDiaries } from "@/components/Profile/AchievementDiaries";
 import { CombatAchievements } from "@/components/Profile/CombatAchievements";
 import { QuestList } from "@/components/Profile/QuestList";
 import Image from "next/future/image";
-import { AccountType } from "db";
 import { BossKillCounts } from "@/components/Profile/BossKillCounts";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
@@ -18,7 +17,8 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
     <div className="flex min-h-screen flex-wrap justify-center gap-4 p-4">
       <Card className="flex max-w-[260px] flex-col">
         <div className="flex items-center justify-center space-x-2 pt-2">
-          {account.accountType != AccountType.NORMAL && (
+          {/* TODO: use enum from edgedb */}
+          {account.accountType != "NORMAL" && (
             <Image
               src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
               alt={account.accountType}

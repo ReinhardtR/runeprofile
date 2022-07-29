@@ -3,8 +3,9 @@
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-    "downlevelIteration": true,
     "skipLibCheck": true,
+    // EdgeDB uses down level iteration
+    "downlevelIteration": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
