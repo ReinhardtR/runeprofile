@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    // EdgeDB can't use es5, so we use es6
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    // EdgeDB uses down level iteration
-    "downlevelIteration": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
