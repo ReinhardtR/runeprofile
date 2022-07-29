@@ -158,7 +158,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
           </span>
         </p>
         {entry.killCounts?.map((killCount) => (
-          <p className="text-shadow text-lg leading-none">
+          <p key={killCount.name} className="text-shadow text-lg leading-none">
             {killCount.name}:{" "}
             <span className="text-white">{killCount.count}</span>
           </p>
@@ -188,6 +188,7 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
       <Image
         // @ts-ignore
         src={`data:image/png;base64,${itemIcons[item.id]}`}
+        alt={item.name}
         className={clsx(
           "z-10 aspect-[36/32] w-[50px] brightness-[.60] drop-shadow-2xl",
           !item.quantity && "opacity-30"

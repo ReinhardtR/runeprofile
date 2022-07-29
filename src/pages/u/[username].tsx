@@ -21,6 +21,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
           {account.accountType != AccountType.NORMAL && (
             <Image
               src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
+              alt={account.accountType}
               quality={100}
               className="aspect-[10/13] w-[20px] drop-shadow-solid"
             />

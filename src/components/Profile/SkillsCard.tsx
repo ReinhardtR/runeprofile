@@ -20,7 +20,7 @@ export const SkillsCard: React.FC<SkillsCardProps> = ({
         (acc, cur) => acc + getLevelFromXP(cur),
         0
       ),
-    [accountSkills, overallXP]
+    [accountSkills]
   );
 
   return (
@@ -57,7 +57,12 @@ export const SkillElement: React.FC<SkillElementProps> = ({
   return (
     <div className="runescape-stats-tile flex items-center justify-between px-3">
       {!!iconPath && (
-        <Image src={iconPath} className="w-[25px] drop-shadow" quality={100} />
+        <Image
+          src={iconPath}
+          alt={skill}
+          className="w-[25px] drop-shadow"
+          quality={100}
+        />
       )}
       <p className="text-shadow ml-1 grow text-center font-runescape text-lg font-bold leading-none text-osrs-yellow">
         {level}

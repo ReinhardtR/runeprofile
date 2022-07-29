@@ -56,6 +56,7 @@ export const CombatAchievements = () => {
               </p>
               <Image
                 src={`/assets/combat-achievement-icons/${tierName.toLowerCase()}.png`}
+                alt={tierName}
                 quality={100}
                 className="my-[1px] aspect-square w-[38px] drop-shadow-xl"
               />
