@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { AccountType } from "db";
 
 export enum Skill {
   Attack = "attack",
@@ -106,7 +105,16 @@ export const CollectionLogSchema = z.object({
 export const PlayerDataSchema = z.object({
   accountHash: z.number(),
   username: z.string(),
-  accountType: z.nativeEnum(AccountType),
+  // Switch to enum from EdgeDB schema
+  accountType: z.enum([
+    "NORMAL",
+    "IRONMAN",
+    "ULTIMATE_IRONMAN",
+    "HARDCORE_IRONMAN",
+    "GROUP_IRONMAN",
+    "HARDCORE_GROUP_IRONMAN",
+    "UNRANKED_GROUP_IRONMAN",
+  ]),
   model: z.object({
     obj: z.string(),
     mtl: z.string(),
