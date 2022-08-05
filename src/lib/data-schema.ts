@@ -82,24 +82,71 @@ export const CollectionLogItemSchema = z.object({
   quantity: z.number(),
 });
 
+export const KillCountSchema = z.object({
+  name: z.string(),
+  count: z.number(),
+});
+
 export const CollectionLogEntrySchema = z.object({
   items: z.array(CollectionLogItemSchema),
-  killCounts: z
-    .array(
-      z.object({
-        name: z.string(),
-        count: z.number(),
-      })
-    )
-    .optional(),
+  killCounts: z.array(KillCountSchema).optional(),
 });
 
 export const CollectionLogTabSchema = z.record(CollectionLogEntrySchema);
 
 export const CollectionLogSchema = z.object({
-  uniquesObtained: z.number(),
-  uniquesTotal: z.number(),
+  uniqueItemsObtained: z.number(),
+  uniqueItemsTotal: z.number(),
   tabs: z.record(CollectionLogTabSchema),
+});
+
+// .transform((tabs) => {
+//   return Object.entries(tabs).map(([tabName, tabData]) => ({
+//     name: tabName,
+//     entries: Object.entries(tabData).map(([entryName, entryData]) => ({
+//       name: entryName,
+//       items: entryData.items,
+//       killCounts: entryData.killCounts ?? [],
+//     })),
+//   }));
+// }),
+
+export const QuestListSchema = z.object({
+  points: z.number(),
+  quests: z.array(
+    z.object({
+      name: z.string(),
+      state: z.enum(["NOT_STARTED", "IN_PROGRESS", "FINISHED"]),
+    })
+  ),
+});
+
+export const SkillsSchema = z.array(
+  z.object({ name: z.string(), xp: z.number() })
+);
+
+const CompletedAndTotalSchema = z.object({
+  completed: z.number(),
+  total: z.number(),
+});
+
+export const AchievementDiariesSchema = z.array(
+  z.object({
+    area: z.string(),
+    Easy: CompletedAndTotalSchema,
+    Medium: CompletedAndTotalSchema,
+    Hard: CompletedAndTotalSchema,
+    Elite: CompletedAndTotalSchema,
+  })
+);
+
+export const CombatAchievementsSchema = z.object({
+  Easy: CompletedAndTotalSchema,
+  Medium: CompletedAndTotalSchema,
+  Hard: CompletedAndTotalSchema,
+  Elite: CompletedAndTotalSchema,
+  Master: CompletedAndTotalSchema,
+  Grandmaster: CompletedAndTotalSchema,
 });
 
 export const PlayerDataSchema = z.object({
@@ -116,34 +163,12 @@ export const PlayerDataSchema = z.object({
     "UNRANKED_GROUP_IRONMAN",
   ]),
   model: z.object({
-    obj: z.string(),
-    mtl: z.string(),
+    obj: z.string().transform((obj) => Buffer.from(obj, "utf-8")),
+    mtl: z.string().transform((mtl) => Buffer.from(mtl, "utf-8")),
   }),
-  skills: z.object({
-    attack: z.number(),
-    hitpoints: z.number(),
-    mining: z.number(),
-    strength: z.number(),
-    agility: z.number(),
-    smithing: z.number(),
-    defence: z.number(),
-    herblore: z.number(),
-    fishing: z.number(),
-    ranged: z.number(),
-    thieving: z.number(),
-    cooking: z.number(),
-    prayer: z.number(),
-    crafting: z.number(),
-    firemaking: z.number(),
-    magic: z.number(),
-    fletching: z.number(),
-    woodcutting: z.number(),
-    runecraft: z.number(),
-    slayer: z.number(),
-    farming: z.number(),
-    construction: z.number(),
-    hunter: z.number(),
-    overall: z.number(),
-  }),
+  skills: SkillsSchema,
+  questList: QuestListSchema,
+  achievementDiaries: AchievementDiariesSchema,
+  combatAchievements: CombatAchievementsSchema,
   collectionLog: CollectionLogSchema,
 });

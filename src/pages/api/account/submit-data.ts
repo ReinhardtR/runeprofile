@@ -1,253 +1,305 @@
+import fakeData from "@/assets/fake-data.json";
 import { NextApiRequest, NextApiResponse } from "next";
+import e from "@/edgeql";
+import { PlayerDataSchema } from "@/lib/data-schema";
+import { client } from "@/lib/edgedb-client";
 
-export default function handler(res: NextApiResponse, req: NextApiRequest) {
+export default async function handler(
+  _req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const data = PlayerDataSchema.parse(fakeData);
+
+  const queryStart = new Date();
+  console.log("Query Start: ", queryStart.toUTCString());
+
+  const flatItems = Object.entries(data.collectionLog.tabs).flatMap(
+    ([tabName, tabData]) => {
+      return Object.entries(tabData).flatMap(([entryName, entryData]) => {
+        return entryData.items.map((item) => {
+          return {
+            tab: tabName,
+            entry: entryName,
+            item_id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            killCounts: entryData.killCounts ?? [],
+          };
+        });
+      });
+    }
+  );
+
+  // Account
+  const accountQuery = e
+    .insert(e.Account, {
+      account_hash: data.accountHash,
+      username: data.username,
+      account_type: data.accountType,
+      achievement_diaries: data.achievementDiaries,
+      combat_achievements: data.combatAchievements,
+      skills: data.skills,
+      model: data.model,
+      quest_list: data.questList,
+      updated_at: e.datetime_current(),
+    })
+    .unlessConflict((account) => ({
+      on: account.account_hash,
+      else: e.update(account, () => ({
+        set: {
+          username: data.username,
+          account_type: e.cast(e.AccountType, e.str(data.accountType)),
+          achievement_diaries: data.achievementDiaries,
+          combat_achievements: data.combatAchievements,
+          skills: data.skills,
+          model: data.model,
+          quest_list: data.questList,
+          updated_at: e.datetime_current(),
+        },
+      })),
+    }));
+
+  console.log("ACCOUNT QUERY");
+  const accountResult = await accountQuery.run(client);
+
+  // Collection Log
+  const collectionLogQuery = e
+    .insert(e.CollectionLog, {
+      unique_items_obtained: data.collectionLog.uniqueItemsObtained,
+      unique_items_total: data.collectionLog.uniqueItemsTotal,
+      account: e.select(e.Account, (account) => ({
+        filter: e.op(account.id, "=", e.uuid(accountResult.id)),
+      })),
+    })
+    .unlessConflict((collectionLog) => ({
+      on: collectionLog.account,
+      else: e.update(collectionLog, () => ({
+        set: {
+          unique_items_obtained: data.collectionLog.uniqueItemsObtained,
+          unique_items_total: data.collectionLog.uniqueItemsTotal,
+        },
+      })),
+    }));
+
+  console.log("COLLECTION LOG QUERY");
+  const collectionLogResult = await collectionLogQuery.run(client);
+
+  const collectionLogSelect = e.select(e.CollectionLog, (log) => ({
+    filter: e.op(log.id, "=", e.uuid(collectionLogResult.id)),
+  }));
+
+  // Tabs
+  const tabsQuery = e.params(
+    {
+      tabs: e.array(e.str),
+    },
+    ($) => {
+      return e.for(e.array_unpack($.tabs), (tabName) => {
+        return e.select(
+          e
+            .insert(e.Tab, {
+              collection_log: collectionLogSelect,
+              name: tabName,
+            })
+            .unlessConflict((tab) => ({
+              on: e.tuple([tab.collection_log, tab.name]),
+              else: tab,
+            })),
+          () => ({
+            id: true,
+            name: true,
+          })
+        );
+      });
+    }
+  );
+
+  console.log("TABS QUERY");
+  const tabsResult = await tabsQuery.run(client, {
+    tabs: Object.keys(data.collectionLog.tabs),
+  });
+
+  const tabsMap = new Map<string, string>();
+  tabsResult.forEach((tab) => {
+    tabsMap.set(tab.name, tab.id);
+  });
+
+  // Entries
+  const entriesQuery = e.params({ entries: e.json }, ($) => {
+    return e.for(e.json_array_unpack($.entries), (entryData) => {
+      return e.select(
+        e
+          .insert(e.Entry, {
+            tab: e.select(e.Tab, (tab) => ({
+              filter: e.op(tab.id, "=", e.cast(e.uuid, entryData.tabId)),
+            })),
+            name: e.cast(e.str, entryData.name),
+            kill_counts: e.op(
+              e.cast(
+                e.array(e.tuple({ name: e.str, count: e.int32 })),
+                entryData.killCounts
+              ),
+              "if",
+              e.op(
+                e.len(
+                  e.cast(
+                    e.array(e.tuple({ name: e.str, count: e.int32 })),
+                    entryData.killCounts
+                  )
+                ),
+                ">",
+                0
+              ),
+              "else",
+              e.cast(e.array(e.tuple({ name: e.str, count: e.int32 })), e.set())
+            ),
+            updated_at: e.datetime_current(),
+          })
+          .unlessConflict((entry) => ({
+            on: e.tuple([entry.tab, entry.name]),
+            else: entry,
+          })),
+        () => ({
+          id: true,
+          name: true,
+        })
+      );
+    });
+  });
+
+  const entriesParams = Object.entries(data.collectionLog.tabs).flatMap(
+    ([tabName, tabData]) => {
+      return Object.entries(tabData).map(([entryName, entryData]) => ({
+        tabId: tabsMap.get(tabName)!, // is based on same data, must exist.
+        name: entryName,
+        killCounts: entryData.killCounts ?? [],
+      }));
+    }
+  );
+
+  console.log("ENTRIES QUERY");
+  const entriesResult = await entriesQuery.run(client, {
+    entries: entriesParams,
+  });
+
+  const entriesData = Object.values(data.collectionLog.tabs).flatMap((tab) => {
+    return Object.keys(tab).map((entry) => {
+      return entry;
+    });
+  });
+
+  console.log("Entries: ", entriesData.length);
+  console.log("Result: ", entriesResult.length);
+
+  const entriesMap = new Map<string, string>();
+  entriesResult.forEach((entry) => {
+    entriesMap.set(entry.name, entry.id);
+  });
+
+  // Items
+  const itemsQuery = e.params(
+    {
+      items: e.json,
+    },
+    ($) => {
+      return e.for(e.json_array_unpack($.items), (item) => {
+        return e
+          .insert(e.Item, {
+            entry: e.select(e.Entry, (entry) => ({
+              filter: e.op(entry.id, "=", e.cast(e.uuid, item.entryId)),
+            })),
+            item_id: e.cast(e.int32, item.item_id),
+            name: e.cast(e.str, item.name),
+            quantity: e.cast(e.int32, item.quantity),
+            obtained_at_kill_counts: e.op(
+              e.tuple({
+                date: e.datetime_of_transaction(),
+                kill_counts: e.cast(
+                  e.array(e.tuple({ name: e.str, count: e.int32 })),
+                  e.assert_single(item.killCounts)
+                ),
+              }),
+              "if",
+              e.op(e.cast(e.int32, item.quantity), ">", 0),
+              "else",
+              e.cast(
+                e.tuple({
+                  date: e.datetime,
+                  kill_counts: e.array(
+                    e.tuple({ name: e.str, count: e.int32 })
+                  ),
+                }),
+                e.set()
+              )
+            ),
+          })
+          .unlessConflict((_item) => ({
+            on: e.tuple([_item.entry, _item.item_id]),
+            else: e.update(_item, () => ({
+              set: {
+                name: e.cast(e.str, item.name),
+                quantity: e.cast(e.int32, item.quantity),
+                obtained_at_kill_counts: e.op(
+                  e.tuple({
+                    date: e.datetime_of_transaction(),
+                    kill_counts: e.cast(
+                      e.array(e.tuple({ name: e.str, count: e.int32 })),
+                      e.assert_single(item.killCounts)
+                    ),
+                  }),
+                  "if",
+                  e.op(
+                    e.op(e.cast(e.int32, item.quantity), ">", 0),
+                    "and",
+                    e.op(_item.quantity, "<=", 0)
+                  ),
+                  "else",
+                  _item.obtained_at_kill_counts
+                ),
+              },
+            })),
+          }));
+      });
+    }
+  );
+
+  // obtained_at_kill_counts: e.op(
+  //   e.tuple({
+  //     date: e.datetime_current(),
+  //     kill_counts: item.killCounts,
+  //   }),
+  //   "if",
+  //   e.op(
+  //     e.op(e.cast(e.int32, item.quantity), ">", 0),
+  //     "and",
+  //     e.op(_item.quantity, "<=", 0)
+  //   ),
+  //   "else",
+  //   _item.obtained_at_kill_counts
+  // ),
+
+  const itemsParams = Object.values(data.collectionLog.tabs).flatMap((tab) => {
+    return Object.entries(tab).flatMap(([entryName, entryData]) => {
+      return entryData.items.map((item) => ({
+        entryId: entriesMap.get(entryName)!, // is based on same data, must exist.
+        item_id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        killCounts: entryData.killCounts ?? [],
+      }));
+    });
+  });
+
+  console.log("ITEMS QUERY");
+  const itemsResult = await itemsQuery.run(client, {
+    items: itemsParams,
+  });
+
+  const queryEnd = new Date();
+  console.log("Query End: ", queryEnd.toUTCString());
+
+  const queryTime = queryEnd.getTime() - queryStart.getTime();
+  console.log("Query Time: ", queryTime);
+
   return res.status(200).json({ sucuess: "ok" });
 }
-
-// import { AccountType, Prisma } from "db";
-// import { prisma } from "db/client";
-// import { NextApiRequest, NextApiResponse } from "next";
-
-// import { z } from "zod";
-// import { collectionLogSchema } from "zod-schemas";
-
-// const getKillCountParts = (killCount: string) => {
-//   const parts = killCount.split(": ");
-
-//   const name = parts[0];
-//   const amount = Number(parts[1]);
-
-//   return [name, amount] as [string, number];
-// };
-
-// const playerDataSchema = z.object({
-//   accountHash: z.number(),
-//   username: z.string(),
-//   accountType: z.nativeEnum(AccountType),
-//   model: z.object({
-//     obj: z.string(),
-//     mtl: z.string(),
-//   }),
-//   skills: z.object({
-//     attack: z.number(),
-//     hitpoints: z.number(),
-//     mining: z.number(),
-//     strength: z.number(),
-//     agility: z.number(),
-//     smithing: z.number(),
-//     defence: z.number(),
-//     herblore: z.number(),
-//     fishing: z.number(),
-//     ranged: z.number(),
-//     thieving: z.number(),
-//     cooking: z.number(),
-//     prayer: z.number(),
-//     crafting: z.number(),
-//     firemaking: z.number(),
-//     magic: z.number(),
-//     fletching: z.number(),
-//     woodcutting: z.number(),
-//     runecraft: z.number(),
-//     slayer: z.number(),
-//     farming: z.number(),
-//     construction: z.number(),
-//     hunter: z.number(),
-//     overall: z.number(),
-//   }),
-//   collectionLog: collectionLogSchema.optional(),
-// });
-
-// export default async function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse
-// ) {
-//   console.log("SUBMITTED TO SERVER");
-//   console.log(req.body);
-
-//   const input = playerDataSchema.parse(req.body);
-//   const { accountHash, username, accountType, skills, model, collectionLog } =
-//     input;
-
-//   const modelBuffer = {
-//     obj: Buffer.from(model.obj, "utf-8"),
-//     mtl: Buffer.from(model.mtl, "utf-8"),
-//   };
-
-//   let account = await prisma.account.findUnique({
-//     where: {
-//       accountHash,
-//     },
-//     include: {
-//       CollectionLog: {
-//         include: {
-//           CollectedItems: true,
-//           KillCounts: true,
-//         },
-//       },
-//     },
-//   });
-
-//   // If there is no account create one.
-//   if (!account) {
-//     // Create a collection log if data is provided.
-//     const collectionLogArgs:
-//       | Prisma.CollectionLogCreateNestedOneWithoutAccountInput
-//       | undefined = collectionLog
-//       ? {
-//           create: {
-//             totalItems: collectionLog.total_items,
-//             totalObtained: collectionLog.total_obtained,
-//             uniqueItems: collectionLog.unique_items,
-//             uniqueObtained: collectionLog.unique_obtained,
-//           },
-//         }
-//       : undefined;
-
-//     account = await prisma.account.create({
-//       data: {
-//         accountHash,
-//         username,
-//         accountType,
-//         ...skills,
-//         modelObj: modelBuffer.obj,
-//         modelMtl: modelBuffer.mtl,
-//         CollectionLog: collectionLogArgs,
-//       },
-//       include: {
-//         CollectionLog: {
-//           include: {
-//             CollectedItems: true,
-//             KillCounts: true,
-//           },
-//         },
-//       },
-//     });
-//   }
-
-//   let collectionLogUpdateArgs:
-//     | Prisma.CollectionLogUpdateOneWithoutAccountNestedInput["update"]
-//     | undefined = undefined;
-
-//   // Create collection log update args if data is provided.
-//   if (collectionLog) {
-//     const collectedsItemsToCreate: Prisma.CollectedItemCreateManyCollectionLogInput[] =
-//       [];
-//     const collectedItemsToUpdate: Prisma.CollectedItemUpdateManyWithWhereWithoutCollectionLogInput[] =
-//       [];
-//     const killCountsToCreate: Prisma.KillCountCreateManyCollectionLogInput[] =
-//       [];
-//     const killCountsToUpdate: Prisma.KillCountUpdateManyWithWhereWithoutCollectionLogInput[] =
-//       [];
-
-//     Object.values(collectionLog.tabs).forEach((tab) => {
-//       Object.entries(tab).forEach(([sourceName, source]) => {
-//         // Kill Counts
-//         source.kill_count?.forEach((killCount) => {
-//           const [killCountName, killCountAmount] = getKillCountParts(killCount);
-
-//           if (!killCountAmount) return;
-
-//           const storedKillCount = account?.CollectionLog?.KillCounts.find(
-//             (kc) => kc.name === killCountName
-//           );
-
-//           if (storedKillCount) {
-//             const hasChanged = killCountAmount !== storedKillCount.amount;
-
-//             if (hasChanged) {
-//               killCountsToUpdate.push({
-//                 where: {
-//                   accountHash,
-//                   name: killCountName,
-//                 },
-//                 data: {
-//                   amount: killCountAmount,
-//                 },
-//               });
-//             }
-//           } else {
-//             killCountsToCreate.push({
-//               name: killCountName,
-//               amount: killCountAmount,
-//               itemSourceName: sourceName,
-//             });
-//           }
-//         });
-
-//         // CollectedItems
-//         source.items.forEach((item) => {
-//           if (!item.quantity) return;
-
-//           const storedItem = account?.CollectionLog?.CollectedItems.find(
-//             (ci) => ci.itemId === item.id
-//           );
-
-//           if (storedItem) {
-//             const hasChanged = item.quantity != storedItem.quantity;
-
-//             if (hasChanged) {
-//               collectedItemsToUpdate.push({
-//                 where: {
-//                   accountHash,
-//                   itemId: item.id,
-//                 },
-//                 data: {
-//                   quantity: item.quantity,
-//                 },
-//               });
-//             }
-//           } else {
-//             collectedsItemsToCreate.push({
-//               itemId: item.id,
-//               quantity: item.quantity,
-//             });
-//           }
-//         });
-//       });
-//     });
-
-//     console.log("Item to create:", collectedsItemsToCreate.length);
-//     console.log("Item to update:", collectedItemsToUpdate.length);
-//     console.log("Kill Count to create:", killCountsToCreate.length);
-//     console.log("Kill Count to update:", killCountsToUpdate.length);
-
-//     collectionLogUpdateArgs = {
-//       totalItems: collectionLog.total_items,
-//       totalObtained: collectionLog.total_obtained,
-//       uniqueItems: collectionLog.unique_items,
-//       uniqueObtained: collectionLog.unique_obtained,
-//       CollectedItems: {
-//         createMany: {
-//           data: collectedsItemsToCreate,
-//           skipDuplicates: true,
-//         },
-//         updateMany: collectedItemsToUpdate,
-//       },
-//       KillCounts: {
-//         createMany: {
-//           data: killCountsToCreate,
-//           skipDuplicates: true,
-//         },
-//         updateMany: killCountsToUpdate,
-//       },
-//     };
-//   }
-
-//   // Update the account with the new data.
-//   const updatedAccount = await prisma.account.update({
-//     where: { accountHash },
-//     data: {
-//       username,
-//       accountType,
-//       modelObj: modelBuffer.obj,
-//       modelMtl: modelBuffer.mtl,
-//       ...skills,
-//       CollectionLog: {
-//         update: collectionLogUpdateArgs,
-//       },
-//     },
-//   });
-
-//   res.revalidate(`/u/${updatedAccount.username}`);
-//   return res.status(200).json({ message: "Success" });
-// }
