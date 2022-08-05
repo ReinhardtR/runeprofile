@@ -194,33 +194,31 @@ export default async function handler(
             item_id: e.cast(e.int32, item.item_id),
             name: e.cast(e.str, item.name),
             quantity: e.cast(e.int32, item.quantity),
-            obtained_at_kill_counts: e.assert_single(
-              e.op(
+            obtained_at_kill_counts: e.op(
+              e.tuple({
+                date: e.datetime_of_transaction(),
+                kill_counts: e.cast(
+                  e.array(e.tuple({ name: e.str, count: e.int32 })),
+                  item.killCounts
+                ),
+              }),
+              "if",
+              e.op(e.cast(e.int32, item.quantity), ">", 0),
+              "else",
+              e.cast(
                 e.tuple({
-                  date: e.datetime_of_transaction(),
-                  kill_counts: e.cast(
-                    e.array(e.tuple({ name: e.str, count: e.int32 })),
-                    e.assert_single(item.killCounts)
+                  date: e.datetime,
+                  kill_counts: e.array(
+                    e.tuple({ name: e.str, count: e.int32 })
                   ),
                 }),
-                "if",
-                e.op(e.cast(e.int32, item.quantity), ">", 0),
-                "else",
-                e.cast(
-                  e.tuple({
-                    date: e.datetime,
-                    kill_counts: e.array(
-                      e.tuple({ name: e.str, count: e.int32 })
-                    ),
-                  }),
-                  e.set()
-                )
+                e.set()
               )
             ),
           })
           .unlessConflict((_item) => ({
             on: e.tuple([_item.entry, _item.item_id]),
-            else: e.update(_item, () => ({
+            else: e.update(_item, (existingItem) => ({
               set: {
                 name: e.cast(e.str, item.name),
                 quantity: e.cast(e.int32, item.quantity),
@@ -229,17 +227,17 @@ export default async function handler(
                     date: e.datetime_of_transaction(),
                     kill_counts: e.cast(
                       e.array(e.tuple({ name: e.str, count: e.int32 })),
-                      e.assert_single(item.killCounts)
+                      item.killCounts
                     ),
                   }),
                   "if",
                   e.op(
                     e.op(e.cast(e.int32, item.quantity), ">", 0),
                     "and",
-                    e.op(_item.quantity, "<=", 0)
+                    e.op(existingItem.quantity, "<=", 0)
                   ),
                   "else",
-                  _item.obtained_at_kill_counts
+                  existingItem.obtained_at_kill_counts
                 ),
               },
             })),
@@ -259,8 +257,6 @@ export default async function handler(
       }));
     });
   });
-
-  console.dir(itemsParams, {depth: null});
 
   console.log("ITEMS QUERY");
   const itemsResult = await itemsQuery.run(client, {
