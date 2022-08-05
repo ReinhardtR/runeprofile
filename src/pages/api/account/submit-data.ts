@@ -13,23 +13,6 @@ export default async function handler(
   const queryStart = new Date();
   console.log("Query Start: ", queryStart.toUTCString());
 
-  const flatItems = Object.entries(data.collectionLog.tabs).flatMap(
-    ([tabName, tabData]) => {
-      return Object.entries(tabData).flatMap(([entryName, entryData]) => {
-        return entryData.items.map((item) => {
-          return {
-            tab: tabName,
-            entry: entryName,
-            item_id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            killCounts: entryData.killCounts ?? [],
-          };
-        });
-      });
-    }
-  );
-
   // Account
   const accountQuery = e
     .insert(e.Account, {
@@ -211,25 +194,27 @@ export default async function handler(
             item_id: e.cast(e.int32, item.item_id),
             name: e.cast(e.str, item.name),
             quantity: e.cast(e.int32, item.quantity),
-            obtained_at_kill_counts: e.op(
-              e.tuple({
-                date: e.datetime_of_transaction(),
-                kill_counts: e.cast(
-                  e.array(e.tuple({ name: e.str, count: e.int32 })),
-                  e.assert_single(item.killCounts)
-                ),
-              }),
-              "if",
-              e.op(e.cast(e.int32, item.quantity), ">", 0),
-              "else",
-              e.cast(
+            obtained_at_kill_counts: e.assert_single(
+              e.op(
                 e.tuple({
-                  date: e.datetime,
-                  kill_counts: e.array(
-                    e.tuple({ name: e.str, count: e.int32 })
+                  date: e.datetime_of_transaction(),
+                  kill_counts: e.cast(
+                    e.array(e.tuple({ name: e.str, count: e.int32 })),
+                    e.assert_single(item.killCounts)
                   ),
                 }),
-                e.set()
+                "if",
+                e.op(e.cast(e.int32, item.quantity), ">", 0),
+                "else",
+                e.cast(
+                  e.tuple({
+                    date: e.datetime,
+                    kill_counts: e.array(
+                      e.tuple({ name: e.str, count: e.int32 })
+                    ),
+                  }),
+                  e.set()
+                )
               )
             ),
           })
@@ -263,21 +248,6 @@ export default async function handler(
     }
   );
 
-  // obtained_at_kill_counts: e.op(
-  //   e.tuple({
-  //     date: e.datetime_current(),
-  //     kill_counts: item.killCounts,
-  //   }),
-  //   "if",
-  //   e.op(
-  //     e.op(e.cast(e.int32, item.quantity), ">", 0),
-  //     "and",
-  //     e.op(_item.quantity, "<=", 0)
-  //   ),
-  //   "else",
-  //   _item.obtained_at_kill_counts
-  // ),
-
   const itemsParams = Object.values(data.collectionLog.tabs).flatMap((tab) => {
     return Object.entries(tab).flatMap(([entryName, entryData]) => {
       return entryData.items.map((item) => ({
@@ -289,6 +259,8 @@ export default async function handler(
       }));
     });
   });
+
+  console.dir(itemsParams, {depth: null});
 
   console.log("ITEMS QUERY");
   const itemsResult = await itemsQuery.run(client, {
