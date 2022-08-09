@@ -117,24 +117,9 @@ export default async function handler(
               filter: e.op(tab.id, "=", e.cast(e.uuid, entryData.tabId)),
             })),
             name: e.cast(e.str, entryData.name),
-            kill_counts: e.op(
-              e.cast(
-                e.array(e.tuple({ name: e.str, count: e.int32 })),
-                entryData.killCounts
-              ),
-              "if",
-              e.op(
-                e.len(
-                  e.cast(
-                    e.array(e.tuple({ name: e.str, count: e.int32 })),
-                    entryData.killCounts
-                  )
-                ),
-                ">",
-                0
-              ),
-              "else",
-              e.cast(e.array(e.tuple({ name: e.str, count: e.int32 })), e.set())
+            kill_counts: e.cast(
+              e.array(e.tuple({ name: e.str, count: e.int32 })),
+              e.op(entryData.killCounts, "??", e.to_json("[]"))
             ),
             updated_at: e.datetime_current(),
           })
