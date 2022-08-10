@@ -252,7 +252,7 @@ export default async function handler(
   console.log("Query End: ", queryEnd.toUTCString());
 
   const queryTime = queryEnd.getTime() - queryStart.getTime();
-  console.log("Query Time: ", queryTime);
+  console.log("Query Time: ", queryTime / 1000, "s");
 
   return res.status(200).json({ sucuess: "ok" });
 }

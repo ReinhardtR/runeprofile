@@ -4,67 +4,71 @@ import { formatXP } from "@/lib/utils/xp-format";
 import Image from "next/future/image";
 import { useMemo } from "react";
 import { Card } from "../Card";
+import e, { Account } from "@/edgeql";
+
+const OVERALL_NAME = "Overall";
 
 type SkillsCardProps = {
-  accountSkills: Record<Skill, number>;
-  overallXP: number;
+  skills: Account["skills"];
 };
 
-export const SkillsCard: React.FC<SkillsCardProps> = ({
-  accountSkills,
-  overallXP,
-}) => {
+export const SkillsCard: React.FC<SkillsCardProps> = ({ skills }) => {
   const overallLevel = useMemo(
     () =>
-      Object.values(accountSkills).reduce(
-        (acc, cur) => acc + getLevelFromXP(cur),
-        0
-      ),
-    [accountSkills]
+      skills.reduce((totalXP, skill) => totalXP + getLevelFromXP(skill.xp), 0),
+    [skills]
   );
 
   return (
     <Card>
       <div className="grid-rows-8 grid grid-cols-3 p-1">
-        {Object.entries(accountSkills).map(([skill, xp]) => (
-          <SkillElement
-            key={skill}
-            skill={skill}
-            level={getLevelFromXP(xp)}
-            xp={xp}
-            iconPath={`/assets/skill-icons/${skill}.png`}
-          />
-        ))}
-        <SkillElement skill={"Overall"} level={overallLevel} xp={overallXP} />
+        {skills.map(({ name, xp }) => {
+          const isOverall = name === OVERALL_NAME;
+
+          return isOverall ? (
+            <SkillElement key={name} name={name} level={overallLevel} xp={xp} />
+          ) : (
+            <SkillElement
+              key={name}
+              name={name}
+              level={getLevelFromXP(xp)}
+              xp={xp}
+            />
+          );
+        })}
       </div>
     </Card>
   );
 };
 
 type SkillElementProps = {
-  skill: string;
+  name: string;
   level: number;
   xp: number;
   iconPath?: string;
 };
 
 export const SkillElement: React.FC<SkillElementProps> = ({
-  skill,
+  name,
   level,
   xp,
-  iconPath,
 }) => {
+  const isOverall = name == OVERALL_NAME;
+
   return (
     <div className="runescape-stats-tile flex items-center justify-between px-3">
-      {!!iconPath && (
-        <Image
-          src={iconPath}
-          alt={skill}
-          className="w-[25px] drop-shadow"
-          quality={100}
-        />
+      {!isOverall && (
+        <div className="relative h-full w-full flex-1">
+          <Image
+            src={`/assets/skill-icons/${name}.png`}
+            alt={name}
+            className="drop-shadow object-contain"
+            fill
+            quality={100}
+          />
+        </div>
       )}
-      <p className="text-shadow ml-1 grow text-center font-runescape text-lg font-bold leading-none text-osrs-yellow">
+      <p className="text-shadow ml-1 flex-1 text-center font-runescape text-lg font-bold leading-none text-osrs-yellow">
         {level}
       </p>
     </div>

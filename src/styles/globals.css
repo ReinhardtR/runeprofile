@@ -89,12 +89,26 @@
 
 /* Using border-image to stretch the middle part of the thumb */
 ::-webkit-scrollbar-thumb {
+  width: 10px;
+
   border-style: solid;
   border-image-source: url("/assets/scrollbar/thumb.png");
   border-image-slice: 7;
   border-image-width: 16px;
   border-image-repeat: stretch;
   height: 40%;
+}
+
+/* To mimic the full scrollbar thumb when the content isn't scrollable from the game UI. */
+::-webkit-scrollbar-track:disabled {
+  width: 10px;
+
+  border-style: solid;
+  border-image-source: url("/assets/scrollbar/thumb.png");
+  border-image-slice: 7;
+  border-image-width: 16px;
+  border-image-repeat: stretch;
+  height: 100%;
 }
 
 ::-webkit-scrollbar-track {

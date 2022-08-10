@@ -185,15 +185,18 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
           {item.quantity}
         </p>
       )}
-      <Image
-        // @ts-ignore
-        src={`data:image/png;base64,${itemIcons[item.id]}`}
-        alt={item.name}
-        className={clsx(
-          "z-10 aspect-[36/32] w-[50px] brightness-[.60] drop-shadow-2xl",
-          !item.quantity && "opacity-30"
-        )}
-      />
+      <div className="relative w-[50px] aspect-[36/32] z-10">
+        <Image
+          // @ts-ignore
+          src={`data:image/png;base64,${itemIcons[item.id]}`}
+          alt={item.name}
+          className={clsx(
+            "brightness-[.60] drop-shadow-2xl",
+            !item.quantity && "opacity-30"
+          )}
+          fill
+        />
+      </div>
     </div>
   );
 };

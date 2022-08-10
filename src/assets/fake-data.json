@@ -20,6 +20,7 @@
     { "name": "Firemaking", "xp": 12345 },
     { "name": "Magic", "xp": 123456 },
     { "name": "Fletching", "xp": 1234567 },
+    { "name": "Woodcutting", "xp": 123543 },
     { "name": "Runecraft", "xp": 12345678 },
     { "name": "Slayer", "xp": 123456789 },
     { "name": "Farming", "xp": 1234567890 },

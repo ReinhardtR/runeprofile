@@ -54,12 +54,15 @@ export const CombatAchievements = () => {
               <p className="text-shadow text-lg leading-none text-osrs-orange">
                 {tierName}
               </p>
-              <Image
-                src={`/assets/combat-achievement-icons/${tierName.toLowerCase()}.png`}
-                alt={tierName}
-                quality={100}
-                className="my-[1px] aspect-square w-[38px] drop-shadow-xl"
-              />
+              <div className="relative w-[38px] my-[1px] aspect-square">
+                <Image
+                  src={`/assets/combat-achievement-icons/${tierName.toLowerCase()}.png`}
+                  alt={tierName}
+                  quality={100}
+                  fill
+                  className="drop-shadow-xl"
+                />
+              </div>
               <p
                 className={clsx("text-shadow text-sm leading-none", tierColor)}
               >

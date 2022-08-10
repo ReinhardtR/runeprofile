@@ -19,54 +19,25 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
         <div className="flex items-center justify-center space-x-2 pt-2">
           {/* TODO: use enum from edgedb */}
           {account.accountType != "NORMAL" && (
-            <Image
-              src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
-              alt={account.accountType}
-              quality={100}
-              className="aspect-[10/13] w-[20px] drop-shadow-solid"
-            />
+            <div className="relative aspect-[10/13] w-[20px]">
+              <Image
+                src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
+                alt={account.accountType}
+                quality={100}
+                fill
+                className="drop-shadow-solid"
+              />
+            </div>
           )}
           <p className="text-shadow font-runescape text-4xl font-bold leading-none text-white">
             {account.username}
           </p>
         </div>
 
-        <PlayerModel
-          model={{
-            obj: account.model.obj,
-            mtl: account.model.mtl,
-          }}
-        />
+        <PlayerModel model={account.model} />
       </Card>
 
-      <SkillsCard
-        accountSkills={{
-          attack: account.skills.attack,
-          hitpoints: account.skills.hitpoints,
-          mining: account.skills.mining,
-          strength: account.skills.strength,
-          agility: account.skills.agility,
-          smithing: account.skills.smithing,
-          defence: account.skills.defence,
-          herblore: account.skills.herblore,
-          fishing: account.skills.fishing,
-          ranged: account.skills.ranged,
-          thieving: account.skills.thieving,
-          cooking: account.skills.cooking,
-          prayer: account.skills.prayer,
-          crafting: account.skills.crafting,
-          firemaking: account.skills.firemaking,
-          magic: account.skills.magic,
-          fletching: account.skills.fletching,
-          woodcutting: account.skills.woodcutting,
-          runecraft: account.skills.runecraft,
-          slayer: account.skills.slayer,
-          farming: account.skills.farming,
-          construction: account.skills.construction,
-          hunter: account.skills.hunter,
-        }}
-        overallXP={account.skills.overall}
-      />
+      <SkillsCard skills={account.skills} />
 
       <QuestList />
 
@@ -76,7 +47,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
 
       <CombatAchievements />
 
-      <BossKillCounts />
+      {/* <BossKillCounts /> */}
     </div>
   );
 };
@@ -86,43 +57,21 @@ export default Home;
 export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   const username = params?.username as string;
 
-  // if (!username) {
-  //   return { notFound: true } as const;
-  // }
-
-  // const [account] = await prisma.$transaction([
-  //   prisma.account.findUnique({
-  //     where: {
-  //       username,
-  //     },
-  //     select: accountSelect,
-  //   }),
-  // ]);
-
-  // if (!account) {
-  //   return { notFound: true } as const;
-  // }
-
-  // return {
-  //   props: {
-  //     account: {
-  //       ...account,
-  //       updatedAt: account.updatedAt.toISOString(),
-  //       modelObj: account.modelObj.toString("utf-8"),
-  //       modelMtl: account.modelMtl.toString("utf-8"),
-  //     },
-  //   },
-  // };
-
   if (username != "test") {
     return { notFound: true } as const;
   }
 
-  const data = PlayerDataSchema.parse(fakeData);
+  const account = PlayerDataSchema.parse(fakeData);
 
   return {
     props: {
-      account: data,
+      account: {
+        ...account,
+        model: {
+          obj: account.model.obj.toString("utf-8"),
+          mtl: account.model.mtl.toString("utf-8"),
+        },
+      },
     },
   };
 };
@@ -143,67 +92,4 @@ export const getStaticPaths = async () => {
     paths: [{ params: { username: "test" } }],
     fallback: "blocking",
   };
-};
-
-const accountSelect = {
-  username: true,
-  modelObj: true,
-  modelMtl: true,
-  agility: true,
-  attack: true,
-  cooking: true,
-  construction: true,
-  crafting: true,
-  defence: true,
-  farming: true,
-  fishing: true,
-  firemaking: true,
-  fletching: true,
-  herblore: true,
-  hitpoints: true,
-  hunter: true,
-  magic: true,
-  mining: true,
-  prayer: true,
-  ranged: true,
-  runecraft: true,
-  slayer: true,
-  smithing: true,
-  thieving: true,
-  strength: true,
-  woodcutting: true,
-  overall: true,
-  accountType: true,
-  updatedAt: true,
-  CollectionLog: {
-    select: {
-      totalItems: true,
-      totalObtained: true,
-      uniqueItems: true,
-      uniqueObtained: true,
-      CollectedItems: {
-        select: {
-          quantity: true,
-          Item: {
-            select: {
-              id: true,
-              name: true,
-              ItemSources: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      KillCounts: {
-        select: {
-          name: true,
-          amount: true,
-          itemSourceName: true,
-        },
-      },
-    },
-  },
 };
