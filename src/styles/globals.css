@@ -99,7 +99,7 @@
   height: 40%;
 }
 
-/* To mimic the full scrollbar thumb when the content isn't scrollable from the game UI. */
+/* To mimic the full scrollbar thumb, when the content isn't scrollable, from the game UI. */
 ::-webkit-scrollbar-track:disabled {
   width: 10px;
 
