@@ -1,12 +1,20 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/pages/**/*.tsx", "./src/components/**/*.tsx"],
   theme: {
     extend: {
       fontFamily: {
+        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
         runescape: ["Runescape", "sans-serif"],
       },
       colors: {
+        "light-gray": "rgb(230, 230, 230)",
+        background: "rgb(18, 18, 18)",
+        "background-light": "rgb(30, 30, 30)",
+        primary: "rgb(70, 70, 135)",
+        accent: "rgb(230, 200, 140)",
         osrs: {
           yellow: "rgb(255, 255, 0)",
           orange: "rgb(255, 132, 31)",

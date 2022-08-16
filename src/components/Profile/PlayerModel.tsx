@@ -1,15 +1,20 @@
-import { Html, useProgress } from "@react-three/drei";
+import { Center, Html, useProgress } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useMemo, useRef, useState } from "react";
-import { BufferGeometry, Group, Material, Mesh } from "three";
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import {
+  BufferGeometry,
+  FrontSide,
+  HemisphereLight,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  NormalBlending,
+} from "three";
+import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 type PlayerModelProps = {
-  model: {
-    obj: string;
-    mtl: string;
-  };
+  model: string;
 };
 
 export const PlayerModel: React.FC<PlayerModelProps> = ({ model }) => {
@@ -26,45 +31,49 @@ type ModelProps = PlayerModelProps;
 
 const Model: React.FC<ModelProps> = ({ model }) => {
   const mesh = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
-  const [obj, setObj] = useState<Group>();
+  const [object, setObject] =
+    useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
 
   useMemo(() => {
-    const mtlBlob = new Blob([model.mtl], { type: "text/plain" });
-    const mtlURL = URL.createObjectURL(mtlBlob);
+    const blob = new Blob([Buffer.from(JSON.parse(model))]);
 
-    new MTLLoader().load(mtlURL, (materials) => {
-      materials.preload();
+    const reader = new FileReader();
 
-      const objBlob = new Blob([model.obj], { type: "text/plain" });
-      const objURL = URL.createObjectURL(objBlob);
+    reader.addEventListener("load", (event) => {
+      // @ts-ignore
+      const content = event.target.result as ArrayBuffer;
 
-      return new OBJLoader()
-        .setMaterials(materials)
-        .load(objURL, (objectGroup) => {
-          setObj(objectGroup);
+      const geometry = new PLYLoader().parse(content);
+      geometry.computeVertexNormals();
 
-          URL.revokeObjectURL(objURL);
-          URL.revokeObjectURL(mtlURL);
-        });
+      const material = new MeshStandardMaterial({
+        vertexColors: true,
+      });
+
+      const m = new Mesh(geometry, material);
+      m.rotateX(-1.5);
+
+      setObject(m);
     });
-  }, [model.obj, model.mtl]);
 
-  console.log(obj);
+    reader.readAsArrayBuffer(blob);
+  }, [model]);
 
   useFrame(({ clock }) => {
     const m = mesh.current;
     if (!m) return;
-
     m.rotation.y = Math.sin(clock.getElapsedTime());
   });
 
   return (
     <>
-      <ambientLight />
-      {!!obj && (
-        <mesh ref={mesh} position={[0, -2, 1.1]} rotation={[0.3, 0, 0]}>
-          <primitive object={obj} scale={0.02} />
-        </mesh>
+      {!!object && (
+        <>
+          <ambientLight intensity={2.5} />
+          <mesh ref={mesh} scale={0.028} position={[0, -2.8, 0]}>
+            <primitive object={object} />
+          </mesh>
+        </>
       )}
     </>
   );

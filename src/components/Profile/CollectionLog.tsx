@@ -2,23 +2,34 @@ import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment } from "react";
 import { Card } from "../Card";
-import { z } from "zod";
-import {
-  CollectionLogEntrySchema,
-  CollectionLogItemSchema,
-  CollectionLogSchema,
-  CollectionLogTabSchema,
-} from "@/lib/data-schema";
 import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
+import { $infer } from "@/edgeql";
+import { accountQuery } from "@/pages/u/[username]";
 
 type CollectionLogProps = {
-  collectionLog: z.infer<typeof CollectionLogSchema>;
+  username: string;
+  collectionLog: NonNullable<$infer<typeof accountQuery>>["collection_log"];
 };
 
 export const CollectionLog: React.FC<CollectionLogProps> = ({
+  username,
   collectionLog,
 }) => {
+  if (!collectionLog) {
+    return (
+      <Card>
+        <div className="flex flex-col justify-center items-center space-y-1">
+          <p className="text-shadow font-runescape text-4xl text-osrs-yellow">
+            <span className="font-bold">{username}</span> haven't shared their
+            Collection Log yet.
+          </p>
+          <p>Here is how to share your Collection Log: "LINK"</p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-[640px]">
       <Tab.Group
@@ -62,7 +73,7 @@ const CollectionLogTab: React.FC<CollectionLogTabProps> = ({ name }) => {
 };
 
 type CollectionLogTabPanelProps = {
-  tab: z.infer<typeof CollectionLogTabSchema>;
+  tab: NonNullable<CollectionLogProps["collectionLog"]>["tabs"][number];
 };
 
 const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
@@ -72,27 +83,23 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
     <Tab.Panel className="h-full">
       <Tab.Group as="div" vertical className="flex h-full">
         <Tab.List className="flex w-[260px] flex-col overflow-y-scroll">
-          {Object.entries(tab).map(([entryName, entry]) => {
+          {tab.entries.map((entry) => {
             const entryIsCompleted = entry.items.every(
               (item) => item.quantity > 0
             );
 
             return (
               <CollectionLogEntry
-                key={entryName}
-                name={entryName}
+                key={entry.name}
+                name={entry.name}
                 isCompleted={entryIsCompleted}
               />
             );
           })}
         </Tab.List>
         <Tab.Panels className="flex-1">
-          {Object.entries(tab).map(([entryName, entry]) => (
-            <CollectionLogEntryPanel
-              key={entryName}
-              name={entryName}
-              entry={entry}
-            />
+          {tab.entries.map((entry) => (
+            <CollectionLogEntryPanel key={entry.name} entry={entry} />
           ))}
         </Tab.Panels>
       </Tab.Group>
@@ -128,12 +135,10 @@ const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({
 };
 
 type CollectionLogEntryPanelProps = {
-  name: string;
-  entry: z.infer<typeof CollectionLogEntrySchema>;
+  entry: CollectionLogTabPanelProps["tab"]["entries"][number];
 };
 
 const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
-  name,
   entry,
 }) => {
   const obtainedItemsCount = entry.items.filter(
@@ -144,7 +149,9 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
   return (
     <Tab.Panel className="flex h-full flex-col">
       <div className="w-full border-2 border-osrs-border p-1">
-        <p className="text-shadow text-2xl font-bold leading-none">{name}</p>
+        <p className="text-shadow text-2xl font-bold leading-none">
+          {entry.name}
+        </p>
         <p className="text-shadow text-lg leading-none">
           Obtained:{" "}
           <span
@@ -157,7 +164,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
             {obtainedItemsCount}/{totalItemsCount}
           </span>
         </p>
-        {entry.killCounts?.map((killCount) => (
+        {entry.kill_counts?.map((killCount) => (
           <p key={killCount.name} className="text-shadow text-lg leading-none">
             {killCount.name}:{" "}
             <span className="text-white">{killCount.count}</span>
@@ -166,7 +173,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
       </div>
       <div className="flex h-full flex-wrap content-start gap-1 overflow-y-scroll p-1">
         {entry.items.map((item) => (
-          <CollectionLogItem key={item.id} item={item} />
+          <CollectionLogItem key={item.item_id} item={item} />
         ))}
       </div>
     </Tab.Panel>
@@ -174,7 +181,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 };
 
 type CollectionLogItemProps = {
-  item: z.infer<typeof CollectionLogItemSchema>;
+  item: CollectionLogEntryPanelProps["entry"]["items"][number];
 };
 
 const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {

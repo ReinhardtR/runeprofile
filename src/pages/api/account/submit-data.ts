@@ -1,14 +1,13 @@
-import fakeData from "@/assets/fake-data.json";
 import { NextApiRequest, NextApiResponse } from "next";
 import e from "@/edgeql";
 import { PlayerDataSchema } from "@/lib/data-schema";
 import { client } from "@/lib/edgedb-client";
 
 export default async function handler(
-  _req: NextApiRequest,
+  req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const data = PlayerDataSchema.parse(fakeData);
+  const data = PlayerDataSchema.parse(req.body);
 
   const queryStart = new Date();
   console.log("Query Start: ", queryStart.toUTCString());

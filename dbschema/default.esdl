@@ -13,7 +13,7 @@ module default {
     required property account_type -> AccountType;
 
     # 3D Character Model
-    required property model -> tuple<obj: bytes, mtl: bytes>;
+    required property model -> bytes;
 
     # Skills
     required property skills -> array<tuple<name: str, xp: int32>>;
@@ -55,13 +55,20 @@ module default {
 
     required link account -> Account {
       constraint exclusive;
+      on target delete delete source;
     }
+
+    multi link tabs := .<collection_log[is Tab];
   }
 
   type Tab {
     required property name -> str;
   
-    required link collection_log -> CollectionLog;
+    required link collection_log -> CollectionLog {
+      on target delete delete source;
+    }
+    
+    multi link entries := .<tab[is Entry];
 
     constraint exclusive on ((.collection_log, .name))
   }
@@ -71,7 +78,11 @@ module default {
 
     property kill_counts -> array<tuple<name: str, count: int32>>;
 
-    required link tab -> Tab;
+    required link tab -> Tab {
+      on target delete delete source;
+    }
+
+    multi link items := .<entry[is Item];
 
     constraint exclusive on ((.tab, .name));
   }
@@ -89,7 +100,9 @@ module default {
       >
     >;
 
-    required link entry -> Entry;
+    required link entry -> Entry {
+      on target delete delete source;
+    }
 
     constraint exclusive on ((.entry, .item_id))
   }

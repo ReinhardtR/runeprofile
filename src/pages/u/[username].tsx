@@ -1,54 +1,21 @@
-import { Card } from "@/components/Card";
-import { CollectionLog } from "@/components/Profile/CollectionLog";
-import { PlayerModel } from "@/components/Profile/PlayerModel";
-import { SkillsCard } from "@/components/Profile/SkillsCard";
 import type { InferNextProps } from "@/lib/infer-next-props-type";
 import type { GetStaticPropsContext, NextPage } from "next";
-import fakeData from "@/assets/fake-data.json";
-import { PlayerDataSchema } from "@/lib/data-schema";
-import { AchievementDiaries } from "@/components/Profile/AchievementDiaries";
-import { CombatAchievements } from "@/components/Profile/CombatAchievements";
-import { QuestList } from "@/components/Profile/QuestList";
-import Image from "next/future/image";
-import { BossKillCounts } from "@/components/Profile/BossKillCounts";
+import e from "@/edgeql";
+import { client } from "@/lib/edgedb-client";
+import Head from "next/head";
+import { getAccountSerialized } from "@/utils/accountQuery";
+import { Profile } from "@/components/Profile";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
   return (
-    <div className="flex min-h-screen flex-wrap justify-center gap-4 p-4">
-      <Card className="flex max-w-[260px] flex-col">
-        <div className="flex items-center justify-center space-x-2 pt-2">
-          {/* TODO: use enum from edgedb */}
-          {account.accountType != "NORMAL" && (
-            <div className="relative aspect-[10/13] w-[20px]">
-              <Image
-                src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
-                alt={account.accountType}
-                quality={100}
-                fill
-                className="drop-shadow-solid"
-              />
-            </div>
-          )}
-          <p className="text-shadow font-runescape text-4xl font-bold leading-none text-white">
-            {account.username}
-          </p>
-        </div>
-
-        <PlayerModel model={account.model} />
-      </Card>
-
-      <SkillsCard skills={account.skills} />
-
-      <QuestList />
-
-      <AchievementDiaries />
-
-      <CollectionLog collectionLog={account.collectionLog} />
-
-      <CombatAchievements />
-
-      {/* <BossKillCounts /> */}
-    </div>
+    <>
+      <Head>
+        <title>{account.username} - RuneProfile</title>
+      </Head>
+      <div className="flex flex-wrap justify-center p-4 min-h-screen pt-20">
+        <Profile account={account} />
+      </div>
+    </>
   );
 };
 
@@ -57,39 +24,30 @@ export default Home;
 export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   const username = params?.username as string;
 
-  if (username != "test") {
+  const account = await getAccountSerialized(username);
+
+  if (!account) {
     return { notFound: true } as const;
   }
 
-  const account = PlayerDataSchema.parse(fakeData);
-
   return {
     props: {
-      account: {
-        ...account,
-        model: {
-          obj: account.model.obj.toString("utf-8"),
-          mtl: account.model.mtl.toString("utf-8"),
-        },
-      },
+      account,
     },
   };
 };
 
 export const getStaticPaths = async () => {
-  // const accounts = await prisma.account.findMany({
-  //   select: { username: true },
-  // });
+  const accountsQuery = e.select(e.Account, () => ({
+    username: true,
+  }));
 
-  // return {
-  //   paths: accounts.map((account) => ({
-  //     params: { username: account.username },
-  //   })),
-  //   fallback: "blocking",
-  // };
+  const accounts = await accountsQuery.run(client);
 
   return {
-    paths: [{ params: { username: "test" } }],
+    paths: accounts.map((account) => ({
+      params: { username: account.username },
+    })),
     fallback: "blocking",
   };
 };

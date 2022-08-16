@@ -1,6 +1,6 @@
 import { Skill } from "@/lib/data-schema";
-import { getLevelFromXP } from "@/lib/utils/level";
-import { formatXP } from "@/lib/utils/xp-format";
+import { getLevelFromXP } from "@/utils/level";
+import { formatXP } from "@/utils/xp-format";
 import Image from "next/future/image";
 import { useMemo } from "react";
 import { Card } from "../Card";
