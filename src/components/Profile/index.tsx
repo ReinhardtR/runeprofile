@@ -1,5 +1,4 @@
-import { AsyncReturnType } from "@/types/AsyncReturnType";
-import { getAccountSerialized } from "@/utils/accountQuery";
+import { AccountSerializedType } from "@/utils/accountQuery";
 import Image from "next/future/image";
 import { Card } from "../Card";
 import { AchievementDiaries } from "./AchievementDiaries";
@@ -10,7 +9,7 @@ import { QuestList } from "./QuestList";
 import { SkillsCard } from "./SkillsCard";
 
 type ProfileProps = {
-  account: NonNullable<AsyncReturnType<typeof getAccountSerialized>>;
+  account: AccountSerializedType;
 };
 
 export const Profile: React.FC<ProfileProps> = ({ account }) => {
@@ -39,16 +38,16 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
 
       <SkillsCard skills={account.skills} />
 
-      <QuestList />
+      <QuestList questList={account.quest_list} />
 
-      <AchievementDiaries />
+      <AchievementDiaries achievementDiaries={account.achievement_diaries} />
 
       <CollectionLog
         username={account.username}
         collectionLog={account.collection_log}
       />
 
-      <CombatAchievements />
+      <CombatAchievements combatAchievements={account.combat_achievements} />
     </div>
   );
 };
