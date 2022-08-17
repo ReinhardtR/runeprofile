@@ -1,35 +1,15 @@
+import { AccountSerializedType } from "@/utils/accountQuery";
 import clsx from "clsx";
 import Image from "next/future/image";
 import { Card } from "../Card";
 
-const combatAchievements = {
-  Easy: {
-    completed: 33,
-    total: 33,
-  },
-  Medium: {
-    completed: 38,
-    total: 41,
-  },
-  Hard: {
-    completed: 30,
-    total: 60,
-  },
-  Elite: {
-    completed: 18,
-    total: 108,
-  },
-  Master: {
-    completed: 8,
-    total: 91,
-  },
-  Grandmaster: {
-    completed: 0,
-    total: 69,
-  },
+type CombatAchievementsProps = {
+  combatAchievements: AccountSerializedType["combat_achievements"];
 };
 
-export const CombatAchievements = () => {
+export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
+  combatAchievements,
+}) => {
   return (
     <Card className="w-[250px]">
       <div className="grid h-full grid-cols-2 grid-rows-3 gap-1 p-1 shadow">

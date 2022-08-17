@@ -1,5 +1,6 @@
 import e from "@/edgeql";
 import { client } from "@/lib/edgedb-client";
+import { AsyncReturnType } from "@/types/AsyncReturnType";
 
 const accountQuery = e.params({ username: e.str }, ($) => {
   return e.select(e.Account, (_account) => ({
@@ -46,3 +47,7 @@ export const getAccountSerialized = async (username: string) => {
     model: JSON.stringify(account.model),
   };
 };
+
+export type AccountSerializedType = NonNullable<
+  AsyncReturnType<typeof getAccountSerialized>
+>;

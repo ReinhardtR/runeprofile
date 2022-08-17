@@ -4,12 +4,11 @@ import { Fragment } from "react";
 import { Card } from "../Card";
 import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
-import { $infer } from "@/edgeql";
-import { accountQuery } from "@/pages/u/[username]";
+import { AccountSerializedType } from "@/utils/accountQuery";
 
 type CollectionLogProps = {
   username: string;
-  collectionLog: NonNullable<$infer<typeof accountQuery>>["collection_log"];
+  collectionLog: AccountSerializedType["collection_log"];
 };
 
 export const CollectionLog: React.FC<CollectionLogProps> = ({
@@ -37,13 +36,13 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
         className="flex h-full w-full flex-col px-0.5 pt-1 font-runescape text-osrs-orange"
       >
         <Tab.List className="flex space-x-1">
-          {Object.keys(collectionLog.tabs).map((tabName) => (
-            <CollectionLogTab key={tabName} name={tabName} />
+          {collectionLog.tabs.map(({ name }) => (
+            <CollectionLogTab key={name} name={name} />
           ))}
         </Tab.List>
         <Tab.Panels className="h-full overflow-y-clip">
-          {Object.entries(collectionLog.tabs).map(([tabName, tab]) => (
-            <CollectionLogTabPanel key={tabName} tab={tab} />
+          {collectionLog.tabs.map((tab) => (
+            <CollectionLogTabPanel key={tab.name} tab={tab} />
           ))}
         </Tab.Panels>
       </Tab.Group>
@@ -61,7 +60,7 @@ const CollectionLogTab: React.FC<CollectionLogTabProps> = ({ name }) => {
       {({ selected }) => (
         <button
           className={clsx(
-            "text-shadow box-border flex-1 rounded-t-md border border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0",
+            "text-shadow box-border flex-1 max-w-[25%] rounded-t-md border border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0",
             selected && "bg-osrs-tab-selected"
           )}
         >
@@ -195,7 +194,7 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
       <div className="relative w-[50px] aspect-[36/32] z-10">
         <Image
           // @ts-ignore
-          src={`data:image/png;base64,${itemIcons[item.id]}`}
+          src={`data:image/png;base64,${itemIcons[item.item_id]}`}
           alt={item.name}
           className={clsx(
             "brightness-[.60] drop-shadow-2xl",

@@ -1,87 +1,43 @@
+import { AccountSerializedType } from "@/utils/accountQuery";
 import clsx from "clsx";
 import { Card } from "../Card";
 
-const achievementDiary = {
-  Ardougne: {
-    Easy: {
-      completed: 11,
-      total: 11,
-    },
-    Medium: {
-      completed: 5,
-      total: 17,
-    },
-    Hard: {
-      completed: 5,
-      total: 10,
-    },
-    Elite: {
-      completed: 4,
-      total: 5,
-    },
-  },
-  Karamja: {
-    Easy: {
-      completed: 0,
-      total: 11,
-    },
-    Medium: {
-      completed: 0,
-      total: 17,
-    },
-    Hard: {
-      completed: 0,
-      total: 10,
-    },
-    Elite: {
-      completed: 0,
-      total: 5,
-    },
-  },
-  "Lumbridge & Draynor": {
-    Easy: {
-      completed: 11,
-      total: 11,
-    },
-    Medium: {
-      completed: 17,
-      total: 17,
-    },
-    Hard: {
-      completed: 10,
-      total: 10,
-    },
-    Elite: {
-      completed: 5,
-      total: 5,
-    },
-  },
+type AchievementDiariesProps = {
+  achievementDiaries: AccountSerializedType["achievement_diaries"];
 };
 
-export const AchievementDiaries = () => {
+export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
+  achievementDiaries,
+}) => {
   return (
     <Card className="w-[250px]">
       <div className="text-yellow-osrs flex h-full flex-col space-y-[2px] overflow-y-scroll border-2 border-osrs-dark-border p-1 font-runescape text-lg leading-tight">
-        {Object.entries(achievementDiary).map(([area, tiers]) => {
-          const tasksCompleted = Object.values(tiers).reduce(
+        {achievementDiaries.map((achievementDiary) => {
+          const area = achievementDiary.area;
+          const tiers = [
+            achievementDiary.Easy,
+            achievementDiary.Medium,
+            achievementDiary.Hard,
+            achievementDiary.Elite,
+          ] as const;
+
+          const tasksCompleted = tiers.reduce(
             (count, tier) => count + tier.completed,
             0
           );
 
-          const tasksTotal = Object.values(tiers).reduce(
+          const tasksTotal = tiers.reduce(
             (count, tier) => count + tier.total,
             0
           );
 
           let areaProgressClass = "text-osrs-yellow";
 
-          const notStarted = Object.values(tiers).every(
-            (tier) => tier.completed == 0
-          );
+          const notStarted = tiers.every((tier) => tier.completed == 0);
 
           if (notStarted) areaProgressClass = "text-osrs-red";
 
-          const isCompleted = Object.values(tiers).every(
+          const isCompleted = tiers.every(
             (tier) => tier.completed == tier.total
           );
 
@@ -104,7 +60,7 @@ export const AchievementDiaries = () => {
                 </p>
               </div>
               <div className="flex shadow">
-                {Object.values(tiers).map((tier) => {
+                {tiers.map((tier) => {
                   const percentageCompleted = Math.floor(
                     (tier.completed / tier.total) * 100
                   );
