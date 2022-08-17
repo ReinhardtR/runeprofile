@@ -11,8 +11,11 @@ module.exports = {
       },
       colors: {
         "light-gray": "rgb(230, 230, 230)",
-        background: "rgb(18, 18, 18)",
-        "background-light": "rgb(30, 30, 30)",
+        background: {
+          light: "rgb(30, 30, 30)",
+          DEFAULT: "rgb(13, 13, 13)",
+          dark: "rgb(10, 10, 10)",
+        },
         primary: "rgb(70, 70, 135)",
         accent: "rgb(230, 200, 140)",
         osrs: {

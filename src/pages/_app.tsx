@@ -8,6 +8,7 @@ import superjson from "superjson";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -18,8 +19,8 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <SearchModal />
       <>
         <Header />
-
         <Component {...pageProps} />
+        <Footer />
       </>
     </div>
   );

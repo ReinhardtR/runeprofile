@@ -3,6 +3,7 @@ import { InferNextProps } from "@/lib/infer-next-props-type";
 import { getAccountSerialized } from "@/utils/accountQuery";
 import type { NextPage } from "next";
 import Image from "next/future/image";
+import Link from "next/link";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
   showcaseAccount,
@@ -19,6 +20,18 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
               <h1 className="text-7xl font-bold text-accent drop-shadow-solid">
                 accomplishments
               </h1>
+              <a
+                href="https://runelite.net/plugin-hub"
+                target="_blank"
+                className="flex space-x-2 items-center justify-center bg-accent/90 rounded-md shadow p-3 mt-8 hover:bg-accent hover:-translate-y-1 transform transition-all border-2 border-white/90"
+              >
+                <div className="relative w-8 h-8 bg-background rounded">
+                  <Image src="/assets/runelite_logo.png" fill />
+                </div>
+                <span className="text-background font-bold text-xl">
+                  Get the Plugin
+                </span>
+              </a>
             </div>
             <div className="hero-image brightness-[60%] z-10"></div>
           </div>
@@ -39,9 +52,6 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
           </div>
         </div>
       </main>
-      <footer className="bg-background">
-        <span>footer</span>
-      </footer>
     </div>
   );
 };

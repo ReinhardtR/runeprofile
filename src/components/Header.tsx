@@ -34,7 +34,7 @@ export const Header: React.FC = () => {
   return (
     <header
       className={clsx(
-        "fixed h-20 z-[60] border-b flex justify-center w-full",
+        "fixed h-16 z-[60] border-b flex justify-center w-full",
         isAtTop
           ? "bg-transparent border-transparent"
           : "border-primary bg-background bg-opacity-80 backdrop-blur"
@@ -44,14 +44,14 @@ export const Header: React.FC = () => {
         <div className="flex space-x-2 items-center">
           <Image
             src="/logo.png"
-            width={50}
-            height={50}
+            width={42}
+            height={42}
             quality={100}
             className="drop-shadow-xl"
           />
           <Link href="/">
             <a>
-              <div className="text-xl font-black tracking-wide hidden sm:block drop-shadow-xl leading-none">
+              <div className="text-lg font-black tracking-wide hidden sm:block drop-shadow-xl leading-none">
                 <p className="text-primary">RUNE</p>
                 <p className="text-accent">PROFILE</p>
               </div>
