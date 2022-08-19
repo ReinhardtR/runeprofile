@@ -3,7 +3,7 @@ import type { GetStaticPropsContext, NextPage } from "next";
 import e from "@/edgeql";
 import { client } from "@/lib/edgedb-client";
 import Head from "next/head";
-import { getAccountSerialized } from "@/utils/accountQuery";
+import { accountQuery } from "@/utils/accountQuery";
 import { Profile } from "@/components/Profile";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
@@ -24,10 +24,12 @@ export default Home;
 export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   const username = params?.username as string;
 
-  const account = await getAccountSerialized(username);
+  const account = await accountQuery.run(client, {
+    username,
+  });
 
   if (!account) {
-    return { notFound: true } as const;
+    return null;
   }
 
   return {

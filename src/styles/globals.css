@@ -5,6 +5,10 @@
 @tailwind utilities;
 
 @layer utilities {
+  body {
+    @apply bg-background-dark;
+  }
+
   .text-shadow {
     text-shadow: 1px 1px black, 1.5px 1.5px black, 2px 2px black;
   }

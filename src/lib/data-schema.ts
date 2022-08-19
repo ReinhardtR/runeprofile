@@ -94,7 +94,7 @@ export const PlayerDataSchema = z.object({
   username: z.string(),
   // Switch to enum from EdgeDB schema
   accountType: z.nativeEnum(AccountType),
-  model: z.string().transform((obj) => Buffer.from(obj, "base64")),
+  model: z.string(),
   skills: SkillsSchema,
   questList: QuestListSchema,
   achievementDiaries: AchievementDiariesSchema,

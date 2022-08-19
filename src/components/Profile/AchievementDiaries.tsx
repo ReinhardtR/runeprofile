@@ -1,9 +1,9 @@
-import { AccountSerializedType } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/utils/accountQuery";
 import clsx from "clsx";
 import { Card } from "../Card";
 
 type AchievementDiariesProps = {
-  achievementDiaries: AccountSerializedType["achievement_diaries"];
+  achievementDiaries: AccountQueryResult["achievement_diaries"];
 };
 
 export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({

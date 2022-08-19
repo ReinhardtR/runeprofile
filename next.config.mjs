@@ -19,5 +19,13 @@ export default defineNextConfig({
     images: {
       allowFutureImage: true,
     },
+    swcPlugins: [
+      [
+        "next-superjson-plugin",
+        {
+          excluded: [],
+        },
+      ],
+    ],
   },
 });

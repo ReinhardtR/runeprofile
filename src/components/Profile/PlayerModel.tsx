@@ -1,16 +1,7 @@
-import { Center, Html, useProgress } from "@react-three/drei";
+import { Html, useProgress } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useMemo, useRef, useState } from "react";
-import {
-  BufferGeometry,
-  FrontSide,
-  HemisphereLight,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  NormalBlending,
-} from "three";
+import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 type PlayerModelProps = {
@@ -35,7 +26,7 @@ const Model: React.FC<ModelProps> = ({ model }) => {
     useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
 
   useMemo(() => {
-    const blob = new Blob([Buffer.from(JSON.parse(model))]);
+    const blob = new Blob([Buffer.from(model, "base64")]);
 
     const reader = new FileReader();
 

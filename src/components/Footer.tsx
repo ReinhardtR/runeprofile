@@ -7,7 +7,9 @@ type FooterLinkProps = {
 };
 
 const FooterLink: React.FC<FooterLinkProps> = ({ children }) => (
-  <div className="text-gray-300 hover:text-white text-sm">{children}</div>
+  <div className="text-gray-300 hover:text-white text-sm transition-colors">
+    {children}
+  </div>
 );
 
 export const Footer: React.FC = () => {
@@ -20,16 +22,16 @@ export const Footer: React.FC = () => {
           </div>
 
           <h3 className="mb-1 text-xl font-bold">RuneProfile</h3>
-          <p className="text-sm text-gray-400">
+          <div className="text-sm text-gray-400">
             <FooterLink>
               <a href="/u/PGN" target="_blank" className="group">
-                <p>
+                <div>
                   Developed{" "}
                   <span className="hidden group-hover:inline">
                     with ❤️ and xp waste
                   </span>{" "}
                   by PGN
-                </p>
+                </div>
               </a>
             </FooterLink>
             <div className="flex mt-4 mb-10 space-x-3">
@@ -49,8 +51,7 @@ export const Footer: React.FC = () => {
                 </a>
               </FooterLink>
             </div>
-          </p>
-          <div className="flex flex-row mt-6 mb-10 space-x-3"></div>
+          </div>
         </div>
 
         <div className="flex flex-col col-span-1 space-y-2">

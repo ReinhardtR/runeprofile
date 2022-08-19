@@ -1,9 +1,9 @@
 import { Profile } from "@/components/Profile";
+import { client } from "@/lib/edgedb-client";
 import { InferNextProps } from "@/lib/infer-next-props-type";
-import { getAccountSerialized } from "@/utils/accountQuery";
+import { accountQuery } from "@/utils/accountQuery";
 import type { NextPage } from "next";
 import Image from "next/future/image";
-import Link from "next/link";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
   showcaseAccount,
@@ -59,7 +59,9 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
 export default Home;
 
 export const getStaticProps = async () => {
-  const account = await getAccountSerialized("PGN");
+  const account = await accountQuery.run(client, {
+    username: "PGN",
+  });
 
   if (!account) {
     return { notFound: true } as const;
@@ -67,10 +69,7 @@ export const getStaticProps = async () => {
 
   return {
     props: {
-      showcaseAccount: {
-        ...account,
-        model: JSON.stringify(account.model),
-      },
+      showcaseAccount: account,
     },
   };
 };

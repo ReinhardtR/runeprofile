@@ -23,6 +23,7 @@ specifiers:
   eslint-config-next: 12.2.4
   jotai: ^1.7.8
   next: ^12.2.4
+  next-superjson-plugin: ^0.3.0
   postcss: ^8.4.14
   prettier: ^2.7.1
   prettier-plugin-tailwindcss: ^0.1.11
@@ -52,6 +53,7 @@ dependencies:
   edgedb: 0.21.1
   jotai: 1.7.8_react@18.2.0
   next: 12.2.4_biqbaboplfbrettd7655fr4n2y
+  next-superjson-plugin: 0.3.0_szp3row4ka6gq6lnlyf7q3nzza
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-query: 3.39.2_biqbaboplfbrettd7655fr4n2y
@@ -1591,6 +1593,12 @@ packages:
     dependencies:
       function-bind: 1.1.1
 
+  /hoist-non-react-statics/3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
+    dependencies:
+      react-is: 16.13.1
+    dev: false
+
   /ignore/5.2.0:
     resolution: {integrity: sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==}
     engines: {node: '>= 4'}
@@ -1950,6 +1958,17 @@ packages:
   /natural-compare/1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
+
+  /next-superjson-plugin/0.3.0_szp3row4ka6gq6lnlyf7q3nzza:
+    resolution: {integrity: sha512-M0Soj1P2t9peCyzNndEJiS48O2m88X9UGsCXDy8WHyGwWw1S7eCOEg9MiMqR+X1GD5C3hsdtHKMsKqrZOzr+SQ==}
+    peerDependencies:
+      next: '>=12.2.0'
+      superjson: ^1
+    dependencies:
+      hoist-non-react-statics: 3.3.2
+      next: 12.2.4_biqbaboplfbrettd7655fr4n2y
+      superjson: 1.9.1
+    dev: false
 
   /next/12.2.4_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-b1xlxEozmAWokAXzXsi5vlmU/IfJcFNIJA8dpU5UdkFbyDPio8wwb8mAQ/Y7rGtfTgG/t/u49BiyEA+xAgFvow==}

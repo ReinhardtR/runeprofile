@@ -4,11 +4,11 @@ import { Fragment } from "react";
 import { Card } from "../Card";
 import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
-import { AccountSerializedType } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/utils/accountQuery";
 
 type CollectionLogProps = {
   username: string;
-  collectionLog: AccountSerializedType["collection_log"];
+  collectionLog: AccountQueryResult["collection_log"];
 };
 
 export const CollectionLog: React.FC<CollectionLogProps> = ({
@@ -19,10 +19,10 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
     return (
       <Card>
         <div className="flex flex-col justify-center items-center space-y-1">
-          <p className="text-shadow font-runescape text-4xl text-osrs-yellow">
+          <div className="text-shadow font-runescape text-4xl text-osrs-yellow">
             <span className="font-bold">{username}</span> haven't shared their
             Collection Log yet.
-          </p>
+          </div>
           <p>Here is how to share your Collection Log: "LINK"</p>
         </div>
       </Card>

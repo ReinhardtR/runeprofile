@@ -1,4 +1,4 @@
-import { AccountSerializedType } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/utils/accountQuery";
 import Image from "next/future/image";
 import { Card } from "../Card";
 import { AchievementDiaries } from "./AchievementDiaries";
@@ -9,7 +9,7 @@ import { QuestList } from "./QuestList";
 import { SkillsCard } from "./SkillsCard";
 
 type ProfileProps = {
-  account: AccountSerializedType;
+  account: AccountQueryResult;
 };
 
 export const Profile: React.FC<ProfileProps> = ({ account }) => {

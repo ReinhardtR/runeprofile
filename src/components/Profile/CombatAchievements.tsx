@@ -1,10 +1,10 @@
-import { AccountSerializedType } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/utils/accountQuery";
 import clsx from "clsx";
 import Image from "next/future/image";
 import { Card } from "../Card";
 
 type CombatAchievementsProps = {
-  combatAchievements: AccountSerializedType["combat_achievements"];
+  combatAchievements: AccountQueryResult["combat_achievements"];
 };
 
 export const CombatAchievements: React.FC<CombatAchievementsProps> = ({

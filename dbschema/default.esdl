@@ -13,7 +13,7 @@ module default {
     required property account_type -> AccountType;
 
     # 3D Character Model
-    required property model -> bytes;
+    required property model -> str;
 
     # Skills
     required property skills -> array<tuple<name: str, xp: int32>>;

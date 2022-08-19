@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import { Card } from "../Card";
-import { AccountSerializedType } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/utils/accountQuery";
 
 type QuestListProps = {
-  questList: AccountSerializedType["quest_list"];
+  questList: AccountQueryResult["quest_list"];
 };
 
 export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
