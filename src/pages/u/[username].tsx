@@ -10,7 +10,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
   return (
     <>
       <Head>
-        <title>{account.username} - RuneProfile</title>
+        <title>{`${account.username} - RuneProfile`}</title>
       </Head>
       <div className="flex flex-wrap justify-center p-4 min-h-screen pt-20">
         <Profile account={account} />

@@ -15,10 +15,10 @@ export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
         {achievementDiaries.map((achievementDiary) => {
           const area = achievementDiary.area;
           const tiers = [
-            achievementDiary.Easy,
-            achievementDiary.Medium,
-            achievementDiary.Hard,
-            achievementDiary.Elite,
+            { name: "Easy", ...achievementDiary.Easy },
+            { name: "Medium", ...achievementDiary.Medium },
+            { name: "Hard", ...achievementDiary.Hard },
+            { name: "Elite", ...achievementDiary.Elite },
           ] as const;
 
           const tasksCompleted = tiers.reduce(
@@ -80,7 +80,7 @@ export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
                   return (
                     <div
                       className="h-[10px] w-1/4 rounded-sm border-2 border-r-0 border-black last:border-r-2"
-                      key={area + tier}
+                      key={area + tier.name}
                     >
                       <div
                         className={clsx("h-full", tierProgressClass)}

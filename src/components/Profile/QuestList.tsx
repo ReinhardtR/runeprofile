@@ -23,7 +23,7 @@ export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
           }
 
           return (
-            <p key={state} className={clsx(progressColor)}>
+            <p key={name} className={clsx(progressColor)}>
               {name}
             </p>
           );
