@@ -26,7 +26,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
                 className="flex space-x-2 items-center justify-center bg-accent/90 rounded-md shadow p-3 mt-8 hover:bg-accent hover:-translate-y-1 transform transition-all border-2 border-white/90"
               >
                 <div className="relative w-8 h-8 bg-background rounded">
-                  <Image src="/assets/runelite_logo.png" fill />
+                  <Image src="/assets/misc/runelite-logo.png" fill />
                 </div>
                 <span className="text-background font-bold text-xl">
                   Get the Plugin
@@ -44,7 +44,11 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
           </div>
 
           <div className="absolute ml-8 -scale-x-100 drop-shadow-solid rotate-[7deg] mt-12 hidden md:block z-10">
-            <Image src="/assets/gearman.png" width={200} height={800} />
+            <Image
+              src="/assets/hero/justi-armor-character.png"
+              width={200}
+              height={800}
+            />
           </div>
 
           <div className="mx-32 bg-background-light shadow-xl rounded-xl py-8 border-2 border-accent">
