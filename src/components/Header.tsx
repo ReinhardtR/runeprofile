@@ -44,7 +44,7 @@ export const Header: React.FC = () => {
       <div className="container flex items-center h-full px-2 justify-between">
         <div className="flex space-x-2 items-center">
           <Image
-            src="/logo.png"
+            src="/assets/misc/logo.png"
             width={42}
             height={42}
             quality={100}
@@ -83,7 +83,10 @@ export const Header: React.FC = () => {
                     <Link href="/leaderboards/collection-log">
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
-                          <Image src="/assets/collection-log.png" fill />
+                          <Image
+                            src="/assets/leaderboard-icons/collection-log.png"
+                            fill
+                          />
                         </div>
                         <div className="ml-4">
                           <p className="text-sm font-medium text-light-gray">
@@ -99,7 +102,7 @@ export const Header: React.FC = () => {
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
                           <Image
-                            src="/assets/justi-helmet.png"
+                            src="/assets/leaderboard-icons/justi-helmet.png"
                             height={40}
                             width={32}
                           />

@@ -6,7 +6,7 @@ import { CollectionLog } from "./CollectionLog";
 import { CombatAchievements } from "./CombatAchievements";
 import { PlayerModel } from "./PlayerModel";
 import { QuestList } from "./QuestList";
-import { SkillsCard } from "./SkillsCard";
+import { SkillsCard } from "./Skills";
 
 type ProfileProps = {
   account: AccountQueryResult;
