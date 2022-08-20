@@ -42,12 +42,12 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
 
       <AchievementDiaries achievementDiaries={account.achievement_diaries} />
 
+      <CombatAchievements combatAchievements={account.combat_achievements} />
+
       <CollectionLog
         username={account.username}
         collectionLog={account.collection_log}
       />
-
-      <CombatAchievements combatAchievements={account.combat_achievements} />
     </div>
   );
 };

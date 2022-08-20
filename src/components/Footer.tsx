@@ -36,7 +36,7 @@ export const Footer: React.FC = () => {
             </FooterLink>
             <div className="flex mt-4 mb-10 space-x-3">
               <FooterLink>
-                <a href="https://www.twitter.com/reinhardtr" target="_blank">
+                <a href="https://www.twitter.com/reinhardtdev" target="_blank">
                   <Twitter />
                 </a>
               </FooterLink>
