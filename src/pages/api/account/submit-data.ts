@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import e from "@/edgeql";
 import { PlayerDataSchema } from "@/lib/data-schema";
-import { client } from "@/lib/edgedb-client";
+import { edgedb } from "@/server/db/client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -42,7 +42,7 @@ export default async function handler(
     }));
 
   console.log("ACCOUNT QUERY");
-  const accountResult = await accountQuery.run(client);
+  const accountResult = await accountQuery.run(edgedb);
 
   // Collection Log
   const collectionLogQuery = e
@@ -64,7 +64,7 @@ export default async function handler(
     }));
 
   console.log("COLLECTION LOG QUERY");
-  const collectionLogResult = await collectionLogQuery.run(client);
+  const collectionLogResult = await collectionLogQuery.run(edgedb);
 
   const collectionLogSelect = e.select(e.CollectionLog, (log) => ({
     filter: e.op(log.id, "=", e.uuid(collectionLogResult.id)),
@@ -97,7 +97,7 @@ export default async function handler(
   );
 
   console.log("TABS QUERY");
-  const tabsResult = await tabsQuery.run(client, {
+  const tabsResult = await tabsQuery.run(edgedb, {
     tabs: Object.keys(data.collectionLog.tabs),
   });
 
@@ -145,7 +145,7 @@ export default async function handler(
   );
 
   console.log("ENTRIES QUERY");
-  const entriesResult = await entriesQuery.run(client, {
+  const entriesResult = await entriesQuery.run(edgedb, {
     entries: entriesParams,
   });
 
@@ -243,7 +243,7 @@ export default async function handler(
   });
 
   console.log("ITEMS QUERY");
-  const itemsResult = await itemsQuery.run(client, {
+  const itemsResult = await itemsQuery.run(edgedb, {
     items: itemsParams,
   });
 

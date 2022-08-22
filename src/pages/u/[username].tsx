@@ -1,7 +1,7 @@
 import type { InferNextProps } from "@/lib/infer-next-props-type";
 import type { GetStaticPropsContext, NextPage } from "next";
 import e from "@/edgeql";
-import { client } from "@/lib/edgedb-client";
+import { edgedb } from "@/server/db/client";
 import Head from "next/head";
 import { accountQuery } from "@/utils/accountQuery";
 import { Profile } from "@/components/Profile";
@@ -24,7 +24,7 @@ export default Home;
 export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   const username = params?.username as string;
 
-  const account = await accountQuery.run(client, {
+  const account = await accountQuery.run(edgedb, {
     username,
   });
 
@@ -44,7 +44,7 @@ export const getStaticPaths = async () => {
     username: true,
   }));
 
-  const accounts = await accountsQuery.run(client);
+  const accounts = await accountsQuery.run(edgedb);
 
   return {
     paths: accounts.map((account) => ({

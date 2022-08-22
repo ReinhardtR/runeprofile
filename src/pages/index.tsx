@@ -1,5 +1,5 @@
 import { Profile } from "@/components/Profile";
-import { client } from "@/lib/edgedb-client";
+import { edgedb } from "@/server/db/client";
 import { InferNextProps } from "@/lib/infer-next-props-type";
 import { accountQuery } from "@/utils/accountQuery";
 import type { NextPage } from "next";
@@ -63,7 +63,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
 export default Home;
 
 export const getStaticProps = async () => {
-  const account = await accountQuery.run(client, {
+  const account = await accountQuery.run(edgedb, {
     username: "PGN",
   });
 

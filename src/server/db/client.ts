@@ -1,3 +1,3 @@
 import { createClient } from "edgedb";
 
-export const client = createClient();
+export const edgedb = createClient();
