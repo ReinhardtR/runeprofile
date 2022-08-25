@@ -32,7 +32,7 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
           return (
             <div
               key={tierName}
-              className="runescape-combat-achievement-tier flex flex-col items-center justify-center bg-white bg-opacity-[0.02] font-runescape"
+              className="runescape-corners-border flex flex-col items-center justify-center bg-white bg-opacity-[0.02] font-runescape"
             >
               <p className="text-shadow text-lg leading-none text-osrs-orange">
                 {tierName}

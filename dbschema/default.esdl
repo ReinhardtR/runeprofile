@@ -50,6 +50,29 @@ module default {
       >,
     >;
 
+    required property hiscores -> tuple<
+      normal: tuple<
+        skills: array<tuple<name: str, rank: int32, level: int16, xp: int64>>,
+        activities: array<tuple<name: str, rank: int32, score: int32>>,
+        bosses: array<boss: tuple<name: str, rank: int32, kills: int32>>,
+      >,
+      ironman: tuple<
+        skills: array<tuple<name: str, rank: int32, level: int16, xp: int64>>,
+        activities: array<tuple<name: str, rank: int32, score: int32>>,
+        bosses: array<boss: tuple<name: str, rank: int32, kills: int32>>,
+      >,
+      hardcore: tuple<
+        skills: array<tuple<name: str, rank: int32, level: int16, xp: int64>>,
+        activities: array<tuple<name: str, rank: int32, score: int32>>,
+        bosses: array<boss: tuple<name: str, rank: int32, kills: int32>>,
+      >,
+      ultimate: tuple<
+        skills: array<tuple<name: str, rank: int32, level: int16, xp: int64>>,
+        activities: array<tuple<name: str, rank: int32, score: int32>>,
+        bosses: array<boss: tuple<name: str, rank: int32, kills: int32>>,
+      >,
+    >;
+
     link collection_log := .<account[is CollectionLog];
   }
 
@@ -131,6 +154,19 @@ module default {
     GROUP_IRONMAN,
     HARDCORE_GROUP_IRONMAN,
     UNRANKED_GROUP_IRONMAN
+  >;
+
+  scalar type HiscoreType extending enum<
+    SKILL,
+    ACTIVITY,
+    BOSS
+  >;
+
+  scalar type LeaderboardType extending enum<
+    NORMAL,
+    IRONMAN,
+    HARDCORE,
+    ULTIMATE,
   >;
 
   scalar type ProgressState extending enum<NOT_STARTED, IN_PROGRESS, FINISHED>;

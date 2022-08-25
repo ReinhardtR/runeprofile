@@ -1,4 +1,4 @@
-CREATE MIGRATION m15db4xij3st6wzgzlsit3n74epu77bit676fjvppabrvvafvbyawa
+CREATE MIGRATION m176jiq43rxgfyjnrd7cnjhaprjseq2xjo7tge5jxes3g6b66uhmua
     ONTO initial
 {
   CREATE ABSTRACT TYPE default::DateTracking {
@@ -19,6 +19,7 @@ CREATE MIGRATION m15db4xij3st6wzgzlsit3n74epu77bit676fjvppabrvvafvbyawa
       };
       CREATE REQUIRED PROPERTY account_type -> default::AccountType;
       CREATE REQUIRED PROPERTY combat_achievements -> tuple<Easy: tuple<completed: std::int16, total: std::int16>, Medium: tuple<completed: std::int16, total: std::int16>, Hard: tuple<completed: std::int16, total: std::int16>, Elite: tuple<completed: std::int16, total: std::int16>, Master: tuple<completed: std::int16, total: std::int16>, Grandmaster: tuple<completed: std::int16, total: std::int16>>;
+      CREATE REQUIRED PROPERTY hiscores -> tuple<normal: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>, ironman: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>, hardcore: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>, ultimate: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>>;
       CREATE REQUIRED PROPERTY model -> std::str;
       CREATE REQUIRED PROPERTY quest_list -> tuple<points: std::int16, quests: tuple<f2p: array<tuple<name: std::str, state: default::ProgressState>>, p2p: array<tuple<name: std::str, state: default::ProgressState>>, mini: array<tuple<name: std::str, state: default::ProgressState>>, unknown: array<tuple<name: std::str, state: default::ProgressState>>>>;
       CREATE REQUIRED PROPERTY username -> std::str {
@@ -75,4 +76,6 @@ CREATE MIGRATION m15db4xij3st6wzgzlsit3n74epu77bit676fjvppabrvvafvbyawa
   ALTER TYPE default::Tab {
       CREATE MULTI LINK entries := (.<tab[IS default::Entry]);
   };
+  CREATE SCALAR TYPE default::HiscoreType EXTENDING enum<SKILL, ACTIVITY, BOSS>;
+  CREATE SCALAR TYPE default::LeaderboardType EXTENDING enum<NORMAL, IRONMAN, HARDCORE, ULTIMATE>;
 };

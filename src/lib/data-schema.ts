@@ -1,28 +1,28 @@
-import { AccountType } from "@/edgeql";
+import { AccountType, LeaderboardType } from "@/edgeql";
 import { z } from "zod";
 import { QuestType, QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
 
-export const CollectionLogItemSchema = z.object({
+const CollectionLogItemSchema = z.object({
   index: z.number(),
   id: z.number(),
   name: z.string(),
   quantity: z.number(),
 });
 
-export const KillCountSchema = z.object({
+const KillCountSchema = z.object({
   name: z.string(),
   count: z.number(),
 });
 
-export const CollectionLogEntrySchema = z.object({
+const CollectionLogEntrySchema = z.object({
   index: z.number(),
   items: z.array(CollectionLogItemSchema),
   killCounts: z.array(KillCountSchema).optional(),
 });
 
-export const CollectionLogTabSchema = z.record(CollectionLogEntrySchema);
+const CollectionLogTabSchema = z.record(CollectionLogEntrySchema);
 
-export const CollectionLogSchema = z.object({
+const CollectionLogSchema = z.object({
   uniqueItemsObtained: z.number(),
   uniqueItemsTotal: z.number(),
   tabs: z.record(CollectionLogTabSchema),
@@ -35,7 +35,7 @@ const QuestSchema = z.object({
   state: QuestStateSchema,
 });
 
-export const QuestListSchema = z.object({
+const QuestListSchema = z.object({
   points: z.number(),
   quests: z.array(QuestSchema).transform((quests) => {
     const questsMap = new Map<string, z.infer<typeof QuestStateSchema>>(
@@ -103,16 +103,14 @@ export const QuestListSchema = z.object({
   }),
 });
 
-export const SkillsSchema = z.array(
-  z.object({ name: z.string(), xp: z.number() })
-);
+const SkillsSchema = z.array(z.object({ name: z.string(), xp: z.number() }));
 
 const CompletedAndTotalSchema = z.object({
   completed: z.number(),
   total: z.number(),
 });
 
-export const AchievementDiariesSchema = z.array(
+const AchievementDiariesSchema = z.array(
   z.object({
     area: z.string(),
     Easy: CompletedAndTotalSchema,
@@ -122,7 +120,7 @@ export const AchievementDiariesSchema = z.array(
   })
 );
 
-export const CombatAchievementsSchema = z.object({
+const CombatAchievementsSchema = z.object({
   Easy: CompletedAndTotalSchema,
   Medium: CompletedAndTotalSchema,
   Hard: CompletedAndTotalSchema,
@@ -131,15 +129,53 @@ export const CombatAchievementsSchema = z.object({
   Grandmaster: CompletedAndTotalSchema,
 });
 
+const HiscoresSkillsSchema = z.array(
+  z.object({
+    name: z.string(),
+    rank: z.number(),
+    level: z.number(),
+    xp: z.number(),
+  })
+);
+
+const HiscoresActivitiesSchema = z.array(
+  z.object({
+    name: z.string(),
+    rank: z.number(),
+    score: z.number(),
+  })
+);
+
+const HiscoresBossesSchema = z.array(
+  z.object({
+    name: z.string(),
+    rank: z.number(),
+    kills: z.number(),
+  })
+);
+
+const HiscoresLeaderboardSchema = z.object({
+  skills: HiscoresSkillsSchema,
+  activities: HiscoresActivitiesSchema,
+  bosses: HiscoresBossesSchema,
+});
+
+const HiscoresSchema = z.object({
+  normal: HiscoresLeaderboardSchema,
+  ironman: HiscoresLeaderboardSchema,
+  hardcore: HiscoresLeaderboardSchema,
+  ultimate: HiscoresLeaderboardSchema,
+});
+
 export const PlayerDataSchema = z.object({
   accountHash: z.number(),
   username: z.string(),
-  // Switch to enum from EdgeDB schema
   accountType: z.nativeEnum(AccountType),
   model: z.string(),
   skills: SkillsSchema,
   questList: QuestListSchema,
   achievementDiaries: AchievementDiariesSchema,
   combatAchievements: CombatAchievementsSchema,
+  hiscores: HiscoresSchema,
   collectionLog: CollectionLogSchema,
 });

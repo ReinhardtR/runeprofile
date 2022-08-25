@@ -4,6 +4,7 @@ import { Card } from "../Card";
 import { AchievementDiaries } from "./AchievementDiaries";
 import { CollectionLog } from "./CollectionLog";
 import { CombatAchievements } from "./CombatAchievements";
+import { Hiscores } from "./Hiscores";
 import { PlayerModel } from "./PlayerModel";
 import { QuestList } from "./QuestList";
 import { SkillsCard } from "./Skills";
@@ -43,6 +44,8 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
       <AchievementDiaries achievementDiaries={account.achievement_diaries} />
 
       <CombatAchievements combatAchievements={account.combat_achievements} />
+
+      <Hiscores hiscores={account.hiscores} />
 
       <CollectionLog
         username={account.username}

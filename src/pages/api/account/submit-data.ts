@@ -23,6 +23,7 @@ export default async function handler(
       skills: data.skills,
       model: data.model,
       quest_list: data.questList,
+      hiscores: data.hiscores,
       updated_at: e.datetime_current(),
     })
     .unlessConflict((account) => ({
@@ -36,6 +37,7 @@ export default async function handler(
           skills: data.skills,
           model: data.model,
           quest_list: data.questList,
+          hiscores: data.hiscores,
           updated_at: e.datetime_current(),
         },
       })),

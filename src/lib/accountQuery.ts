@@ -10,6 +10,7 @@ export const accountQuery = e.params({ username: e.str }, ($) => {
     achievement_diaries: true,
     combat_achievements: true,
     quest_list: true,
+    hiscores: true,
     collection_log: {
       unique_items_obtained: true,
       unique_items_total: true,
