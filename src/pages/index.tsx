@@ -1,7 +1,7 @@
 import { Profile } from "@/components/Profile";
 import { edgedb } from "@/server/db/client";
-import { InferNextProps } from "@/lib/infer-next-props-type";
-import { accountQuery } from "@/utils/accountQuery";
+import { InferNextProps } from "@/utils/infer-next-props-type";
+import { accountQuery } from "@/lib/accountQuery";
 import type { NextPage } from "next";
 import Image from "next/future/image";
 
@@ -12,7 +12,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
     <div className="min-w-screen bg-background-light min-h-screen flex flex-col justify-between">
       <main className="flex-1 flex flex-col items-center p-2 bg-background pt-20">
         <div className="container mx-auto p-2">
-          <div className="relative rounded-xl overflow-hidden w-full h-[500px] shadow-xl flex justify-center items-center border-2 border-primary">
+          <div className="relative rounded-xl overflow-hidden w-full h-[500px] shadow-xl flex justify-center items-center border-2 border-accent">
             <div className="absolute flex flex-col justify-center items-center z-20">
               <h1 className="text-7xl font-bold drop-shadow-solid">
                 Share all of your
@@ -37,9 +37,10 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
           </div>
         </div>
         <div className="container py-8">
+          {/* Justi Guy */}
           <div className="absolute rotate-[5deg] mt-2 w-[400px] hidden md:block z-20">
             <span className="absolute text-osrs-yellow text-shadow font-runescape font-bold text-2xl animate-bounce">
-              This is how your RuneProfile will look !
+              This is how your RuneProfile will look!
             </span>
           </div>
 
@@ -51,8 +52,23 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
             />
           </div>
 
-          <div className="mx-32 bg-background-light shadow-xl rounded-xl py-8 border-2 border-accent">
+          <div className="mx-32 bg-background-light shadow-xl rounded-xl py-8 border-2 border-primary">
             <Profile account={showcaseAccount} />
+
+            {/* Wise Old Man */}
+            <div className="absolute -mt-60 right-0 -rotate-[5deg] w-[300px] hidden md:block z-20 xl:right-44">
+              <span className="absolute text-osrs-yellow text-shadow font-runescape font-bold text-2xl animate-bounce text-center">
+                Hover over an item to see when it was obtained!
+              </span>
+            </div>
+
+            <div className="absolute right-0 -mt-52 z-10 -rotate-[7deg] hidden md:block xl:right-44 drop-shadow-solid">
+              <Image
+                src="/assets/hero/wise-old-man.png"
+                width={200}
+                height={800}
+              />
+            </div>
           </div>
         </div>
       </main>

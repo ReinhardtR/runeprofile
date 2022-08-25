@@ -19,10 +19,10 @@
 
 @layer components {
   .hero-image {
-    @apply bg-primary/100 w-full h-[500px] bg-blend-overlay;
+    @apply bg-primary/100 w-full h-[500px] bg-blend-multiply;
     background-size: cover;
     background-position: center;
-    background-image: url("/assets/hero/hero-background.png");
+    background-image: url("/assets/hero/hero-background-color.png");
   }
 }
 
@@ -62,7 +62,7 @@
 }
 
 .runescape-panel {
-  background-image: url("/assets/panel/background.png");
+  background-image: url("/assets/card/background.png");
   background-size: cover;
   background-clip: padding-box;
 
@@ -71,7 +71,7 @@
   border-image-width: 16px 16px 16px 16px;
   border-image-outset: 0px 0px 0px 0px;
   border-image-repeat: repeat;
-  border-image-source: url("/assets/panel/square.png");
+  border-image-source: url("/assets/card/square.png");
 }
 
 ::-webkit-scrollbar {

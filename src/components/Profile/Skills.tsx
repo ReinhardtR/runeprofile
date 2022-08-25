@@ -1,6 +1,4 @@
-import { Skill } from "@/lib/data-schema";
-import { getLevelFromXP } from "@/utils/level";
-import { formatXP } from "@/utils/xp-format";
+import { getLevelFromXP } from "@/lib/xp-to-level";
 import Image from "next/future/image";
 import { useMemo } from "react";
 import { Card } from "../Card";
@@ -26,7 +24,7 @@ export const SkillsCard: React.FC<SkillsCardProps> = ({ skills }) => {
   );
 
   return (
-    <Card>
+    <Card iconPath="/assets/icons/skills.png">
       <div className="grid-rows-8 grid grid-cols-3 p-1">
         {skills.map(({ name, xp }) => (
           <SkillElement

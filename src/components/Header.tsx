@@ -83,10 +83,7 @@ export const Header: React.FC = () => {
                     <Link href="/leaderboards/collection-log">
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
-                          <Image
-                            src="/assets/leaderboard-icons/collection-log.png"
-                            fill
-                          />
+                          <Image src="/assets/icons/collection-log.png" fill />
                         </div>
                         <div className="ml-4">
                           <p className="text-sm font-medium text-light-gray">

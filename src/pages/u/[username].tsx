@@ -1,9 +1,9 @@
-import type { InferNextProps } from "@/lib/infer-next-props-type";
+import type { InferNextProps } from "@/utils/infer-next-props-type";
 import type { GetStaticPropsContext, NextPage } from "next";
 import e from "@/edgeql";
 import { edgedb } from "@/server/db/client";
 import Head from "next/head";
-import { accountQuery } from "@/utils/accountQuery";
+import { accountQuery } from "@/lib/accountQuery";
 import { Profile } from "@/components/Profile";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {

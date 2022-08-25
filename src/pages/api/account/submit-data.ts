@@ -30,7 +30,7 @@ export default async function handler(
       else: e.update(account, () => ({
         set: {
           username: data.username,
-          account_type: e.cast(e.AccountType, e.str(data.accountType)),
+          account_type: data.accountType,
           achievement_diaries: data.achievementDiaries,
           combat_achievements: data.combatAchievements,
           skills: data.skills,
@@ -115,6 +115,7 @@ export default async function handler(
             tab: e.select(e.Tab, (tab) => ({
               filter: e.op(tab.id, "=", e.cast(e.uuid, entryData.tabId)),
             })),
+            index: e.cast(e.int16, entryData.index),
             name: e.cast(e.str, entryData.name),
             kill_counts: e.cast(
               e.array(e.tuple({ name: e.str, count: e.int32 })),
@@ -124,7 +125,16 @@ export default async function handler(
           })
           .unlessConflict((entry) => ({
             on: e.tuple([entry.tab, entry.name]),
-            else: entry,
+            else: e.update(entry, () => ({
+              set: {
+                index: e.cast(e.int16, entryData.index),
+                kill_counts: e.cast(
+                  e.array(e.tuple({ name: e.str, count: e.int32 })),
+                  e.op(entryData.killCounts, "??", e.to_json("[]"))
+                ),
+                updated_at: e.datetime_current(),
+              },
+            })),
           })),
         () => ({
           id: true,
@@ -138,6 +148,7 @@ export default async function handler(
     ([tabName, tabData]) => {
       return Object.entries(tabData).map(([entryName, entryData]) => ({
         tabId: tabsMap.get(tabName)!, // is based on same data, must exist.
+        index: entryData.index,
         name: entryName,
         killCounts: entryData.killCounts ?? [],
       }));
@@ -175,6 +186,7 @@ export default async function handler(
             entry: e.select(e.Entry, (entry) => ({
               filter: e.op(entry.id, "=", e.cast(e.uuid, item.entryId)),
             })),
+            index: e.cast(e.int16, item.index),
             item_id: e.cast(e.int32, item.item_id),
             name: e.cast(e.str, item.name),
             quantity: e.cast(e.int32, item.quantity),
@@ -204,6 +216,7 @@ export default async function handler(
             on: e.tuple([_item.entry, _item.item_id]),
             else: e.update(_item, (existingItem) => ({
               set: {
+                index: e.cast(e.int16, item.index),
                 name: e.cast(e.str, item.name),
                 quantity: e.cast(e.int32, item.quantity),
                 obtained_at_kill_counts: e.op(
@@ -234,6 +247,7 @@ export default async function handler(
     return Object.entries(tab).flatMap(([entryName, entryData]) => {
       return entryData.items.map((item) => ({
         entryId: entriesMap.get(entryName)!, // is based on same data, must exist.
+        index: item.index,
         item_id: item.id,
         name: item.name,
         quantity: item.quantity,
@@ -243,7 +257,7 @@ export default async function handler(
   });
 
   console.log("ITEMS QUERY");
-  const itemsResult = await itemsQuery.run(edgedb, {
+  await itemsQuery.run(edgedb, {
     items: itemsParams,
   });
 

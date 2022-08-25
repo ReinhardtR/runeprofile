@@ -1,4 +1,4 @@
-import { AccountQueryResult } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/lib/accountQuery";
 import clsx from "clsx";
 import Image from "next/future/image";
 import { Card } from "../Card";
@@ -11,7 +11,10 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
   combatAchievements,
 }) => {
   return (
-    <Card className="w-[250px]">
+    <Card
+      iconPath="/assets/icons/combat-achievements.png"
+      className="w-[250px]"
+    >
       <div className="grid h-full grid-cols-2 grid-rows-3 gap-1 p-1 shadow">
         {Object.entries(combatAchievements).map(([tierName, tierData]) => {
           const percentageCompleted = Math.floor(

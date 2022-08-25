@@ -1,4 +1,4 @@
-CREATE MIGRATION m1xdswfhyirjrghebtrauirh5j22yb2tmxogsekrlxt7n4byso55sq
+CREATE MIGRATION m15db4xij3st6wzgzlsit3n74epu77bit676fjvppabrvvafvbyawa
     ONTO initial
 {
   CREATE ABSTRACT TYPE default::DateTracking {
@@ -19,40 +19,60 @@ CREATE MIGRATION m1xdswfhyirjrghebtrauirh5j22yb2tmxogsekrlxt7n4byso55sq
       };
       CREATE REQUIRED PROPERTY account_type -> default::AccountType;
       CREATE REQUIRED PROPERTY combat_achievements -> tuple<Easy: tuple<completed: std::int16, total: std::int16>, Medium: tuple<completed: std::int16, total: std::int16>, Hard: tuple<completed: std::int16, total: std::int16>, Elite: tuple<completed: std::int16, total: std::int16>, Master: tuple<completed: std::int16, total: std::int16>, Grandmaster: tuple<completed: std::int16, total: std::int16>>;
-      CREATE REQUIRED PROPERTY model -> tuple<obj: std::bytes, mtl: std::bytes>;
-      CREATE REQUIRED PROPERTY quest_list -> tuple<points: std::int16, quests: array<tuple<name: std::str, state: default::ProgressState>>>;
+      CREATE REQUIRED PROPERTY model -> std::str;
+      CREATE REQUIRED PROPERTY quest_list -> tuple<points: std::int16, quests: tuple<f2p: array<tuple<name: std::str, state: default::ProgressState>>, p2p: array<tuple<name: std::str, state: default::ProgressState>>, mini: array<tuple<name: std::str, state: default::ProgressState>>, unknown: array<tuple<name: std::str, state: default::ProgressState>>>>;
       CREATE REQUIRED PROPERTY username -> std::str {
           CREATE CONSTRAINT std::exclusive;
           CREATE CONSTRAINT std::min_len_value(1);
       };
   };
+  CREATE TYPE default::Entry EXTENDING default::DateTracking {
+      CREATE PROPERTY kill_counts -> array<tuple<name: std::str, count: std::int32>>;
+      CREATE REQUIRED PROPERTY name -> std::str;
+      CREATE REQUIRED PROPERTY index -> std::int16;
+  };
   CREATE TYPE default::CollectionLog {
       CREATE REQUIRED LINK account -> default::Account {
+          ON TARGET DELETE DELETE SOURCE;
           CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY unique_items_obtained -> std::int16;
       CREATE REQUIRED PROPERTY unique_items_total -> std::int16;
   };
-  CREATE TYPE default::Tab {
-      CREATE REQUIRED LINK collection_log -> default::CollectionLog;
-      CREATE REQUIRED PROPERTY name -> std::str;
-      CREATE CONSTRAINT std::exclusive ON ((.collection_log, .name));
-  };
-  CREATE TYPE default::Entry EXTENDING default::DateTracking {
-      CREATE PROPERTY kill_counts -> array<tuple<name: std::str, count: std::int32>>;
-      CREATE REQUIRED LINK tab -> default::Tab;
-      CREATE REQUIRED PROPERTY name -> std::str;
-      CREATE CONSTRAINT std::exclusive ON ((.tab, .name));
-  };
   ALTER TYPE default::Account {
       CREATE LINK collection_log := (.<account[IS default::CollectionLog]);
   };
+  CREATE TYPE default::Tab {
+      CREATE REQUIRED LINK collection_log -> default::CollectionLog {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE REQUIRED PROPERTY name -> std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.collection_log, .name));
+  };
+  ALTER TYPE default::CollectionLog {
+      CREATE MULTI LINK tabs := (.<collection_log[IS default::Tab]);
+  };
+  ALTER TYPE default::Entry {
+      CREATE REQUIRED LINK tab -> default::Tab {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE CONSTRAINT std::exclusive ON ((.tab, .name));
+  };
   CREATE TYPE default::Item {
-      CREATE REQUIRED LINK entry -> default::Entry;
+      CREATE REQUIRED LINK entry -> default::Entry {
+          ON TARGET DELETE DELETE SOURCE;
+      };
       CREATE REQUIRED PROPERTY item_id -> std::int32;
       CREATE CONSTRAINT std::exclusive ON ((.entry, .item_id));
+      CREATE REQUIRED PROPERTY index -> std::int16;
       CREATE REQUIRED PROPERTY name -> std::str;
       CREATE PROPERTY obtained_at_kill_counts -> tuple<date: std::datetime, kill_counts: array<tuple<name: std::str, count: std::int32>>>;
       CREATE REQUIRED PROPERTY quantity -> std::int32;
+  };
+  ALTER TYPE default::Entry {
+      CREATE MULTI LINK items := (.<entry[IS default::Item]);
+  };
+  ALTER TYPE default::Tab {
+      CREATE MULTI LINK entries := (.<tab[IS default::Entry]);
   };
 };

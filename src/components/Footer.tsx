@@ -13,7 +13,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ children }) => (
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="z-50 w-full pt-3 border-t border-primary bg-background-dark">
+    <footer className="relative z-50 w-full pt-3 border-t border-primary bg-background-dark">
       <div className="container grid grid-cols-2 gap-6 p-8 pt-10 pb-20 m-auto text-white min-h-64 sm:grid-cols-2 lg:grid-cols-6">
         <div className="col-span-2">
           <div className="relative w-10 h-10 mb-3">

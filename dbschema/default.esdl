@@ -42,7 +42,12 @@ module default {
     # Quests
     required property quest_list -> tuple<
       points: int16,
-      quests: array<tuple<name: str, state: ProgressState>>
+      quests: tuple<
+        f2p: array<tuple<name: str, state: ProgressState>>,
+        p2p: array<tuple<name: str, state: ProgressState>>,
+        mini: array<tuple<name: str, state: ProgressState>>,
+        unknown: array<tuple<name: str, state: ProgressState>>
+      >,
     >;
 
     link collection_log := .<account[is CollectionLog];
@@ -74,6 +79,7 @@ module default {
   }
 
   type Entry extending DateTracking {
+    required property index -> int16;
     required property name -> str;
 
     property kill_counts -> array<tuple<name: str, count: int32>>;
@@ -89,6 +95,7 @@ module default {
 
   type Item {
     # The id of the item in-game and isn't unique here.
+    required property index -> int16;
     required property item_id -> int32;
     required property name -> str;
     required property quantity -> int32;

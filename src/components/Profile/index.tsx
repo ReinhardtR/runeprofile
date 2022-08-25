@@ -1,4 +1,4 @@
-import { AccountQueryResult } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/lib/accountQuery";
 import Image from "next/future/image";
 import { Card } from "../Card";
 import { AchievementDiaries } from "./AchievementDiaries";

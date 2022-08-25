@@ -1,4 +1,4 @@
-import { AccountQueryResult } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/lib/accountQuery";
 import clsx from "clsx";
 import { Card } from "../Card";
 
@@ -10,7 +10,10 @@ export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
   achievementDiaries,
 }) => {
   return (
-    <Card className="w-[250px]">
+    <Card
+      iconPath="/assets/icons/achievement-diaries.png"
+      className="w-[250px]"
+    >
       <div className="text-yellow-osrs flex h-full flex-col space-y-[2px] overflow-y-scroll border-2 border-osrs-dark-border p-1 font-runescape text-lg leading-tight">
         {achievementDiaries.map((achievementDiary) => {
           const area = achievementDiary.area;

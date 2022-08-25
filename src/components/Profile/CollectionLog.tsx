@@ -4,7 +4,9 @@ import { Fragment } from "react";
 import { Card } from "../Card";
 import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
-import { AccountQueryResult } from "@/utils/accountQuery";
+import { AccountQueryResult } from "@/lib/accountQuery";
+import { Tooltip } from "../Misc/Tooltip";
+import { format } from "date-fns";
 
 type CollectionLogProps = {
   username: string;
@@ -30,7 +32,7 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
   }
 
   return (
-    <Card className="w-[640px]">
+    <Card iconPath="/assets/icons/collection-log.png" className="w-[640px]">
       <Tab.Group
         as="div"
         className="flex h-full w-full flex-col px-0.5 pt-1 font-runescape text-osrs-orange"
@@ -147,7 +149,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 
   return (
     <Tab.Panel className="flex h-full flex-col">
-      <div className="w-full border-2 border-osrs-border p-1">
+      <div className="w-full border-2 border-osrs-border p-1 relative z-20">
         <p className="text-shadow text-2xl font-bold leading-none">
           {entry.name}
         </p>
@@ -166,7 +168,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
         {entry.kill_counts?.map((killCount) => (
           <p key={killCount.name} className="text-shadow text-lg leading-none">
             {killCount.name}:{" "}
-            <span className="text-white">{killCount.count}</span>
+            <span className="text-light-gray">{killCount.count}</span>
           </p>
         ))}
       </div>
@@ -185,24 +187,48 @@ type CollectionLogItemProps = {
 
 const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
   return (
-    <div className="relative flex-shrink">
-      {item.quantity > 1 && (
-        <p className="text-shadow absolute top-[-5px] z-20 text-osrs-yellow">
-          {item.quantity}
-        </p>
-      )}
-      <div className="relative w-[50px] aspect-[36/32] z-10">
-        <Image
-          // @ts-ignore
-          src={`data:image/png;base64,${itemIcons[item.item_id]}`}
-          alt={item.name}
-          className={clsx(
-            "brightness-[.60] drop-shadow-2xl",
-            !item.quantity && "opacity-30"
+    <Tooltip
+      content={
+        <div className="relative bg-black/70 p-2 border border-white/25 rounded-sm z-40">
+          {item.obtained_at_kill_counts ? (
+            <div>
+              <p className="text-osrs-green font-bold text-lg">{item.name}</p>
+              <p className="text-osrs-gray text-sm">
+                {format(item.obtained_at_kill_counts.date, "PPP")}
+              </p>
+              {item.obtained_at_kill_counts.kill_counts.map((killCount) => (
+                <p key={killCount.name}>
+                  {killCount.name}:{" "}
+                  <span className="text-light-gray">{killCount.count}</span>
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className="text-osrs-red">Not obtained</p>
           )}
-          fill
-        />
+        </div>
+      }
+      placement="bottom"
+    >
+      <div className="flex-shrink group">
+        <div className="relative w-[50px] aspect-[36/32]">
+          {item.quantity > 1 && (
+            <p className="text-shadow absolute top-[-5px] z-20 text-osrs-yellow">
+              {item.quantity}
+            </p>
+          )}
+          <Image
+            // @ts-ignore
+            src={`data:image/png;base64,${itemIcons[item.item_id]}`}
+            alt={item.name}
+            className={clsx(
+              "brightness-[.60] drop-shadow-2xl z-10",
+              !item.quantity && "opacity-30"
+            )}
+            fill
+          />
+        </div>
       </div>
-    </div>
+    </Tooltip>
   );
 };
