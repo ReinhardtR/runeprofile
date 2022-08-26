@@ -1,4 +1,4 @@
-import { cloneElement, useMemo, useState } from "react";
+import { cloneElement, Fragment, useMemo, useState } from "react";
 import {
   Placement,
   offset,
@@ -13,17 +13,22 @@ import {
   useDismiss,
 } from "@floating-ui/react-dom-interactions";
 import { mergeRefs } from "react-merge-refs";
+import clsx from "clsx";
 
 type TooltipProps = {
   content: JSX.Element;
   children: JSX.Element;
   placement: Placement;
+  delay?: number;
+  transparent?: boolean;
 };
 
 export const Tooltip: React.FC<TooltipProps> = ({
   content,
   children,
   placement,
+  delay = 30,
+  transparent = true,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -36,7 +41,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    useHover(context, { restMs: 30 }),
+    useHover(context, { restMs: delay }),
     useFocus(context),
     useRole(context, { role: "tooltip" }),
     useDismiss(context),
@@ -49,7 +54,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   );
 
   return (
-    <>
+    <Fragment>
       {cloneElement(children, getReferenceProps({ ref, ...children.props }))}
 
       {open && (
@@ -63,9 +68,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
             },
           })}
         >
-          {content}
+          <div
+            className={clsx(
+              "relative p-2 border border-white/25 rounded-sm z-40",
+              transparent ? "bg-black/70" : "bg-black"
+            )}
+          >
+            {content}
+          </div>
         </div>
       )}
-    </>
+    </Fragment>
   );
 };

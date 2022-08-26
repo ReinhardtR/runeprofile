@@ -189,9 +189,9 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
   return (
     <Tooltip
       content={
-        <div className="relative bg-black/70 p-2 border border-white/25 rounded-sm z-40">
+        <Fragment>
           {item.obtained_at_kill_counts ? (
-            <div>
+            <Fragment>
               <p className="text-osrs-green font-bold text-lg">{item.name}</p>
               <p className="text-osrs-gray text-sm">
                 {format(item.obtained_at_kill_counts.date, "PPP")}
@@ -202,11 +202,11 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
                   <span className="text-light-gray">{killCount.count}</span>
                 </p>
               ))}
-            </div>
+            </Fragment>
           ) : (
             <p className="text-osrs-red">Not obtained</p>
           )}
-        </div>
+        </Fragment>
       }
       placement="bottom"
     >
