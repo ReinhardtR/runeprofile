@@ -1,6 +1,5 @@
 module default {
   type Account extending DateTracking {
-    # Account
     required property account_hash -> int64 {
       constraint exclusive;
     }
@@ -15,10 +14,12 @@ module default {
     # 3D Character Model
     required property model -> str;
 
-    # Skills
+    required property description -> str;
+
+    required property combat_level -> int16;
+
     required property skills -> array<tuple<name: str, xp: int32>>;
 
-    # Achievement Diaries
     required property achievement_diaries -> array<
       tuple<
         area: str,
@@ -29,7 +30,6 @@ module default {
       >
     >;
 
-    # Combat Achievements
     required property combat_achievements -> tuple<
       Easy: tuple<completed: int16, total: int16>,
       Medium: tuple<completed: int16, total: int16>,
@@ -39,7 +39,6 @@ module default {
       Grandmaster: tuple<completed: int16, total: int16>
     >;
 
-    # Quests
     required property quest_list -> tuple<
       points: int16,
       quests: tuple<
@@ -89,6 +88,7 @@ module default {
     multi link tabs := .<collection_log[is Tab];
   }
 
+  # Tab (e.g.: Bosses)
   type Tab {
     required property name -> str;
   
@@ -101,6 +101,7 @@ module default {
     constraint exclusive on ((.collection_log, .name))
   }
 
+  # Entry (e.g.: Abyssal Sire)
   type Entry extending DateTracking {
     required property index -> int16;
     required property name -> str;
@@ -116,6 +117,7 @@ module default {
     constraint exclusive on ((.tab, .name));
   }
 
+  # Item (e.g.: Abyssal Whip)
   type Item {
     # The id of the item in-game and isn't unique here.
     required property index -> int16;

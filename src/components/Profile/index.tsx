@@ -17,24 +17,39 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
   return (
     <div className="flex flex-wrap justify-center gap-4">
       <Card className="flex max-w-[260px] flex-col">
-        <div className="flex items-center justify-center space-x-2 pt-2">
-          {account.account_type != "NORMAL" && (
-            <div className="relative aspect-[10/13] w-[16px]">
+        <div className="absolute inset-x-0 mx-auto flex flex-wrap justify-center items-center text-shadow font-runescape text-2xl font-bold leading-none space-x-4 p-2 z-20">
+          <div className="flex items-center space-x-2">
+            {account.account_type != "NORMAL" && (
+              <div className="relative aspect-[10/13] w-[16px]">
+                <Image
+                  src={`/assets/account-type/${account.account_type.toLowerCase()}.png`}
+                  alt={account.account_type}
+                  quality={100}
+                  fill
+                  className="drop-shadow-solid"
+                />
+              </div>
+            )}
+            <span className="text-white">{account.username}</span>
+          </div>
+
+          <div className="flex space-x-1 justify-center items-center text-osrs-orange">
+            <div className="relative w-5 h-5">
               <Image
-                src={`/assets/account-type/${account.account_type.toLowerCase()}.png`}
-                alt={account.account_type}
-                quality={100}
+                src="/assets/skill-icons/combat.png"
                 fill
-                className="drop-shadow-solid"
+                className="drop-shadow-xl"
               />
             </div>
-          )}
-          <p className="text-shadow font-runescape text-2xl font-bold leading-none text-white">
-            {account.username}
-          </p>
+            <span>{account.combat_level}</span>
+          </div>
         </div>
 
-        <PlayerModel model={account.model} />
+        <div className="h-full flex flex-col justify-end items-end">
+          <div className="h-[90%]">
+            <PlayerModel model={account.model} />
+          </div>
+        </div>
       </Card>
 
       <SkillsCard skills={account.skills} />

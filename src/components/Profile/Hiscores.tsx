@@ -156,16 +156,17 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
         <tbody className="text-osrs-yellow text-lg font-bold">
           {skills.map((skill) => (
             <Tooltip
+              key={skill.name}
               content={
                 <p className="uppercase font-runescape font-bold text-light-gray tracking-wide">
-                  <span className="text-osrs-orange">XP </span>
+                  <span className="text-osrs-orange">{skill.name} XP </span>
                   {numberWithCommas(skill.xp)}
                 </p>
               }
               transparent={false}
               placement="bottom"
             >
-              <tr key={skill.name}>
+              <tr>
                 <td>
                   <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
                     <Image
@@ -206,26 +207,39 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
 
         <tbody className="text-osrs-yellow text-lg font-bold">
           {activities.map((activity) => (
-            <tr key={activity.name}>
-              <td>
-                <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
-                  <Image
-                    src={`/assets/hiscores/activities/${entryNameToPath(
-                      activity.name
-                    )}.png`}
-                    quality={100}
-                    fill
-                  />
-                </div>
-              </td>
-              <td className="text-center text-shadow">
-                {activity.score == -1 ? "X" : numberWithCommas(activity.score)}
-              </td>
+            <Tooltip
+              key={activity.name}
+              content={
+                <p className="uppercase font-runescape font-bold text-osrs-orange tracking-wide">
+                  {activity.name}
+                </p>
+              }
+              transparent={false}
+              placement="bottom"
+            >
+              <tr key={activity.name}>
+                <td>
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                    <Image
+                      src={`/assets/hiscores/activities/${entryNameToPath(
+                        activity.name
+                      )}.png`}
+                      quality={100}
+                      fill
+                    />
+                  </div>
+                </td>
+                <td className="text-center text-shadow">
+                  {activity.score == -1
+                    ? "X"
+                    : numberWithCommas(activity.score)}
+                </td>
 
-              <td className="text-center text-shadow">
-                {activity.rank == -1 ? "X" : numberWithCommas(activity.rank)}
-              </td>
-            </tr>
+                <td className="text-center text-shadow">
+                  {activity.rank == -1 ? "X" : numberWithCommas(activity.rank)}
+                </td>
+              </tr>
+            </Tooltip>
           ))}
         </tbody>
       </table>
@@ -243,34 +257,45 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
       <table>
         <thead>
           <tr className="text-osrs-orange font-bold text-xl text-shadow">
-            <th>Game</th>
-            <th>Score</th>
+            <th>Boss</th>
+            <th>Kills</th>
             <th>Rank</th>
           </tr>
         </thead>
 
         <tbody className="text-osrs-yellow text-lg font-bold">
           {bosses.map((boss) => (
-            <tr key={boss.name}>
-              <td>
-                <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
-                  <Image
-                    src={`/assets/hiscores/bosses/${entryNameToPath(
-                      boss.name
-                    )}.png`}
-                    quality={100}
-                    fill
-                  />
-                </div>
-              </td>
-              <td className="text-center text-shadow">
-                {boss.kills == -1 ? "X" : numberWithCommas(boss.kills)}
-              </td>
+            <Tooltip
+              key={boss.name}
+              content={
+                <p className="uppercase font-runescape font-bold text-osrs-orange tracking-wide">
+                  {boss.name}
+                </p>
+              }
+              transparent={false}
+              placement="bottom"
+            >
+              <tr key={boss.name}>
+                <td>
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                    <Image
+                      src={`/assets/hiscores/bosses/${entryNameToPath(
+                        boss.name
+                      )}.png`}
+                      quality={100}
+                      fill
+                    />
+                  </div>
+                </td>
+                <td className="text-center text-shadow">
+                  {boss.kills == -1 ? "X" : numberWithCommas(boss.kills)}
+                </td>
 
-              <td className="text-center text-shadow">
-                {boss.rank == -1 ? "X" : numberWithCommas(boss.rank)}
-              </td>
-            </tr>
+                <td className="text-center text-shadow">
+                  {boss.rank == -1 ? "X" : numberWithCommas(boss.rank)}
+                </td>
+              </tr>
+            </Tooltip>
           ))}
         </tbody>
       </table>

@@ -6,6 +6,7 @@ export const accountQuery = e.params({ username: e.str }, ($) => {
     username: true,
     account_type: true,
     model: true,
+    combat_level: true,
     skills: true,
     achievement_diaries: true,
     combat_achievements: true,
