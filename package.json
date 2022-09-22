@@ -33,7 +33,6 @@
     "react-dom": "18.2.0",
     "react-merge-refs": "^2.0.1",
     "react-query": "^3.39.2",
-    "react-tooltip": "^4.2.21",
     "superjson": "^1.9.1",
     "tailwind-merge": "^1.5.1",
     "three": "^0.141.0",
