@@ -172,7 +172,7 @@ export const PlayerDataSchema = z.object({
   username: z.string(),
   accountType: z.nativeEnum(AccountType),
   description: z.string(),
-  model: z.string(),
+  model: z.string().optional(),
   combatLevel: z.number(),
   skills: SkillsSchema,
   questList: QuestListSchema,

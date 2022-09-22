@@ -7,6 +7,18 @@ module default {
     required property username -> str {
       constraint exclusive;
       constraint min_len_value(1);
+      constraint max_len_value(12);
+    }
+
+    # Max username length is 12 characters,
+    # so the path is 13 to avoid collisions.
+    property generated_path -> str {
+      constraint exclusive;
+      constraint min_len_value(13); 
+    }
+
+    required property is_private -> bool {
+      default := false;
     }
 
     required property account_type -> AccountType;

@@ -13,39 +13,45 @@ export default async function handler(
   console.log("Query Start: ", queryStart.toUTCString());
 
   // Account
-  const accountQuery = e
-    .insert(e.Account, {
-      account_hash: data.accountHash,
-      username: data.username,
-      account_type: data.accountType,
-      description: data.description,
-      achievement_diaries: data.achievementDiaries,
-      combat_achievements: data.combatAchievements,
-      combat_level: data.combatLevel,
-      skills: data.skills,
-      model: data.model,
-      quest_list: data.questList,
-      hiscores: data.hiscores,
-      updated_at: e.datetime_current(),
-    })
-    .unlessConflict((account) => ({
-      on: account.account_hash,
-      else: e.update(account, () => ({
-        set: {
-          username: data.username,
-          account_type: data.accountType,
-          description: data.description,
-          achievement_diaries: data.achievementDiaries,
-          combat_achievements: data.combatAchievements,
-          combat_level: data.combatLevel,
-          skills: data.skills,
-          model: data.model,
-          quest_list: data.questList,
-          hiscores: data.hiscores,
-          updated_at: e.datetime_current(),
-        },
+  const accountQuery = e.select(
+    e
+      .insert(e.Account, {
+        account_hash: data.accountHash,
+        username: data.username,
+        account_type: data.accountType,
+        description: data.description,
+        achievement_diaries: data.achievementDiaries,
+        combat_achievements: data.combatAchievements,
+        combat_level: data.combatLevel,
+        skills: data.skills,
+        model: data.model,
+        quest_list: data.questList,
+        hiscores: data.hiscores,
+        updated_at: e.datetime_current(),
+      })
+      .unlessConflict((account) => ({
+        on: account.account_hash,
+        else: e.update(account, (_account) => ({
+          set: {
+            username: data.username,
+            account_type: data.accountType,
+            description: data.description,
+            achievement_diaries: data.achievementDiaries,
+            combat_achievements: data.combatAchievements,
+            combat_level: data.combatLevel,
+            skills: data.skills,
+            quest_list: data.questList,
+            hiscores: data.hiscores,
+            updated_at: e.datetime_current(),
+          },
+        })),
       })),
-    }));
+    () => ({
+      id: true,
+      username: true,
+      generated_path: true,
+    })
+  );
 
   console.log("ACCOUNT QUERY");
   const accountResult = await accountQuery.run(edgedb);
@@ -273,5 +279,16 @@ export default async function handler(
   const queryTime = queryEnd.getTime() - queryStart.getTime();
   console.log("Query Time: ", queryTime / 1000, "s");
 
-  return res.status(200).json({ sucuess: "ok" });
+  res.revalidate(`/u/${accountResult.username}`);
+
+  if (accountResult.generated_path) {
+    res.revalidate(`/u/${accountResult.generated_path}`);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Data succesfully updated",
+    datetime: new Date(),
+    error: null,
+  });
 }

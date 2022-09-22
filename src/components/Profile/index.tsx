@@ -1,4 +1,4 @@
-import { AccountQueryResult } from "@/lib/accountQuery";
+import { AccountQueryResult } from "@/lib/account-query";
 import Image from "next/future/image";
 import { Card } from "../Card";
 import { AchievementDiaries } from "./AchievementDiaries";
@@ -45,11 +45,19 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
           </div>
         </div>
 
-        <div className="h-full flex flex-col justify-end items-end">
+        <div className="relative h-full flex flex-col justify-end items-center">
           <div className="h-[90%]">
             <PlayerModel model={account.model} />
           </div>
         </div>
+
+        {account.description && (
+          <div className="absolute bottom-4 left-0 w-full px-4">
+            <p className="bg-black/50 text-xs text-light-gray p-2 rounded border border-osrs-border">
+              {account.description}
+            </p>
+          </div>
+        )}
       </Card>
 
       <SkillsCard skills={account.skills} />

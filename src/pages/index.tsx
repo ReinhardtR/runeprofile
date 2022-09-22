@@ -1,7 +1,10 @@
 import { Profile } from "@/components/Profile";
 import { edgedb } from "@/server/db/client";
 import { InferNextProps } from "@/utils/infer-next-props-type";
-import { accountQuery } from "@/lib/accountQuery";
+import {
+  accountQuery,
+  minimalAccountQueryByUsername,
+} from "@/lib/account-query";
 import type { NextPage } from "next";
 import Image from "next/future/image";
 
@@ -79,12 +82,24 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
 export default Home;
 
 export const getStaticProps = async () => {
-  const account = await accountQuery.run(edgedb, {
+  const minimalAccount = await minimalAccountQueryByUsername.run(edgedb, {
     username: "PGN",
   });
 
+  if (!minimalAccount) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const account = await accountQuery.run(edgedb, {
+    id: minimalAccount.id,
+  });
+
   if (!account) {
-    return { notFound: true } as const;
+    return {
+      notFound: true,
+    };
   }
 
   return {

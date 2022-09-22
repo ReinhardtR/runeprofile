@@ -1,4 +1,4 @@
-CREATE MIGRATION m176jiq43rxgfyjnrd7cnjhaprjseq2xjo7tge5jxes3g6b66uhmua
+CREATE MIGRATION m1dybxg3i6att52iio7or3sdd5yowcvguocg4pri6jb25z4xosyf6q
     ONTO initial
 {
   CREATE ABSTRACT TYPE default::DateTracking {
@@ -19,7 +19,16 @@ CREATE MIGRATION m176jiq43rxgfyjnrd7cnjhaprjseq2xjo7tge5jxes3g6b66uhmua
       };
       CREATE REQUIRED PROPERTY account_type -> default::AccountType;
       CREATE REQUIRED PROPERTY combat_achievements -> tuple<Easy: tuple<completed: std::int16, total: std::int16>, Medium: tuple<completed: std::int16, total: std::int16>, Hard: tuple<completed: std::int16, total: std::int16>, Elite: tuple<completed: std::int16, total: std::int16>, Master: tuple<completed: std::int16, total: std::int16>, Grandmaster: tuple<completed: std::int16, total: std::int16>>;
+      CREATE REQUIRED PROPERTY combat_level -> std::int16;
+      CREATE REQUIRED PROPERTY description -> std::str;
+      CREATE PROPERTY generated_path -> std::str {
+          CREATE CONSTRAINT std::exclusive;
+          CREATE CONSTRAINT std::min_len_value(1);
+      };
       CREATE REQUIRED PROPERTY hiscores -> tuple<normal: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>, ironman: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>, hardcore: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>, ultimate: tuple<skills: array<tuple<name: std::str, rank: std::int32, level: std::int16, xp: std::int64>>, activities: array<tuple<name: std::str, rank: std::int32, score: std::int32>>, bosses: array<tuple<name: std::str, rank: std::int32, kills: std::int32>>>>;
+      CREATE REQUIRED PROPERTY is_private -> std::bool {
+          SET default := false;
+      };
       CREATE REQUIRED PROPERTY model -> std::str;
       CREATE REQUIRED PROPERTY quest_list -> tuple<points: std::int16, quests: tuple<f2p: array<tuple<name: std::str, state: default::ProgressState>>, p2p: array<tuple<name: std::str, state: default::ProgressState>>, mini: array<tuple<name: std::str, state: default::ProgressState>>, unknown: array<tuple<name: std::str, state: default::ProgressState>>>>;
       CREATE REQUIRED PROPERTY username -> std::str {
