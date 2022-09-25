@@ -13,6 +13,14 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method === "PUT") {
+    return putHandler(req, res);
+  }
+
+  return res.status(405); // Method not allowed
+}
+
+async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const data = ModelSchema.parse(req.body);
 
   const queryStart = new Date();

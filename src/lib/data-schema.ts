@@ -22,6 +22,14 @@ const CollectionLogEntrySchema = z.object({
 
 const CollectionLogTabSchema = z.record(CollectionLogEntrySchema);
 
+export enum TabsOrder {
+  Bosses,
+  Raids,
+  Clues,
+  Minigames,
+  Other,
+}
+
 const CollectionLogSchema = z.object({
   uniqueItemsObtained: z.number(),
   uniqueItemsTotal: z.number(),
@@ -171,8 +179,14 @@ export const PlayerDataSchema = z.object({
   accountHash: z.number(),
   username: z.string(),
   accountType: z.nativeEnum(AccountType),
-  description: z.string(),
-  model: z.string().optional(),
+  description: z
+    .string()
+    .nullable()
+    .transform((description) => description ?? ""),
+  model: z
+    .string()
+    .optional()
+    .transform((model) => model ?? ""),
   combatLevel: z.number(),
   skills: SkillsSchema,
   questList: QuestListSchema,

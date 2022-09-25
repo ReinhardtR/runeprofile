@@ -43,7 +43,7 @@ export const accountQuery = e.params({ id: e.uuid }, ($) => {
       collection_log: {
         unique_items_obtained: true,
         unique_items_total: true,
-        tabs: (_tab) => ({
+        tabs: (tab) => ({
           name: true,
           entries: (entry) => ({
             name: true,
@@ -63,6 +63,10 @@ export const accountQuery = e.params({ id: e.uuid }, ($) => {
               direction: e.ASC,
             },
           }),
+          order_by: {
+            expression: tab.index,
+            direction: e.ASC,
+          },
         }),
       },
     }))

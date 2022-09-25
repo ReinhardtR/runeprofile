@@ -1,25 +1,40 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { PlayerDataSchema } from "@/lib/data-schema";
+import { z } from "zod";
 import e from "@/edgeql";
 import { edgedb } from "@/server/db/client";
 import { generatePath } from "@/lib/generate-path";
+
+const inputSchema = z.object({
+  accountHash: PlayerDataSchema.shape.accountHash,
+  isPrivate: z.boolean(),
+});
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("API CALLED");
-  const accountHash = Number(req.query.accountHash as string);
+  if (req.method === "PUT") {
+    return putHandler(req, res);
+  }
 
-  if (!accountHash) return;
+  return res.status(405); // Method not allowed
+}
+
+async function putHandler(req: NextApiRequest, res: NextApiResponse) {
+  const data = inputSchema.parse(req.body);
 
   const updateQuery = e.select(
     e.update(e.Account, (account) => ({
-      filter: e.op(account.account_hash, "=", accountHash),
+      filter: e.op(account.account_hash, "=", data.accountHash),
       set: {
-        generated_path: generatePath(),
+        is_private: data.isPrivate,
+        generated_path: e.op(account.generated_path, "??", generatePath()),
       },
     })),
     () => ({
+      username: true,
+      is_private: true,
       generated_path: true,
     })
   );
@@ -31,9 +46,11 @@ export default async function handler(
       throw new Error("Error updating account");
     }
 
+    res.revalidate("/u/" + result.username);
     res.revalidate("/u/" + result.generated_path);
 
     res.status(200).json({
+      isPrivate: result.is_private,
       generatedPath: result.generated_path,
     });
   } catch (error) {

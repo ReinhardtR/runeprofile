@@ -102,6 +102,7 @@ module default {
 
   # Tab (e.g.: Bosses)
   type Tab {
+    required property index -> int16;
     required property name -> str;
   
     required link collection_log -> CollectionLog {

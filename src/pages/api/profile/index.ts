@@ -1,12 +1,25 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import e from "@/edgeql";
-import { PlayerDataSchema } from "@/lib/data-schema";
+import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
 import { edgedb } from "@/server/db/client";
+import { z } from "zod";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method === "PUT") {
+    return putHandler(req, res);
+  }
+
+  if (req.method === "DELETE") {
+    return deleteHandler(req, res);
+  }
+
+  return res.status(405); // Method not allowed
+}
+
+async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const data = PlayerDataSchema.parse(req.body);
 
   const queryStart = new Date();
@@ -85,19 +98,24 @@ export default async function handler(
   // Tabs
   const tabsQuery = e.params(
     {
-      tabs: e.array(e.str),
+      tabs: e.json,
     },
     ($) => {
-      return e.for(e.array_unpack($.tabs), (tabName) => {
+      return e.for(e.json_array_unpack($.tabs), (tabData) => {
         return e.select(
           e
             .insert(e.Tab, {
               collection_log: collectionLogSelect,
-              name: tabName,
+              index: e.cast(e.int16, tabData.index),
+              name: e.cast(e.str, tabData.name),
             })
             .unlessConflict((tab) => ({
               on: e.tuple([tab.collection_log, tab.name]),
-              else: tab,
+              else: e.update(tab, (_tab) => ({
+                set: {
+                  index: e.cast(e.int16, tabData.index),
+                },
+              })),
             })),
           () => ({
             id: true,
@@ -110,13 +128,14 @@ export default async function handler(
 
   console.log("TABS QUERY");
   const tabsResult = await tabsQuery.run(edgedb, {
-    tabs: Object.keys(data.collectionLog.tabs),
+    tabs: Object.keys(data.collectionLog.tabs).map((key) => ({
+      index: Object.keys(TabsOrder).indexOf(key),
+      name: key,
+    })),
   });
 
   const tabsMap = new Map<string, string>();
-  tabsResult.forEach((tab) => {
-    tabsMap.set(tab.name, tab.id);
-  });
+  tabsResult.forEach((tab) => tabsMap.set(tab.name, tab.id));
 
   // Entries
   const entriesQuery = e.params({ entries: e.json }, ($) => {
@@ -291,4 +310,51 @@ export default async function handler(
     datetime: new Date(),
     error: null,
   });
+}
+
+const DeleteBodySchema = z.object({
+  accountHash: PlayerDataSchema.shape.accountHash,
+});
+
+async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
+  const { accountHash } = DeleteBodySchema.parse(req.body);
+
+  const queryStart = new Date();
+  console.log("Query Start: ", queryStart.toUTCString());
+
+  const deleteQuery = e.select(
+    e.delete(e.Account, (account) => ({
+      filter: e.op(account.account_hash, "=", accountHash),
+    })),
+    () => ({
+      username: true,
+    })
+  );
+
+  try {
+    const result = await deleteQuery.run(edgedb);
+
+    if (!result) {
+      throw new Error("Failed to get username");
+    }
+
+    await res.revalidate(`/u/${result.username}`);
+
+    res.status(200).json({
+      message: "Account succesfully deleted",
+    });
+  } catch (e) {
+    console.log(e);
+
+    res.status(500).json({
+      message: "Failed to delete account",
+      error: e,
+    });
+  } finally {
+    const queryEnd = new Date();
+    console.log("Query End: ", queryEnd.toUTCString());
+
+    const queryTime = queryEnd.getTime() - queryStart.getTime();
+    console.log("Query Time: ", queryTime / 1000, "s");
+  }
 }
