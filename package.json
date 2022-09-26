@@ -7,7 +7,7 @@
     "build": "pnpm edge-gen && next build",
     "start": "next start",
     "lint": "next lint",
-    "edge-gen": "pnpm exec edgeql-js"
+    "edgeql-gen": "pnpm exec edgeql-js"
   },
   "dependencies": {
     "@floating-ui/react-dom-interactions": "^0.9.2",

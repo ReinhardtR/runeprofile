@@ -1,5 +1,6 @@
 ## Development
 
-- Run: pnpm install
-- Run: edgedb project init
-- Run: pnpm dev
+- pnpm install
+- edgedb project init
+- pnpm edgeql-gen
+- pnpm dev
