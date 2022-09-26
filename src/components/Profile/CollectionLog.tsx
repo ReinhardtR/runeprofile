@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { Card } from "../Card";
 import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
-import { AccountQueryResult } from "@/lib/accountQuery";
+import { AccountQueryResult } from "@/lib/account-query";
 import { Tooltip } from "../Misc/Tooltip";
 import { format } from "date-fns";
 
@@ -22,10 +22,10 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
       <Card>
         <div className="flex flex-col justify-center items-center space-y-1">
           <div className="text-shadow font-runescape text-4xl text-osrs-yellow">
-            <span className="font-bold">{username}</span> haven't shared their
-            Collection Log yet.
+            <span className="font-bold">{username}</span>{" "}
+            <span>haven&apos;t shared their Collection Log yet.</span>
           </div>
-          <p>Here is how to share your Collection Log: "LINK"</p>
+          <p>Here is how to share your Collection Log: &quot;LINK&quot;</p>
         </div>
       </Card>
     );

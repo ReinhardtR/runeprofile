@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
       <div className="container grid grid-cols-2 gap-6 p-8 pt-10 pb-20 m-auto text-white min-h-64 sm:grid-cols-2 lg:grid-cols-6">
         <div className="col-span-2">
           <div className="relative w-10 h-10 mb-3">
-            <Image src="/assets/misc/logo.png" fill />
+            <Image src="/assets/misc/logo.png" fill alt="Logo" />
           </div>
 
           <h3 className="mb-1 text-xl font-bold">RuneProfile</h3>
@@ -35,7 +35,11 @@ export const Footer: React.FC = () => {
             </FooterLink>
             <div className="flex mt-4 mb-10 space-x-3">
               <FooterLink>
-                <a href="https://www.twitter.com/reinhardtdev" target="_blank">
+                <a
+                  href="https://www.twitter.com/reinhardtdev"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <Twitter />
                 </a>
               </FooterLink>
@@ -45,7 +49,11 @@ export const Footer: React.FC = () => {
                 </a>
               </FooterLink>
               <FooterLink>
-                <a href="https://github.com/ReinhardtR" target="_blank">
+                <a
+                  href="https://github.com/ReinhardtR"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <Github />
                 </a>
               </FooterLink>
@@ -56,7 +64,11 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
           <FooterLink>
-            <a href="/leaderboards/collection-log" target="_blank">
+            <a
+              href="/leaderboards/collection-log"
+              target="_blank"
+              rel="noreferrer"
+            >
               <p>Collection Log</p>
             </a>
           </FooterLink>
@@ -77,13 +89,14 @@ export const Footer: React.FC = () => {
             <a
               href="https://github.com/ReinhardtR/runeprofile/issues"
               target="_blank"
+              rel="noreferrer"
             >
               <p>Report Issue</p>
             </a>
           </FooterLink>
           <FooterLink>
             {/* TODO: add discord link */}
-            <a href="/" target="_blank">
+            <a href="/" target="_blank" rel="noreferrer">
               <p>Discord</p>
             </a>
           </FooterLink>
@@ -92,7 +105,11 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Contribute</h3>
           <FooterLink>
-            <a href="https://github.com/ReinhardtR/runeprofile" target="_blank">
+            <a
+              href="https://github.com/ReinhardtR/runeprofile"
+              target="_blank"
+              rel="noreferrer"
+            >
               <p>GitHub - Website</p>
             </a>
           </FooterLink>
@@ -100,12 +117,13 @@ export const Footer: React.FC = () => {
             <a
               href="https://github.com/Reinhardtr/runeprofile-plugin"
               target="_blank"
+              rel="noreferrer"
             >
               <p>GitHub - Plugin</p>
             </a>
           </FooterLink>
           <FooterLink>
-            <a href="/donate" target="_blank">
+            <a href="/donate" target="_blank" rel="noreferrer">
               <p>Donate</p>
             </a>
           </FooterLink>
@@ -113,17 +131,21 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">RuneScape</h3>
           <FooterLink>
-            <a href="https://runelite.net/" target="_blank">
+            <a href="https://runelite.net/" target="_blank" rel="noreferrer">
               <p>RuneLite</p>
             </a>
           </FooterLink>
           <FooterLink>
-            <a href="https://oldschool.runescape.com/" target="_blank">
+            <a
+              href="https://oldschool.runescape.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
               <p>Old School</p>
             </a>
           </FooterLink>
           <FooterLink>
-            <a href="https://www.jagex.com/" target="_blank">
+            <a href="https://www.jagex.com/" target="_blank" rel="noreferrer">
               <p>Jagex Ltd.</p>
             </a>
           </FooterLink>
@@ -131,7 +153,11 @@ export const Footer: React.FC = () => {
 
         <div className="flex space-x-1 justify-center items-center col-span-6 text-sm">
           <FooterLink>
-            <a href="https://oldschool.runescape.com/" target="_blank">
+            <a
+              href="https://oldschool.runescape.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
               <p className="underline underline-offset-4">
                 Old School RuneScape
               </p>
@@ -140,7 +166,7 @@ export const Footer: React.FC = () => {
 
           <p>is a trademark of</p>
           <FooterLink>
-            <a href="https://www.jagex.com/" target="_blank">
+            <a href="https://www.jagex.com/" target="_blank" rel="noreferrer">
               <p className="underline underline-offset-4">Jagex Ltd.</p>
             </a>
           </FooterLink>

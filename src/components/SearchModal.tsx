@@ -50,7 +50,7 @@ export const SearchModal: React.FC = () => {
     return () => {
       window.removeEventListener("keydown", onKeydown);
     };
-  }, []);
+  }, [setIsSearchOpen]);
 
   const accounts = data?.accounts || [];
 

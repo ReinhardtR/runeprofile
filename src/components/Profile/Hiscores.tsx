@@ -89,6 +89,7 @@ const LeaderboardTypeTab: React.FC<LeaderboardTypeTabProps> = ({
             <div className="relative w-4 h-5 drop-shadow-solid mx-auto">
               <Image
                 src={`/assets/hiscores/account-types/${leaderboardType}.png`}
+                alt={leaderboardType}
                 quality={100}
                 fill
               />
@@ -126,6 +127,7 @@ const EntryTypeTab: React.FC<EntryTypeTabProps> = ({ entryType }) => {
             <div className="relative w-5 h-5 drop-shadow-solid">
               <Image
                 src={`/assets/hiscores/entry-types/${entryType}.png`}
+                alt={entryType}
                 quality={100}
                 fill
               />
@@ -171,6 +173,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
                   <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
                     <Image
                       src={`/assets/hiscores/skills/${skill.name.toLowerCase()}.png`}
+                      alt={skill.name}
                       fill
                     />
                   </div>
@@ -224,6 +227,7 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
                       src={`/assets/hiscores/activities/${entryNameToPath(
                         activity.name
                       )}.png`}
+                      alt={activity.name}
                       quality={100}
                       fill
                     />
@@ -282,6 +286,7 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
                       src={`/assets/hiscores/bosses/${entryNameToPath(
                         boss.name
                       )}.png`}
+                      alt={boss.name}
                       quality={100}
                       fill
                     />

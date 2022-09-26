@@ -12,16 +12,16 @@ export const Header: React.FC = () => {
 
   const [isAtTop, setIsAtTop] = useState(true);
 
-  function onScroll() {
-    if ((window.scrollY || 0) < 20) {
-      setIsAtTop(true);
-    } else if (isAtTop) {
-      setIsAtTop(false);
-    }
-  }
-
   useEffect(() => {
     if (!window) return;
+
+    function onScroll() {
+      if ((window.scrollY || 0) < 20) {
+        setIsAtTop(true);
+      } else if (isAtTop) {
+        setIsAtTop(false);
+      }
+    }
 
     setTimeout(onScroll, 0);
 
@@ -45,6 +45,7 @@ export const Header: React.FC = () => {
         <div className="flex space-x-2 items-center">
           <Image
             src="/assets/misc/logo.png"
+            alt="Logo"
             width={42}
             height={42}
             quality={100}
@@ -83,7 +84,11 @@ export const Header: React.FC = () => {
                     <Link href="/leaderboards/collection-log">
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
-                          <Image src="/assets/icons/collection-log.png" fill />
+                          <Image
+                            src="/assets/icons/collection-log.png"
+                            fill
+                            alt="Collection Log book"
+                          />
                         </div>
                         <div className="ml-4">
                           <p className="text-sm font-medium text-light-gray">
@@ -100,6 +105,7 @@ export const Header: React.FC = () => {
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
                           <Image
                             src="/assets/leaderboard-icons/justi-helmet.png"
+                            alt="A Justiciar helmet"
                             height={40}
                             width={32}
                           />

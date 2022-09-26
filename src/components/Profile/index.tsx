@@ -37,6 +37,7 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
             <div className="relative w-5 h-5">
               <Image
                 src="/assets/skill-icons/combat.png"
+                alt="Combat Level"
                 fill
                 className="drop-shadow-xl"
               />
