@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { SearchModal } from "@/components/SearchModal";
 import Head from "next/head";
 import { withTRPC } from "@trpc/next";
-import { AppRouter } from "@/server/routers";
+import { AppRouter } from "@/server/router";
 import { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { loggerLink } from "@trpc/client/links/loggerLink";
