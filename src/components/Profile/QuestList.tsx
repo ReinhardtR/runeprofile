@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Card } from "../Card";
-import { AccountQueryResult } from "@/lib/accountQuery";
+import { AccountQueryResult } from "@/lib/account-query";
 
 type QuestListProps = {
   questList: AccountQueryResult["quest_list"];

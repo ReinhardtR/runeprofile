@@ -1,4 +1,4 @@
-import { AccountQueryResult } from "@/lib/accountQuery";
+import { AccountQueryResult } from "@/lib/account-query";
 import clsx from "clsx";
 import { Card } from "../Card";
 
