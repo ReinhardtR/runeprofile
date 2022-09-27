@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm edgeql-gen && next build",
+    "build": "npm run edgeql-gen && next build",
     "start": "next start",
     "lint": "next lint",
     "edgeql-gen": "npm exec edgeql-js"
