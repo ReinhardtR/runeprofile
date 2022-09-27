@@ -40,13 +40,15 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
                   {Object.entries(leaderboard).map(([entryType, entry]) => {
                     if (entryType == "skills") {
                       // @ts-ignore
-                      return <SkillsPanel skills={entry} />;
+                      return <SkillsPanel key={entry.name} skills={entry} />;
                     } else if (entryType == "activities") {
-                      // @ts-ignore
-                      return <ActivitiesPanel activities={entry} />;
+                      return (
+                        // @ts-ignore
+                        <ActivitiesPanel key={entry.name} activities={entry} />
+                      );
                     } else if (entryType == "bosses") {
                       // @ts-ignore
-                      return <BossesPanel bosses={entry} />;
+                      return <BossesPanel key={entry.name} bosses={entry} />;
                     } else {
                       return null;
                     }
