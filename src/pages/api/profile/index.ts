@@ -284,6 +284,8 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     data.collectionLog.tabs
   ).flatMap(([tabName, tab]) => {
     return Object.entries(tab).flatMap(([entryName, entry]) => {
+      if (!entry.killCounts) return [];
+
       return entry.items.flatMap((item) => {
         if (item.quantity === 0) return [];
 
