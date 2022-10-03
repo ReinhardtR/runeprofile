@@ -304,7 +304,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   });
 
-  await prisma.$transaction([
+  const result = await prisma.$transaction([
     // Account
     prisma.$executeRaw`
       INSERT INTO Account
@@ -506,17 +506,31 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     `,
   ]);
 
+  const updatedAccount = await prisma.account.findUnique({
+    where: { accountHash: accountHash },
+    select: {
+      username: true,
+      generatedPath: true,
+    },
+  });
+
+  if (!updatedAccount) {
+    return res.status(404).json({
+      error: "Account not found",
+    });
+  }
+
+  res.revalidate(`/u/${updatedAccount.username}`);
+
+  if (updatedAccount.generatedPath) {
+    res.revalidate(`/u/${updatedAccount.generatedPath}`);
+  }
+
   const queryEnd = new Date();
   console.log("Query End: ", queryEnd.toUTCString());
 
   const queryTime = queryEnd.getTime() - queryStart.getTime();
   console.log("Query Time: ", queryTime / 1000, "s");
-
-  // res.revalidate(`/u/${accountResult.username}`);
-
-  // if (accountResult.generated_path) {
-  //   res.revalidate(`/u/${accountResult.generated_path}`);
-  // }
 
   return res.status(200).json({
     success: true,

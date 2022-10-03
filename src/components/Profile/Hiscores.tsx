@@ -198,7 +198,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
             >
               <tr>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
                     <Image
                       src={`/assets/hiscores/skills/${skill.name.toLowerCase()}.png`}
                       alt={skill.name}
@@ -250,7 +250,7 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
             >
               <tr key={activity.name}>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
                     <Image
                       src={`/assets/hiscores/activities/${entryNameToPath(
                         activity.name
@@ -309,7 +309,7 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
             >
               <tr key={boss.name}>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
                     <Image
                       src={`/assets/hiscores/bosses/${entryNameToPath(
                         boss.name

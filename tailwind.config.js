@@ -34,6 +34,7 @@ module.exports = {
         },
       },
       dropShadow: {
+        "solid-sm": "1px 1px 0 black",
         solid: "2px 2px 0 black",
       },
     },
