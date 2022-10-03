@@ -61,7 +61,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
           </div>
 
           <div className="mx-32 bg-background-light shadow-xl rounded-xl py-8 border-2 border-primary">
-            <Profile account={showcaseAccount} />
+            {showcaseAccount && <Profile account={showcaseAccount} />}
 
             {/* Wise Old Man */}
             <div className="absolute -mt-60 right-0 -rotate-[5deg] w-[300px] hidden md:block z-20 xl:right-44">
@@ -88,29 +88,35 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
 export default Home;
 
 export const getStaticProps = async () => {
-  const minimalAccount = await minimalAccountQueryByUsername.run(edgedb, {
-    username: "PGN",
-  });
-
-  if (!minimalAccount) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const account = await accountQuery.run(edgedb, {
-    id: minimalAccount.id,
-  });
-
-  if (!account) {
-    return {
-      notFound: true,
-    };
-  }
-
   return {
     props: {
-      showcaseAccount: account,
+      showcaseAccount: null,
     },
   };
+
+  // const minimalAccount = await minimalAccountQueryByUsername.run(edgedb, {
+  //   username: "PGN",
+  // });
+
+  // if (!minimalAccount) {
+  //   return {
+  //     notFound: true,
+  //   };
+  // }
+
+  // const account = await accountQuery.run(edgedb, {
+  //   id: minimalAccount.id,
+  // });
+
+  // if (!account) {
+  //   return {
+  //     notFound: true,
+  //   };
+  // }
+
+  // return {
+  //   props: {
+  //     showcaseAccount: account,
+  //   },
+  // };
 };
