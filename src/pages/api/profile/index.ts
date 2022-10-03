@@ -512,6 +512,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     where: { accountHash: accountHash },
     select: {
       username: true,
+      isPrivate: true,
       generatedPath: true,
     },
   });
@@ -522,11 +523,13 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  res.revalidate(`/u/${updatedAccount.username}`);
+  const revalidates = [res.revalidate(`/u/${updatedAccount.username}`)];
 
-  if (updatedAccount.generatedPath) {
-    res.revalidate(`/u/${updatedAccount.generatedPath}`);
+  if (updatedAccount.isPrivate && updatedAccount.generatedPath) {
+    revalidates.push(res.revalidate(`/u/${updatedAccount.generatedPath}`));
   }
+
+  await Promise.all(revalidates);
 
   const queryEnd = new Date();
   console.log("Query End: ", queryEnd.toUTCString());
