@@ -116,7 +116,7 @@ const LeaderboardTypeTab: React.FC<LeaderboardTypeTabProps> = ({
           >
             <div className="relative w-4 h-5 drop-shadow-solid mx-auto">
               <Image
-                src={`/assets/hiscores/account-types/${leaderboardType}.png`}
+                src={`/assets/hiscores/account-types/${leaderboardType.toLowerCase()}.png`}
                 alt={leaderboardType}
                 quality={100}
                 fill

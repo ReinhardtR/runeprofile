@@ -67,7 +67,7 @@ export const SkillElement: React.FC<SkillElementProps> = ({
       {!isOverall && (
         <div className="relative h-full w-full flex-1">
           <Image
-            src={`/assets/skill-icons/${name}.png`}
+            src={`/assets/skill-icons/${name.toLowerCase()}.png`}
             alt={name}
             className="drop-shadow object-contain"
             fill
