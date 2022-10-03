@@ -17,7 +17,6 @@ type AchievementDiariesProps = {
 export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
   achievementDiaries,
 }) => {
-  console.log("achievementDiaries", achievementDiaries);
   return (
     <Card
       iconPath="/assets/icons/achievement-diaries.png"

@@ -264,7 +264,9 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const obtainedAtValues = Object.entries(data.collectionLog.tabs).flatMap(
     ([tabName, tab]) => {
       return Object.entries(tab).flatMap(([entryName, entry]) => {
-        return entry.items.map((item) => {
+        return entry.items.flatMap((item) => {
+          if (item.quantity === 0) return [];
+
           const values = Prisma.join([
             accountHash,
             tabName,
@@ -282,8 +284,6 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     data.collectionLog.tabs
   ).flatMap(([tabName, tab]) => {
     return Object.entries(tab).flatMap(([entryName, entry]) => {
-      if (!entry.killCounts) return [];
-
       return entry.items.flatMap((item) => {
         if (item.quantity === 0) return [];
 
@@ -304,7 +304,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   });
 
-  const result = await prisma.$transaction([
+  await prisma.$transaction([
     // Account
     prisma.$executeRaw`
       INSERT INTO Account
