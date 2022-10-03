@@ -136,12 +136,12 @@ export const SearchModal: React.FC = () => {
                         >
                           {account.username}
                         </p>
-                        {account.account_type != "NORMAL" && (
+                        {account.accountType != "NORMAL" && (
                           <div className="bg-background p-[5px] w-6 h-6 rounded">
                             <div className="relative w-full h-full">
                               <Image
-                                src={`/assets/account-type/${account.account_type.toLowerCase()}.png`}
-                                alt={account.account_type}
+                                src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
+                                alt={account.accountType}
                                 quality={100}
                                 fill
                                 className="drop-shadow-solid object-contain"

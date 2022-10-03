@@ -6,7 +6,7 @@ datasource db {
 
 generator js {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex"]
 }
 
 model Account {
@@ -29,6 +29,7 @@ model Account {
   collectionLog      CollectionLog?
 
   @@index([accountHash, username, generatedPath])
+  @@fulltext([username])
 }
 
 enum AccountType {
