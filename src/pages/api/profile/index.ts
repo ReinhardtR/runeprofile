@@ -502,7 +502,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     // Obtained At Kill Counts
     prisma.$executeRaw`
       INSERT IGNORE INTO ObtainedAtKillCount
-        (accountHash, tabName, entryName, \`index\`, itemId, name, count)
+        (accountHash, tabName, entryName, itemId, \`index\`, name, count)
       VALUES
         ${Prisma.join(obtainedAtKillCountsValues)}
     `,
