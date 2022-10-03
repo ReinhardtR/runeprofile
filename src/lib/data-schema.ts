@@ -1,6 +1,6 @@
-import { AccountType, LeaderboardType } from "@/edgeql";
-import { z } from "zod";
-import { QuestType, QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
+import { QuestType, QuestState } from "@prisma/client";
+import { z, ZodLazy } from "zod";
+import { QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
 
 const CollectionLogItemSchema = z.object({
   index: z.number(),
@@ -10,6 +10,7 @@ const CollectionLogItemSchema = z.object({
 });
 
 const KillCountSchema = z.object({
+  index: z.number(),
   name: z.string(),
   count: z.number(),
 });
@@ -23,11 +24,11 @@ const CollectionLogEntrySchema = z.object({
 const CollectionLogTabSchema = z.record(CollectionLogEntrySchema);
 
 export enum TabsOrder {
-  Bosses,
-  Raids,
-  Clues,
-  Minigames,
-  Other,
+  Bosses = "Bosses",
+  Raids = "Raids",
+  Clues = "Clues",
+  Minigames = "Minigames",
+  Other = "Other",
 }
 
 const CollectionLogSchema = z.object({
@@ -36,38 +37,28 @@ const CollectionLogSchema = z.object({
   tabs: z.record(CollectionLogTabSchema),
 });
 
-const QuestStateSchema = z.enum(["NOT_STARTED", "IN_PROGRESS", "FINISHED"]);
-
 const QuestSchema = z.object({
   name: z.string(),
-  state: QuestStateSchema,
+  state: z.nativeEnum(QuestState),
 });
+
+type QuestsArray = {
+  index: number;
+  name: string;
+  state: QuestState;
+  type: QuestType;
+}[];
 
 const QuestListSchema = z.object({
   points: z.number(),
   quests: z.array(QuestSchema).transform((quests) => {
-    const questsMap = new Map<string, z.infer<typeof QuestStateSchema>>(
+    const questsMap = new Map<string, QuestState>(
       quests.map((quest) => [quest.name, quest.state])
     );
 
-    type QuestsArray = z.infer<typeof QuestSchema>[];
-    const f2p: {
-      name: string;
-      state: "NOT_STARTED" | "IN_PROGRESS" | "FINISHED";
-    }[] = [];
-    const p2p: {
-      name: string;
-      state: "NOT_STARTED" | "IN_PROGRESS" | "FINISHED";
-    }[] = [];
-    const mini: {
-      name: string;
-      state: "NOT_STARTED" | "IN_PROGRESS" | "FINISHED";
-    }[] = [];
-    const unknown: {
-      name: string;
-      state: "NOT_STARTED" | "IN_PROGRESS" | "FINISHED";
-    }[] = [];
+    const questsArray: QuestsArray = [];
 
+    let index = 0;
     for (const [name, type] of Object.entries(QUEST_TYPE_MAP)) {
       const state = questsMap.get(name);
 
@@ -75,19 +66,14 @@ const QuestListSchema = z.object({
         continue;
       }
 
-      switch (type) {
-        case QuestType.F2P:
-          f2p.push({ name, state });
-          break;
-        case QuestType.P2P:
-          p2p.push({ name, state });
-          break;
-        case QuestType.MINI:
-          mini.push({ name, state });
-          break;
-        default:
-          throw new Error(`Unknown quest type: ${type}`);
-      }
+      questsArray.push({
+        index,
+        name,
+        state,
+        type,
+      });
+
+      index++;
 
       questsMap.delete(name);
     }
@@ -99,19 +85,16 @@ const QuestListSchema = z.object({
         continue;
       }
 
-      unknown.push({ name, state });
+      questsArray.push({ index: -1, name, state, type: QuestType.UNKNOWN });
     }
 
-    return {
-      f2p: f2p,
-      p2p: p2p,
-      mini: mini,
-      unknown: unknown,
-    };
+    return questsArray;
   }),
 });
 
-const SkillsSchema = z.array(z.object({ name: z.string(), xp: z.number() }));
+const SkillsSchema = z.array(
+  z.object({ index: z.number(), name: z.string(), xp: z.number() })
+);
 
 const CompletedAndTotalSchema = z.object({
   completed: z.number(),
@@ -139,6 +122,7 @@ const CombatAchievementsSchema = z.object({
 
 const HiscoresSkillsSchema = z.array(
   z.object({
+    index: z.number(),
     name: z.string(),
     rank: z.number(),
     level: z.number(),
@@ -148,6 +132,7 @@ const HiscoresSkillsSchema = z.array(
 
 const HiscoresActivitiesSchema = z.array(
   z.object({
+    index: z.number(),
     name: z.string(),
     rank: z.number(),
     score: z.number(),
@@ -156,6 +141,7 @@ const HiscoresActivitiesSchema = z.array(
 
 const HiscoresBossesSchema = z.array(
   z.object({
+    index: z.number(),
     name: z.string(),
     rank: z.number(),
     kills: z.number(),
@@ -178,7 +164,7 @@ const HiscoresSchema = z.object({
 export const PlayerDataSchema = z.object({
   accountHash: z.number(),
   username: z.string(),
-  accountType: z.nativeEnum(AccountType),
+  accountType: z.enum(["NORMAL", "IRONMAN"]),
   description: z
     .string()
     .nullable()

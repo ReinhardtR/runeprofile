@@ -1,0 +1,308 @@
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+generator js {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex"]
+}
+
+model Account {
+  accountHash BigInt      @id
+  username    String      @unique @db.VarChar(12)
+  accountType AccountType
+
+  isPrivate     Boolean @default(false)
+  generatedPath String? @unique @db.Char(16)
+
+  modelUri    String?
+  description String  @default("")
+  combatLevel Int
+
+  skills             Skill[]
+  achievementDiaries AchievementDiary[]
+  hiscores           HiscoresLeaderboard[]
+  combatAchievements CombatAchievements?
+  questList          QuestList?
+  collectionLog      CollectionLog?
+
+  @@index([accountHash, username, generatedPath])
+  @@fulltext([username])
+}
+
+enum AccountType {
+  NORMAL
+  IRONMAN
+  HARDCORE_IRONMAN
+  ULTIMATE_IRONMAN
+  GROUP_IRONMAN
+  HARDCORE_GROUP_IRONMAN
+  UNRANKED_GROUP_IRONMAN
+}
+
+// Skills
+model Skill {
+  index Int
+  name  String
+  xp    Int
+
+  account     Account @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt
+
+  @@id([accountHash, name])
+  @@index([accountHash])
+}
+
+// Achievement Diaries
+model AchievementDiary {
+  area  String
+  tiers AchievementDiaryTier[]
+
+  account     Account @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt
+
+  @@id([accountHash, area])
+  @@index([accountHash])
+}
+
+model AchievementDiaryTier {
+  tier      AchievementDiaryTierName
+  completed Int
+  total     Int
+
+  achievementDiary AchievementDiary @relation(fields: [accountHash, area], references: [accountHash, area])
+  accountHash      BigInt
+  area             String
+
+  @@id([accountHash, area, tier])
+  @@index([accountHash, area])
+}
+
+enum AchievementDiaryTierName {
+  EASY
+  MEDIUM
+  HARD
+  ELITE
+}
+
+// Combat Achievements
+model CombatAchievements {
+  tiers CombatAchievementTier[]
+
+  account     Account @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt  @id
+
+  @@index([accountHash])
+}
+
+model CombatAchievementTier {
+  tier      CombatAchievementTierName
+  completed Int
+  total     Int
+
+  combatAchievements CombatAchievements @relation(fields: [accountHash], references: [accountHash])
+  accountHash        BigInt
+
+  @@id([accountHash, tier])
+  @@index([accountHash])
+}
+
+enum CombatAchievementTierName {
+  EASY
+  MEDIUM
+  HARD
+  ELITE
+  MASTER
+  GRANDMASTER
+}
+
+// Quests
+model QuestList {
+  points Int
+  quests Quest[]
+
+  account     Account @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt  @id
+
+  @@index([accountHash])
+}
+
+model Quest {
+  index Int
+  name  String
+  state QuestState
+  type  QuestType
+
+  questList   QuestList @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt
+
+  @@id([accountHash, name])
+  @@index([accountHash])
+}
+
+enum QuestType {
+  F2P
+  P2P
+  MINI
+  UNKNOWN
+}
+
+enum QuestState {
+  NOT_STARTED
+  IN_PROGRESS
+  FINISHED
+}
+
+// Hiscores
+model HiscoresLeaderboard {
+  type LeaderboardType
+
+  skills     HiscoresSkill[]
+  activities HiscoresActivity[]
+  bosses     HiscoresBoss[]
+
+  Account     Account @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt
+
+  @@id([accountHash, type])
+}
+
+enum LeaderboardType {
+  NORMAL
+  IRONMAN
+  HARDCORE
+  ULTIMATE
+}
+
+model HiscoresSkill {
+  index Int
+  name  String
+  rank  Int
+  level Int
+  xp    Int
+
+  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type])
+  accountHash         BigInt
+  leaderboardType     LeaderboardType
+
+  @@id([accountHash, leaderboardType, name])
+}
+
+model HiscoresActivity {
+  index Int
+  name  String
+  rank  Int
+  score Int
+
+  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type])
+  accountHash         BigInt
+  leaderboardType     LeaderboardType
+
+  @@id([accountHash, leaderboardType, name])
+}
+
+model HiscoresBoss {
+  index Int
+  name  String
+  rank  Int
+  kills Int
+
+  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type])
+  accountHash         BigInt
+  leaderboardType     LeaderboardType
+
+  @@id([accountHash, leaderboardType, name])
+}
+
+// Collection Log
+model CollectionLog {
+  uniqueItemsObtained Int
+  uniqueItemsTotal    Int
+  tabs                Tab[]
+
+  account     Account @relation(fields: [accountHash], references: [accountHash])
+  accountHash BigInt  @id
+}
+
+model Tab {
+  index   Int
+  name    String
+  entries Entry[]
+
+  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash])
+  accountHash   BigInt
+
+  @@id([accountHash, name])
+}
+
+model Entry {
+  index      Int
+  name       String
+  killCounts KillCount[]
+  items      Item[]
+
+  tab         Tab    @relation(fields: [accountHash, tabName], references: [accountHash, name])
+  accountHash BigInt
+  tabName     String
+
+  @@id([accountHash, tabName, name])
+}
+
+model KillCount {
+  index Int
+  name  String
+  count Int
+
+  entry       Entry  @relation(fields: [accountHash, tabName, entryName], references: [accountHash, tabName, name])
+  accountHash BigInt
+  tabName     String
+  entryName   String
+
+  @@id([accountHash, tabName, entryName, name])
+}
+
+model Item {
+  index      Int
+  id         Int
+  name       String
+  quantity   Int
+  obtainedAt ObtainedAt?
+
+  entry       Entry  @relation(fields: [accountHash, tabName, entryName], references: [accountHash, tabName, name])
+  accountHash BigInt
+  tabName     String
+  entryName   String
+
+  @@id([accountHash, tabName, entryName, id])
+}
+
+model ObtainedAt {
+  date       DateTime              @default(now())
+  killCounts ObtainedAtKillCount[]
+
+  item        Item   @relation(fields: [accountHash, tabName, entryName, itemId], references: [accountHash, tabName, entryName, id])
+  accountHash BigInt
+  tabName     String
+  entryName   String
+  itemId      Int
+
+  @@id([accountHash, tabName, entryName, itemId])
+  @@index([accountHash, tabName, entryName, itemId])
+}
+
+model ObtainedAtKillCount {
+  index Int
+  name  String
+  count Int
+
+  obtainedAt  ObtainedAt @relation(fields: [accountHash, tabName, entryName, itemId], references: [accountHash, tabName, entryName, itemId])
+  accountHash BigInt
+  tabName     String
+  entryName   String
+  itemId      Int
+
+  @@id([accountHash, tabName, entryName, itemId, name])
+  @@index([accountHash, tabName, entryName, itemId])
+}

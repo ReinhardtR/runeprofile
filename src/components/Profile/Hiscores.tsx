@@ -1,6 +1,6 @@
-import { Account } from "@/edgeql";
-import { entryNameToPath } from "@/utils/entryNameToPath";
-import { numberWithCommas } from "@/utils/numberWithCommas";
+import { LeaderboardType } from "@prisma/client";
+import { entryNameToPath } from "@/utils/entry-name-to-path";
+import { numberWithCommas } from "@/utils/number-with-commas";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Image from "next/future/image";
@@ -8,8 +8,34 @@ import { Fragment } from "react";
 import { Card } from "../Card";
 import { Tooltip } from "../Misc/Tooltip";
 
+type Skill = {
+  name: string;
+  rank: number;
+  level: number;
+  xp: number;
+};
+
+type Activity = {
+  name: string;
+  rank: number;
+  score: number;
+};
+
+type Boss = {
+  name: string;
+  rank: number;
+  kills: number;
+};
+
+type Leaderboard = {
+  type: LeaderboardType;
+  skills: Skill[];
+  activities: Activity[];
+  bosses: Boss[];
+};
+
 type HiscoresProps = {
-  hiscores: Account["hiscores"];
+  hiscores: Leaderboard[];
 };
 
 export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
@@ -20,19 +46,19 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
     >
       <Tab.Group as="div" className="flex flex-col space-y-2">
         <Tab.List className="flex space-x-2 justify-evenly">
-          {Object.keys(hiscores).map((leaderboardType) => (
+          {hiscores.map((leaderboard) => (
             <LeaderboardTypeTab
-              key={leaderboardType}
-              leaderboardType={leaderboardType}
+              key={leaderboard.type}
+              leaderboardType={leaderboard.type}
             />
           ))}
         </Tab.List>
         <Tab.Panels>
-          {Object.entries(hiscores).map(([leaderboardName, leaderboard]) => (
-            <Tab.Panel key={leaderboardName}>
+          {hiscores.map((leaderboard) => (
+            <Tab.Panel key={leaderboard.type}>
               <Tab.Group>
                 <Tab.List className="flex space-x-2 justify-evenly">
-                  {Object.keys(leaderboard).map((entryType) => (
+                  {["skills", "activities", "bosses"].map((entryType) => (
                     <EntryTypeTab key={entryType} entryType={entryType} />
                   ))}
                 </Tab.List>
@@ -64,7 +90,7 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
 };
 
 type LeaderboardTypeTabProps = {
-  leaderboardType: string;
+  leaderboardType: LeaderboardType;
 };
 
 const LeaderboardTypeTab: React.FC<LeaderboardTypeTabProps> = ({
@@ -142,7 +168,7 @@ const EntryTypeTab: React.FC<EntryTypeTabProps> = ({ entryType }) => {
 };
 
 type SkillsPanelProps = {
-  skills: Account["hiscores"]["normal"]["skills"];
+  skills: Skill[];
 };
 
 const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
@@ -172,7 +198,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
             >
               <tr>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
                     <Image
                       src={`/assets/hiscores/skills/${skill.name.toLowerCase()}.png`}
                       alt={skill.name}
@@ -195,7 +221,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
 };
 
 type ActivitiesPanelProps = {
-  activities: Account["hiscores"]["normal"]["activities"];
+  activities: Activity[];
 };
 
 const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
@@ -224,7 +250,7 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
             >
               <tr key={activity.name}>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
                     <Image
                       src={`/assets/hiscores/activities/${entryNameToPath(
                         activity.name
@@ -254,7 +280,7 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
 };
 
 type BossesPanelProps = {
-  bosses: Account["hiscores"]["normal"]["bosses"];
+  bosses: Boss[];
 };
 
 const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
@@ -283,7 +309,7 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
             >
               <tr key={boss.name}>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid">
+                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
                     <Image
                       src={`/assets/hiscores/bosses/${entryNameToPath(
                         boss.name

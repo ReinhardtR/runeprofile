@@ -4,13 +4,40 @@ import { Fragment } from "react";
 import { Card } from "../Card";
 import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
-import { AccountQueryResult } from "@/lib/account-query";
 import { Tooltip } from "../Misc/Tooltip";
 import { format } from "date-fns";
 
+type KillCountType = {
+  name: string;
+  count: number;
+};
+
+type ItemType = {
+  id: number;
+  name: string;
+  quantity: number;
+  obtainedAt: {
+    date: Date;
+    killCounts: KillCountType[];
+  } | null;
+};
+
+type EntryType = {
+  name: string;
+  killCounts: KillCountType[];
+  items: ItemType[];
+};
+
+type TabType = {
+  name: string;
+  entries: EntryType[];
+};
+
 type CollectionLogProps = {
   username: string;
-  collectionLog: AccountQueryResult["collection_log"];
+  collectionLog: {
+    tabs: TabType[];
+  };
 };
 
 export const CollectionLog: React.FC<CollectionLogProps> = ({
@@ -74,7 +101,7 @@ const CollectionLogTab: React.FC<CollectionLogTabProps> = ({ name }) => {
 };
 
 type CollectionLogTabPanelProps = {
-  tab: NonNullable<CollectionLogProps["collectionLog"]>["tabs"][number];
+  tab: TabType;
 };
 
 const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
@@ -165,7 +192,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
             {obtainedItemsCount}/{totalItemsCount}
           </span>
         </p>
-        {entry.kill_counts?.map((killCount) => (
+        {entry.killCounts?.map((killCount) => (
           <p key={killCount.name} className="text-shadow text-lg leading-none">
             {killCount.name}:{" "}
             <span className="text-light-gray">{killCount.count}</span>
@@ -174,7 +201,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
       </div>
       <div className="flex h-full flex-wrap content-start gap-1 overflow-y-scroll p-1">
         {entry.items.map((item) => (
-          <CollectionLogItem key={item.item_id} item={item} />
+          <CollectionLogItem key={item.id} item={item} />
         ))}
       </div>
     </Tab.Panel>
@@ -190,13 +217,13 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
     <Tooltip
       content={
         <Fragment>
-          {item.obtained_at_kill_counts ? (
+          {item.obtainedAt ? (
             <Fragment>
               <p className="text-osrs-green font-bold text-lg">{item.name}</p>
               <p className="text-osrs-gray text-sm">
-                {format(item.obtained_at_kill_counts.date, "PPP")}
+                {format(item.obtainedAt.date, "PPP")}
               </p>
-              {item.obtained_at_kill_counts.kill_counts.map((killCount) => (
+              {item.obtainedAt.killCounts.map((killCount) => (
                 <p key={killCount.name}>
                   {killCount.name}:{" "}
                   <span className="text-light-gray">{killCount.count}</span>
@@ -219,7 +246,7 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
           )}
           <Image
             // @ts-ignore
-            src={`data:image/png;base64,${itemIcons[item.item_id]}`}
+            src={`data:image/png;base64,${itemIcons[item.id]}`}
             alt={item.name}
             className={clsx(
               "brightness-[.60] drop-shadow-2xl z-10",

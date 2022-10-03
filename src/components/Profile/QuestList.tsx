@@ -1,29 +1,49 @@
 import clsx from "clsx";
 import { Card } from "../Card";
 import { AccountQueryResult } from "@/lib/account-query";
+import { QuestState, QuestType } from "@prisma/client";
+
+type Quest = {
+  name: string;
+  state: QuestState;
+  type: QuestType;
+};
 
 type QuestListProps = {
-  questList: AccountQueryResult["quest_list"];
+  questList: {
+    points: number;
+    quests: Quest[];
+  };
 };
 
 export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
   const completedQuests = Object.values(questList.quests).reduce(
-    (acc, curr) => {
-      curr.forEach((quest) => {
-        if (quest.state == "FINISHED") {
-          acc++;
-        }
-      });
+    (acc, quest) => {
+      if (quest.state == QuestState.FINISHED) {
+        acc++;
+      }
 
       return acc;
     },
     0
   );
 
-  const totalQuests = Object.values(questList.quests).reduce((acc, curr) => {
-    acc += curr.length;
-    return acc;
-  }, 0);
+  const totalQuests = questList.quests.length;
+
+  const quests = {
+    [QuestType.UNKNOWN]: questList.quests.filter(
+      (quest) => quest.type == QuestType.UNKNOWN
+    ),
+    [QuestType.F2P]: questList.quests.filter(
+      (quest) => quest.type == QuestType.F2P
+    ),
+    [QuestType.P2P]: questList.quests.filter(
+      (quest) => quest.type == QuestType.P2P
+    ),
+    [QuestType.MINI]: questList.quests.filter(
+      (quest) => quest.type == QuestType.MINI
+    ),
+  };
 
   return (
     <Card
@@ -44,24 +64,12 @@ export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
         </p>
       </div>
       <div className="overflow-y-scroll flex-1 rounded-sm border-2 border-osrs-border p-1.5">
-        {questList.quests.unknown.length > 0 && (
-          <QuestsSection
-            sectionName="New Quests"
-            quests={questList.quests.unknown}
-          />
+        {quests.UNKNOWN.length > 0 && (
+          <QuestsSection sectionName="New Quests" quests={quests.UNKNOWN} />
         )}
-        <QuestsSection
-          sectionName="Free Quests"
-          quests={questList.quests.f2p}
-        />
-        <QuestsSection
-          sectionName="Members' Quests"
-          quests={questList.quests.p2p}
-        />
-        <QuestsSection
-          sectionName="Miniquests"
-          quests={questList.quests.mini}
-        />
+        <QuestsSection sectionName="Free Quests" quests={quests.F2P} />
+        <QuestsSection sectionName="Members' Quests" quests={quests.P2P} />
+        <QuestsSection sectionName="Miniquests" quests={quests.MINI} />
       </div>
     </Card>
   );
@@ -69,7 +77,7 @@ export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
 
 type QuestSectionProps = {
   sectionName: string;
-  quests: AccountQueryResult["quest_list"]["quests"]["f2p"];
+  quests: Quest[];
 };
 
 export const QuestsSection: React.FC<QuestSectionProps> = ({

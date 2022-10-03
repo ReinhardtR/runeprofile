@@ -1,7 +1,6 @@
 import type { InferNextProps } from "@/utils/infer-next-props-type";
 import type { GetStaticPropsContext, NextPage } from "next";
-import e, { $infer } from "@/edgeql";
-import { edgedb } from "@/server/db/client";
+import { prisma } from "@/server/prisma";
 import Head from "next/head";
 import {
   accountQuery,
@@ -40,27 +39,19 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   if (!username) {
     return {
       notFound: true,
-    };
+    } as const;
   }
 
   // Max username length is 12
   const isGeneratedPath = username.length > 12;
 
-  let minimalAccount: $infer<typeof minimalAccountQueryByUsername>;
+  const minimalAccountQuery = isGeneratedPath
+    ? minimalAccountQueryByGeneratedPath
+    : minimalAccountQueryByUsername;
 
-  // This is kinda ugly, but TypeScript has a hard time
-  // inferring the types in other ways.
-  if (isGeneratedPath) {
-    minimalAccount = await minimalAccountQueryByGeneratedPath.run(edgedb, {
-      generated_path: username,
-    });
-  } else {
-    minimalAccount = await minimalAccountQueryByUsername.run(edgedb, {
-      username,
-    });
-  }
+  const minimalAccount = await minimalAccountQuery(username);
 
-  // Account doesn't exist
+  // No account found
   if (!minimalAccount) {
     return {
       notFound: true,
@@ -68,27 +59,27 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   }
 
   // Account exists, but isn't accesible by the username.
-  if (!isGeneratedPath && minimalAccount.is_private) {
+  if (!isGeneratedPath && minimalAccount.isPrivate) {
     return {
       props: {
         account: null,
       },
-    };
+    } as const;
   }
 
   // Account exists, is accesed by the private url and isn't private,
   // so redirect to username path.
-  if (isGeneratedPath && !minimalAccount.is_private) {
+  if (isGeneratedPath && !minimalAccount.isPrivate) {
     return {
       redirect: {
         destination: `/u/${minimalAccount.username}`,
         permanent: false,
       },
-    };
+    } as const;
   }
 
-  const account = await accountQuery.run(edgedb, {
-    id: minimalAccount.id,
+  const account = await accountQuery({
+    accountHash: minimalAccount.accountHash,
   });
 
   // Second account query failed for some reason.
@@ -102,24 +93,22 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
     props: {
       account,
     },
-  };
+  } as const;
 };
 
 export const getStaticPaths = async () => {
-  const accountsQuery = e.select(e.Account, () => ({
-    username: true,
-    is_private: true,
-    generated_path: true,
-  }));
-
-  const accounts = await accountsQuery.run(edgedb);
+  const accounts = await prisma.account.findMany({
+    select: {
+      username: true,
+      isPrivate: true,
+      generatedPath: true,
+    },
+  });
 
   const paths = accounts.map((account) => {
     return {
       params: {
-        username: account.is_private
-          ? account.generated_path
-          : account.username,
+        username: account.isPrivate ? account.generatedPath : account.username,
       },
     };
   });

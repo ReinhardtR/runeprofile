@@ -1,10 +1,18 @@
-import { AccountQueryResult } from "@/lib/account-query";
+import { capitalize } from "@/utils/capitalize-string";
 import clsx from "clsx";
 import Image from "next/future/image";
 import { Card } from "../Card";
 
+type CombatAchievementTier = {
+  tier: string;
+  completed: number;
+  total: number;
+};
+
 type CombatAchievementsProps = {
-  combatAchievements: AccountQueryResult["combat_achievements"];
+  combatAchievements: {
+    tiers: CombatAchievementTier[];
+  };
 };
 
 export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
@@ -16,9 +24,9 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
       className="w-[250px]"
     >
       <div className="grid h-full grid-cols-2 grid-rows-3 gap-1 p-1 shadow">
-        {Object.entries(combatAchievements).map(([tierName, tierData]) => {
+        {combatAchievements.tiers.map((tier) => {
           const percentageCompleted = Math.floor(
-            (tierData.completed / tierData.total) * 100
+            (tier.completed / tier.total) * 100
           );
 
           let tierColor = "text-osrs-yellow";
@@ -31,16 +39,16 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
 
           return (
             <div
-              key={tierName}
+              key={tier.tier}
               className="runescape-corners-border flex flex-col items-center justify-center bg-white bg-opacity-[0.02] font-runescape"
             >
               <p className="text-shadow text-lg leading-none text-osrs-orange">
-                {tierName}
+                {capitalize(tier.tier)}
               </p>
               <div className="relative w-[38px] my-[1px] aspect-square">
                 <Image
-                  src={`/assets/combat-achievement-icons/${tierName.toLowerCase()}.png`}
-                  alt={tierName}
+                  src={`/assets/combat-achievement-icons/${tier.tier.toLowerCase()}.png`}
+                  alt={tier.tier}
                   quality={100}
                   fill
                   className="drop-shadow-xl"
@@ -49,7 +57,7 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
               <p
                 className={clsx("text-shadow text-sm leading-none", tierColor)}
               >
-                {tierData.completed}/{tierData.total}
+                {tier.completed}/{tier.total}
               </p>
               <div className="relative z-20 h-[10px] w-full rounded-sm border-2 border-black shadow">
                 {/* Segment Lines */}

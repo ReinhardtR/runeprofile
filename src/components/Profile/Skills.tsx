@@ -2,13 +2,17 @@ import { getLevelFromXP } from "@/lib/xp-to-level";
 import Image from "next/future/image";
 import { useMemo } from "react";
 import { Card } from "../Card";
-import { Account } from "@/edgeql";
 import clsx from "clsx";
 
 const OVERALL_NAME = "Overall";
 
+type Skill = {
+  name: string;
+  xp: number;
+};
+
 type SkillsCardProps = {
-  skills: Account["skills"];
+  skills: Skill[];
 };
 
 export const SkillsCard: React.FC<SkillsCardProps> = ({ skills }) => {

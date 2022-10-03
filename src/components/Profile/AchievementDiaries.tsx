@@ -1,9 +1,17 @@
-import { AccountQueryResult } from "@/lib/account-query";
 import clsx from "clsx";
 import { Card } from "../Card";
 
+type AchievementDiary = {
+  area: string;
+  tiers: {
+    tier: string;
+    completed: number;
+    total: number;
+  }[];
+};
+
 type AchievementDiariesProps = {
-  achievementDiaries: AccountQueryResult["achievement_diaries"];
+  achievementDiaries: AchievementDiary[];
 };
 
 export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
@@ -18,12 +26,7 @@ export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
       <div className="text-yellow-osrs flex h-full flex-col space-y-[2px] overflow-y-scroll border-2 border-osrs-dark-border p-1 font-runescape text-lg leading-tight">
         {achievementDiaries.map((achievementDiary) => {
           const area = achievementDiary.area;
-          const tiers = [
-            { name: "Easy", ...achievementDiary.Easy },
-            { name: "Medium", ...achievementDiary.Medium },
-            { name: "Hard", ...achievementDiary.Hard },
-            { name: "Elite", ...achievementDiary.Elite },
-          ] as const;
+          const tiers = achievementDiary.tiers;
 
           const tasksCompleted = tiers.reduce(
             (count, tier) => count + tier.completed,
@@ -84,7 +87,7 @@ export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
                   return (
                     <div
                       className="h-[10px] w-1/4 rounded-sm border-2 border-r-0 border-black last:border-r-2"
-                      key={area + tier.name}
+                      key={area + tier.tier}
                     >
                       <div
                         className={clsx("h-full", tierProgressClass)}

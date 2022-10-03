@@ -1,14 +1,5 @@
 import { createRouter } from "./context";
 import { z } from "zod";
-import e from "@/edgeql";
-
-const searchQuery = e.params({ query: e.str }, ($) => {
-  return e.select(e.Account, (account) => ({
-    account_type: true,
-    username: true,
-    filter: e.op(account.username, "ilike", $.query),
-  }));
-});
 
 export const accountsRouter = createRouter().query("search", {
   input: z.object({
@@ -21,11 +12,22 @@ export const accountsRouter = createRouter().query("search", {
       };
     }
 
-    const query = "%" + input.query.trim() + "%";
+    const query = input.query.trim();
 
     console.log(query);
 
-    const accounts = await searchQuery.run(ctx.edgedb, { query });
+    const accounts = await ctx.prisma.account.findMany({
+      where: {
+        username: {
+          search: query,
+        },
+        isPrivate: false,
+      },
+      select: {
+        username: true,
+        accountType: true,
+      },
+    });
 
     return {
       query,
