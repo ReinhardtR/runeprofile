@@ -1,5 +1,4 @@
 import { Profile } from "@/components/Profile";
-import { edgedb } from "@/server/db/client";
 import { InferNextProps } from "@/utils/infer-next-props-type";
 import {
   accountQuery,

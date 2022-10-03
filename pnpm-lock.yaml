@@ -5,6 +5,7 @@ specifiers:
   '@headlessui/react': ^1.6.6
   '@heroicons/react': ^1.0.6
   '@icons-pack/react-simple-icons': ^5.4.0
+  '@prisma/client': ^4.4.0
   '@react-three/drei': ^9.14.1
   '@react-three/fiber': ^8.0.27
   '@tailwindcss/forms': ^0.5.2
@@ -20,7 +21,6 @@ specifiers:
   autoprefixer: ^10.4.7
   clsx: ^1.2.1
   date-fns: ^2.29.2
-  edgedb: ^0.22.0
   eslint: 8.18.0
   eslint-config-next: 12.2.4
   jotai: ^1.7.8
@@ -30,6 +30,7 @@ specifiers:
   postcss: ^8.4.14
   prettier: ^2.7.1
   prettier-plugin-tailwindcss: ^0.1.11
+  prisma: ^4.4.0
   react: 18.2.0
   react-dom: 18.2.0
   react-merge-refs: ^2.0.1
@@ -46,6 +47,7 @@ dependencies:
   '@headlessui/react': 1.6.6_biqbaboplfbrettd7655fr4n2y
   '@heroicons/react': 1.0.6_react@18.2.0
   '@icons-pack/react-simple-icons': 5.4.0_react@18.2.0
+  '@prisma/client': 4.4.0_prisma@4.4.0
   '@react-three/drei': 9.17.3_zmnzdvvtoas32pdgzbcknv4whm
   '@react-three/fiber': 8.2.2_jvurxncug65yh22s5p4pqgaif4
   '@tailwindcss/forms': 0.5.2_tailwindcss@3.1.6
@@ -56,7 +58,6 @@ dependencies:
   '@trpc/server': 9.27.0
   clsx: 1.2.1
   date-fns: 2.29.2
-  edgedb: 0.22.0
   jotai: 1.7.8_react@18.2.0
   nanoid: 4.0.0
   next: 12.2.4_biqbaboplfbrettd7655fr4n2y
@@ -81,6 +82,7 @@ devDependencies:
   postcss: 8.4.14
   prettier: 2.7.1
   prettier-plugin-tailwindcss: 0.1.13_prettier@2.7.1
+  prisma: 4.4.0
   tailwindcss: 3.1.6_postcss@8.4.14
   typescript: 4.7.4
 
@@ -361,6 +363,28 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
+
+  /@prisma/client/4.4.0_prisma@4.4.0:
+    resolution: {integrity: sha512-ciKOP246x1xwr04G9ajHlJ4pkmtu9Q6esVyqVBO0QJihaKQIUvbPjClp17IsRJyxqNpFm4ScbOc/s9DUzKHINQ==}
+    engines: {node: '>=14.17'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 4.4.0-66.f352a33b70356f46311da8b00d83386dd9f145d6
+      prisma: 4.4.0
+    dev: false
+
+  /@prisma/engines-version/4.4.0-66.f352a33b70356f46311da8b00d83386dd9f145d6:
+    resolution: {integrity: sha512-P5v/PuEIJLYXZUZBvOLPqoyCW+m6StNqHdiR6te++gYVODpPdLakks5HVx3JaZIY+LwR02juJWFlwpc9Eog/ug==}
+    dev: false
+
+  /@prisma/engines/4.4.0:
+    resolution: {integrity: sha512-Fpykccxlt9MHrAs/QpPGpI2nOiRxuLA+LiApgA59ibbf24YICZIMWd3SI2YD+q0IAIso0jCGiHhirAIbxK3RyQ==}
+    requiresBuild: true
 
   /@react-spring/animated/9.5.2_react@18.2.0:
     resolution: {integrity: sha512-oRlX+MmYLbK8IuUZR7SQUnRjXxJ4PMIZeBkBd1SUWVgVJAHMTfJzPltzm+I6p59qX+qLlklYHfnWaonQKDqLuQ==}
@@ -1113,12 +1137,6 @@ packages:
 
   /draco3d/1.5.3:
     resolution: {integrity: sha512-Ahum6SewAd1oVMm6Fk8T/zCE0qbzjohhO5pl1Xp5Outl4JKv7jYicfd5vNtkzImx94XE35fhNXVqHk9ajt+6Tg==}
-    dev: false
-
-  /edgedb/0.22.0:
-    resolution: {integrity: sha512-tuFYKpLhl4kOqbdNxgnXDk/pi71HYRwXsnPq11xQKAZIV9iml0gHoOucSgTLI6UZYb8pKzmlbZwJJNYEtk5rDQ==}
-    engines: {node: '>= 10.0.0'}
-    hasBin: true
     dev: false
 
   /electron-to-chromium/1.4.206:
@@ -2332,6 +2350,14 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
+
+  /prisma/4.4.0:
+    resolution: {integrity: sha512-l/QKLmLcKJQFuc+X02LyICo0NWTUVaNNZ00jKJBqwDyhwMAhboD1FWwYV50rkH4Wls0RviAJSFzkC2ZrfawpfA==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@prisma/engines': 4.4.0
 
   /prop-types/15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}

@@ -1,76 +1,192 @@
-import e, { $infer } from "@/edgeql";
+import { prisma } from "@/server/prisma";
+import { AsyncReturnType } from "@/types/AsyncReturnType";
 
 // Username may also be a generated string for private accounts.
-export const minimalAccountQueryByUsername = e.params(
-  { username: e.str },
-  ($) => {
-    return e.select(e.Account, (_account) => ({
-      filter: e.op(_account.username, "=", $.username),
-      id: true,
+export const minimalAccountQueryByUsername = (username: string) => {
+  return prisma.account.findUnique({
+    where: { username },
+    select: {
+      accountHash: true,
       username: true,
-      is_private: true,
-    }));
-  }
-);
+      isPrivate: true,
+    },
+  });
+};
 
-export const minimalAccountQueryByGeneratedPath = e.params(
-  { generated_path: e.str },
-  ($) => {
-    return e.select(e.Account, (_account) => ({
-      filter: e.op(_account.generated_path, "=", $.generated_path),
-      id: true,
+export const minimalAccountQueryByGeneratedPath = (generatedPath: string) => {
+  return prisma.account.findUnique({
+    where: { generatedPath },
+    select: {
+      accountHash: true,
       username: true,
-      is_private: true,
-    }));
-  }
-);
+      isPrivate: true,
+    },
+  });
+};
 
-export const accountQuery = e.params({ id: e.uuid }, ($) => {
-  return e.assert_single(
-    e.select(e.Account, (_account) => ({
-      filter: e.op(_account.id, "=", $.id),
+export const accountQuery = async ({
+  accountHash,
+}: {
+  accountHash: bigint;
+}) => {
+  const account = await prisma.account.findUnique({
+    where: { accountHash },
+    select: {
       username: true,
-      account_type: true,
-      is_private: true,
-      model: true,
+      accountType: true,
       description: true,
-      combat_level: true,
-      skills: true,
-      achievement_diaries: true,
-      combat_achievements: true,
-      quest_list: true,
-      hiscores: true,
-      collection_log: {
-        unique_items_obtained: true,
-        unique_items_total: true,
-        tabs: (tab) => ({
+      combatLevel: true,
+      modelUri: true,
+      skills: {
+        select: {
           name: true,
-          entries: (entry) => ({
-            name: true,
-            kill_counts: true,
-            items: (item) => ({
-              item_id: true,
-              name: true,
-              quantity: true,
-              obtained_at_kill_counts: true,
-              order_by: {
-                expression: item.index,
-                direction: e.ASC,
-              },
-            }),
-            order_by: {
-              expression: entry.index,
-              direction: e.ASC,
-            },
-          }),
-          order_by: {
-            expression: tab.index,
-            direction: e.ASC,
-          },
-        }),
+          xp: true,
+        },
+        orderBy: {
+          index: "asc",
+        },
       },
-    }))
-  );
-});
+      achievementDiaries: {
+        select: {
+          area: true,
+          tiers: {
+            select: {
+              tier: true,
+              completed: true,
+              total: true,
+            },
+            orderBy: {
+              tier: "asc",
+            },
+          },
+        },
+      },
+      combatAchievements: {
+        select: {
+          tiers: {
+            select: {
+              tier: true,
+              completed: true,
+              total: true,
+            },
+            orderBy: {
+              tier: "asc",
+            },
+          },
+        },
+      },
+      questList: {
+        select: {
+          points: true,
+          quests: {
+            select: {
+              name: true,
+              state: true,
+              type: true,
+            },
+            orderBy: {
+              index: "asc",
+            },
+          },
+        },
+      },
+      hiscores: {
+        select: {
+          type: true,
+          skills: {
+            select: {
+              name: true,
+              rank: true,
+              level: true,
+              xp: true,
+            },
+            orderBy: {
+              index: "asc",
+            },
+          },
+          activities: {
+            select: {
+              name: true,
+              rank: true,
+              score: true,
+            },
+            orderBy: {
+              index: "asc",
+            },
+          },
+          bosses: {
+            select: {
+              name: true,
+              rank: true,
+              kills: true,
+            },
+            orderBy: {
+              index: "asc",
+            },
+          },
+        },
+      },
+      collectionLog: {
+        select: {
+          uniqueItemsObtained: true,
+          uniqueItemsTotal: true,
+          tabs: {
+            select: {
+              name: true,
+              entries: {
+                select: {
+                  name: true,
+                  killCounts: {
+                    select: {
+                      name: true,
+                      count: true,
+                    },
+                    orderBy: {
+                      index: "asc",
+                    },
+                  },
+                  items: {
+                    select: {
+                      id: true,
+                      name: true,
+                      quantity: true,
+                      obtainedAt: {
+                        select: {
+                          date: true,
+                          killCounts: {
+                            select: {
+                              name: true,
+                              count: true,
+                            },
+                            orderBy: {
+                              index: "asc",
+                            },
+                          },
+                        },
+                      },
+                    },
+                    orderBy: {
+                      index: "asc",
+                    },
+                  },
+                },
+                orderBy: {
+                  index: "asc",
+                },
+              },
+            },
+            orderBy: {
+              index: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
 
-export type AccountQueryResult = NonNullable<$infer<typeof accountQuery>>;
+  return account;
+};
+
+export type AccountQueryResult = NonNullable<
+  AsyncReturnType<typeof accountQuery>
+>;

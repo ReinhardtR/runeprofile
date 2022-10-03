@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import e from "@/edgeql";
 import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
-import { edgedb } from "@/server/db/client";
 import { z } from "zod";
+import { prisma } from "@/server/prisma";
+import { AchievementDiaryTierName, Prisma } from "@prisma/client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,9 +12,9 @@ export default async function handler(
     return putHandler(req, res);
   }
 
-  if (req.method === "DELETE") {
-    return deleteHandler(req, res);
-  }
+  // if (req.method === "DELETE") {
+  //   return deleteHandler(req, res);
+  // }
 
   return res.status(405); // Method not allowed
 }
@@ -25,272 +25,486 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const queryStart = new Date();
   console.log("Query Start: ", queryStart.toUTCString());
 
+  const accountHash = data.accountHash;
+
+  // Creating "VALUES" sql string from data
+
   // Account
-  const accountQuery = e.select(
-    e
-      .insert(e.Account, {
-        account_hash: data.accountHash,
-        username: data.username,
-        account_type: data.accountType,
-        description: data.description,
-        achievement_diaries: data.achievementDiaries,
-        combat_achievements: data.combatAchievements,
-        combat_level: data.combatLevel,
-        skills: data.skills,
-        model: data.model,
-        quest_list: data.questList,
-        hiscores: data.hiscores,
-        updated_at: e.datetime_current(),
-      })
-      .unlessConflict((account) => ({
-        on: account.account_hash,
-        else: e.update(account, (_account) => ({
-          set: {
-            username: data.username,
-            account_type: data.accountType,
-            description: data.description,
-            achievement_diaries: data.achievementDiaries,
-            combat_achievements: data.combatAchievements,
-            combat_level: data.combatLevel,
-            skills: data.skills,
-            quest_list: data.questList,
-            hiscores: data.hiscores,
-            updated_at: e.datetime_current(),
-          },
-        })),
-      })),
-    () => ({
-      id: true,
-      username: true,
-      generated_path: true,
-    })
+  const accountValues = Prisma.sql`(${Prisma.join([
+    accountHash,
+    data.username,
+    data.accountType,
+    data.description,
+    data.combatLevel,
+  ])})`;
+
+  // Skills
+  const skillsValues = data.skills.map((skill) => {
+    const values = Prisma.join([
+      accountHash,
+      skill.index,
+      skill.name,
+      skill.xp,
+    ]);
+
+    return Prisma.sql`(${values})`;
+  });
+
+  // Achievement Diaries
+  const achievementDiaryAreasValues = data.achievementDiaries.map((diary) => {
+    const values = Prisma.join([accountHash, diary.area]);
+
+    return Prisma.sql`(${values})`;
+  });
+
+  const achievementDiaryTiersValues = data.achievementDiaries.flatMap(
+    (diary) => {
+      const tiers = {
+        [AchievementDiaryTierName.EASY]: diary.Easy,
+        [AchievementDiaryTierName.MEDIUM]: diary.Medium,
+        [AchievementDiaryTierName.HARD]: diary.Hard,
+        [AchievementDiaryTierName.ELITE]: diary.Elite,
+      };
+
+      return Object.entries(tiers).map(([tierName, tier]) => {
+        const values = Prisma.join([
+          accountHash,
+          diary.area,
+          tierName,
+          tier.completed,
+          tier.total,
+        ]);
+
+        return Prisma.sql`(${values})`;
+      });
+    }
   );
 
-  console.log("ACCOUNT QUERY");
-  const accountResult = await accountQuery.run(edgedb);
+  // Combat Achievements
+  const combatAchievementTiers = {
+    EASY: data.combatAchievements.Easy,
+    MEDIUM: data.combatAchievements.Medium,
+    HARD: data.combatAchievements.Hard,
+    ELITE: data.combatAchievements.Elite,
+    MASTER: data.combatAchievements.Master,
+    GRANDMASTER: data.combatAchievements.Grandmaster,
+  };
+
+  const combatAchievementTiersValues = Object.entries(
+    combatAchievementTiers
+  ).map(([tierName, tier]) => {
+    const values = Prisma.join([
+      accountHash,
+      tierName,
+      tier.completed,
+      tier.total,
+    ]);
+
+    return Prisma.sql`(${values})`;
+  });
+
+  // Quests
+  const questListValues = Prisma.sql`(${Prisma.join([
+    accountHash,
+    data.questList.points,
+  ])})`;
+
+  const questsValues = data.questList.quests.map((quest) => {
+    const values = Prisma.join([
+      accountHash,
+      quest.index,
+      quest.name,
+      quest.state,
+      quest.type,
+    ]);
+
+    return Prisma.sql`(${values})`;
+  });
+
+  // Hiscore States (Leaderboards)
+  const hiscoreLeaderboards = {
+    NORMAL: data.hiscores.normal,
+    IRONMAN: data.hiscores.ironman,
+    HARDCORE: data.hiscores.hardcore,
+    ULTIMATE: data.hiscores.ultimate,
+  };
+
+  const hiscoreStatesValues = Object.keys(hiscoreLeaderboards).map(
+    (leaderboardType) => {
+      const values = Prisma.join([accountHash, leaderboardType]);
+
+      return Prisma.sql`(${values})`;
+    }
+  );
+
+  // Hiscore Skills
+  const hiscoreSkillsValues = Object.entries(hiscoreLeaderboards).flatMap(
+    ([leaderboardType, leaderboard]) => {
+      return leaderboard.skills.map((skill) => {
+        const values = Prisma.join([
+          accountHash,
+          leaderboardType,
+          skill.index,
+          skill.name,
+          skill.rank,
+          skill.level,
+          skill.xp,
+        ]);
+
+        return Prisma.sql`(${values})`;
+      });
+    }
+  );
+
+  // Hiscore Activities
+  const hiscoreActivitiesValues = Object.entries(hiscoreLeaderboards).flatMap(
+    ([leaderboardType, leaderboard]) => {
+      return leaderboard.activities.map((activity) => {
+        const values = Prisma.join([
+          accountHash,
+          leaderboardType,
+          activity.index,
+          activity.name,
+          activity.rank,
+          activity.score,
+        ]);
+
+        return Prisma.sql`(${values})`;
+      });
+    }
+  );
+
+  // Hiscore Bosses
+  const hiscoreBossesValues = Object.entries(hiscoreLeaderboards).flatMap(
+    ([leaderboardType, leaderboard]) => {
+      return leaderboard.bosses.map((boss) => {
+        const values = Prisma.join([
+          accountHash,
+          leaderboardType,
+          boss.index,
+          boss.name,
+          boss.rank,
+          boss.kills,
+        ]);
+
+        return Prisma.sql`(${values})`;
+      });
+    }
+  );
 
   // Collection Log
-  const collectionLogQuery = e
-    .insert(e.CollectionLog, {
-      unique_items_obtained: data.collectionLog.uniqueItemsObtained,
-      unique_items_total: data.collectionLog.uniqueItemsTotal,
-      account: e.select(e.Account, (account) => ({
-        filter: e.op(account.id, "=", e.uuid(accountResult.id)),
-      })),
-    })
-    .unlessConflict((collectionLog) => ({
-      on: collectionLog.account,
-      else: e.update(collectionLog, () => ({
-        set: {
-          unique_items_obtained: data.collectionLog.uniqueItemsObtained,
-          unique_items_total: data.collectionLog.uniqueItemsTotal,
-        },
-      })),
-    }));
+  const collectionLogValues = [
+    accountHash,
+    data.collectionLog.uniqueItemsObtained,
+    data.collectionLog.uniqueItemsTotal,
+  ];
 
-  console.log("COLLECTION LOG QUERY");
-  const collectionLogResult = await collectionLogQuery.run(edgedb);
+  const tabsValues = Object.keys(data.collectionLog.tabs).map((name) => {
+    const index = Object.keys(TabsOrder).indexOf(name);
+    const values = Prisma.join([accountHash, index, name]);
+    return Prisma.sql`(${values})`;
+  });
 
-  const collectionLogSelect = e.select(e.CollectionLog, (log) => ({
-    filter: e.op(log.id, "=", e.uuid(collectionLogResult.id)),
-  }));
+  const entriesValues = Object.entries(data.collectionLog.tabs).flatMap(
+    ([tabName, tab]) => {
+      return Object.entries(tab).map(([entryName, entry]) => {
+        const values = Prisma.join([
+          accountHash,
+          tabName,
+          entry.index,
+          entryName,
+        ]);
 
-  // Tabs
-  const tabsQuery = e.params(
-    {
-      tabs: e.json,
-    },
-    ($) => {
-      return e.for(e.json_array_unpack($.tabs), (tabData) => {
-        return e.select(
-          e
-            .insert(e.Tab, {
-              collection_log: collectionLogSelect,
-              index: e.cast(e.int16, tabData.index),
-              name: e.cast(e.str, tabData.name),
-            })
-            .unlessConflict((tab) => ({
-              on: e.tuple([tab.collection_log, tab.name]),
-              else: e.update(tab, (_tab) => ({
-                set: {
-                  index: e.cast(e.int16, tabData.index),
-                },
-              })),
-            })),
-          () => ({
-            id: true,
-            name: true,
-          })
-        );
+        return Prisma.sql`(${values})`;
       });
     }
   );
 
-  console.log("TABS QUERY");
-  const tabsResult = await tabsQuery.run(edgedb, {
-    tabs: Object.keys(data.collectionLog.tabs).map((key) => ({
-      index: Object.keys(TabsOrder).indexOf(key),
-      name: key,
-    })),
-  });
+  const itemsValues = Object.entries(data.collectionLog.tabs).flatMap(
+    ([tabName, tab]) => {
+      return Object.entries(tab).flatMap(([entryName, entry]) => {
+        return entry.items.map((item) => {
+          const values = Prisma.join([
+            accountHash,
+            tabName,
+            entryName,
+            item.index,
+            item.id,
+            item.name,
+            item.quantity,
+          ]);
 
-  const tabsMap = new Map<string, string>();
-  tabsResult.forEach((tab) => tabsMap.set(tab.name, tab.id));
-
-  // Entries
-  const entriesQuery = e.params({ entries: e.json }, ($) => {
-    return e.for(e.json_array_unpack($.entries), (entryData) => {
-      return e.select(
-        e
-          .insert(e.Entry, {
-            tab: e.select(e.Tab, (tab) => ({
-              filter: e.op(tab.id, "=", e.cast(e.uuid, entryData.tabId)),
-            })),
-            index: e.cast(e.int16, entryData.index),
-            name: e.cast(e.str, entryData.name),
-            kill_counts: e.cast(
-              e.array(e.tuple({ name: e.str, count: e.int32 })),
-              e.op(entryData.killCounts, "??", e.to_json("[]"))
-            ),
-            updated_at: e.datetime_current(),
-          })
-          .unlessConflict((entry) => ({
-            on: e.tuple([entry.tab, entry.name]),
-            else: e.update(entry, () => ({
-              set: {
-                index: e.cast(e.int16, entryData.index),
-                kill_counts: e.cast(
-                  e.array(e.tuple({ name: e.str, count: e.int32 })),
-                  e.op(entryData.killCounts, "??", e.to_json("[]"))
-                ),
-                updated_at: e.datetime_current(),
-              },
-            })),
-          })),
-        () => ({
-          id: true,
-          name: true,
-        })
-      );
-    });
-  });
-
-  const entriesParams = Object.entries(data.collectionLog.tabs).flatMap(
-    ([tabName, tabData]) => {
-      return Object.entries(tabData).map(([entryName, entryData]) => ({
-        tabId: tabsMap.get(tabName)!, // is based on same data, must exist.
-        index: entryData.index,
-        name: entryName,
-        killCounts: entryData.killCounts ?? [],
-      }));
-    }
-  );
-
-  console.log("ENTRIES QUERY");
-  const entriesResult = await entriesQuery.run(edgedb, {
-    entries: entriesParams,
-  });
-
-  const entriesData = Object.values(data.collectionLog.tabs).flatMap((tab) => {
-    return Object.keys(tab).map((entry) => {
-      return entry;
-    });
-  });
-
-  console.log("Entries: ", entriesData.length);
-  console.log("Result: ", entriesResult.length);
-
-  const entriesMap = new Map<string, string>();
-  entriesResult.forEach((entry) => {
-    entriesMap.set(entry.name, entry.id);
-  });
-
-  // Items
-  const itemsQuery = e.params(
-    {
-      items: e.json,
-    },
-    ($) => {
-      return e.for(e.json_array_unpack($.items), (item) => {
-        return e
-          .insert(e.Item, {
-            entry: e.select(e.Entry, (entry) => ({
-              filter: e.op(entry.id, "=", e.cast(e.uuid, item.entryId)),
-            })),
-            index: e.cast(e.int16, item.index),
-            item_id: e.cast(e.int32, item.item_id),
-            name: e.cast(e.str, item.name),
-            quantity: e.cast(e.int32, item.quantity),
-            obtained_at_kill_counts: e.op(
-              e.tuple({
-                date: e.datetime_of_transaction(),
-                kill_counts: e.cast(
-                  e.array(e.tuple({ name: e.str, count: e.int32 })),
-                  item.killCounts
-                ),
-              }),
-              "if",
-              e.op(e.cast(e.int32, item.quantity), ">", 0),
-              "else",
-              e.cast(
-                e.tuple({
-                  date: e.datetime,
-                  kill_counts: e.array(
-                    e.tuple({ name: e.str, count: e.int32 })
-                  ),
-                }),
-                e.set()
-              )
-            ),
-          })
-          .unlessConflict((_item) => ({
-            on: e.tuple([_item.entry, _item.item_id]),
-            else: e.update(_item, (existingItem) => ({
-              set: {
-                index: e.cast(e.int16, item.index),
-                name: e.cast(e.str, item.name),
-                quantity: e.cast(e.int32, item.quantity),
-                obtained_at_kill_counts: e.op(
-                  e.tuple({
-                    date: e.datetime_of_transaction(),
-                    kill_counts: e.cast(
-                      e.array(e.tuple({ name: e.str, count: e.int32 })),
-                      item.killCounts
-                    ),
-                  }),
-                  "if",
-                  e.op(
-                    e.op(e.cast(e.int32, item.quantity), ">", 0),
-                    "and",
-                    e.op(existingItem.quantity, "<=", 0)
-                  ),
-                  "else",
-                  existingItem.obtained_at_kill_counts
-                ),
-              },
-            })),
-          }));
+          return Prisma.sql`(${values})`;
+        });
       });
     }
   );
 
-  const itemsParams = Object.values(data.collectionLog.tabs).flatMap((tab) => {
-    return Object.entries(tab).flatMap(([entryName, entryData]) => {
-      return entryData.items.map((item) => ({
-        entryId: entriesMap.get(entryName)!, // is based on same data, must exist.
-        index: item.index,
-        item_id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        killCounts: entryData.killCounts ?? [],
-      }));
+  const killCountsValues = Object.entries(data.collectionLog.tabs).flatMap(
+    ([tabName, tab]) => {
+      return Object.entries(tab).flatMap(([entryName, entry]) => {
+        if (!entry.killCounts) return [];
+
+        return entry.killCounts?.map((killCount) => {
+          const values = Prisma.join([
+            accountHash,
+            tabName,
+            entryName,
+            killCount.index,
+            killCount.name,
+            killCount.count,
+          ]);
+
+          return Prisma.sql`(${values})`;
+        });
+      });
+    }
+  );
+
+  const obtainedAtValues = Object.entries(data.collectionLog.tabs).flatMap(
+    ([tabName, tab]) => {
+      return Object.entries(tab).flatMap(([entryName, entry]) => {
+        return entry.items.map((item) => {
+          const values = Prisma.join([
+            accountHash,
+            tabName,
+            entryName,
+            item.id,
+          ]);
+
+          return Prisma.sql`(${values})`;
+        });
+      });
+    }
+  );
+
+  const obtainedAtKillCountsValues = Object.entries(
+    data.collectionLog.tabs
+  ).flatMap(([tabName, tab]) => {
+    return Object.entries(tab).flatMap(([entryName, entry]) => {
+      if (!entry.killCounts) return [];
+
+      return entry.items.flatMap((item) => {
+        if (item.quantity === 0) return [];
+
+        return entry.killCounts!.map((killCount) => {
+          const values = Prisma.join([
+            accountHash,
+            tabName,
+            entryName,
+            item.id,
+            killCount.index,
+            killCount.name,
+            killCount.count,
+          ]);
+
+          return Prisma.sql`(${values})`;
+        });
+      });
     });
   });
 
-  console.log("ITEMS QUERY");
-  await itemsQuery.run(edgedb, {
-    items: itemsParams,
-  });
+  await prisma.$transaction([
+    // Account
+    prisma.$executeRaw`
+      INSERT INTO Account
+        (accountHash, username, accountType, description, combatLevel)
+      VALUES
+        ${accountValues}
+      ON DUPLICATE KEY UPDATE
+        username = VALUES(username),
+        accountType = VALUES(accountType),
+        description = VALUES(description),
+        combatLevel = VALUES(combatLevel)
+    `,
+
+    // Skills
+    prisma.$executeRaw`
+      INSERT INTO Skill 
+        (accountHash, \`index\`, name, xp)
+      VALUES
+        ${Prisma.join(skillsValues)}
+      ON DUPLICATE KEY UPDATE 
+        \`index\` = VALUES(\`index\`),
+        xp = VALUES(xp)
+    `,
+
+    // Achievement Diary Areas
+    prisma.$executeRaw`
+      INSERT IGNORE INTO AchievementDiary
+        (accountHash, area)
+      VALUES
+        ${Prisma.join(achievementDiaryAreasValues)}
+    `,
+
+    // Achievement Diary Tiers
+    prisma.$executeRaw`
+      INSERT INTO AchievementDiaryTier
+        (accountHash, area, tier, completed, total)
+      VALUES
+        ${Prisma.join(achievementDiaryTiersValues)}
+      ON DUPLICATE KEY UPDATE
+        completed = VALUES(completed),
+        total = VALUES(total)
+    `,
+
+    // Combat Achievements Log
+    prisma.$executeRaw`
+      INSERT IGNORE INTO CombatAchievements
+        (accountHash)
+      VALUES
+        (${accountHash})
+    `,
+
+    // Combat Achievement Tiers
+    prisma.$executeRaw`
+      INSERT INTO CombatAchievementTier
+        (accountHash, tier, completed, total)
+      VALUES
+        ${Prisma.join(combatAchievementTiersValues)}
+      ON DUPLICATE KEY UPDATE
+        completed = VALUES(completed),
+        total = VALUES(total)
+    `,
+
+    // Quest List
+    prisma.$executeRaw`
+      INSERT INTO QuestList
+        (accountHash, points)
+      VALUES
+        ${questListValues}
+      ON DUPLICATE KEY UPDATE
+        points = VALUES(points)
+    `,
+
+    // Quests
+    prisma.$executeRaw`
+      INSERT INTO Quest
+        (accountHash, \`index\`, name, state, type)
+      VALUES
+        ${Prisma.join(questsValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`),
+        state = VALUES(state),
+        type = VALUES(type)
+    `,
+
+    // Hiscore Leaderboards
+    prisma.$executeRaw`
+      INSERT IGNORE INTO HiscoresLeaderboard
+        (accountHash, type)
+      VALUES
+        ${Prisma.join(hiscoreStatesValues)}
+    `,
+
+    // Hiscore Skills
+    prisma.$executeRaw`
+      INSERT INTO HiscoresSkill
+        (accountHash, leaderboardType, \`index\`, name, \`rank\`, level, xp)
+      VALUES
+        ${Prisma.join(hiscoreSkillsValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`),
+        \`rank\` = VALUES(\`rank\`),
+        level = VALUES(level),
+        xp = VALUES(xp)
+    `,
+
+    // Hiscore Activities
+    prisma.$executeRaw`
+      INSERT INTO HiscoresActivity
+        (accountHash, leaderboardType, \`index\`, name, \`rank\`, score)
+      VALUES
+        ${Prisma.join(hiscoreActivitiesValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`),
+        \`rank\` = VALUES(\`rank\`),
+        score = VALUES(score)
+    `,
+
+    // Hiscore Bosses
+    prisma.$executeRaw`
+      INSERT INTO HiscoresBoss
+        (accountHash, leaderboardType, \`index\`, name, \`rank\`, kills)
+      VALUES
+        ${Prisma.join(hiscoreBossesValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`),
+        \`rank\` = VALUES(\`rank\`),
+        kills = VALUES(kills)
+    `,
+
+    // Collection Log
+    prisma.$executeRaw`
+      INSERT INTO CollectionLog
+        (accountHash, uniqueItemsObtained, uniqueItemsTotal)
+      VALUES
+        (${Prisma.join(collectionLogValues)})
+      ON DUPLICATE KEY UPDATE
+        uniqueItemsObtained = VALUES(uniqueItemsObtained),
+        uniqueItemsTotal = VALUES(uniqueItemsTotal)
+    `,
+
+    // Tabs
+    prisma.$executeRaw`
+      INSERT INTO Tab 
+        (accountHash, \`index\`, name)
+      VALUES 
+        ${Prisma.join(tabsValues)}
+      ON DUPLICATE KEY UPDATE 
+        \`index\` = VALUES(\`index\`)
+    `,
+
+    // Entries
+    prisma.$executeRaw`
+      INSERT INTO Entry 
+        (accountHash, tabName, \`index\`, name)
+      VALUES 
+        ${Prisma.join(entriesValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`)
+    `,
+
+    // Items
+    prisma.$executeRaw`
+      INSERT INTO Item 
+        (accountHash, tabName, entryName, \`index\`, id, name, quantity)
+      VALUES 
+        ${Prisma.join(itemsValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`),
+        name = VALUES(name),
+        quantity = VALUES(quantity)
+    `,
+
+    // Kill Counts (replaced)
+    prisma.$executeRaw`
+      INSERT INTO KillCount 
+        (accountHash, tabName, entryName, \`index\`, name, count)
+      VALUES 
+        ${Prisma.join(killCountsValues)}
+      ON DUPLICATE KEY UPDATE
+        \`index\` = VALUES(\`index\`),
+        name = VALUES(name),
+        count = VALUES(count)
+    `,
+
+    // Obtained At
+    prisma.$executeRaw`
+      INSERT IGNORE INTO ObtainedAt 
+        (accountHash, tabName, entryName, itemId)
+      VALUES 
+        ${Prisma.join(obtainedAtValues)}
+    `,
+
+    // Obtained At Kill Counts
+    prisma.$executeRaw`
+      INSERT IGNORE INTO ObtainedAtKillCount
+        (accountHash, tabName, entryName, \`index\`, itemId, name, count)
+      VALUES
+        ${Prisma.join(obtainedAtKillCountsValues)}
+    `,
+  ]);
 
   const queryEnd = new Date();
   console.log("Query End: ", queryEnd.toUTCString());
@@ -298,11 +512,11 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const queryTime = queryEnd.getTime() - queryStart.getTime();
   console.log("Query Time: ", queryTime / 1000, "s");
 
-  res.revalidate(`/u/${accountResult.username}`);
+  // res.revalidate(`/u/${accountResult.username}`);
 
-  if (accountResult.generated_path) {
-    res.revalidate(`/u/${accountResult.generated_path}`);
-  }
+  // if (accountResult.generated_path) {
+  //   res.revalidate(`/u/${accountResult.generated_path}`);
+  // }
 
   return res.status(200).json({
     success: true,
@@ -316,45 +530,45 @@ const DeleteBodySchema = z.object({
   accountHash: PlayerDataSchema.shape.accountHash,
 });
 
-async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
-  const { accountHash } = DeleteBodySchema.parse(req.body);
+// async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
+//   const { accountHash } = DeleteBodySchema.parse(req.body);
 
-  const queryStart = new Date();
-  console.log("Query Start: ", queryStart.toUTCString());
+//   const queryStart = new Date();
+//   console.log("Query Start: ", queryStart.toUTCString());
 
-  const deleteQuery = e.select(
-    e.delete(e.Account, (account) => ({
-      filter: e.op(account.account_hash, "=", accountHash),
-    })),
-    () => ({
-      username: true,
-    })
-  );
+//   const deleteQuery = e.select(
+//     e.delete(e.Account, (account) => ({
+//       filter: e.op(account.account_hash, "=", accountHash),
+//     })),
+//     () => ({
+//       username: true,
+//     })
+//   );
 
-  try {
-    const result = await deleteQuery.run(edgedb);
+//   try {
+//     const result = await deleteQuery.run(edgedb);
 
-    if (!result) {
-      throw new Error("Failed to get username");
-    }
+//     if (!result) {
+//       throw new Error("Failed to get username");
+//     }
 
-    await res.revalidate(`/u/${result.username}`);
+//     await res.revalidate(`/u/${result.username}`);
 
-    res.status(200).json({
-      message: "Account succesfully deleted",
-    });
-  } catch (e) {
-    console.log(e);
+//     res.status(200).json({
+//       message: "Account succesfully deleted",
+//     });
+//   } catch (e) {
+//     console.log(e);
 
-    res.status(500).json({
-      message: "Failed to delete account",
-      error: e,
-    });
-  } finally {
-    const queryEnd = new Date();
-    console.log("Query End: ", queryEnd.toUTCString());
+//     res.status(500).json({
+//       message: "Failed to delete account",
+//       error: e,
+//     });
+//   } finally {
+//     const queryEnd = new Date();
+//     console.log("Query End: ", queryEnd.toUTCString());
 
-    const queryTime = queryEnd.getTime() - queryStart.getTime();
-    console.log("Query Time: ", queryTime / 1000, "s");
-  }
-}
+//     const queryTime = queryEnd.getTime() - queryStart.getTime();
+//     console.log("Query Time: ", queryTime / 1000, "s");
+//   }
+// }

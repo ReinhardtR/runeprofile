@@ -1,8 +1,4 @@
-export enum QuestType {
-  F2P,
-  P2P,
-  MINI,
-}
+import { QuestType } from "@prisma/client";
 
 type QuestTypeMapType = {
   [key: string]: QuestType;
