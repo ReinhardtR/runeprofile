@@ -42,8 +42,10 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  res.revalidate("/u/" + result.username);
-  res.revalidate("/u/" + result.generatedPath);
+  await Promise.all([
+    res.revalidate("/u/" + result.username),
+    res.revalidate("/u/" + result.generatedPath),
+  ]);
 
   return res.status(200).json({
     isPrivate: result.isPrivate,

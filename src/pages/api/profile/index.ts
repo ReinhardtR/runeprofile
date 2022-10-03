@@ -524,11 +524,13 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // Revalidating
-  res.revalidate(`/u/${updatedAccount.username}`);
+  const revalidates = [res.revalidate(`/u/${updatedAccount.username}`)];
 
   if (updatedAccount.isPrivate && updatedAccount.generatedPath) {
-    res.revalidate(`/u/${updatedAccount.generatedPath}`);
+    revalidates.push(res.revalidate(`/u/${updatedAccount.generatedPath}`));
   }
+
+  await Promise.all(revalidates);
 
   // Logs
   const queryEnd = new Date();
@@ -559,8 +561,10 @@ async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  res.revalidate(`/u/${result.username}`);
-  res.revalidate(`/u/${result.generatedPath}`);
+  await Promise.all([
+    res.revalidate(`/u/${result.username}`),
+    res.revalidate(`/u/${result.generatedPath}`),
+  ]);
 
   return res.status(200).end();
 }

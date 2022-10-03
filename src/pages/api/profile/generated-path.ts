@@ -51,13 +51,17 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
+  const revalidates: Promise<void>[] = [];
+
   if (prevPath.generatedPath) {
-    res.revalidate("/u/" + prevPath.generatedPath);
+    revalidates.push(res.revalidate("/u/" + prevPath.generatedPath));
   }
 
   if (newPath.generatedPath) {
-    res.revalidate("/u/" + newPath.generatedPath);
+    revalidates.push(res.revalidate("/u/" + newPath.generatedPath));
   }
+
+  await Promise.all(revalidates);
 
   res.status(200).json({
     generatedPath: newPath.generatedPath,

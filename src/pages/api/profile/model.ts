@@ -58,11 +58,15 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  res.revalidate(`/u/${result.username}`);
+  const revalidates: Promise<void>[] = [];
+
+  revalidates.push(res.revalidate(`/u/${result.username}`));
 
   if (result.generatedPath) {
-    res.revalidate(`/u/${result.generatedPath}`);
+    revalidates.push(res.revalidate(`/u/${result.generatedPath}`));
   }
+
+  await Promise.all(revalidates);
 
   return res.status(200).end();
 }
