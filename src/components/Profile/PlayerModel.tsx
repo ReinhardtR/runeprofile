@@ -5,14 +5,14 @@ import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 type PlayerModelProps = {
-  model: string;
+  modelUri: string;
 };
 
-export const PlayerModel: React.FC<PlayerModelProps> = ({ model }) => {
+export const PlayerModel: React.FC<PlayerModelProps> = ({ modelUri }) => {
   return (
     <Canvas>
       <Suspense fallback={<Loader />}>
-        <Model model={model} />
+        <Model modelUri={modelUri} />
       </Suspense>
     </Canvas>
   );
@@ -20,21 +20,13 @@ export const PlayerModel: React.FC<PlayerModelProps> = ({ model }) => {
 
 type ModelProps = PlayerModelProps;
 
-const Model: React.FC<ModelProps> = ({ model }) => {
+const Model: React.FC<ModelProps> = ({ modelUri }) => {
   const mesh = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
   const [object, setObject] =
     useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
 
-  useMemo(() => {
-    const blob = new Blob([Buffer.from(model, "base64")]);
-
-    const reader = new FileReader();
-
-    reader.addEventListener("load", (event) => {
-      // @ts-ignore
-      const content = event.target.result as ArrayBuffer;
-
-      const geometry = new PLYLoader().parse(content);
+  if (object == null) {
+    new PLYLoader().load(modelUri, (geometry) => {
       geometry.computeVertexNormals();
 
       const material = new MeshStandardMaterial({
@@ -42,23 +34,21 @@ const Model: React.FC<ModelProps> = ({ model }) => {
       });
 
       const m = new Mesh(geometry, material);
-      m.rotateX(-1.5);
+      m.rotateX(-1.55);
+      m.rotateZ(0.1);
 
       setObject(m);
     });
-
-    reader.readAsArrayBuffer(blob);
-  }, [model]);
+  }
 
   useFrame(({ clock }) => {
-    const m = mesh.current;
-    if (!m) return;
-    m.rotation.y = Math.sin(clock.getElapsedTime());
+    if (!mesh.current) return;
+    mesh.current.rotation.y = Math.sin(clock.getElapsedTime());
   });
 
   return (
     <>
-      {!!object && (
+      {object && (
         <>
           <ambientLight intensity={2.5} />
           <mesh ref={mesh} scale={0.028} position={[0, -2.8, 0]}>
@@ -72,5 +62,9 @@ const Model: React.FC<ModelProps> = ({ model }) => {
 
 const Loader: React.FC = () => {
   const { progress } = useProgress();
-  return <Html center>{progress} % loaded</Html>;
+  return (
+    <Html center className="font-runescape text-osrs-yellow">
+      {progress}%
+    </Html>
+  );
 };

@@ -165,14 +165,7 @@ export const PlayerDataSchema = z.object({
   accountHash: z.number(),
   username: z.string(),
   accountType: z.enum(["NORMAL", "IRONMAN"]),
-  description: z
-    .string()
-    .nullable()
-    .transform((description) => description ?? ""),
-  model: z
-    .string()
-    .optional()
-    .transform((model) => model ?? ""),
+  description: z.string().default(""),
   combatLevel: z.number(),
   skills: SkillsSchema,
   questList: QuestListSchema,

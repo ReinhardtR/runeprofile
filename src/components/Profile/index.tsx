@@ -49,7 +49,7 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
 
         <div className="relative h-full flex flex-col justify-end items-center">
           <div className="h-[90%]">
-            {/* <PlayerModel model={account.model} /> */}
+            {account.modelUri && <PlayerModel modelUri={account.modelUri} />}
           </div>
         </div>
 

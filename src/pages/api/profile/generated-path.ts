@@ -2,69 +2,64 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { generatePath } from "@/lib/generate-path";
 import { PlayerDataSchema } from "@/lib/data-schema";
 import { z } from "zod";
+import { prisma } from "@/server/prisma";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  return res.status(200);
+  if (req.method === "PUT") {
+    return putHandler(req, res);
+  }
+
+  return res.status(405).end(); // Method not allowed
 }
 
-// export default async function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse
-// ) {
-//   if (req.method === "PUT") {
-//     return putHandler(req, res);
-//   }
+const PutBodySchema = z.object({
+  accountHash: PlayerDataSchema.shape.accountHash,
+});
 
-//   return res.status(405); // Method not allowed
-// }
+async function putHandler(req: NextApiRequest, res: NextApiResponse) {
+  const { accountHash } = PutBodySchema.parse(req.body);
 
-// const BodySchema = z.object({
-//   accountHash: PlayerDataSchema.shape.accountHash,
-// });
+  const prevPath = await prisma.account.findUnique({
+    where: {
+      accountHash,
+    },
+    select: {
+      generatedPath: true,
+    },
+  });
 
-// async function putHandler(req: NextApiRequest, res: NextApiResponse) {
-//   const { accountHash } = BodySchema.parse(req.body);
+  if (!prevPath) {
+    return res.status(404).end();
+  }
 
-//   const previousPathQuery = e.select(e.Account, (account) => ({
-//     filter: e.op(account.account_hash, "=", accountHash),
-//     generated_path: true,
-//   }));
+  const newPath = await prisma.account.update({
+    where: {
+      accountHash,
+    },
+    data: {
+      generatedPath: generatePath(),
+    },
+    select: {
+      generatedPath: true,
+    },
+  });
 
-//   const updateQuery = e.select(
-//     e.update(e.Account, (account) => ({
-//       filter: e.op(account.account_hash, "=", accountHash),
-//       set: {
-//         generated_path: generatePath(),
-//       },
-//     })),
-//     () => ({
-//       generated_path: true,
-//     })
-//   );
+  if (!newPath) {
+    return res.status(404).end();
+  }
 
-//   try {
-//     const previousPathResult = await previousPathQuery.run(edgedb);
+  if (prevPath.generatedPath) {
+    await res.revalidate("/u/" + prevPath.generatedPath);
+  }
 
-//     if (!previousPathResult) {
-//       throw new Error("Error updating account");
-//     }
+  if (newPath.generatedPath) {
+    await res.revalidate("/u/" + newPath.generatedPath);
+  }
 
-//     const newPathResult = await updateQuery.run(edgedb);
-
-//     if (!newPathResult) {
-//       throw new Error("Error updating account");
-//     }
-
-//     res.revalidate("/u/" + previousPathResult.generated_path);
-//     res.revalidate("/u/" + newPathResult.generated_path);
-
-//     res.status(200).json({
-//       generatedPath: newPathResult.generated_path,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error });
-//   }
-// }
+  res.status(200).json({
+    generatedPath: newPath.generatedPath,
+  });
+}

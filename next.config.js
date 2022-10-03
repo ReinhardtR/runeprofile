@@ -1,4 +1,6 @@
-import { env } from "./src/server/env/server.mjs";
+// @ts-check
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { env } = require("./src/server/env");
 
 /**
  * Don't be scared of the generics here.
@@ -8,11 +10,11 @@ import { env } from "./src/server/env/server.mjs";
  * @param {T} config - A generic parameter that flows through to the return type
  * @constraint {{import('next').NextConfig}}
  */
-function defineNextConfig(config) {
+function getConfig(config) {
   return config;
 }
 
-export default defineNextConfig({
+module.exports = getConfig({
   reactStrictMode: true,
   swcMinify: true,
   experimental: {

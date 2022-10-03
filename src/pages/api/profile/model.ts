@@ -1,4 +1,6 @@
 import { PlayerDataSchema } from "@/lib/data-schema";
+import { uploadByteArray } from "@/server/firebase";
+import { prisma } from "@/server/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 
@@ -6,73 +8,61 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  return res.status(200);
+  if (req.method === "PUT") {
+    return putHandler(req, res);
+  }
+
+  return res.status(405).end(); // Method not allowed
 }
 
-// const ModelSchema = z.object({
-//   accountHash: PlayerDataSchema.shape.accountHash,
-//   model: PlayerDataSchema.shape.model,
-// });
+const PutBodySchema = z.object({
+  accountHash: PlayerDataSchema.shape.accountHash,
+  model: z.string(),
+});
 
-// export default async function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse
-// ) {
-//   if (req.method === "PUT") {
-//     return putHandler(req, res);
-//   }
+async function putHandler(req: NextApiRequest, res: NextApiResponse) {
+  const { accountHash, model } = PutBodySchema.parse(req.body);
 
-//   return res.status(405); // Method not allowed
-// }
+  const account = await prisma.account.findUnique({
+    where: {
+      accountHash,
+    },
+    select: {
+      username: true,
+    },
+  });
 
-// async function putHandler(req: NextApiRequest, res: NextApiResponse) {
-//   const data = ModelSchema.parse(req.body);
+  if (!account) {
+    return res.status(404).end();
+  }
 
-//   const queryStart = new Date();
-//   console.log("Query Start: ", queryStart.toUTCString());
+  const modelUri = await uploadByteArray({
+    path: `${account.username}.ply`,
+    byteArray: new Uint8Array(Buffer.from(model, "base64")),
+  });
 
-//   const modelQuery = e.select(
-//     e.update(e.Account, (account) => ({
-//       set: {
-//         model: data.model,
-//       },
-//       filter: e.op(account.account_hash, "=", data.accountHash),
-//     })),
-//     () => ({
-//       username: true,
-//       generated_path: true,
-//     })
-//   );
+  const result = await prisma.account.update({
+    where: {
+      accountHash,
+    },
+    data: {
+      modelUri,
+    },
+    select: {
+      username: true,
+      generatedPath: true,
+    },
+  });
 
-//   try {
-//     const result = await modelQuery.run(edgedb);
+  if (!result) {
+    return res.status(404).end();
+  }
 
-//     if (!result) {
-//       throw new Error("Failed to update model");
-//     }
+  res.revalidate(`/u/${result.username}`);
 
-//     res.revalidate(`/u/${result.username}`);
+  if (result.generatedPath) {
+    res.revalidate(`/u/${result.generatedPath}`);
+  }
 
-//     if (result.generated_path) {
-//       res.revalidate(`/u/${result.generated_path}`);
-//     }
-
-//     res.status(200).json({
-//       message: "Model succesfully updated",
-//       error: null,
-//     });
-//   } catch (e) {
-//     console.log(e);
-
-//     res.status(500).json({
-//       message: "Failed to update model",
-//       error: e,
-//     });
-//   } finally {
-//     const queryEnd = new Date();
-//     console.log("Query End: ", queryEnd.toUTCString());
-
-//     const queryTime = queryEnd.getTime() - queryStart.getTime();
-//     console.log("Query Time: ", queryTime / 1000, "s");
-//   }
-// }
+  return res.status(200).end();
+}

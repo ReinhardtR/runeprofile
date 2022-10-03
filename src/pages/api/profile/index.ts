@@ -16,7 +16,7 @@ export default async function handler(
   //   return deleteHandler(req, res);
   // }
 
-  return res.status(405); // Method not allowed
+  return res.status(405).end(); // Method not allowed
 }
 
 async function putHandler(req: NextApiRequest, res: NextApiResponse) {
@@ -523,6 +523,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
+  // Revalidating
   const revalidates = [res.revalidate(`/u/${updatedAccount.username}`)];
 
   if (updatedAccount.isPrivate && updatedAccount.generatedPath) {
@@ -531,63 +532,37 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
 
   await Promise.all(revalidates);
 
+  // Logs
   const queryEnd = new Date();
   console.log("Query End: ", queryEnd.toUTCString());
 
   const queryTime = queryEnd.getTime() - queryStart.getTime();
   console.log("Query Time: ", queryTime / 1000, "s");
 
-  return res.status(200).json({
-    success: true,
-    message: "Data succesfully updated",
-    datetime: new Date(),
-    error: null,
-  });
+  return res.status(200).end();
 }
 
 const DeleteBodySchema = z.object({
   accountHash: PlayerDataSchema.shape.accountHash,
 });
 
-// async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
-//   const { accountHash } = DeleteBodySchema.parse(req.body);
+async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
+  const { accountHash } = DeleteBodySchema.parse(req.body);
 
-//   const queryStart = new Date();
-//   console.log("Query Start: ", queryStart.toUTCString());
+  const result = await prisma.account.delete({
+    where: { accountHash: accountHash },
+    select: {
+      username: true,
+      generatedPath: true,
+    },
+  });
 
-//   const deleteQuery = e.select(
-//     e.delete(e.Account, (account) => ({
-//       filter: e.op(account.account_hash, "=", accountHash),
-//     })),
-//     () => ({
-//       username: true,
-//     })
-//   );
+  if (!result) {
+    return res.status(404).end();
+  }
 
-//   try {
-//     const result = await deleteQuery.run(edgedb);
+  await res.revalidate(`/u/${result.username}`);
+  await res.revalidate(`/u/${result.generatedPath}`);
 
-//     if (!result) {
-//       throw new Error("Failed to get username");
-//     }
-
-//     await res.revalidate(`/u/${result.username}`);
-
-//     res.status(200).json({
-//       message: "Account succesfully deleted",
-//     });
-//   } catch (e) {
-//     console.log(e);
-
-//     res.status(500).json({
-//       message: "Failed to delete account",
-//       error: e,
-//     });
-//   } finally {
-//     const queryEnd = new Date();
-//     console.log("Query End: ", queryEnd.toUTCString());
-
-//     const queryTime = queryEnd.getTime() - queryStart.getTime();
-//     console.log("Query Time: ", queryTime / 1000, "s");
-//   }
-// }
+  return res.status(200).end();
+}
