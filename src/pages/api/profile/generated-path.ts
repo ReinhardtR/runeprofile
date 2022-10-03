@@ -52,11 +52,11 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (prevPath.generatedPath) {
-    await res.revalidate("/u/" + prevPath.generatedPath);
+    res.revalidate("/u/" + prevPath.generatedPath);
   }
 
   if (newPath.generatedPath) {
-    await res.revalidate("/u/" + newPath.generatedPath);
+    res.revalidate("/u/" + newPath.generatedPath);
   }
 
   res.status(200).json({
