@@ -511,6 +511,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const updatedAccount = await prisma.account.findUnique({
     where: { accountHash: accountHash },
     select: {
+      accountHash: true,
       username: true,
       isPrivate: true,
       generatedPath: true,
@@ -532,8 +533,12 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
 
   // await Promise.all(revalidates);
 
-  const url = new URL(req.url!, `http://${req.headers.host}`);
-  fetch(url.origin + "/api/profile/revalidate", {
+  const revalidateUrl = new URL(
+    `/api/revalidate?accountHash=${updatedAccount.accountHash}`,
+    `http://${req.headers.host}`
+  );
+
+  fetch(revalidateUrl, {
     method: "POST",
   });
 
