@@ -532,7 +532,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
 
   // await Promise.all(revalidates);
 
-  fetch("/api/profile/revalidate");
+  fetch(req.headers.origin + "/api/profile/revalidate");
 
   // Logs
   const queryEnd = new Date();
