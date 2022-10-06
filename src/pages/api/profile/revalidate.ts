@@ -40,6 +40,5 @@ export default async function handler(
 
   console.log("revalidate DONE");
 
-  res.status(200).end();
-  return res.socket?.destroy();
+  return res.status(200).end();
 }
