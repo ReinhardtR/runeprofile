@@ -60,7 +60,7 @@ export const Header: React.FC = () => {
             </a>
           </Link>
         </div>
-        <div className="flex text-light-gray text-lg">
+        {/* <div className="flex text-light-gray text-lg">
           <Popover className="relative">
             <Popover.Button className="drop-shadow-xl">
               <div className="flex justify-center items-center hover:text-white">
@@ -140,7 +140,7 @@ export const Header: React.FC = () => {
               </Popover.Panel>
             </Transition>
           </Popover>
-        </div>
+        </div> */}
         <div
           className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow-xl hover:cursor-pointer hover:border-primary transition-colors"
           onClick={() => setIsSearchOpen(true)}

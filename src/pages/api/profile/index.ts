@@ -524,13 +524,15 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // Revalidating
-  const revalidates = [res.revalidate(`/u/${updatedAccount.username}`)];
+  // const revalidates = [res.revalidate(`/u/${updatedAccount.username}`)];
 
-  if (updatedAccount.isPrivate && updatedAccount.generatedPath) {
-    revalidates.push(res.revalidate(`/u/${updatedAccount.generatedPath}`));
-  }
+  // if (updatedAccount.isPrivate && updatedAccount.generatedPath) {
+  //   revalidates.push(res.revalidate(`/u/${updatedAccount.generatedPath}`));
+  // }
 
-  await Promise.all(revalidates);
+  // await Promise.all(revalidates);
+
+  fetch("/api/profile/revalidate");
 
   // Logs
   const queryEnd = new Date();
