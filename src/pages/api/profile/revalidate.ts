@@ -5,9 +5,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method != "GET") {
+  if (req.method != "POST") {
     return res.status(405);
   }
+
+  console.log("revalidate");
 
   const accountHash = req.query.accountHash as string;
 
@@ -35,6 +37,8 @@ export default async function handler(
   } else {
     await res.revalidate(`/u/${profile.username}`);
   }
+
+  console.log("revalidate DONE");
 
   return res.status(200);
 }

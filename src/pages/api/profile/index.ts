@@ -532,7 +532,10 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
 
   // await Promise.all(revalidates);
 
-  fetch(req.headers.origin + "/api/profile/revalidate");
+  const url = new URL(req.url!, `http://${req.headers.host}`);
+  fetch(url.origin + "/api/profile/revalidate", {
+    method: "POST",
+  });
 
   // Logs
   const queryEnd = new Date();
