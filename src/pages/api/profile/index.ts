@@ -534,9 +534,11 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   // await Promise.all(revalidates);
 
   const revalidateUrl = new URL(
-    `/api/revalidate?accountHash=${updatedAccount.accountHash}`,
+    `/api/profile/revalidate?accountHash=${updatedAccount.accountHash}`,
     `http://${req.headers.host}`
   );
+
+  console.log(revalidateUrl);
 
   fetch(revalidateUrl, {
     method: "POST",

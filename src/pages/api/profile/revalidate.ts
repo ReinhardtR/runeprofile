@@ -19,7 +19,7 @@ export default async function handler(
 
   const profile = await prisma.account.findUnique({
     where: {
-      accountHash: parseInt(accountHash),
+      accountHash: BigInt(accountHash),
     },
     select: {
       username: true,
