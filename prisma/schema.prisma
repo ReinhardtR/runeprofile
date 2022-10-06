@@ -51,6 +51,7 @@ model Skill {
   accountHash BigInt
 
   @@id([accountHash, name])
+  @@index([accountHash])
 }
 
 // Achievement Diaries
@@ -62,6 +63,7 @@ model AchievementDiary {
   accountHash BigInt
 
   @@id([accountHash, area])
+  @@index([accountHash])
 }
 
 model AchievementDiaryTier {
@@ -90,6 +92,8 @@ model CombatAchievements {
 
   account     Account @relation(fields: [accountHash], references: [accountHash])
   accountHash BigInt  @id
+
+  @@index([accountHash])
 }
 
 model CombatAchievementTier {
@@ -101,6 +105,7 @@ model CombatAchievementTier {
   accountHash        BigInt
 
   @@id([accountHash, tier])
+  @@index([accountHash])
 }
 
 enum CombatAchievementTierName {
@@ -131,6 +136,7 @@ model Quest {
   accountHash BigInt
 
   @@id([accountHash, name])
+  @@index([accountHash])
 }
 
 enum QuestType {
@@ -158,6 +164,7 @@ model HiscoresLeaderboard {
   accountHash BigInt
 
   @@id([accountHash, type])
+  @@index([accountHash])
 }
 
 enum LeaderboardType {
@@ -179,6 +186,7 @@ model HiscoresSkill {
   leaderboardType     LeaderboardType
 
   @@id([accountHash, leaderboardType, name])
+  @@index([accountHash, leaderboardType])
 }
 
 model HiscoresActivity {
@@ -192,6 +200,7 @@ model HiscoresActivity {
   leaderboardType     LeaderboardType
 
   @@id([accountHash, leaderboardType, name])
+  @@index([accountHash, leaderboardType])
 }
 
 model HiscoresBoss {
@@ -205,6 +214,7 @@ model HiscoresBoss {
   leaderboardType     LeaderboardType
 
   @@id([accountHash, leaderboardType, name])
+  @@index([accountHash, leaderboardType])
 }
 
 // Collection Log
@@ -215,6 +225,8 @@ model CollectionLog {
 
   account     Account @relation(fields: [accountHash], references: [accountHash])
   accountHash BigInt  @id
+
+  @@index([accountHash])
 }
 
 model Tab {
@@ -226,6 +238,7 @@ model Tab {
   accountHash   BigInt
 
   @@id([accountHash, name])
+  @@index([accountHash])
 }
 
 model Entry {
@@ -239,6 +252,7 @@ model Entry {
   tabName     String
 
   @@id([accountHash, tabName, name])
+  @@index([accountHash, tabName])
 }
 
 model KillCount {
@@ -252,6 +266,7 @@ model KillCount {
   entryName   String
 
   @@id([accountHash, tabName, entryName, name])
+  @@index([accountHash, tabName, entryName])
 }
 
 model Item {
@@ -267,6 +282,7 @@ model Item {
   entryName   String
 
   @@id([accountHash, tabName, entryName, id])
+  @@index([accountHash, tabName, entryName])
 }
 
 model ObtainedAt {
@@ -280,6 +296,7 @@ model ObtainedAt {
   itemId      Int
 
   @@id([accountHash, tabName, entryName, itemId])
+  @@index([accountHash, tabName, entryName, itemId])
 }
 
 model ObtainedAtKillCount {
@@ -294,4 +311,5 @@ model ObtainedAtKillCount {
   itemId      Int
 
   @@id([accountHash, tabName, entryName, itemId, name])
+  @@index([accountHash, tabName, entryName, itemId])
 }
