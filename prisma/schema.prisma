@@ -28,6 +28,9 @@ model Account {
   questList          QuestList?
   collectionLog      CollectionLog?
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@fulltext([username])
 }
 
@@ -50,6 +53,9 @@ model Skill {
   account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@id([accountHash, name])
   @@index([accountHash])
 }
@@ -61,6 +67,9 @@ model AchievementDiary {
 
   account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, area])
   @@index([accountHash])
@@ -74,6 +83,9 @@ model AchievementDiaryTier {
   achievementDiary AchievementDiary @relation(fields: [accountHash, area], references: [accountHash, area], onDelete: Cascade)
   accountHash      BigInt
   area             String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, area, tier])
   @@index([accountHash, area])
@@ -93,6 +105,8 @@ model CombatAchievements {
   account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt  @id
 
+  createdAt DateTime @default(now())
+
   @@index([accountHash])
 }
 
@@ -103,6 +117,9 @@ model CombatAchievementTier {
 
   combatAchievements CombatAchievements @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash        BigInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, tier])
   @@index([accountHash])
@@ -124,6 +141,9 @@ model QuestList {
 
   account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt  @id
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Quest {
@@ -134,6 +154,9 @@ model Quest {
 
   questList   QuestList @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, name])
   @@index([accountHash])
@@ -163,6 +186,8 @@ model HiscoresLeaderboard {
   Account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
 
+  createdAt DateTime @default(now())
+
   @@id([accountHash, type])
   @@index([accountHash])
 }
@@ -185,6 +210,9 @@ model HiscoresSkill {
   accountHash         BigInt
   leaderboardType     LeaderboardType
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@id([accountHash, leaderboardType, name])
   @@index([accountHash, leaderboardType])
 }
@@ -198,6 +226,9 @@ model HiscoresActivity {
   hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type], onDelete: Cascade)
   accountHash         BigInt
   leaderboardType     LeaderboardType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, leaderboardType, name])
   @@index([accountHash, leaderboardType])
@@ -213,6 +244,9 @@ model HiscoresBoss {
   accountHash         BigInt
   leaderboardType     LeaderboardType
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@id([accountHash, leaderboardType, name])
   @@index([accountHash, leaderboardType])
 }
@@ -226,6 +260,9 @@ model CollectionLog {
   account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt  @id
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([accountHash])
 }
 
@@ -236,6 +273,9 @@ model Tab {
 
   collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash   BigInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, name])
   @@index([accountHash])
@@ -251,6 +291,9 @@ model Entry {
   accountHash BigInt
   tabName     String
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@id([accountHash, tabName, name])
   @@index([accountHash, tabName])
 }
@@ -264,6 +307,9 @@ model KillCount {
   accountHash BigInt
   tabName     String
   entryName   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([accountHash, tabName, entryName, name])
   @@index([accountHash, tabName, entryName])
@@ -281,6 +327,9 @@ model Item {
   tabName     String
   entryName   String
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@id([accountHash, tabName, entryName, id])
   @@index([accountHash, tabName, entryName])
 }
@@ -294,6 +343,8 @@ model ObtainedAt {
   tabName     String
   entryName   String
   itemId      Int
+
+  createdAt DateTime @default(now())
 
   @@id([accountHash, tabName, entryName, itemId])
   @@index([accountHash, tabName, entryName, itemId])
@@ -309,6 +360,8 @@ model ObtainedAtKillCount {
   tabName     String
   entryName   String
   itemId      Int
+
+  createdAt DateTime @default(now())
 
   @@id([accountHash, tabName, entryName, itemId, name])
   @@index([accountHash, tabName, entryName, itemId])
