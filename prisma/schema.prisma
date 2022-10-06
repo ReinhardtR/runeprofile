@@ -47,7 +47,7 @@ model Skill {
   name  String
   xp    Int
 
-  account     Account @relation(fields: [accountHash], references: [accountHash])
+  account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
 
   @@id([accountHash, name])
@@ -59,7 +59,7 @@ model AchievementDiary {
   area  String
   tiers AchievementDiaryTier[]
 
-  account     Account @relation(fields: [accountHash], references: [accountHash])
+  account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
 
   @@id([accountHash, area])
@@ -71,7 +71,7 @@ model AchievementDiaryTier {
   completed Int
   total     Int
 
-  achievementDiary AchievementDiary @relation(fields: [accountHash, area], references: [accountHash, area])
+  achievementDiary AchievementDiary @relation(fields: [accountHash, area], references: [accountHash, area], onDelete: Cascade)
   accountHash      BigInt
   area             String
 
@@ -90,7 +90,7 @@ enum AchievementDiaryTierName {
 model CombatAchievements {
   tiers CombatAchievementTier[]
 
-  account     Account @relation(fields: [accountHash], references: [accountHash])
+  account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt  @id
 
   @@index([accountHash])
@@ -101,7 +101,7 @@ model CombatAchievementTier {
   completed Int
   total     Int
 
-  combatAchievements CombatAchievements @relation(fields: [accountHash], references: [accountHash])
+  combatAchievements CombatAchievements @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash        BigInt
 
   @@id([accountHash, tier])
@@ -122,7 +122,7 @@ model QuestList {
   points Int
   quests Quest[]
 
-  account     Account @relation(fields: [accountHash], references: [accountHash])
+  account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt  @id
 }
 
@@ -132,7 +132,7 @@ model Quest {
   state QuestState
   type  QuestType
 
-  questList   QuestList @relation(fields: [accountHash], references: [accountHash])
+  questList   QuestList @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
 
   @@id([accountHash, name])
@@ -160,7 +160,7 @@ model HiscoresLeaderboard {
   activities HiscoresActivity[]
   bosses     HiscoresBoss[]
 
-  Account     Account @relation(fields: [accountHash], references: [accountHash])
+  Account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt
 
   @@id([accountHash, type])
@@ -181,7 +181,7 @@ model HiscoresSkill {
   level Int
   xp    Int
 
-  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type])
+  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type], onDelete: Cascade)
   accountHash         BigInt
   leaderboardType     LeaderboardType
 
@@ -195,7 +195,7 @@ model HiscoresActivity {
   rank  Int
   score Int
 
-  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type])
+  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type], onDelete: Cascade)
   accountHash         BigInt
   leaderboardType     LeaderboardType
 
@@ -209,7 +209,7 @@ model HiscoresBoss {
   rank  Int
   kills Int
 
-  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type])
+  hiscoresLeaderboard HiscoresLeaderboard @relation(fields: [accountHash, leaderboardType], references: [accountHash, type], onDelete: Cascade)
   accountHash         BigInt
   leaderboardType     LeaderboardType
 
@@ -223,7 +223,7 @@ model CollectionLog {
   uniqueItemsTotal    Int
   tabs                Tab[]
 
-  account     Account @relation(fields: [accountHash], references: [accountHash])
+  account     Account @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash BigInt  @id
 
   @@index([accountHash])
@@ -234,7 +234,7 @@ model Tab {
   name    String
   entries Entry[]
 
-  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash])
+  collectionLog CollectionLog @relation(fields: [accountHash], references: [accountHash], onDelete: Cascade)
   accountHash   BigInt
 
   @@id([accountHash, name])
@@ -247,7 +247,7 @@ model Entry {
   killCounts KillCount[]
   items      Item[]
 
-  tab         Tab    @relation(fields: [accountHash, tabName], references: [accountHash, name])
+  tab         Tab    @relation(fields: [accountHash, tabName], references: [accountHash, name], onDelete: Cascade)
   accountHash BigInt
   tabName     String
 
@@ -260,7 +260,7 @@ model KillCount {
   name  String
   count Int
 
-  entry       Entry  @relation(fields: [accountHash, tabName, entryName], references: [accountHash, tabName, name])
+  entry       Entry  @relation(fields: [accountHash, tabName, entryName], references: [accountHash, tabName, name], onDelete: Cascade)
   accountHash BigInt
   tabName     String
   entryName   String
@@ -276,7 +276,7 @@ model Item {
   quantity   Int
   obtainedAt ObtainedAt?
 
-  entry       Entry  @relation(fields: [accountHash, tabName, entryName], references: [accountHash, tabName, name])
+  entry       Entry  @relation(fields: [accountHash, tabName, entryName], references: [accountHash, tabName, name], onDelete: Cascade)
   accountHash BigInt
   tabName     String
   entryName   String
@@ -289,7 +289,7 @@ model ObtainedAt {
   date       DateTime              @default(now())
   killCounts ObtainedAtKillCount[]
 
-  item        Item   @relation(fields: [accountHash, tabName, entryName, itemId], references: [accountHash, tabName, entryName, id])
+  item        Item   @relation(fields: [accountHash, tabName, entryName, itemId], references: [accountHash, tabName, entryName, id], onDelete: Cascade)
   accountHash BigInt
   tabName     String
   entryName   String
@@ -304,7 +304,7 @@ model ObtainedAtKillCount {
   name  String
   count Int
 
-  obtainedAt  ObtainedAt @relation(fields: [accountHash, tabName, entryName, itemId], references: [accountHash, tabName, entryName, itemId])
+  obtainedAt  ObtainedAt @relation(fields: [accountHash, tabName, entryName, itemId], references: [accountHash, tabName, entryName, itemId], onDelete: Cascade)
   accountHash BigInt
   tabName     String
   entryName   String
