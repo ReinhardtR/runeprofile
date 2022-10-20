@@ -1,4 +1,5 @@
 import { PlayerDataSchema } from "@/lib/data-schema";
+import { revalidateProfile } from "@/lib/revalidate-profile";
 import { uploadByteArray } from "@/server/firebase";
 import { prisma } from "@/server/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -41,7 +42,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     byteArray: new Uint8Array(Buffer.from(model, "base64")),
   });
 
-  const result = await prisma.account.update({
+  const updatedAccount = await prisma.account.update({
     where: {
       accountHash,
     },
@@ -51,22 +52,15 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     select: {
       username: true,
       generatedPath: true,
+      isPrivate: true,
     },
   });
 
-  if (!result) {
+  if (!updatedAccount) {
     return res.status(404).end();
   }
 
-  const revalidates: Promise<void>[] = [];
-
-  revalidates.push(res.revalidate(`/u/${result.username}`));
-
-  if (result.generatedPath) {
-    revalidates.push(res.revalidate(`/u/${result.generatedPath}`));
-  }
-
-  await Promise.all(revalidates);
+  await revalidateProfile(res, updatedAccount);
 
   return res.status(200).end();
 }

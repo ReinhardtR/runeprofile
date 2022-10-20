@@ -3,6 +3,7 @@ import { generatePath } from "@/lib/generate-path";
 import { PlayerDataSchema } from "@/lib/data-schema";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
+import { revalidateProfile } from "@/lib/revalidate-profile";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,7 +23,7 @@ const PutBodySchema = z.object({
 async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const { accountHash } = PutBodySchema.parse(req.body);
 
-  const prevPath = await prisma.account.findUnique({
+  const oldAccount = await prisma.account.findUnique({
     where: {
       accountHash,
     },
@@ -31,11 +32,11 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  if (!prevPath) {
+  if (!oldAccount) {
     return res.status(404).end();
   }
 
-  const newPath = await prisma.account.update({
+  const updatedAccount = await prisma.account.update({
     where: {
       accountHash,
     },
@@ -43,27 +44,22 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
       generatedPath: generatePath(),
     },
     select: {
+      username: true,
       generatedPath: true,
+      isPrivate: true,
     },
   });
 
-  if (!newPath) {
+  if (!updatedAccount) {
     return res.status(404).end();
   }
 
-  const revalidates: Promise<void>[] = [];
-
-  if (prevPath.generatedPath) {
-    revalidates.push(res.revalidate("/u/" + prevPath.generatedPath));
-  }
-
-  if (newPath.generatedPath) {
-    revalidates.push(res.revalidate("/u/" + newPath.generatedPath));
-  }
-
-  await Promise.all(revalidates);
+  await Promise.all([
+    res.revalidate(`/u/${oldAccount.generatedPath}`),
+    revalidateProfile(res, updatedAccount),
+  ]);
 
   res.status(200).json({
-    generatedPath: newPath.generatedPath,
+    generatedPath: updatedAccount.generatedPath,
   });
 }

@@ -3,6 +3,7 @@ import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { AchievementDiaryTierName, Prisma } from "@prisma/client";
+import { revalidateProfile } from "@/lib/revalidate-profile";
 
 export default async function handler(
   req: NextApiRequest,
@@ -511,7 +512,6 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const updatedAccount = await prisma.account.findUnique({
     where: { accountHash: accountHash },
     select: {
-      accountHash: true,
       username: true,
       isPrivate: true,
       generatedPath: true,
@@ -525,24 +525,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // Revalidating
-  // const revalidates = [res.revalidate(`/u/${updatedAccount.username}`)];
-
-  // if (updatedAccount.isPrivate && updatedAccount.generatedPath) {
-  //   revalidates.push(res.revalidate(`/u/${updatedAccount.generatedPath}`));
-  // }
-
-  // await Promise.all(revalidates);
-
-  const revalidateUrl = new URL(
-    `/api/profile/revalidate?accountHash=${updatedAccount.accountHash}`,
-    `http://${req.headers.host}`
-  );
-
-  console.log(revalidateUrl);
-
-  fetch(revalidateUrl, {
-    method: "POST",
-  });
+  await revalidateProfile(res, updatedAccount);
 
   // Logs
   const queryEnd = new Date();
@@ -561,22 +544,20 @@ const DeleteBodySchema = z.object({
 async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
   const { accountHash } = DeleteBodySchema.parse(req.body);
 
-  const result = await prisma.account.delete({
+  const deletedAccount = await prisma.account.delete({
     where: { accountHash: accountHash },
     select: {
       username: true,
       generatedPath: true,
+      isPrivate: true,
     },
   });
 
-  if (!result) {
+  if (!deletedAccount) {
     return res.status(404).end();
   }
 
-  await Promise.all([
-    res.revalidate(`/u/${result.username}`),
-    res.revalidate(`/u/${result.generatedPath}`),
-  ]);
+  await revalidateProfile(res, deletedAccount);
 
   return res.status(200).end();
 }

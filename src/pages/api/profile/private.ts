@@ -3,6 +3,7 @@ import { PlayerDataSchema } from "@/lib/data-schema";
 import { z } from "zod";
 import { generatePath } from "@/lib/generate-path";
 import { prisma } from "@/server/prisma";
+import { revalidateProfile } from "@/lib/revalidate-profile";
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,7 +24,7 @@ const PutBodySchema = z.object({
 async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const { accountHash, isPrivate } = PutBodySchema.parse(req.body);
 
-  const result = await prisma.account.update({
+  const updatedAccount = await prisma.account.update({
     where: {
       accountHash,
     },
@@ -38,17 +39,17 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  if (!result) {
+  if (!updatedAccount) {
     return res.status(404).end();
   }
 
   await Promise.all([
-    res.revalidate("/u/" + result.username),
-    res.revalidate("/u/" + result.generatedPath),
+    res.revalidate(`/u/${updatedAccount.generatedPath}`),
+    res.revalidate(`/u/${updatedAccount.username}`),
   ]);
 
   return res.status(200).json({
-    isPrivate: result.isPrivate,
-    generatedPath: result.generatedPath,
+    isPrivate: updatedAccount.isPrivate,
+    generatedPath: updatedAccount.generatedPath,
   });
 }

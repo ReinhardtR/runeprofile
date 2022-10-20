@@ -1,4 +1,5 @@
 import { PlayerDataSchema } from "@/lib/data-schema";
+import { revalidateProfile } from "@/lib/revalidate-profile";
 import { prisma } from "@/server/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
@@ -22,7 +23,7 @@ const PutBodySchema = z.object({
 async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const { accountHash, description } = PutBodySchema.parse(req.body);
 
-  const result = await prisma.account.update({
+  const updatedAccount = await prisma.account.update({
     where: {
       accountHash: accountHash,
     },
@@ -30,15 +31,20 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
       description: description,
     },
     select: {
+      username: true,
+      generatedPath: true,
+      isPrivate: true,
       description: true,
     },
   });
 
-  if (!result) {
+  if (!updatedAccount) {
     return res.status(404).end();
   }
 
+  await revalidateProfile(res, updatedAccount);
+
   return res.status(200).json({
-    description: result.description,
+    description: updatedAccount.description,
   });
 }
