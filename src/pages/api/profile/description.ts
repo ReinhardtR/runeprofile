@@ -25,7 +25,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
 
   const updatedAccount = await prisma.account.update({
     where: {
-      accountHash: accountHash,
+      accountHash,
     },
     data: {
       description: description,

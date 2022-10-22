@@ -3,24 +3,24 @@ import { NextApiResponse } from "next";
 
 export async function getProfileAndRevalidate(
   res: NextApiResponse,
-  accountHash: bigint
+  accountHash: string
 ) {
-  const profile = await prisma.account.findUnique({
-    where: {
-      accountHash,
-    },
-    select: {
-      username: true,
-      generatedPath: true,
-      isPrivate: true,
-    },
-  });
+  // const profile = await prisma.account.findUnique({
+  //   where: {
+  //     accountHash,
+  //   },
+  //   select: {
+  //     username: true,
+  //     generatedPath: true,
+  //     isPrivate: true,
+  //   },
+  // });
 
-  if (!profile) {
-    throw new Error("Profile not found");
-  }
+  // if (!profile) {
+  throw new Error("Profile not found");
+  // }
 
-  return revalidateProfile(res, profile);
+  // return revalidateProfile(res, profile);
 }
 
 export async function revalidateProfile(

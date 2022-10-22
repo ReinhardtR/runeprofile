@@ -27,7 +27,7 @@ export const minimalAccountQueryByGeneratedPath = (generatedPath: string) => {
 export const accountQuery = async ({
   accountHash,
 }: {
-  accountHash: bigint;
+  accountHash: string;
 }) => {
   const account = await prisma.account.findUnique({
     where: { accountHash },

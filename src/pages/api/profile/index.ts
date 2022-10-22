@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { AchievementDiaryTierName, Prisma } from "@prisma/client";
 import { revalidateProfile } from "@/lib/revalidate-profile";
+import https from "https";
 
 export default async function handler(
   req: NextApiRequest,
@@ -510,11 +511,9 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   ]);
 
   const updatedAccount = await prisma.account.findUnique({
-    where: { accountHash: accountHash },
+    where: { accountHash },
     select: {
-      username: true,
-      isPrivate: true,
-      generatedPath: true,
+      accountHash: true,
     },
   });
 
@@ -524,8 +523,9 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  // Revalidating
-  await revalidateProfile(res, updatedAccount);
+  // // Revalidating
+  // await revalidateProfile(res, updatedAccount);
+  await revalidateForget(req, updatedAccount.accountHash);
 
   // Logs
   const queryEnd = new Date();
@@ -561,3 +561,26 @@ async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
 
   return res.status(200).end();
 }
+
+const revalidateForget = async (
+  nextReq: NextApiRequest,
+  accountHash: string
+) => {
+  // create url from nextReq
+  const url = new URL(
+    `/api/profile/revalidate-task?accountHash=${accountHash}`,
+    `https://${nextReq.headers.host}`
+  );
+
+  console.log("URL: " + url.toString());
+
+  return new Promise((resolve, reject) => {
+    const request = https.request(url, {
+      method: "POST",
+    });
+
+    request.end(() => {
+      resolve(request);
+    });
+  });
+};
