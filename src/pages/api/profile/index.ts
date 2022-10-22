@@ -13,9 +13,9 @@ export default async function handler(
     return putHandler(req, res);
   }
 
-  // if (req.method === "DELETE") {
-  //   return deleteHandler(req, res);
-  // }
+  if (req.method === "DELETE") {
+    return deleteHandler(req, res);
+  }
 
   return res.status(405).end(); // Method not allowed
 }

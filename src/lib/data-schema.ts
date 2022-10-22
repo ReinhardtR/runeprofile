@@ -162,7 +162,7 @@ const HiscoresSchema = z.object({
 });
 
 export const PlayerDataSchema = z.object({
-  accountHash: z.number(),
+  accountHash: z.string(),
   username: z.string(),
   accountType: z.enum(["NORMAL", "IRONMAN"]),
   description: z.string(),
