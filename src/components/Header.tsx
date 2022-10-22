@@ -42,24 +42,25 @@ export const Header: React.FC = () => {
       )}
     >
       <div className="container flex items-center h-full px-2 justify-between">
-        <div className="flex space-x-2 items-center">
-          <Image
-            src="/assets/misc/logo.png"
-            alt="Logo"
-            width={42}
-            height={42}
-            quality={100}
-            className="drop-shadow-xl"
-          />
-          <Link href="/">
+        <Link href="/">
+          <div className="flex space-x-2 items-center">
+            <Image
+              src="/assets/misc/logo.png"
+              alt="Logo"
+              width={42}
+              height={42}
+              quality={100}
+              className="drop-shadow-xl"
+            />
+
             <a>
               <div className="text-lg font-black tracking-wide hidden sm:block drop-shadow-xl leading-none">
                 <p className="text-primary">RUNE</p>
                 <p className="text-accent">PROFILE</p>
               </div>
             </a>
-          </Link>
-        </div>
+          </div>
+        </Link>
         {/* <div className="flex text-light-gray text-lg">
           <Popover className="relative">
             <Popover.Button className="drop-shadow-xl">
