@@ -52,7 +52,6 @@ export const Header: React.FC = () => {
               quality={100}
               className="drop-shadow-xl"
             />
-
             <a>
               <div className="text-lg font-black tracking-wide hidden sm:block drop-shadow-xl leading-none">
                 <p className="text-primary">RUNE</p>
