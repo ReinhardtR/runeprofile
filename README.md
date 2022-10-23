@@ -1,6 +1,1 @@
-## Development
-
-- pnpm install
-- edgedb project init
-- pnpm edgeql-gen
-- pnpm dev
+The Next.js application for https://github.com/ReinhardtR/runeprofile-plugin
