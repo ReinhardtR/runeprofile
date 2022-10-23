@@ -5,6 +5,7 @@ import { prisma } from "@/server/prisma";
 import { AchievementDiaryTierName, Prisma } from "@prisma/client";
 import { revalidateProfile } from "@/lib/revalidate-profile";
 import https from "https";
+import http from "http";
 
 export default async function handler(
   req: NextApiRequest,
@@ -308,7 +309,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   });
 
-  await prisma.$transaction([
+  const queries = [
     // Account
     prisma.$executeRaw`
       INSERT INTO Account
@@ -437,78 +438,108 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
         \`rank\` = VALUES(\`rank\`),
         kills = VALUES(kills)
     `,
+  ];
 
-    // Collection Log
-    prisma.$executeRaw`
-      INSERT INTO CollectionLog
-        (accountHash, uniqueItemsObtained, uniqueItemsTotal)
-      VALUES
-        (${Prisma.join(collectionLogValues)})
-      ON DUPLICATE KEY UPDATE
-        uniqueItemsObtained = VALUES(uniqueItemsObtained),
-        uniqueItemsTotal = VALUES(uniqueItemsTotal)
-    `,
+  // Collection Log
+  if (collectionLogValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT INTO CollectionLog
+          (accountHash, uniqueItemsObtained, uniqueItemsTotal)
+        VALUES
+          (${Prisma.join(collectionLogValues)})
+        ON DUPLICATE KEY UPDATE
+          uniqueItemsObtained = VALUES(uniqueItemsObtained),
+          uniqueItemsTotal = VALUES(uniqueItemsTotal)
+      `
+    );
+  }
 
-    // Tabs
-    prisma.$executeRaw`
-      INSERT INTO Tab 
-        (accountHash, \`index\`, name)
-      VALUES 
-        ${Prisma.join(tabsValues)}
-      ON DUPLICATE KEY UPDATE 
-        \`index\` = VALUES(\`index\`)
-    `,
+  // Tabs
+  if (tabsValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT INTO Tab 
+          (accountHash, \`index\`, name)
+        VALUES 
+          ${Prisma.join(tabsValues)}
+        ON DUPLICATE KEY UPDATE 
+          \`index\` = VALUES(\`index\`)
+      `
+    );
+  }
 
-    // Entries
-    prisma.$executeRaw`
-      INSERT INTO Entry 
-        (accountHash, tabName, \`index\`, name)
-      VALUES 
-        ${Prisma.join(entriesValues)}
-      ON DUPLICATE KEY UPDATE
-        \`index\` = VALUES(\`index\`)
-    `,
+  // Entries
+  if (entriesValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT INTO Entry 
+          (accountHash, tabName, \`index\`, name)
+        VALUES 
+          ${Prisma.join(entriesValues)}
+        ON DUPLICATE KEY UPDATE
+          \`index\` = VALUES(\`index\`)
+      `
+    );
+  }
 
-    // Items
-    prisma.$executeRaw`
-      INSERT INTO Item 
-        (accountHash, tabName, entryName, \`index\`, id, name, quantity)
-      VALUES 
-        ${Prisma.join(itemsValues)}
-      ON DUPLICATE KEY UPDATE
-        \`index\` = VALUES(\`index\`),
-        name = VALUES(name),
-        quantity = VALUES(quantity)
-    `,
+  // Items
+  if (itemsValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT INTO Item 
+          (accountHash, tabName, entryName, \`index\`, id, name, quantity)
+        VALUES 
+          ${Prisma.join(itemsValues)}
+        ON DUPLICATE KEY UPDATE
+          \`index\` = VALUES(\`index\`),
+          name = VALUES(name),
+          quantity = VALUES(quantity)
+      `
+    );
+  }
 
-    // Kill Counts (replaced)
-    prisma.$executeRaw`
-      INSERT INTO KillCount 
-        (accountHash, tabName, entryName, \`index\`, name, count)
-      VALUES 
-        ${Prisma.join(killCountsValues)}
-      ON DUPLICATE KEY UPDATE
-        \`index\` = VALUES(\`index\`),
-        name = VALUES(name),
-        count = VALUES(count)
-    `,
+  // Obtained At Kill Counts
+  if (obtainedAtKillCountsValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT IGNORE INTO ObtainedAtKillCount
+          (accountHash, tabName, entryName, itemId, \`index\`, name, count)
+        VALUES
+          ${Prisma.join(obtainedAtKillCountsValues)}
+      `
+    );
+  }
 
-    // Obtained At
-    prisma.$executeRaw`
-      INSERT IGNORE INTO ObtainedAt 
-        (accountHash, tabName, entryName, itemId)
-      VALUES 
-        ${Prisma.join(obtainedAtValues)}
-    `,
+  // Obtained At
+  if (obtainedAtValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT IGNORE INTO ObtainedAt 
+          (accountHash, tabName, entryName, itemId)
+        VALUES 
+          ${Prisma.join(obtainedAtValues)}
+      `
+    );
+  }
 
-    // Obtained At Kill Counts
-    prisma.$executeRaw`
-      INSERT IGNORE INTO ObtainedAtKillCount
-        (accountHash, tabName, entryName, itemId, \`index\`, name, count)
-      VALUES
-        ${Prisma.join(obtainedAtKillCountsValues)}
-    `,
-  ]);
+  // Kill Counts (replaced)
+  if (killCountsValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+        INSERT INTO KillCount 
+          (accountHash, tabName, entryName, \`index\`, name, count)
+        VALUES 
+          ${Prisma.join(killCountsValues)}
+        ON DUPLICATE KEY UPDATE
+          \`index\` = VALUES(\`index\`),
+          name = VALUES(name),
+          count = VALUES(count)
+      `
+    );
+  }
+
+  await prisma.$transaction(queries);
 
   const updatedAccount = await prisma.account.findUnique({
     where: { accountHash },
@@ -567,15 +598,22 @@ const revalidateForget = async (
   accountHash: string
 ) => {
   // create url from nextReq
+  const host = nextReq.headers.host;
+
+  if (!host) throw new Error("No host");
+
+  const isLocalhost = host?.includes("localhost");
+  const scheme = isLocalhost ? "http" : "https";
+
   const url = new URL(
     `/api/profile/revalidate-task?accountHash=${accountHash}`,
-    `https://${nextReq.headers.host}`
+    `${scheme}://${host}`
   );
 
-  console.log("URL: " + url.toString());
+  const httpModule = scheme == "http" ? http : https;
 
   return new Promise((resolve, reject) => {
-    const request = https.request(url, {
+    const request = httpModule.request(url, {
       method: "POST",
     });
 
