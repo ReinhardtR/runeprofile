@@ -21,7 +21,9 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
       </Head>
       <div className="flex flex-wrap justify-center p-4 min-h-screen pt-20">
         {account ? (
-          <Profile account={account} />
+          <div className="py-2">
+            <Profile account={account} />
+          </div>
         ) : (
           <div>This profile is private.</div>
         )}

@@ -28,7 +28,10 @@ export const SkillsCard: React.FC<SkillsCardProps> = ({ skills }) => {
   );
 
   return (
-    <Card iconPath="/assets/icons/skills.png">
+    <Card
+      iconPath="/assets/icons/skills.png"
+      className="w-[260px] flex justify-center items-center"
+    >
       <div className="grid-rows-8 grid grid-cols-3 p-1">
         {skills.map(({ name, xp }) => (
           <SkillElement
@@ -65,7 +68,7 @@ export const SkillElement: React.FC<SkillElementProps> = ({
   return (
     <div className="runescape-stats-tile flex items-center justify-between px-3">
       {!isOverall && (
-        <div className="relative h-full w-full flex-1">
+        <div className="relative h-full flex-1">
           <Image
             src={`/assets/skill-icons/${name.toLowerCase()}.png`}
             alt={name}

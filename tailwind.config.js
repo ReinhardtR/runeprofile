@@ -5,6 +5,9 @@ module.exports = {
   content: ["./src/pages/**/*.tsx", "./src/components/**/*.tsx"],
   theme: {
     extend: {
+      screens: {
+        "1.5xl": "1570px",
+      },
       fontFamily: {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
         runescape: ["Runescape", "sans-serif"],

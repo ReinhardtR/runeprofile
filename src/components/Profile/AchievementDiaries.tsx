@@ -20,7 +20,7 @@ export const AchievementDiaries: React.FC<AchievementDiariesProps> = ({
   return (
     <Card
       iconPath="/assets/icons/achievement-diaries.png"
-      className="w-[250px]"
+      className="w-[260px]"
     >
       <div className="text-yellow-osrs flex h-full flex-col space-y-[2px] overflow-y-scroll border-2 border-osrs-dark-border p-1 font-runescape text-lg leading-tight">
         {achievementDiaries.map((achievementDiary) => {

@@ -1,6 +1,6 @@
 import { Html, useProgress } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
@@ -51,7 +51,7 @@ const Model: React.FC<ModelProps> = ({ modelUri }) => {
       {object && (
         <>
           <ambientLight intensity={2.5} />
-          <mesh ref={mesh} scale={0.028} position={[0, -2.8, 0]}>
+          <mesh ref={mesh} scale={0.028} position={[0, -3, 0]}>
             <primitive object={object} />
           </mesh>
         </>

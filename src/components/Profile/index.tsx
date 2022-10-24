@@ -1,12 +1,10 @@
 import { AccountQueryResult } from "@/lib/account-query";
-import { AccountType } from "@prisma/client";
-import Image from "next/future/image";
-import { Card } from "../Card";
+import { useMemo } from "react";
 import { AchievementDiaries } from "./AchievementDiaries";
 import { CollectionLog } from "./CollectionLog";
 import { CombatAchievements } from "./CombatAchievements";
 import { Hiscores } from "./Hiscores";
-import { PlayerModel } from "./PlayerModel";
+import { PlayerDisplay } from "./PlayerDisplay";
 import { QuestList } from "./QuestList";
 import { SkillsCard } from "./Skills";
 
@@ -15,71 +13,49 @@ type ProfileProps = {
 };
 
 export const Profile: React.FC<ProfileProps> = ({ account }) => {
+  const playerDisplay = useMemo(() => {
+    return (
+      <PlayerDisplay
+        accountType={account.accountType}
+        description={account.description}
+        username={account.username}
+        modelUri={account.modelUri}
+        combatLevel={account.combatLevel}
+      />
+    );
+  }, [
+    account.accountType,
+    account.description,
+    account.username,
+    account.modelUri,
+    account.combatLevel,
+  ]);
+
   return (
-    <div className="flex flex-wrap justify-center gap-4">
-      <Card className="flex max-w-[260px] flex-col">
-        <div className="absolute inset-x-0 mx-auto flex flex-wrap justify-center items-center text-shadow font-runescape text-2xl font-bold leading-none space-x-4 p-2 z-20">
-          <div className="flex items-center space-x-2">
-            {account.accountType != AccountType.NORMAL && (
-              <div className="relative aspect-[10/13] w-[16px]">
-                <Image
-                  src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
-                  alt={account.accountType}
-                  quality={100}
-                  fill
-                  className="drop-shadow-solid"
-                />
-              </div>
-            )}
-            <span className="text-white">{account.username}</span>
-          </div>
+    <div className="flex justify-center gap-6">
+      <div className="hidden 1.5xl:block">{playerDisplay}</div>
+      <div className="flex flex-wrap gap-6 justify-center 1.5xl:max-w-[1120px]">
+        <div className="block 1.5xl:hidden">{playerDisplay}</div>
 
-          <div className="flex space-x-1 justify-center items-center text-osrs-orange">
-            <div className="relative w-5 h-5">
-              <Image
-                src="/assets/skill-icons/combat.png"
-                alt="Combat Level"
-                fill
-                className="drop-shadow-xl"
-              />
-            </div>
-            <span>{account.combatLevel}</span>
-          </div>
-        </div>
+        <SkillsCard skills={account.skills} />
 
-        <div className="relative h-full flex flex-col justify-end items-center">
-          <div className="h-[90%]">
-            {account.modelUri && <PlayerModel modelUri={account.modelUri} />}
-          </div>
-        </div>
+        {account.questList && <QuestList questList={account.questList} />}
 
-        {!!account.description && (
-          <div className="absolute bottom-4 left-0 w-full px-4">
-            <p className="bg-black/50 text-xs text-light-gray p-2 rounded border border-osrs-border">
-              {account.description}
-            </p>
-          </div>
+        <AchievementDiaries achievementDiaries={account.achievementDiaries} />
+
+        <Hiscores hiscores={account.hiscores} />
+
+        {account.combatAchievements && (
+          <CombatAchievements combatAchievements={account.combatAchievements} />
         )}
-      </Card>
 
-      <SkillsCard skills={account.skills} />
-
-      {account.questList && <QuestList questList={account.questList} />}
-
-      <AchievementDiaries achievementDiaries={account.achievementDiaries} />
-
-      {account.combatAchievements && (
-        <CombatAchievements combatAchievements={account.combatAchievements} />
-      )}
-
-      <Hiscores hiscores={account.hiscores} />
-
-      {account.collectionLog && (
-        <CollectionLog
-          username={account.username}
-          collectionLog={account.collectionLog}
-        />
-      )}
+        {account.collectionLog && (
+          <CollectionLog
+            username={account.username}
+            collectionLog={account.collectionLog}
+          />
+        )}
+      </div>
     </div>
   );
 };

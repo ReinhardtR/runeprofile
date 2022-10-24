@@ -21,7 +21,7 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
   return (
     <Card
       iconPath="/assets/icons/combat-achievements.png"
-      className="w-[250px]"
+      className="w-[260px]"
     >
       <div className="grid h-full grid-cols-2 grid-rows-3 gap-1 p-1 shadow">
         {combatAchievements.tiers.map((tier) => {

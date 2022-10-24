@@ -42,7 +42,7 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
   return (
     <Card
       iconPath="/assets/hiscores/hiscore.png"
-      className="w-[250px] flex flex-col p-4"
+      className="w-[260px] flex flex-col p-4"
     >
       <Tab.Group as="div" className="flex flex-col space-y-2">
         <Tab.List className="flex space-x-2 justify-evenly">

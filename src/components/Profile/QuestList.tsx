@@ -48,7 +48,7 @@ export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
   return (
     <Card
       iconPath="/assets/icons/quest-list.png"
-      className="text-shadow flex w-[250px] flex-col p-4 font-runescape"
+      className="text-shadow flex w-[260px] flex-col p-4 font-runescape"
     >
       <div
         className={clsx(
