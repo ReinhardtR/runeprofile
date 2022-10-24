@@ -43,9 +43,9 @@
   background-size: cover;
 
   /* Aspect Ratio of the real image */
-  aspect-ratio: 1.96774193548;
+  aspect-ratio: 2;
 
-  width: 80px;
+  width: 77px;
 }
 
 .runescape-corners-border {

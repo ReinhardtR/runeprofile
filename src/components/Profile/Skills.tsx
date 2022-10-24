@@ -28,11 +28,8 @@ export const SkillsCard: React.FC<SkillsCardProps> = ({ skills }) => {
   );
 
   return (
-    <Card
-      iconPath="/assets/icons/skills.png"
-      className="w-[260px] flex justify-center items-center"
-    >
-      <div className="grid-rows-8 grid grid-cols-3 p-1">
+    <Card iconPath="/assets/icons/skills.png" className="w-[260px]">
+      <div className="grid-rows-8 grid grid-cols-3 p-1 mt-2">
         {skills.map(({ name, xp }) => (
           <SkillElement
             key={name}
