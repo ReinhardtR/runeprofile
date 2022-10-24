@@ -1,5 +1,5 @@
 import { PlayerDataSchema } from "@/lib/data-schema";
-import { revalidateProfile } from "@/lib/revalidate-profile";
+import { startRevalidateTask } from "@/lib/start-revalidate-task";
 import { prisma } from "@/server/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
@@ -31,9 +31,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
       description: description,
     },
     select: {
-      username: true,
-      generatedPath: true,
-      isPrivate: true,
+      accountHash: true,
       description: true,
     },
   });
@@ -42,7 +40,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  await revalidateProfile(res, updatedAccount);
+  await startRevalidateTask(req, updatedAccount.accountHash);
 
   return res.status(200).json({
     description: updatedAccount.description,

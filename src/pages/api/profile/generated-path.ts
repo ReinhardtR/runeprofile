@@ -3,7 +3,7 @@ import { generatePath } from "@/lib/generate-path";
 import { PlayerDataSchema } from "@/lib/data-schema";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
-import { revalidateProfile } from "@/lib/revalidate-profile";
+import { startRevalidateTask } from "@/lib/start-revalidate-task";
 
 export default async function handler(
   req: NextApiRequest,
@@ -44,9 +44,8 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
       generatedPath: generatePath(),
     },
     select: {
-      username: true,
+      accountHash: true,
       generatedPath: true,
-      isPrivate: true,
     },
   });
 
@@ -54,10 +53,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  await Promise.all([
-    res.revalidate(`/u/${oldAccount.generatedPath}`),
-    revalidateProfile(res, updatedAccount),
-  ]);
+  await startRevalidateTask(req, updatedAccount.accountHash);
 
   res.status(200).json({
     generatedPath: updatedAccount.generatedPath,

@@ -3,9 +3,7 @@ import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { AchievementDiaryTierName, Prisma } from "@prisma/client";
-import { revalidateProfile } from "@/lib/revalidate-profile";
-import https from "https";
-import http from "http";
+import { startRevalidateTask } from "@/lib/start-revalidate-task";
 
 export default async function handler(
   req: NextApiRequest,
@@ -554,9 +552,7 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  // // Revalidating
-  // await revalidateProfile(res, updatedAccount);
-  await revalidateForget(req, updatedAccount.accountHash);
+  await startRevalidateTask(req, updatedAccount.accountHash);
 
   // Logs
   const queryEnd = new Date();
@@ -576,11 +572,9 @@ async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
   const { accountHash } = DeleteBodySchema.parse(req.body);
 
   const deletedAccount = await prisma.account.delete({
-    where: { accountHash: accountHash },
+    where: { accountHash },
     select: {
-      username: true,
-      generatedPath: true,
-      isPrivate: true,
+      accountHash: true,
     },
   });
 
@@ -588,37 +582,7 @@ async function deleteHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  await revalidateProfile(res, deletedAccount);
+  await startRevalidateTask(req, deletedAccount.accountHash);
 
   return res.status(200).end();
 }
-
-const revalidateForget = async (
-  nextReq: NextApiRequest,
-  accountHash: string
-) => {
-  // create url from nextReq
-  const host = nextReq.headers.host;
-
-  if (!host) throw new Error("No host");
-
-  const isLocalhost = host?.includes("localhost");
-  const scheme = isLocalhost ? "http" : "https";
-
-  const url = new URL(
-    `/api/profile/revalidate-task?accountHash=${accountHash}`,
-    `${scheme}://${host}`
-  );
-
-  const httpModule = scheme == "http" ? http : https;
-
-  return new Promise((resolve, reject) => {
-    const request = httpModule.request(url, {
-      method: "POST",
-    });
-
-    request.end(() => {
-      resolve(request);
-    });
-  });
-};
