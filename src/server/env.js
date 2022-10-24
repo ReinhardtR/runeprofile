@@ -8,12 +8,14 @@ const { z } = require("zod");
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
 
+  // PlanetScale
   DATABASE_URL: z.string().url(),
 
-  FIREBASE_API_KEY: z.string(),
-  FIREBASE_PROJECT_ID: z.string(),
-  FIREBASE_APP_ID: z.string(),
-  FIREBASE_STORAGE_BUCKET: z.string(),
+  // Google Cloud Storage
+  GCP_PROJECT_ID: z.string(),
+  GCP_CLIENT_EMAIL: z.string().email(),
+  GCP_PRIVATE_KEY: z.string(),
+  GCS_BUCKET_NAME: z.string(),
 });
 
 const env = envSchema.safeParse(process.env);

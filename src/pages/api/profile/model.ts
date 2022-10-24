@@ -1,6 +1,6 @@
 import { PlayerDataSchema } from "@/lib/data-schema";
 import { revalidateProfile } from "@/lib/revalidate-profile";
-import { uploadByteArray } from "@/server/firebase";
+import { uploadModel } from "@/server/cloud-storage";
 import { prisma } from "@/server/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
@@ -37,9 +37,9 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  const modelUri = await uploadByteArray({
-    path: `${account.username}.ply`,
-    byteArray: new Uint8Array(Buffer.from(model, "base64")),
+  const modelUri = await uploadModel({
+    path: `models/${account.username}.ply`,
+    buffer: Buffer.from(model, "base64"),
   });
 
   const updatedAccount = await prisma.account.update({
