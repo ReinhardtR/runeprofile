@@ -22,5 +22,5 @@ export const uploadModel = async ({
 
   await file.save(buffer);
 
-  return file.publicUrl();
+  return file.metadata.mediaLink;
 };
