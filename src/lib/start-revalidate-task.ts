@@ -1,6 +1,7 @@
 import { NextApiRequest } from "next";
 import https from "https";
 import http from "http";
+import { env } from "@/server/env";
 
 export const startRevalidateTask = async (
   nextReq: NextApiRequest,
@@ -15,7 +16,7 @@ export const startRevalidateTask = async (
   const scheme = isLocalhost ? "http" : "https";
 
   const url = new URL(
-    `/api/profile/revalidate-task?accountHash=${accountHash}`,
+    `/api/profile/revalidate-task?accountHash=${accountHash}&secretToken=${env.SECRET_TOKEN}`,
     `${scheme}://${host}`
   );
 

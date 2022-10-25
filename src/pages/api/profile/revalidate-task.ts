@@ -5,7 +5,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("REVALIDATING CALLED");
+  if (req.query.secretToken !== process.env.SECRET_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   if (req.method == "POST") {
     return postHandler(req, res);
   }

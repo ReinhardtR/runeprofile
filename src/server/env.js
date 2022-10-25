@@ -8,6 +8,9 @@ const { z } = require("zod");
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
 
+  // RuneProfile Secret Token
+  SECRET_TOKEN: z.string(),
+
   // PlanetScale
   DATABASE_URL: z.string().url(),
 
