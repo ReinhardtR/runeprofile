@@ -65,7 +65,7 @@ export const SearchModal: React.FC = () => {
     >
       <Dialog
         onClose={setIsSearchOpen}
-        className="fixed inset-0 overflow-y-auto p-4 pt-[15vh] z-50"
+        className="fixed inset-0 overflow-y-auto p-4 pt-32 z-50"
       >
         <Transition.Child
           as={Fragment}
