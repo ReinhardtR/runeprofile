@@ -34,7 +34,7 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
   return (
     <div className="flex justify-center gap-6">
       <div className="hidden 1.5xl:block">{playerDisplay}</div>
-      <div className="flex flex-wrap gap-6 justify-center 1.5xl:max-w-[1120px]">
+      <div className="flex sm:flex-wrap gap-6 justify-center items-center 1.5xl:max-w-[1120px] flex-col sm:flex-row">
         <div className="block 1.5xl:hidden">{playerDisplay}</div>
 
         <SkillsCard skills={account.skills} />

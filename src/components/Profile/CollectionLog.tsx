@@ -59,7 +59,10 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
   }
 
   return (
-    <Card iconPath="/assets/icons/collection-log.png" className="w-[640px]">
+    <Card
+      iconPath="/assets/icons/collection-log.png"
+      className="w-[400px] md:w-[640px]"
+    >
       <Tab.Group
         as="div"
         className="flex h-full w-full flex-col px-0.5 pt-1 font-runescape text-osrs-orange"
@@ -109,8 +112,8 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
 }) => {
   return (
     <Tab.Panel className="h-full">
-      <Tab.Group as="div" vertical className="flex h-full">
-        <Tab.List className="flex w-[260px] flex-col overflow-y-scroll">
+      <Tab.Group as="div" vertical className="flex h-full flex-col md:flex-row">
+        <Tab.List className="flex w-full min-h-[100px] md:h-full md:w-[260px] flex-col overflow-y-scroll">
           {tab.entries.map((entry) => {
             const entryIsCompleted = entry.items.every(
               (item) => item.quantity > 0
@@ -199,7 +202,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
           </p>
         ))}
       </div>
-      <div className="flex h-full flex-wrap content-start gap-1 overflow-y-scroll p-1">
+      <div className="flex h-[100px] md:h-full flex-wrap content-start gap-1 overflow-y-scroll p-1">
         {entry.items.map((item) => (
           <CollectionLogItem key={item.id} item={item} />
         ))}

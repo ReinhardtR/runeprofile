@@ -14,7 +14,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ children }) => (
 export const Footer: React.FC = () => {
   return (
     <footer className="relative z-50 w-full pt-3 border-t border-primary bg-background-dark">
-      <div className="container grid grid-cols-2 gap-6 p-8 pt-10 pb-20 m-auto text-white min-h-64 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="mx-auto grid grid-cols-2 gap-6 p-8 pt-10 pb-20 m-auto text-white min-h-64  lg:grid-cols-6 container">
         <div className="col-span-2">
           <div className="relative w-10 h-10 mb-3">
             <Image src="/assets/misc/logo.png" fill alt="Logo" />
@@ -83,6 +83,7 @@ export const Footer: React.FC = () => {
             </a>
           </FooterLink>
         </div>
+
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Support</h3>
           <FooterLink>
@@ -102,6 +103,7 @@ export const Footer: React.FC = () => {
           </FooterLink>
           <div className="flex flex-col col-span-1 space-y-2 opacity-50"></div>
         </div>
+
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Contribute</h3>
           <FooterLink>
@@ -128,6 +130,7 @@ export const Footer: React.FC = () => {
             </a>
           </FooterLink>
         </div>
+
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">RuneScape</h3>
           <FooterLink>
@@ -150,27 +153,25 @@ export const Footer: React.FC = () => {
             </a>
           </FooterLink>
         </div>
+      </div>
 
-        <div className="flex space-x-1 justify-center items-center col-span-6 text-sm">
-          <FooterLink>
-            <a
-              href="https://oldschool.runescape.com/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <p className="underline underline-offset-4">
-                Old School RuneScape
-              </p>
-            </a>
-          </FooterLink>
+      <div className="flex space-x-1 justify-center items-center col-span-6 text-sm mb-16">
+        <FooterLink>
+          <a
+            href="https://oldschool.runescape.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <p className="underline underline-offset-4">Old School RuneScape</p>
+          </a>
+        </FooterLink>
 
-          <p>is a trademark of</p>
-          <FooterLink>
-            <a href="https://www.jagex.com/" target="_blank" rel="noreferrer">
-              <p className="underline underline-offset-4">Jagex Ltd.</p>
-            </a>
-          </FooterLink>
-        </div>
+        <p>is a trademark of</p>
+        <FooterLink>
+          <a href="https://www.jagex.com/" target="_blank" rel="noreferrer">
+            <p className="underline underline-offset-4">Jagex Ltd.</p>
+          </a>
+        </FooterLink>
       </div>
     </footer>
   );

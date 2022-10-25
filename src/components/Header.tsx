@@ -53,7 +53,7 @@ export const Header: React.FC = () => {
               className="drop-shadow-xl"
             />
             <a>
-              <div className="text-lg font-black tracking-wide hidden sm:block drop-shadow-xl leading-none">
+              <div className="text-lg font-black tracking-wide drop-shadow-xl leading-none">
                 <p className="text-primary">RUNE</p>
                 <p className="text-accent">PROFILE</p>
               </div>

@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import { Card } from "../Card";
-import { AccountQueryResult } from "@/lib/account-query";
 import { QuestState, QuestType } from "@prisma/client";
 
 type Quest = {
@@ -63,7 +62,7 @@ export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
           {completedQuests}/{totalQuests}
         </p>
       </div>
-      <div className="overflow-y-scroll flex-1 rounded-sm border-2 border-osrs-border p-1.5">
+      <div className="overflow-y-scroll flex-1 rounded-sm border-2 border-osrs-dark-border p-1.5">
         {quests.UNKNOWN.length > 0 && (
           <QuestsSection sectionName="New Quests" quests={quests.UNKNOWN} />
         )}

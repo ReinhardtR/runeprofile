@@ -173,7 +173,7 @@ type SkillsPanelProps = {
 
 const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
   return (
-    <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-border font-runescape">
+    <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-dark-border font-runescape">
       <table>
         <thead>
           <tr className="text-osrs-orange font-bold text-xl text-shadow">
@@ -226,7 +226,7 @@ type ActivitiesPanelProps = {
 
 const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
   return (
-    <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-border font-runescape">
+    <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-dark-border font-runescape">
       <table>
         <thead>
           <tr className="text-osrs-orange font-bold text-xl text-shadow">
@@ -285,7 +285,7 @@ type BossesPanelProps = {
 
 const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
   return (
-    <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-border font-runescape">
+    <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-dark-border font-runescape">
       <table>
         <thead>
           <tr className="text-osrs-orange font-bold text-xl text-shadow">
