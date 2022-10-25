@@ -19,8 +19,8 @@
      	<a href="https://github.com/ReinhardtR/runeprofile-plugin"><img src="https://img.shields.io/badge/GitHub-Plugin%20Repo-blue"></a>
     </p>
 	</p>
-	<br />
 	<p align="center">Read more at the Plugin Repo<p/>
+	<br />
 </p>
 
 ## Compatibility
