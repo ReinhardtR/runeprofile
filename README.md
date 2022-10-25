@@ -11,7 +11,8 @@
 	<p align="center">  
     A place to share your OSRS achievements.  
     <br />  
-    <a href="https://runeprofile.com"><strong>runeprofile.com</strong></a> 
+    <a href="https://runeprofile.com"><strong>runeprofile.com</strong></a>
+    <a href="https://github.com/ReinhardtR/runeprofile-plugin"><strong>Plugin Repository</strong></a> 
     <p align="center">
       <img src="https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/installs/plugin/runeprofile" >
       <img src="https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/rank/plugin/runeprofile">
