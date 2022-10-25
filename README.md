@@ -16,7 +16,7 @@
       <img src="https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/installs/plugin/runeprofile" >
       <img src="https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/rank/plugin/runeprofile">
       <img src="https://img.shields.io/github/license/ReinhardtR/runeprofile-plugin">
-     	<img src="https://img.shields.io/badge/GitHub-Plugin%20Repo-blue">
+     	<a href="https://github.com/ReinhardtR/runeprofile-plugin"><img src="https://img.shields.io/badge/GitHub-Plugin%20Repo-blue"></a>
     </p>
 	</p>
 	<br />
