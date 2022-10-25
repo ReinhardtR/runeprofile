@@ -112,7 +112,7 @@ export const Footer: React.FC = () => {
               target="_blank"
               rel="noreferrer"
             >
-              <p>GitHub - Website</p>
+              <p>GitHub - Web App</p>
             </a>
           </FooterLink>
           <FooterLink>
