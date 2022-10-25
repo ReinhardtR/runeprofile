@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
     >
       <div className="container flex items-center h-full px-2 justify-between">
         <Link href="/">
-          <div className="flex space-x-2 items-center">
+          <div className="flex space-x-2 items-center hover:cursor-pointer">
             <Image
               src="/assets/misc/logo.png"
               alt="Logo"

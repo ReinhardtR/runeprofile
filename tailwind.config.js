@@ -16,7 +16,7 @@ module.exports = {
         "light-gray": "rgb(230, 230, 230)",
         background: {
           light: "rgb(30, 30, 30)",
-          DEFAULT: "rgb(13, 13, 13)",
+          DEFAULT: "rgb(16, 16, 16)",
           dark: "rgb(10, 10, 10)",
         },
         primary: "rgb(70, 70, 135)",

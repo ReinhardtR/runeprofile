@@ -96,7 +96,7 @@ export const SearchModal: React.FC = () => {
               }
             }}
             as="div"
-            className="relative mx-auto max-w-xl divide-y divide-primary overflow-hidden rounded-md bg-background shadow-2xl ring-1 ring-black/5"
+            className="relative mx-auto max-w-xl divide-primary divide-y-2 overflow-hidden rounded-md bg-background shadow-2xl ring-1 ring-black/5 border-2 border-primary"
           >
             <div className="flex items-center px-4 py-2">
               <SearchIcon className="h-6 w-6 text-primary" />

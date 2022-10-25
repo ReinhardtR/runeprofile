@@ -1,9 +1,5 @@
 import { Profile } from "@/components/Profile";
 import { InferNextProps } from "@/utils/infer-next-props-type";
-import {
-  accountQuery,
-  minimalAccountQueryByUsername,
-} from "@/lib/account-query";
 import type { NextPage } from "next";
 import Image from "next/future/image";
 

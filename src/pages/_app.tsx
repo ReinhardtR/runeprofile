@@ -12,7 +12,7 @@ import { Footer } from "@/components/Footer";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <div className="bg-background-light text-white">
+    <div className="bg-background text-white">
       <Head>
         <title>RuneProfile</title>
       </Head>
