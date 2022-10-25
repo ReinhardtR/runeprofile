@@ -50,10 +50,10 @@ export const Header: React.FC = () => {
               width={42}
               height={42}
               quality={100}
-              className="drop-shadow-xl"
+              className="drop-shadow"
             />
             <a>
-              <div className="text-lg font-black tracking-wide drop-shadow-xl leading-none">
+              <div className="text-lg font-black tracking-wide drop-shadow leading-none">
                 <p className="text-primary">RUNE</p>
                 <p className="text-accent">PROFILE</p>
               </div>
@@ -142,7 +142,7 @@ export const Header: React.FC = () => {
           </Popover>
         </div> */}
         <div
-          className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow-xl hover:cursor-pointer hover:border-primary transition-colors"
+          className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow-md hover:cursor-pointer hover:border-primary transition-colors"
           onClick={() => setIsSearchOpen(true)}
         >
           <div className="flex space-x-1 items-center">

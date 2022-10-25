@@ -15,7 +15,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={twMerge(
-        "runescape-panel h-[353px] p-2 shadow-lg relative",
+        "runescape-panel h-[353px] p-2 shadow-md relative",
         className
       )}
       {...restProps}
