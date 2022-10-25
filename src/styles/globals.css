@@ -19,7 +19,10 @@
 
 @layer components {
   .hero-image {
-    @apply bg-primary/100 w-full h-[500px] bg-blend-multiply;
+    @apply bg-primary;
+    width: 100%;
+    height: 500px;
+    background-blend-mode: multiply;
     background-size: cover;
     background-position: center;
     background-image: url("/assets/hero/hero-background-color.png");
