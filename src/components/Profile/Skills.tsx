@@ -1,10 +1,18 @@
-import { getLevelFromXP } from "@/lib/xp-to-level";
+import {
+  getLevelFromXP,
+  getVirtualLevelFromXP,
+  getXPUntilNextLevel,
+} from "@/lib/xp-to-level";
 import Image from "next/future/image";
 import { useMemo } from "react";
 import { Card } from "../Card";
 import clsx from "clsx";
+import { Tooltip } from "../Misc/Tooltip";
+import { numberWithCommas } from "@/utils/number-with-commas";
 
 const OVERALL_NAME = "Overall";
+const MAX_SKILL_LEVEL = 99;
+const MAX_TOTAL_LEVEL = 2277;
 
 type Skill = {
   name: string;
@@ -63,28 +71,55 @@ export const SkillElement: React.FC<SkillElementProps> = ({
   const isOverall = name == OVERALL_NAME;
 
   return (
-    <div className="runescape-stats-tile flex items-center justify-between px-3">
-      {!isOverall && (
-        <div className="relative h-full flex-1">
-          <Image
-            src={`/assets/skill-icons/${name.toLowerCase()}.png`}
-            alt={name}
-            className="drop-shadow object-contain"
-            fill
-            quality={100}
-          />
+    <Tooltip
+      key={name}
+      transparent={false}
+      placement="bottom"
+      content={
+        <div className="flex flex-col w-[260px]">
+          <div className="uppercase font-runescape text-lg font-bold tracking-wide">
+            <span className="text-osrs-orange inline">{`${name} XP `}</span>
+            <span className="text-light-gray inline">
+              {numberWithCommas(xp)}
+            </span>
+          </div>
+          <div className="uppercase font-runescape text-lg font-bold tracking-wide">
+            <span className="text-osrs-orange inline">VIRTUAL LEVEL </span>
+            <span className="text-light-gray inline">
+              {getVirtualLevelFromXP(xp)}
+            </span>
+          </div>
+          <div className="uppercase font-runescape text-lg font-bold tracking-wide">
+            <span className="text-osrs-orange inline">XP UNTIL NEXT LVL </span>
+            <span className="text-light-gray inline">
+              {numberWithCommas(getXPUntilNextLevel(xp))}
+            </span>
+          </div>
         </div>
-      )}
-      <p
-        className={clsx(
-          "text-shadow ml-1 flex-1 text-center font-runescape text-lg font-bold leading-none",
-          level == 99 || (isOverall && level == 2277)
-            ? "text-osrs-green text-shadow"
-            : "text-osrs-yellow"
+      }
+    >
+      <div className="runescape-stats-tile flex items-center justify-between px-3">
+        {!isOverall && (
+          <div className="relative h-full flex-1">
+            <Image
+              src={`/assets/skill-icons/${name.toLowerCase()}.png`}
+              alt={name}
+              className="drop-shadow object-contain"
+              fill
+            />
+          </div>
         )}
-      >
-        {level}
-      </p>
-    </div>
+        <p
+          className={clsx(
+            "text-shadow ml-1 flex-1 text-center font-runescape text-lg font-bold leading-none",
+            level == MAX_SKILL_LEVEL || (isOverall && level == MAX_TOTAL_LEVEL)
+              ? "text-osrs-green text-shadow"
+              : "text-osrs-yellow"
+          )}
+        >
+          {level}
+        </p>
+      </div>
+    </Tooltip>
   );
 };

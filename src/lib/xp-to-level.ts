@@ -20,3 +20,50 @@ export const getLevelFromXP = (xp: number) => {
 
   return -1;
 };
+
+const virtualLevels = [
+  ...levels,
+  14391160,
+  15889109,
+  17542976,
+  19368992,
+  21385073,
+  23611006,
+  26068632,
+  28782069,
+  31777943,
+  35085654,
+  38737661,
+  42769801,
+  47221641,
+  52136869,
+  57563718,
+  63555443,
+  70170840,
+  77474828,
+  85539082,
+  94442737,
+  104273167,
+  115126838,
+  127110260,
+  140341028,
+  154948977,
+  171077457,
+  188884740,
+  200000000,
+];
+
+export const getVirtualLevelFromXP = (xp: number) => {
+  for (let i = virtualLevels.length - 1; i >= 0; i--) {
+    if (xp >= virtualLevels[i]) {
+      return i + 1;
+    }
+  }
+
+  return -1;
+};
+
+export const getXPUntilNextLevel = (xp: number) => {
+  const level = getVirtualLevelFromXP(xp);
+  return virtualLevels[level] - xp;
+};
