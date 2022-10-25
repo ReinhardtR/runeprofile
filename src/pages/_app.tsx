@@ -9,20 +9,24 @@ import { loggerLink } from "@trpc/client/links/loggerLink";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/react";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <div className="bg-background text-white">
-      <Head>
-        <title>RuneProfile</title>
-      </Head>
-      <SearchModal />
-      <>
-        <Header />
-        <Component {...pageProps} />
-        <Footer />
-      </>
-    </div>
+    <>
+      <div className="bg-background text-white">
+        <Head>
+          <title>RuneProfile</title>
+        </Head>
+        <SearchModal />
+        <>
+          <Header />
+          <Component {...pageProps} />
+          <Footer />
+        </>
+      </div>
+      <Analytics />
+    </>
   );
 };
 
