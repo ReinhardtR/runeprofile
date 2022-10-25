@@ -17,13 +17,11 @@
       <img src="https://img.shields.io/endpoint?url=https://i.pluginhub.info/shields/rank/plugin/runeprofile">
       <img src="https://img.shields.io/github/license/ReinhardtR/runeprofile-plugin">
     </p>
-    	    <a href="https://github.com/ReinhardtR/runeprofile-plugin"><strong>Plugin Repository</strong></a>
+		<br />
+		<a href="https://github.com/ReinhardtR/runeprofile-plugin"><strong>Plugin Repository</strong></a>
 	</p>
-
-  <br />
+	<br />
 </p>
-
-The Next.js application for https://github.com/ReinhardtR/runeprofile-plugin
 
 ## Compatibility
 Firefox doesn't support some of the features used on RuneProfile.com
