@@ -23,6 +23,7 @@
 </p>
 
 Read more at the Plugin Repo
+<br />
 <a href="https://github.com/ReinhardtR/runeprofile-plugin"><img src="https://img.shields.io/badge/GitHub-Plugin%20Repo-blue"></a>
 
 ## Compatibility
