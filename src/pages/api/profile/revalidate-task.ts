@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/server/prisma";
+import { env } from "@/server/env";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.query.secretToken !== process.env.SECRET_TOKEN) {
+  if (req.query.secretToken !== env.SECRET_TOKEN) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
