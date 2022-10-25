@@ -22,7 +22,8 @@
 	<br />
 </p>
 
-Read more at the Plugin Repo: <a href="https://github.com/ReinhardtR/runeprofile-plugin"><img src="https://img.shields.io/badge/GitHub-Plugin%20Repo-blue"></a>
+Read more at the Plugin Repo
+<a href="https://github.com/ReinhardtR/runeprofile-plugin"><img src="https://img.shields.io/badge/GitHub-Plugin%20Repo-blue"></a>
 
 ## Compatibility
 Firefox doesn't support some of the features used on RuneProfile.com
