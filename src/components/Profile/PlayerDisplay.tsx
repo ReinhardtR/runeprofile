@@ -11,6 +11,9 @@ type PlayerDisplayProps = {
   modelUri: string | null;
 };
 
+const defaultModel =
+  "https://storage.googleapis.com/runeprofile-models/models/_default.ply";
+
 export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
   username,
   combatLevel,
@@ -52,7 +55,7 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
 
       {/* Model */}
       <div className="h-full p-1">
-        {modelUri && <PlayerModel modelUri={modelUri} />}
+        <PlayerModel modelUri={modelUri ?? defaultModel} />
       </div>
 
       {/* Description Container */}

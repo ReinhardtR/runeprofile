@@ -22,5 +22,7 @@ export const uploadModel = async ({
 
   await file.save(buffer);
 
-  return file.metadata.mediaLink;
+  console.log(file);
+
+  return `https://storage.googleapis.com/${env.GCS_BUCKET_NAME}/${path}`;
 };
