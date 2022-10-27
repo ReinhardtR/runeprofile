@@ -6,7 +6,7 @@ datasource db {
 
 generator js {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex"]
+  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex", "filteredRelationCount"]
 }
 
 model Account {

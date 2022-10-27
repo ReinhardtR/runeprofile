@@ -136,42 +136,11 @@ export const accountQuery = async ({
               entries: {
                 select: {
                   name: true,
-                  killCounts: {
-                    select: {
-                      name: true,
-                      count: true,
-                    },
-                    orderBy: {
-                      index: "asc",
-                    },
-                  },
                   items: {
                     select: {
-                      id: true,
-                      name: true,
                       quantity: true,
-                      obtainedAt: {
-                        select: {
-                          date: true,
-                          killCounts: {
-                            select: {
-                              name: true,
-                              count: true,
-                            },
-                            orderBy: {
-                              index: "asc",
-                            },
-                          },
-                        },
-                      },
-                    },
-                    orderBy: {
-                      index: "asc",
                     },
                   },
-                },
-                orderBy: {
-                  index: "asc",
                 },
               },
             },
@@ -184,7 +153,40 @@ export const accountQuery = async ({
     },
   });
 
-  return account;
+  if (!account) {
+    return null;
+  }
+
+  const tabs = account.collectionLog?.tabs.map((tab) => {
+    const entries = tab.entries?.map((entry) => {
+      const totalItems = entry.items.length;
+      const obtainedItems = entry.items.filter(
+        (item) => item.quantity > 0
+      ).length;
+
+      return {
+        name: entry.name,
+        isCompleted: totalItems === obtainedItems,
+      };
+    });
+
+    return {
+      ...tab,
+      entries,
+    };
+  });
+
+  const collectionLog = account.collectionLog
+    ? {
+        ...account.collectionLog,
+        tabs: tabs ?? [],
+      }
+    : undefined;
+
+  return {
+    ...account,
+    collectionLog,
+  };
 };
 
 export type AccountQueryResult = NonNullable<
