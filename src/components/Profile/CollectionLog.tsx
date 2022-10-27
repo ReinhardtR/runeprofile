@@ -6,6 +6,8 @@ import Image from "next/future/image";
 import itemIcons from "@/assets/item-icons.json";
 import { Tooltip } from "../Misc/Tooltip";
 import { format } from "date-fns";
+import { useRouter } from "next/router";
+import { trpc } from "@/utils/trpc";
 
 type KillCountType = {
   name: string;
@@ -24,8 +26,7 @@ type ItemType = {
 
 type EntryType = {
   name: string;
-  killCounts: KillCountType[];
-  items: ItemType[];
+  isCompleted: boolean;
 };
 
 type TabType = {
@@ -114,23 +115,17 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
     <Tab.Panel className="h-full">
       <Tab.Group as="div" vertical className="flex h-full flex-col sm:flex-row">
         <Tab.List className="flex w-full min-h-[100px] sm:h-full sm:w-[260px] flex-col overflow-y-scroll">
-          {tab.entries.map((entry) => {
-            const entryIsCompleted = entry.items.every(
-              (item) => item.quantity > 0
-            );
-
-            return (
-              <CollectionLogEntry
-                key={entry.name}
-                name={entry.name}
-                isCompleted={entryIsCompleted}
-              />
-            );
-          })}
+          {tab.entries.map((entry) => (
+            <CollectionLogEntry key={entry.name} entry={entry} />
+          ))}
         </Tab.List>
         <Tab.Panels className="flex-1">
           {tab.entries.map((entry) => (
-            <CollectionLogEntryPanel key={entry.name} entry={entry} />
+            <CollectionLogEntryPanel
+              key={entry.name}
+              tabName={tab.name}
+              entryName={entry.name}
+            />
           ))}
         </Tab.Panels>
       </Tab.Group>
@@ -139,14 +134,10 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
 };
 
 type CollectionLogEntryProps = {
-  name: string;
-  isCompleted: boolean;
+  entry: EntryType;
 };
 
-const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({
-  name,
-  isCompleted,
-}) => {
+const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({ entry }) => {
   return (
     <Tab as={Fragment}>
       {({ selected }) => (
@@ -155,10 +146,10 @@ const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({
             "text-shadow px-1 text-start text-xl hover:bg-white hover:bg-opacity-[0.20]",
             selected && "bg-white bg-opacity-[0.15]",
             !selected && "odd:bg-white odd:bg-opacity-[0.05]",
-            isCompleted && "text-osrs-green"
+            entry.isCompleted && "text-osrs-green"
           )}
         >
-          {name}
+          {entry.name}
         </button>
       )}
     </Tab>
@@ -166,15 +157,61 @@ const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({
 };
 
 type CollectionLogEntryPanelProps = {
-  entry: CollectionLogTabPanelProps["tab"]["entries"][number];
+  tabName: string;
+  entryName: string;
 };
 
 const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
-  entry,
+  tabName,
+  entryName,
 }) => {
+  const router = useRouter();
+  const username = router.query.username as string;
+
+  const { data, error, isLoading } = trpc.useQuery(
+    [
+      "entries.byName",
+      {
+        username,
+        tabName,
+        entryName,
+      },
+    ],
+    {
+      staleTime: Infinity,
+    }
+  );
+
+  if (isLoading) {
+    return (
+      <Tab.Panel className="flex h-full flex-col">
+        <div className="flex-1 flex justify-center items-center">
+          <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+            Loading...
+          </div>
+        </div>
+      </Tab.Panel>
+    );
+  }
+
+  if (error) {
+    return (
+      <Tab.Panel className="flex h-full flex-col">
+        <div className="flex-1 flex justify-center items-center">
+          <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+            Error: {error.message}
+          </div>
+        </div>
+      </Tab.Panel>
+    );
+  }
+
+  const { entry } = data!;
+
   const obtainedItemsCount = entry.items.filter(
     (item) => item.quantity > 0
   ).length;
+
   const totalItemsCount = entry.items.length;
 
   return (
@@ -212,7 +249,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 };
 
 type CollectionLogItemProps = {
-  item: CollectionLogEntryPanelProps["entry"]["items"][number];
+  item: ItemType;
 };
 
 const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
