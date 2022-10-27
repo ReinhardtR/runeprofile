@@ -121,10 +121,9 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
         </Tab.List>
         <Tab.Panels className="flex-1">
           {tab.entries.map((entry) => (
-            <Tab.Panel className="flex h-full flex-col">
+            <Tab.Panel key={entry.name} className="flex h-full flex-col">
               {({ selected }) => (
                 <CollectionLogEntryPanel
-                  key={entry.name}
                   tabName={tab.name}
                   entryName={entry.name}
                   isSelected={selected}
