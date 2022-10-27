@@ -121,11 +121,16 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
         </Tab.List>
         <Tab.Panels className="flex-1">
           {tab.entries.map((entry) => (
-            <CollectionLogEntryPanel
-              key={entry.name}
-              tabName={tab.name}
-              entryName={entry.name}
-            />
+            <Tab.Panel className="flex h-full flex-col">
+              {({ selected }) => (
+                <CollectionLogEntryPanel
+                  key={entry.name}
+                  tabName={tab.name}
+                  entryName={entry.name}
+                  isSelected={selected}
+                />
+              )}
+            </Tab.Panel>
           ))}
         </Tab.Panels>
       </Tab.Group>
@@ -159,11 +164,13 @@ const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({ entry }) => {
 type CollectionLogEntryPanelProps = {
   tabName: string;
   entryName: string;
+  isSelected: boolean;
 };
 
 const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
   tabName,
   entryName,
+  isSelected,
 }) => {
   const router = useRouter();
   const username = router.query.username as string;
@@ -178,31 +185,28 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
       },
     ],
     {
+      enabled: isSelected,
       staleTime: Infinity,
     }
   );
 
   if (isLoading) {
     return (
-      <Tab.Panel className="flex h-full flex-col">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-shadow text-xl text-osrs-yellow font-runescape">
-            Loading...
-          </div>
+      <div className="flex-1 flex justify-center items-center">
+        <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+          Loading...
         </div>
-      </Tab.Panel>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Tab.Panel className="flex h-full flex-col">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-shadow text-xl text-osrs-yellow font-runescape">
-            Error: {error.message}
-          </div>
+      <div className="flex-1 flex justify-center items-center">
+        <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+          Error: {error.message}
         </div>
-      </Tab.Panel>
+      </div>
     );
   }
 
@@ -215,7 +219,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
   const totalItemsCount = entry.items.length;
 
   return (
-    <Tab.Panel className="flex h-full flex-col">
+    <>
       <div className="w-full border-2 border-osrs-border p-1 relative z-20">
         <p className="text-shadow text-2xl font-bold leading-none">
           {entry.name}
@@ -244,7 +248,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
           <CollectionLogItem key={item.id} item={item} />
         ))}
       </div>
-    </Tab.Panel>
+    </>
   );
 };
 
