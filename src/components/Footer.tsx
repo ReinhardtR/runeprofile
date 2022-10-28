@@ -1,12 +1,22 @@
 import { Discord, Github, Twitter } from "@icons-pack/react-simple-icons";
+import clsx from "clsx";
 import Image from "next/future/image";
 
 type FooterLinkProps = {
+  disabled?: boolean;
   children: React.ReactNode;
 };
 
-const FooterLink: React.FC<FooterLinkProps> = ({ children }) => (
-  <div className="text-gray-300 hover:text-white text-sm transition-colors">
+const FooterLink: React.FC<FooterLinkProps> = ({
+  disabled = false,
+  children,
+}) => (
+  <div
+    className={clsx(
+      "text-gray-300 hover:text-white text-sm transition-colors",
+      disabled && "opacity-50 pointer-events-none"
+    )}
+  >
     {children}
   </div>
 );
@@ -63,29 +73,26 @@ export const Footer: React.FC = () => {
 
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
-          <FooterLink>
-            <a
-              href="/leaderboards/collection-log"
-              target="_blank"
-              rel="noreferrer"
-            >
+          <FooterLink disabled>
+            <a href="#" target="_blank" rel="noreferrer">
               <p>Collection Log</p>
             </a>
           </FooterLink>
-          <FooterLink>
-            <a href="/leaderboards/items" target="_blank">
+          <FooterLink disabled>
+            <a href="#" target="_blank">
               <p>Items</p>
-            </a>
-          </FooterLink>
-          <FooterLink>
-            <a href="/leaderboards/views" target="_blank">
-              <p>Views</p>
             </a>
           </FooterLink>
         </div>
 
         <div className="flex flex-col col-span-1 space-y-2">
-          <h3 className="mb-1 text-xs font-bold uppercase">Support</h3>
+          <h3 className="mb-1 text-xs font-bold uppercase">Contact</h3>
+          <FooterLink>
+            <a href="mailto:pgn@runeprofile.com" target="_blank">
+              Email
+            </a>
+          </FooterLink>
+
           <FooterLink>
             <a
               href="https://github.com/ReinhardtR/runeprofile/issues"
@@ -95,13 +102,6 @@ export const Footer: React.FC = () => {
               <p>Report Issue</p>
             </a>
           </FooterLink>
-          <FooterLink>
-            {/* TODO: add discord link */}
-            <a href="/" target="_blank" rel="noreferrer">
-              <p>Discord</p>
-            </a>
-          </FooterLink>
-          <div className="flex flex-col col-span-1 space-y-2 opacity-50"></div>
         </div>
 
         <div className="flex flex-col col-span-1 space-y-2">
@@ -122,11 +122,6 @@ export const Footer: React.FC = () => {
               rel="noreferrer"
             >
               <p>GitHub - Plugin</p>
-            </a>
-          </FooterLink>
-          <FooterLink>
-            <a href="/donate" target="_blank" rel="noreferrer">
-              <p>Donate</p>
             </a>
           </FooterLink>
         </div>
