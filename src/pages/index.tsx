@@ -4,8 +4,11 @@ import { Profile } from "@/components/Profile";
 import { accountQuery } from "@/lib/account-query";
 import { prisma } from "@/server/prisma";
 import type { InferNextProps } from "@/utils/infer-next-props-type";
+import { SearchIcon } from "@heroicons/react/outline";
 import type { NextPage } from "next";
 import Image from "next/future/image";
+import { useSetAtom } from "jotai";
+import { isSearchOpenAtom } from "@/components/SearchModal";
 
 const DataIcon = ({
   name,
@@ -41,11 +44,25 @@ const DataIcon = ({
 };
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
+  const setIsSearchOpen = useSetAtom(isSearchOpenAtom);
+
   return (
     <div className="flex flex-col">
       <div className="min-w-screen bg-background-light min-h-screen flex flex-col justify-between border-b border-primary shadow shadow-accent">
-        <main className="flex-1 flex flex-col items-center pt-[25vh] z-30">
-          <div className="flex flex-col justify-center items-center space-y-2 mb-10">
+        <main className="flex-1 flex flex-col items-center pt-[20vh] z-30">
+          <div
+            className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow hover:cursor-pointer hover:border-primary transition-all hover:-translate-y-1"
+            onClick={() => setIsSearchOpen(true)}
+          >
+            <div className="flex space-x-1 items-center">
+              <SearchIcon className="w-[18px] h-[18px]" />
+              <span className="text-sm font-meidum">
+                Search for profiles...
+              </span>
+            </div>
+            <span className="text-sm font-bold text-primary">Ctrl K</span>
+          </div>
+          <div className="flex flex-col justify-center items-center space-y-2 mt-12 mb-16">
             <h1 className="text-6xl lg:text-8xl font-extrabold drop-shadow-solid">
               <span className="text-accent">RUNE</span>
               <span className="text-primary-light">PROFILE</span>
@@ -53,47 +70,48 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
             <p className="text-light-gray drop-shadow-solid-sm text-2xl font-medium">
               Share your OSRS achievements
             </p>
-          </div>
-          <div className="flex justify-center items-center space-x-4 bg-black/75 py-3 px-5 rounded-full shadow border-2 border-primary mb-6">
-            <DataIcon
-              name="Skills"
-              iconSrc="/assets/icons/skills.png"
-              width={31}
-              height={31}
-              tooltipText="Display your Skill Levels, Experience and Virtual Levels."
-            />
-            <DataIcon
-              name="Quests"
-              iconSrc="/assets/icons/quest-list.png"
-              tooltipText="Display your Quest List including your Quest Points."
-            />
-            <DataIcon
-              name="Achievement Diaries"
-              iconSrc="/assets/icons/achievement-diaries.png"
-              tooltipText="Display your progress in the Achievement Diaries."
-            />
-            <DataIcon
-              name="Combat Achievements"
-              iconSrc="/assets/icons/combat-achievements.png"
-              tooltipText="Display your progress in the Combat Achievment tiers."
-            />
-            <DataIcon
-              name="Collection Log"
-              iconSrc="/assets/icons/collection-log.png"
-              tooltipText="Display your Collection Log and track when you obtained an item."
-            />
-            <DataIcon
-              name="Hiscores"
-              iconSrc="/assets/hiscores/hiscore.png"
-              width={31}
-              height={31}
-              tooltipText="Display your Hiscores ranks."
-            />
+            <div className="flex justify-center items-center space-x-4 bg-black/75 py-3 px-5 rounded-full shadow  mb-6">
+              <DataIcon
+                name="Skills"
+                iconSrc="/assets/icons/skills.png"
+                width={31}
+                height={31}
+                tooltipText="Display your Skill Levels, Experience and Virtual Levels."
+              />
+              <DataIcon
+                name="Quests"
+                iconSrc="/assets/icons/quest-list.png"
+                tooltipText="Display your Quest List including your Quest Points."
+              />
+              <DataIcon
+                name="Achievement Diaries"
+                iconSrc="/assets/icons/achievement-diaries.png"
+                tooltipText="Display your progress in the Achievement Diaries."
+              />
+              <DataIcon
+                name="Combat Achievements"
+                iconSrc="/assets/icons/combat-achievements.png"
+                tooltipText="Display your progress in the Combat Achievment tiers."
+              />
+              <DataIcon
+                name="Collection Log"
+                iconSrc="/assets/icons/collection-log.png"
+                tooltipText="Display your Collection Log and track when you obtained an item."
+              />
+              <DataIcon
+                name="Hiscores"
+                iconSrc="/assets/hiscores/hiscore.png"
+                width={31}
+                height={31}
+                tooltipText="Display your Hiscores ranks."
+              />
+            </div>
           </div>
           <a
             href="https://runelite.net/plugin-hub/show/runeprofile"
             target="_blank"
-            className="font-medium flex space-x-2 justify-center items-center rounded-full bg-black/75 border-2 border-primary py-1.5 px-4 shadow transform hover:-translate-y-1 hover:border-primary-light transition-all"
+            rel="noreferrer"
+            className="font-medium flex space-x-2 justify-center items-center rounded-full bg-black/75 border-2 border-accent py-1.5 px-4 shadow transform hover:-translate-y-1 hover:border-primary transition-all"
           >
             <Image
               src="/assets/misc/runelite-logo.png"

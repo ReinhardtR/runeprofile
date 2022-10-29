@@ -105,7 +105,7 @@ export const SearchModal: React.FC = () => {
                   setQuery(event.target.value);
                 }}
                 className="w-full border-0 bg-transparent text-sm text-light-gray placeholder-gray-600 focus:ring-0"
-                placeholder="Search for an account..."
+                placeholder="Search for a profile..."
               />
             </div>
             {isLoading && (

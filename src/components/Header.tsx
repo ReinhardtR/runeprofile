@@ -1,10 +1,8 @@
-import { Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, EyeIcon, SearchIcon } from "@heroicons/react/outline";
+import { SearchIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
 import { useSetAtom } from "jotai";
 import Image from "next/future/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { isSearchOpenAtom } from "./SearchModal";
 
