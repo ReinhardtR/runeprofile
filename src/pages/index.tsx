@@ -63,11 +63,11 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
             <span className="text-sm font-bold text-primary">Ctrl K</span>
           </div>
           <div className="flex flex-col justify-center items-center space-y-2 mt-12 mb-16">
-            <h1 className="text-6xl lg:text-8xl font-extrabold drop-shadow-solid">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold drop-shadow-solid">
               <span className="text-accent">RUNE</span>
               <span className="text-primary-light">PROFILE</span>
             </h1>
-            <p className="text-light-gray drop-shadow-solid-sm text-2xl font-medium">
+            <p className="text-md md:text-lg lg:text-xl text-light-gray drop-shadow-solid-sm font-medium">
               Share your OSRS achievements
             </p>
             <div className="flex justify-center items-center space-x-4 bg-black/75 py-3 px-5 rounded-full shadow  mb-6">
