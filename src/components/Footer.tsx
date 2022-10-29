@@ -88,7 +88,11 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Contact</h3>
           <FooterLink>
-            <a href="mailto:pgn@runeprofile.com" target="_blank">
+            <a
+              href="mailto:pgn@runeprofile.com"
+              target="_blank"
+              rel="noreferrer"
+            >
               Email
             </a>
           </FooterLink>
