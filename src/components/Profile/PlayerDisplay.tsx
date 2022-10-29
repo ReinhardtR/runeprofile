@@ -54,7 +54,7 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
       </div>
 
       {/* Model */}
-      <div className="h-full p-1">
+      <div className="h-full p-[1px]">
         <PlayerModel modelUri={modelUri ?? defaultModel} />
       </div>
 

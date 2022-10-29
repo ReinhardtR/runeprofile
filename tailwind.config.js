@@ -19,7 +19,11 @@ module.exports = {
           DEFAULT: "rgb(16, 16, 16)",
           dark: "rgb(10, 10, 10)",
         },
-        primary: "rgb(70, 70, 135)",
+        primary: {
+          light: "rgb(80, 90, 190)",
+          DEFAULT: "rgb(70, 70, 135)",
+          dark: "rgb(60, 60, 110)",
+        },
         accent: "rgb(230, 200, 140)",
         osrs: {
           yellow: "rgb(255, 255, 0)",

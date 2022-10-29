@@ -19,11 +19,8 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           <title>RuneProfile</title>
         </Head>
         <SearchModal />
-        <>
-          <Header />
-          <Component {...pageProps} />
-          <Footer />
-        </>
+
+        <Component {...pageProps} />
       </div>
       <Analytics />
     </>

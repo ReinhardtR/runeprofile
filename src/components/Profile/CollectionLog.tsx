@@ -75,7 +75,11 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
         </Tab.List>
         <Tab.Panels className="h-full overflow-y-clip">
           {collectionLog.tabs.map((tab) => (
-            <CollectionLogTabPanel key={tab.name} tab={tab} />
+            <CollectionLogTabPanel
+              key={tab.name}
+              tab={tab}
+              username={username}
+            />
           ))}
         </Tab.Panels>
       </Tab.Group>
@@ -106,10 +110,12 @@ const CollectionLogTab: React.FC<CollectionLogTabProps> = ({ name }) => {
 
 type CollectionLogTabPanelProps = {
   tab: TabType;
+  username: string;
 };
 
 const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
   tab,
+  username,
 }) => {
   return (
     <Tab.Panel className="h-full">
@@ -124,6 +130,7 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
             <Tab.Panel key={entry.name} className="flex h-full flex-col">
               {({ selected }) => (
                 <CollectionLogEntryPanel
+                  username={username}
                   tabName={tab.name}
                   entryName={entry.name}
                   isSelected={selected}
@@ -161,19 +168,18 @@ const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({ entry }) => {
 };
 
 type CollectionLogEntryPanelProps = {
+  username: string;
   tabName: string;
   entryName: string;
   isSelected: boolean;
 };
 
 const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
+  username,
   tabName,
   entryName,
   isSelected,
 }) => {
-  const router = useRouter();
-  const username = router.query.username as string;
-
   const { data, error, isLoading } = trpc.useQuery(
     [
       "entries.byName",
@@ -219,7 +225,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 
   return (
     <>
-      <div className="w-full border-2 border-osrs-border p-1 relative z-20">
+      <div className="w-full border-2 border-osrs-border p-1 relative">
         <p className="text-shadow text-2xl font-bold leading-none">
           {entry.name}
         </p>

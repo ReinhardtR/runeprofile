@@ -4,7 +4,8 @@ import clsx from "clsx";
 import { useSetAtom } from "jotai";
 import Image from "next/future/image";
 import Link from "next/link";
-import { Fragment, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { isSearchOpenAtom } from "./SearchModal";
 
 export const Header: React.FC = () => {
