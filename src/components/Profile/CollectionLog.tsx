@@ -36,7 +36,7 @@ type TabType = {
 
 type CollectionLogProps = {
   username: string;
-  collectionLog: {
+  collectionLog?: {
     tabs: TabType[];
   };
 };
@@ -45,15 +45,24 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
   username,
   collectionLog,
 }) => {
-  if (!collectionLog) {
+  if (!collectionLog || collectionLog.tabs.length === 0) {
     return (
       <Card>
         <div className="flex flex-col justify-center items-center space-y-1">
-          <div className="text-shadow font-runescape text-4xl text-osrs-yellow">
+          <div className="text-shadow font-runescape text-xl text-osrs-yellow">
             <span className="font-bold">{username}</span>{" "}
             <span>haven&apos;t shared their Collection Log yet.</span>
           </div>
-          <p>Here is how to share your Collection Log: &quot;LINK&quot;</p>
+          <p>
+            Here is how to share your Collection Log:{" "}
+            <a
+              href="https://github.com/ReinhardtR/runeprofile-plugin#updating-the-collection-log"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Guide
+            </a>
+          </p>
         </div>
       </Card>
     );

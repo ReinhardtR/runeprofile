@@ -49,12 +49,10 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
           <CombatAchievements combatAchievements={account.combatAchievements} />
         )}
 
-        {account.collectionLog && (
-          <CollectionLog
-            username={account.username}
-            collectionLog={account.collectionLog}
-          />
-        )}
+        <CollectionLog
+          username={account.username}
+          collectionLog={account.collectionLog}
+        />
       </div>
     </div>
   );
