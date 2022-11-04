@@ -53,7 +53,11 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  await startRevalidateTask(req, updatedAccount.accountHash);
+  await startRevalidateTask(
+    req,
+    updatedAccount.accountHash,
+    oldAccount.generatedPath ? [oldAccount.generatedPath] : undefined
+  );
 
   res.status(200).json({
     generatedPath: updatedAccount.generatedPath,
