@@ -83,7 +83,7 @@ export const SkillElement: React.FC<SkillElementProps> = ({
               {numberWithCommas(xp)}
             </span>
           </div>
-          {isOverall && (
+          {!isOverall && (
             <>
               <div className="uppercase font-runescape text-lg font-bold tracking-wide">
                 <span className="text-osrs-orange inline">VIRTUAL LEVEL </span>
