@@ -54,7 +54,11 @@ export const Footer: React.FC = () => {
                 </a>
               </FooterLink>
               <FooterLink>
-                <a href="/" target="_blank">
+                <a
+                  href="https://discord.com/users/476302464493158400"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <Discord />
                 </a>
               </FooterLink>
