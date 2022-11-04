@@ -83,18 +83,24 @@ export const SkillElement: React.FC<SkillElementProps> = ({
               {numberWithCommas(xp)}
             </span>
           </div>
-          <div className="uppercase font-runescape text-lg font-bold tracking-wide">
-            <span className="text-osrs-orange inline">VIRTUAL LEVEL </span>
-            <span className="text-light-gray inline">
-              {getVirtualLevelFromXP(xp)}
-            </span>
-          </div>
-          <div className="uppercase font-runescape text-lg font-bold tracking-wide">
-            <span className="text-osrs-orange inline">XP UNTIL NEXT LVL </span>
-            <span className="text-light-gray inline">
-              {numberWithCommas(getXPUntilNextLevel(xp))}
-            </span>
-          </div>
+          {isOverall && (
+            <>
+              <div className="uppercase font-runescape text-lg font-bold tracking-wide">
+                <span className="text-osrs-orange inline">VIRTUAL LEVEL </span>
+                <span className="text-light-gray inline">
+                  {getVirtualLevelFromXP(xp)}
+                </span>
+              </div>
+              <div className="uppercase font-runescape text-lg font-bold tracking-wide">
+                <span className="text-osrs-orange inline">
+                  XP UNTIL NEXT LVL{" "}
+                </span>
+                <span className="text-light-gray inline">
+                  {numberWithCommas(getXPUntilNextLevel(xp))}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       }
     >
