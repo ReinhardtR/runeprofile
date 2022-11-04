@@ -10,7 +10,10 @@ import {
 import { Profile } from "@/components/Profile";
 import { MainLayout } from "@/components/MainLayout";
 
-const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
+const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
+  account,
+  isPrivate,
+}) => {
   return (
     <>
       <Head>
@@ -26,8 +29,10 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
             <div className="py-2">
               <Profile account={account} />
             </div>
-          ) : (
+          ) : isPrivate ? (
             <div>This profile is private.</div>
+          ) : (
+            <div>Profile not found.</div>
           )}
         </div>
       </MainLayout>
@@ -67,7 +72,7 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   if (!isGeneratedPath && minimalAccount.isPrivate) {
     return {
       props: {
-        account: null,
+        isPrivate: true,
       },
     } as const;
   }
