@@ -32,7 +32,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
           ) : isPrivate ? (
             <div>This profile is private.</div>
           ) : (
-            <div>Profile not found.</div>
+            <div>Loading...</div>
           )}
         </div>
       </MainLayout>
