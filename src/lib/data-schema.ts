@@ -1,4 +1,4 @@
-import { QuestType, QuestState } from "@prisma/client";
+import { QuestType, QuestState, AccountType } from "@prisma/client";
 import { z, ZodLazy } from "zod";
 import { QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
 
@@ -164,7 +164,7 @@ const HiscoresSchema = z.object({
 export const PlayerDataSchema = z.object({
   accountHash: z.string(),
   username: z.string(),
-  accountType: z.enum(["NORMAL", "IRONMAN"]),
+  accountType: z.nativeEnum(AccountType),
   description: z.string(),
   combatLevel: z.number(),
   skills: SkillsSchema,
