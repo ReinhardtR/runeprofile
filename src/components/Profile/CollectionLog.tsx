@@ -37,6 +37,8 @@ type TabType = {
 type CollectionLogProps = {
   username: string;
   collectionLog?: {
+    uniqueItemsObtained: number;
+    uniqueItemsTotal: number;
     tabs: TabType[];
   };
 };
@@ -78,11 +80,23 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
     );
   }
 
+  const logIsCompleted =
+    collectionLog.uniqueItemsObtained === collectionLog.uniqueItemsTotal;
+
   return (
     <Card
       iconPath="/assets/icons/collection-log.png"
       className="w-[260px] sm:w-full md:w-[640px]"
     >
+      <div
+        className={clsx(
+          "absolute mx-auto inset-x-0 -top-[14px] font-runescape text-lg font-bold text-shadow w-24 left-[140px]",
+          logIsCompleted ? "text-osrs-green" : "text-osrs-orange"
+        )}
+      >
+        {collectionLog.uniqueItemsObtained} / {collectionLog.uniqueItemsTotal}
+      </div>
+
       <Tab.Group
         as="div"
         className="flex h-full w-full flex-col px-0.5 pt-0.5 font-runescape text-osrs-orange"
