@@ -116,7 +116,7 @@ const CollectionLogTab: React.FC<CollectionLogTabProps> = ({ name }) => {
       {({ selected }) => (
         <button
           className={clsx(
-            "text-shadow box-border flex-1 max-w-[25%] rounded-t-md border border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
+            "text-shadow box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
             selected && "bg-osrs-tab-selected"
           )}
         >
@@ -139,7 +139,7 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
   return (
     <Tab.Panel className="h-full">
       <Tab.Group as="div" vertical className="flex h-full flex-col sm:flex-row">
-        <Tab.List className="flex w-full min-h-[100px] sm:h-full sm:w-[260px] flex-col overflow-y-scroll border-t border-osrs-border">
+        <Tab.List className="flex w-full min-h-[100px] sm:h-full sm:w-[260px] flex-col overflow-y-scroll border-t-2 border-osrs-border">
           {tab.entries.map((entry) => (
             <CollectionLogEntry key={entry.name} entry={entry} />
           ))}
@@ -216,7 +216,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex justify-center items-center w-full border-t border-osrs-border p-1 relative">
+      <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
         <div className="text-shadow text-xl text-osrs-yellow font-runescape">
           Loading...
         </div>
@@ -226,7 +226,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 
   if (error) {
     return (
-      <div className="flex-1 flex justify-center items-center w-full border-t border-osrs-border p-1 relative">
+      <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
         <div className="text-shadow text-xl text-osrs-yellow font-runescape">
           Error: {error.message}
         </div>
@@ -244,7 +244,7 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
 
   return (
     <>
-      <div className="w-full border-2 border-t border-osrs-border p-1 relative">
+      <div className="w-full border-2 border-osrs-border p-1 relative">
         <p className="text-shadow text-2xl font-bold leading-none">
           {entry.name}
         </p>
