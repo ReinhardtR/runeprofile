@@ -24,8 +24,9 @@ const Model: React.FC<ModelProps> = ({ modelUri }) => {
   const mesh = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
   const [object, setObject] =
     useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
+  const [oldUrl, setOldUrl] = useState<string>();
 
-  if (object == null) {
+  if (object == null || oldUrl !== modelUri) {
     new PLYLoader().load(modelUri, (geometry) => {
       geometry.computeVertexNormals();
 
@@ -38,6 +39,7 @@ const Model: React.FC<ModelProps> = ({ modelUri }) => {
       m.rotateZ(0.1);
 
       setObject(m);
+      setOldUrl(modelUri);
     });
   }
 
