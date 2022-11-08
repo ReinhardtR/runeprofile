@@ -128,14 +128,14 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
             Scroll to Profile Example
           </a>
         </main>
-        <div className="bg-primary z-20 h-screen inset-0 absolute">
+        <div className="bg-primary z-20 h-full w-full inset-0 absolute">
           <Image
             src={heroImage}
             placeholder="blur"
             quality={100}
             priority
             alt=""
-            className="object-cover max-h-full mix-blend-multiply"
+            className="object-cover h-full w-full mix-blend-multiply"
           />
         </div>
       </div>
