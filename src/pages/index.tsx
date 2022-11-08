@@ -9,6 +9,7 @@ import type { NextPage } from "next";
 import Image from "next/future/image";
 import { useSetAtom } from "jotai";
 import { isSearchOpenAtom } from "@/components/SearchModal";
+import heroImage from "@/assets/hero-image.png";
 
 const DataIcon = ({
   name,
@@ -127,7 +128,16 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
             Scroll to Profile Example
           </a>
         </main>
-        <div className="hero-image z-20 h-screen w-full inset-0 absolute" />
+        <div className="bg-primary z-20 h-screen inset-0 absolute">
+          <Image
+            src={heroImage}
+            placeholder="blur"
+            quality={100}
+            priority
+            alt=""
+            className="object-cover max-h-full mix-blend-multiply"
+          />
+        </div>
       </div>
       {account && (
         <div

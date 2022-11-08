@@ -12,18 +12,9 @@
   .text-shadow {
     text-shadow: 1px 1px black, 1.5px 1.5px black, 2px 2px black;
   }
+
   .text-shadow-none {
     text-shadow: none;
-  }
-}
-
-@layer components {
-  .hero-image {
-    @apply bg-primary;
-    background-blend-mode: multiply;
-    background-size: cover;
-    background-position: center;
-    background-image: url("/assets/hero/hero-background-color.png");
   }
 }
 

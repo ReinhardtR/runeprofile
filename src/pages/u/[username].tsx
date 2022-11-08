@@ -91,17 +91,6 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
     } as const;
   }
 
-  // breaks when account is private and using generated path
-  // Account exists, is accesed by the username, but is the wrong CASING.
-  // if (minimalAccount.username !== username) {
-  //   return {
-  //     redirect: {
-  //       destination: `/u/${minimalAccount.username}`,
-  //       permanent: false,
-  //     },
-  //   } as const;
-  // }
-
   const account = await accountQuery({
     accountHash: minimalAccount.accountHash,
   });
