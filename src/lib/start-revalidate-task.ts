@@ -17,6 +17,11 @@ export const startRevalidateTask = async (
   const scheme = isLocalhost ? "http" : "https";
 
   const url = new URL(`/api/profile/revalidate-task`, `${scheme}://${host}`);
+  console.log("EXTRA: ", extraPaths);
+
+  url.searchParams.set("accountHash", accountHash);
+  url.searchParams.set("secretToken", env.SECRET_TOKEN);
+  url.searchParams.set("extraPaths", JSON.stringify(extraPaths));
 
   const httpModule = scheme == "http" ? http : https;
 
@@ -27,14 +32,6 @@ export const startRevalidateTask = async (
         "Content-Type": "application/json",
       },
     });
-
-    request.write(
-      JSON.stringify({
-        accountHash,
-        secretToken: env.SECRET_TOKEN,
-        extraPaths,
-      })
-    );
 
     request.end(() => {
       resolve(request);

@@ -80,6 +80,9 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   // Account exists, is accesed by the private url and isn't private,
   // so redirect to username path.
   if (isGeneratedPath && !minimalAccount.isPrivate) {
+    console.log("USERNAME: " + minimalAccount.username);
+    console.log("IS PRIVATE: " + minimalAccount.isPrivate);
+
     return {
       redirect: {
         destination: `/u/${minimalAccount.username}`,
@@ -88,15 +91,16 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
     } as const;
   }
 
+  // breaks when account is private and using generated path
   // Account exists, is accesed by the username, but is the wrong CASING.
-  if (minimalAccount.username !== username) {
-    return {
-      redirect: {
-        destination: `/u/${minimalAccount.username}`,
-        permanent: false,
-      },
-    } as const;
-  }
+  // if (minimalAccount.username !== username) {
+  //   return {
+  //     redirect: {
+  //       destination: `/u/${minimalAccount.username}`,
+  //       permanent: false,
+  //     },
+  //   } as const;
+  // }
 
   const account = await accountQuery({
     accountHash: minimalAccount.accountHash,

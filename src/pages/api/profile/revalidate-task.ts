@@ -14,14 +14,26 @@ export default async function handler(
   return res.destroy();
 }
 
-const PostBody = z.object({
+const PostQueryParams = z.object({
   accountHash: z.string(),
   secretToken: z.string(),
-  extraPaths: z.array(z.string()).optional(),
+  extraPaths: z.string(),
 });
 
 const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { accountHash, secretToken, extraPaths } = PostBody.parse(req.body);
+  console.log(req.query);
+
+  const {
+    accountHash,
+    secretToken,
+    extraPaths: _extraPaths,
+  } = PostQueryParams.parse(req.query);
+
+  const extraPaths: string[] = JSON.parse(_extraPaths);
+
+  console.log("AccountHash", accountHash);
+  console.log("SecretToken", secretToken);
+  console.log("ExtraPaths", extraPaths);
 
   if (secretToken !== env.SECRET_TOKEN) {
     return res.destroy();

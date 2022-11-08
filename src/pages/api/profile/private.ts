@@ -24,16 +24,30 @@ const PutBodySchema = z.object({
 async function putHandler(req: NextApiRequest, res: NextApiResponse) {
   const { accountHash, isPrivate } = PutBodySchema.parse(req.body);
 
+  const oldAccount = await prisma.account.findUnique({
+    where: {
+      accountHash,
+    },
+    select: {
+      generatedPath: true,
+    },
+  });
+
+  if (!oldAccount) {
+    return res.status(404).end();
+  }
+
   const updatedAccount = await prisma.account.update({
     where: {
       accountHash,
     },
     data: {
       isPrivate,
-      generatedPath: generatePath(),
+      generatedPath: isPrivate ? generatePath() : null,
     },
     select: {
       accountHash: true,
+      username: true,
       isPrivate: true,
       generatedPath: true,
     },
@@ -43,10 +57,20 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).end();
   }
 
-  await startRevalidateTask(req, updatedAccount.accountHash);
+  const extraPaths: string[] = [];
+
+  if (oldAccount.generatedPath) {
+    extraPaths.push(oldAccount.generatedPath);
+  }
+
+  if (updatedAccount.generatedPath) {
+    extraPaths.push(updatedAccount.generatedPath);
+  }
+
+  await startRevalidateTask(req, updatedAccount.accountHash, extraPaths);
 
   return res.status(200).json({
     isPrivate: updatedAccount.isPrivate,
-    generatedPath: updatedAccount.generatedPath,
+    generatedPath: updatedAccount.generatedPath ?? updatedAccount.username,
   });
 }
