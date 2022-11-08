@@ -54,15 +54,7 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
         className="w-[260px] sm:w-full md:w-[640px]"
       >
         <div className="flex flex-col justify-center items-center space-y-1 h-full text-center">
-          <div className="text-shadow font-runescape text-2xl text-osrs-orange px-4">
-            <span className="font-bold">
-              There is currently an issue with the plugin regarding the
-              Collection Log. A fix has been made and is awaiting RuneLite team
-              confirmation.
-            </span>
-          </div>
-
-          {/* <div className="text-shadow font-runescape text-2xl text-osrs-orange">
+          <div className="text-shadow font-runescape text-2xl text-osrs-orange">
             <span className="font-bold">{username}</span>{" "}
             <span>haven&apos;t shared their Collection Log yet.</span>
           </div>
@@ -74,7 +66,7 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
             rel="noreferrer"
           >
             Link to Guide
-          </a> */}
+          </a>
         </div>
       </Card>
     );

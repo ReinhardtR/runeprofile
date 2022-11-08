@@ -20,7 +20,7 @@ export const startRevalidateTask = async (
 
   const httpModule = scheme == "http" ? http : https;
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const request = httpModule.request(url, {
       method: "POST",
       headers: {

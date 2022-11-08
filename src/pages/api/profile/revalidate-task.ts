@@ -11,7 +11,7 @@ export default async function handler(
     return postHandler(req, res);
   }
 
-  return res.status(405).end();
+  return res.destroy();
 }
 
 const PostBody = z.object({
@@ -23,12 +23,12 @@ const PostBody = z.object({
 const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { accountHash, secretToken, extraPaths } = PostBody.parse(req.body);
 
-  if (req.query.secretToken !== env.SECRET_TOKEN) {
-    return res.status(401).json({ error: "Unauthorized" });
+  if (secretToken !== env.SECRET_TOKEN) {
+    return res.destroy();
   }
 
   if (!accountHash) {
-    return res.status(200).end();
+    return res.destroy();
   }
 
   const account = await prisma.account.findUnique({
@@ -42,7 +42,7 @@ const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!account) {
-    return res.status(200).end();
+    return res.destroy();
   }
 
   const promises: Promise<any>[] = [];
