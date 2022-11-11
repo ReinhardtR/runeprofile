@@ -20,8 +20,8 @@ module.exports = {
           dark: "rgb(10, 10, 10)",
         },
         primary: {
-          light: "rgb(80, 90, 190)",
-          DEFAULT: "rgb(70, 70, 135)",
+          light: "rgb(81, 91, 195)",
+          DEFAULT: "rgb(80, 90, 190)",
           dark: "rgb(60, 60, 110)",
         },
         accent: "rgb(230, 200, 140)",

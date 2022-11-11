@@ -9,6 +9,7 @@ import {
 } from "@/lib/account-query";
 import { Profile } from "@/components/Profile";
 import { MainLayout } from "@/components/MainLayout";
+import Spinner from "@/components/Misc/Spinner";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
   account,
@@ -24,15 +25,25 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
         )}
       </Head>
       <MainLayout>
-        <div className="flex flex-wrap justify-center p-4 min-h-screen pt-24 pb-32">
+        <div className="flex flex-wrap justify-center items-center p-4 min-h-screen pt-24 pb-32">
           {account ? (
             <div className="py-2">
               <Profile account={account} />
             </div>
           ) : isPrivate ? (
-            <div>This profile is private.</div>
+            <div className="flex flex-col space-y-1 items-center justify-center">
+              <h1 className="text-2xl lg:text-4xl font-black tracking-wider drop-shadow-sm">
+                <span className="text-primary">PRIVATE</span>{" "}
+                <span className="text-accent">PROFILE</span>
+              </h1>
+              <p className="text-md lg:text-lg text-light-gray">
+                This profile is only accessible by the secret URL
+              </p>
+            </div>
           ) : (
-            <div>Loading...</div>
+            <div className="w-36">
+              <Spinner />
+            </div>
           )}
         </div>
       </MainLayout>

@@ -6,7 +6,7 @@ import { env } from "@/server/env";
 export const startRevalidateTask = async (
   nextReq: NextApiRequest,
   accountHash: string,
-  extraPaths: string[] = [] // prefixed with /u/
+  extraPaths: string[] = []
 ) => {
   // create url from nextReq
   const host = nextReq.headers.host;

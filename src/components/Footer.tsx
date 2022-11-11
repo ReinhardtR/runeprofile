@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
           <h3 className="mb-1 text-xl font-bold">RuneProfile</h3>
           <div className="text-sm text-gray-400">
             <FooterLink>
-              <a href="/u/PGN" target="_blank" className="group">
+              <a href="/PGN" target="_blank" className="group">
                 <div>
                   Developed{" "}
                   <span className="hidden group-hover:inline">
