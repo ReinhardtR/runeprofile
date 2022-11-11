@@ -1,8 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
+import type { CollectionLogSchemaType } from "@/lib/data-schema";
 import { z } from "zod";
 import { prisma } from "@/server/prisma";
-import { AchievementDiaryTierName, Prisma } from "@prisma/client";
+import {
+  AchievementDiaryTierName,
+  CollectionLog,
+  Prisma,
+} from "@prisma/client";
 import { startRevalidateTask } from "@/lib/start-revalidate-task";
 import { withAxiom } from "next-axiom";
 import type { AxiomAPIRequest } from "next-axiom/dist/withAxiom";
@@ -27,16 +32,150 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
 
   const data = PlayerDataSchema.parse(req.body);
 
-  req.log.info("Update Profile API Request Body", {
-    skills: data.skills,
-    questList: data.questList,
-    achievementsDiaries: data.achievementDiaries,
-    combatAchievements: data.combatAchievements,
-    hiscores: data.hiscores,
-    collectionLog: data.collectionLog,
-  });
+  // req.log.info("Update Profile API Request Body", {
+  //   skills: data.skills,
+  //   questList: data.questList,
+  //   achievementsDiaries: data.achievementDiaries,
+  //   combatAchievements: data.combatAchievements,
+  //   hiscores: data.hiscores,
+  //   collectionLog: data.collectionLog,
+  // });
 
   const accountHash = data.accountHash;
+
+  const storedCollectionLog = await prisma.collectionLog.findUnique({
+    where: {
+      accountHash,
+    },
+    select: {
+      tabs: {
+        select: {
+          index: true,
+          name: true,
+          entries: {
+            select: {
+              name: true,
+              index: true,
+              killCounts: {
+                select: {
+                  index: true,
+                  name: true,
+                  count: true,
+                },
+              },
+              items: {
+                select: {
+                  index: true,
+                  id: true,
+                  name: true,
+                  quantity: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const collectionLogUpdates: CollectionLogSchemaType = {
+    uniqueItemsObtained: data.collectionLog.uniqueItemsObtained,
+    uniqueItemsTotal: data.collectionLog.uniqueItemsTotal,
+    tabs: {},
+  };
+
+  // Parse data for updates
+  if (storedCollectionLog) {
+    Object.entries(data.collectionLog.tabs).forEach(([tabName, tabData]) => {
+      const storedTab = storedCollectionLog.tabs.find(
+        (t) => t.name === tabName
+      );
+
+      if (!storedTab) {
+        collectionLogUpdates.tabs[tabName] = tabData;
+        return;
+      }
+
+      Object.entries(tabData).forEach(([entryName, entryData]) => {
+        const storedEntry = storedTab.entries.find((e) => e.name === entryName);
+
+        if (!storedEntry || storedEntry.index !== entryData.index) {
+          if (!collectionLogUpdates.tabs[tabName]) {
+            collectionLogUpdates.tabs[tabName] = {};
+          }
+
+          if (!collectionLogUpdates.tabs[tabName][entryName]) {
+            collectionLogUpdates.tabs[tabName][entryName] = {
+              index: entryData.index,
+              items: [],
+              killCounts: [],
+            };
+          }
+
+          collectionLogUpdates.tabs[tabName][entryName] = entryData;
+          return;
+        }
+
+        Object.entries(entryData.items).forEach(([itemName, itemData]) => {
+          const storedItem = storedEntry.items.find(
+            (i) => i.id === itemData.id
+          );
+
+          if (
+            !storedItem ||
+            storedItem.index !== itemData.index ||
+            storedItem.name !== itemData.name ||
+            storedItem.quantity !== itemData.quantity
+          ) {
+            if (!collectionLogUpdates.tabs[tabName]) {
+              collectionLogUpdates.tabs[tabName] = {};
+            }
+
+            if (!collectionLogUpdates.tabs[tabName][entryName]) {
+              collectionLogUpdates.tabs[tabName][entryName] = {
+                index: entryData.index,
+                items: [],
+                killCounts: [],
+              };
+            }
+
+            collectionLogUpdates.tabs[tabName][entryName].items.push(itemData);
+          }
+        });
+
+        entryData.killCounts?.forEach((killCount) => {
+          const storedKillCount = storedEntry.killCounts.find(
+            (kc) => kc.name === killCount.name
+          );
+
+          if (
+            !storedKillCount ||
+            storedKillCount.index !== killCount.index ||
+            storedKillCount.count !== killCount.count
+          ) {
+            if (!collectionLogUpdates.tabs[tabName]) {
+              collectionLogUpdates.tabs[tabName] = {};
+            }
+
+            if (!collectionLogUpdates.tabs[tabName][entryName]) {
+              collectionLogUpdates.tabs[tabName][entryName] = {
+                index: entryData.index,
+                items: [],
+                killCounts: [],
+              };
+            }
+
+            const entry = collectionLogUpdates.tabs[tabName][entryName];
+            entry.killCounts?.push(killCount);
+          }
+        });
+      });
+    });
+  } else {
+    collectionLogUpdates.tabs = data.collectionLog.tabs;
+  }
+
+  console.log("LOG UPDATES: ", collectionLogUpdates.tabs);
 
   // Creating "VALUES" sql string from data
 
@@ -206,17 +345,17 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
   // Collection Log
   const collectionLogValues = [
     accountHash,
-    data.collectionLog.uniqueItemsObtained,
-    data.collectionLog.uniqueItemsTotal,
+    collectionLogUpdates.uniqueItemsObtained,
+    collectionLogUpdates.uniqueItemsTotal,
   ];
 
-  const tabsValues = Object.keys(data.collectionLog.tabs).map((name) => {
+  const tabsValues = Object.keys(collectionLogUpdates.tabs).map((name) => {
     const index = Object.keys(TabsOrder).indexOf(name);
     const values = Prisma.join([accountHash, index, name]);
     return Prisma.sql`(${values})`;
   });
 
-  const entriesValues = Object.entries(data.collectionLog.tabs).flatMap(
+  const entriesValues = Object.entries(collectionLogUpdates.tabs).flatMap(
     ([tabName, tab]) => {
       return Object.entries(tab).map(([entryName, entry]) => {
         const values = Prisma.join([
@@ -231,7 +370,7 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
     }
   );
 
-  const itemsValues = Object.entries(data.collectionLog.tabs).flatMap(
+  const itemsValues = Object.entries(collectionLogUpdates.tabs).flatMap(
     ([tabName, tab]) => {
       return Object.entries(tab).flatMap(([entryName, entry]) => {
         return entry.items.map((item) => {
@@ -251,7 +390,7 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
     }
   );
 
-  const killCountsValues = Object.entries(data.collectionLog.tabs).flatMap(
+  const killCountsValues = Object.entries(collectionLogUpdates.tabs).flatMap(
     ([tabName, tab]) => {
       return Object.entries(tab).flatMap(([entryName, entry]) => {
         if (!entry.killCounts) return [];
@@ -272,7 +411,7 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
     }
   );
 
-  const obtainedAtValues = Object.entries(data.collectionLog.tabs).flatMap(
+  const obtainedAtValues = Object.entries(collectionLogUpdates.tabs).flatMap(
     ([tabName, tab]) => {
       return Object.entries(tab).flatMap(([entryName, entry]) => {
         return entry.items.flatMap((item) => {
@@ -292,7 +431,7 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
   );
 
   const obtainedAtKillCountsValues = Object.entries(
-    data.collectionLog.tabs
+    collectionLogUpdates.tabs
   ).flatMap(([tabName, tab]) => {
     return Object.entries(tab).flatMap(([entryName, entry]) => {
       if (!entry.killCounts) return [];
