@@ -10,11 +10,26 @@ import {
 import { Profile } from "@/components/Profile";
 import { MainLayout } from "@/components/MainLayout";
 import Spinner from "@/components/Misc/Spinner";
+import { useRouter } from "next/router";
 
 const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
   account,
   isPrivate,
 }) => {
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return (
+      <MainLayout>
+        <div className="flex flex-wrap justify-center items-center p-4 min-h-screen pt-24 pb-32">
+          <div className="w-36">
+            <Spinner />
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -30,20 +45,18 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({
             <div className="py-2">
               <Profile account={account} />
             </div>
-          ) : isPrivate ? (
-            <div className="flex flex-col space-y-1 items-center justify-center">
-              <h1 className="text-2xl lg:text-4xl font-black tracking-wider drop-shadow-sm">
-                <span className="text-primary">PRIVATE</span>{" "}
-                <span className="text-accent">PROFILE</span>
-              </h1>
-              <p className="text-md lg:text-lg text-light-gray">
-                This profile is only accessible by the secret URL
-              </p>
-            </div>
           ) : (
-            <div className="w-36">
-              <Spinner />
-            </div>
+            isPrivate && (
+              <div className="flex flex-col space-y-1 items-center justify-center">
+                <h1 className="text-2xl lg:text-4xl font-black tracking-wider drop-shadow-sm">
+                  <span className="text-primary">PRIVATE</span>{" "}
+                  <span className="text-accent">PROFILE</span>
+                </h1>
+                <p className="text-md lg:text-lg text-light-gray">
+                  This profile is only accessible by the secret URL
+                </p>
+              </div>
+            )
           )}
         </div>
       </MainLayout>

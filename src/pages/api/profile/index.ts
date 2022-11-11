@@ -22,6 +22,9 @@ async function handler(req: AxiomAPIRequest, res: NextApiResponse) {
 export default withAxiom(handler);
 
 async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
+  const queryStart = new Date();
+  console.log("Query Start: ", queryStart.toUTCString());
+
   const data = PlayerDataSchema.parse(req.body);
 
   req.log.info("Update Profile API Request Body", {
@@ -32,9 +35,6 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
     hiscores: data.hiscores,
     collectionLog: data.collectionLog,
   });
-
-  const queryStart = new Date();
-  console.log("Query Start: ", queryStart.toUTCString());
 
   const accountHash = data.accountHash;
 
