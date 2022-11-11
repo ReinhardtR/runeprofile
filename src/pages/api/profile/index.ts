@@ -4,11 +4,10 @@ import { z } from "zod";
 import { prisma } from "@/server/prisma";
 import { AchievementDiaryTierName, Prisma } from "@prisma/client";
 import { startRevalidateTask } from "@/lib/start-revalidate-task";
+import { withAxiom } from "next-axiom";
+import type { AxiomAPIRequest } from "next-axiom/dist/withAxiom";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: AxiomAPIRequest, res: NextApiResponse) {
   if (req.method === "PUT") {
     return putHandler(req, res);
   }
@@ -20,8 +19,19 @@ export default async function handler(
   return res.status(405).end(); // Method not allowed
 }
 
-async function putHandler(req: NextApiRequest, res: NextApiResponse) {
+export default withAxiom(handler);
+
+async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
   const data = PlayerDataSchema.parse(req.body);
+
+  req.log.info("Update Profile API Request Body", {
+    skills: data.skills,
+    questList: data.questList,
+    achievementsDiaries: data.achievementDiaries,
+    combatAchievements: data.combatAchievements,
+    hiscores: data.hiscores,
+    collectionLog: data.collectionLog,
+  });
 
   const queryStart = new Date();
   console.log("Query Start: ", queryStart.toUTCString());
