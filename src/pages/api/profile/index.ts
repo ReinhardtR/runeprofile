@@ -353,7 +353,6 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
   // Skills
   if (skillsValues.length > 0) {
     queries.push(
-      // Skills
       prisma.$executeRaw`
       INSERT INTO Skill 
         (accountHash, \`index\`, name, xp)
