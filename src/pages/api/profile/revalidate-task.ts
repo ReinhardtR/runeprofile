@@ -11,7 +11,7 @@ export default async function handler(
     return postHandler(req, res);
   }
 
-  return res.destroy();
+  return res.end();
 }
 
 const PostQueryParams = z.object({
@@ -21,8 +21,6 @@ const PostQueryParams = z.object({
 });
 
 const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-  console.log(req.query);
-
   const {
     accountHash,
     secretToken,
@@ -31,16 +29,12 @@ const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const extraPaths: string[] = JSON.parse(_extraPaths);
 
-  console.log("AccountHash", accountHash);
-  console.log("SecretToken", secretToken);
-  console.log("ExtraPaths", extraPaths);
-
   if (secretToken !== env.SECRET_TOKEN) {
-    return res.destroy();
+    return res.end();
   }
 
   if (!accountHash) {
-    return res.destroy();
+    return res.end();
   }
 
   const account = await prisma.account.findUnique({
@@ -54,7 +48,7 @@ const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!account) {
-    return res.destroy();
+    return res.end();
   }
 
   const promises: Promise<any>[] = [];
@@ -73,6 +67,5 @@ const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   await Promise.all(promises);
 
-  console.log("REVALIDATED");
-  return res.destroy();
+  return res.end();
 };
