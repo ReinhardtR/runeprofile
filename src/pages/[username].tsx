@@ -85,7 +85,7 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
 
     return {
       redirect: {
-        destination: `/u/${minimalAccount.username}`,
+        destination: `/${minimalAccount.username}`,
         permanent: false,
       },
     } as const;

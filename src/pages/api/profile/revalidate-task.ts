@@ -55,15 +55,15 @@ const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (extraPaths) {
     extraPaths.forEach((path) => {
-      promises.push(res.revalidate(`/u/${path}`));
+      promises.push(res.revalidate(`/${path}`));
     });
   }
 
   if (account.generatedPath) {
-    promises.push(res.revalidate(`/u/${account.generatedPath}`));
+    promises.push(res.revalidate(`/${account.generatedPath}`));
   }
 
-  promises.push(res.revalidate(`/u/${account.username}`));
+  promises.push(res.revalidate(`/${account.username}`));
 
   await Promise.all(promises);
 
