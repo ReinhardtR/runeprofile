@@ -331,53 +331,12 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
         combatLevel = VALUES(combatLevel)
     `,
 
-    // Skills
-    prisma.$executeRaw`
-      INSERT INTO Skill 
-        (accountHash, \`index\`, name, xp)
-      VALUES
-        ${Prisma.join(skillsValues)}
-      ON DUPLICATE KEY UPDATE 
-        \`index\` = VALUES(\`index\`),
-        xp = VALUES(xp)
-    `,
-
-    // Achievement Diary Areas
-    prisma.$executeRaw`
-      INSERT IGNORE INTO AchievementDiary
-        (accountHash, area)
-      VALUES
-        ${Prisma.join(achievementDiaryAreasValues)}
-    `,
-
-    // Achievement Diary Tiers
-    prisma.$executeRaw`
-      INSERT INTO AchievementDiaryTier
-        (accountHash, area, tier, completed, total)
-      VALUES
-        ${Prisma.join(achievementDiaryTiersValues)}
-      ON DUPLICATE KEY UPDATE
-        completed = VALUES(completed),
-        total = VALUES(total)
-    `,
-
     // Combat Achievements Log
     prisma.$executeRaw`
       INSERT IGNORE INTO CombatAchievements
         (accountHash)
       VALUES
         (${accountHash})
-    `,
-
-    // Combat Achievement Tiers
-    prisma.$executeRaw`
-      INSERT INTO CombatAchievementTier
-        (accountHash, tier, completed, total)
-      VALUES
-        ${Prisma.join(combatAchievementTiersValues)}
-      ON DUPLICATE KEY UPDATE
-        completed = VALUES(completed),
-        total = VALUES(total)
     `,
 
     // Quest List
@@ -389,9 +348,28 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
       ON DUPLICATE KEY UPDATE
         points = VALUES(points)
     `,
+  ];
 
-    // Quests
-    prisma.$executeRaw`
+  // Skills
+  if (skillsValues.length > 0) {
+    queries.push(
+      // Skills
+      prisma.$executeRaw`
+      INSERT INTO Skill 
+        (accountHash, \`index\`, name, xp)
+      VALUES
+        ${Prisma.join(skillsValues)}
+      ON DUPLICATE KEY UPDATE 
+        \`index\` = VALUES(\`index\`),
+        xp = VALUES(xp)
+    `
+    );
+  }
+
+  // Quests
+  if (questsValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
       INSERT INTO Quest
         (accountHash, \`index\`, name, state, type)
       VALUES
@@ -400,18 +378,68 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
         \`index\` = VALUES(\`index\`),
         state = VALUES(state),
         type = VALUES(type)
-    `,
+    `
+    );
+  }
 
-    // Hiscore Leaderboards
-    prisma.$executeRaw`
+  // Achievement Diary Areas
+  if (achievementDiaryAreasValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+      INSERT IGNORE INTO AchievementDiary
+        (accountHash, area)
+      VALUES
+        ${Prisma.join(achievementDiaryAreasValues)}
+    `
+    );
+  }
+
+  // Achievement Diary Tiers
+  if (achievementDiaryTiersValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+      INSERT INTO AchievementDiaryTier
+        (accountHash, area, tier, completed, total)
+      VALUES
+        ${Prisma.join(achievementDiaryTiersValues)}
+      ON DUPLICATE KEY UPDATE
+        completed = VALUES(completed),
+        total = VALUES(total)
+    `
+    );
+  }
+
+  // Combat Achievement Tiers
+  if (combatAchievementTiersValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
+      INSERT INTO CombatAchievementTier
+        (accountHash, tier, completed, total)
+      VALUES
+        ${Prisma.join(combatAchievementTiersValues)}
+      ON DUPLICATE KEY UPDATE
+        completed = VALUES(completed),
+        total = VALUES(total)
+    `
+    );
+  }
+
+  // Hiscores Leaderboards
+  if (hiscoreStatesValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
       INSERT IGNORE INTO HiscoresLeaderboard
         (accountHash, type)
       VALUES
         ${Prisma.join(hiscoreStatesValues)}
-    `,
+    `
+    );
+  }
 
-    // Hiscore Skills
-    prisma.$executeRaw`
+  // Hiscore Skills
+  if (hiscoreSkillsValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
       INSERT INTO HiscoresSkill
         (accountHash, leaderboardType, \`index\`, name, \`rank\`, level, xp)
       VALUES
@@ -421,10 +449,14 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
         \`rank\` = VALUES(\`rank\`),
         level = VALUES(level),
         xp = VALUES(xp)
-    `,
+    `
+    );
+  }
 
-    // Hiscore Activities
-    prisma.$executeRaw`
+  // Hiscore Activities
+  if (hiscoreActivitiesValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
       INSERT INTO HiscoresActivity
         (accountHash, leaderboardType, \`index\`, name, \`rank\`, score)
       VALUES
@@ -433,10 +465,14 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
         \`index\` = VALUES(\`index\`),
         \`rank\` = VALUES(\`rank\`),
         score = VALUES(score)
-    `,
+    `
+    );
+  }
 
-    // Hiscore Bosses
-    prisma.$executeRaw`
+  // Hiscore Bosses
+  if (hiscoreBossesValues.length > 0) {
+    queries.push(
+      prisma.$executeRaw`
       INSERT INTO HiscoresBoss
         (accountHash, leaderboardType, \`index\`, name, \`rank\`, kills)
       VALUES
@@ -445,8 +481,9 @@ async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
         \`index\` = VALUES(\`index\`),
         \`rank\` = VALUES(\`rank\`),
         kills = VALUES(kills)
-    `,
-  ];
+    `
+    );
+  }
 
   // Collection Log
   if (collectionLogValues.length > 0) {
