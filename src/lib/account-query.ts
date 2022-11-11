@@ -140,7 +140,13 @@ export const accountQuery = async ({
                     select: {
                       quantity: true,
                     },
+                    orderBy: {
+                      index: "asc",
+                    },
                   },
+                },
+                orderBy: {
+                  index: "asc",
                 },
               },
             },
