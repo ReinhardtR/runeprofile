@@ -297,15 +297,19 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
               <p className="text-osrs-gray text-sm">
                 {format(item.obtainedAt.date, "PPP")}
               </p>
-              {item.obtainedAt.killCounts.map((killCount) => (
-                <p key={killCount.name}>
-                  {killCount.name}:{" "}
-                  <span className="text-light-gray">{killCount.count}</span>
-                </p>
-              ))}
+              <div className="flex flex-col">
+                {item.obtainedAt.killCounts.map((killCount) => (
+                  <p key={killCount.name}>
+                    <span className="text-osrs-orange">{killCount.name}: </span>
+                    <span className="text-light-gray">{killCount.count}</span>
+                  </p>
+                ))}
+              </div>
             </Fragment>
           ) : (
-            <p className="text-osrs-red">Not obtained</p>
+            <Fragment>
+              <p className="text-osrs-red font-bold text-lg">{item.name}</p>
+            </Fragment>
           )}
         </Fragment>
       }
