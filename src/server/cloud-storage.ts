@@ -20,7 +20,11 @@ export const uploadModel = async ({
 }) => {
   const file = bucket.file(path);
 
-  await file.save(buffer);
+  await file.save(buffer, {
+    metadata: {
+      cacheControl: "max-age=60",
+    },
+  });
 
   return `https://storage.googleapis.com/${env.GCS_BUCKET_NAME}/${path}`;
 };
