@@ -62,7 +62,7 @@ export const Header: React.FC = () => {
         </Link>
         <div className="flex text-light-gray text-lg">
           <Popover className="relative">
-            <Popover.Button className="drop-shadow-xl">
+            <Popover.Button className="drop-shadow-sm">
               <div className="flex justify-center items-center hover:text-white">
                 Leaderboards
                 <ChevronDownIcon className="w-5 h-5 ml-2" />

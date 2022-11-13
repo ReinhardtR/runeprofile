@@ -14,7 +14,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({
 }) => (
   <div
     className={clsx(
-      "text-gray-300 hover:text-white text-sm transition-colors",
+      "text-gray-300 hover:text-white hover:cursor-pointer text-sm transition-colors",
       disabled && "opacity-50 pointer-events-none"
     )}
   >
