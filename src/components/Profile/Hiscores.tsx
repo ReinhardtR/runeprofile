@@ -209,7 +209,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
                 <td className="text-center text-shadow">{skill.level}</td>
 
                 <td className="text-center text-shadow">
-                  {numberWithCommas(skill.rank)}
+                  {skill.rank == -1 ? "X" : numberWithCommas(skill.rank)}
                 </td>
               </tr>
             </Tooltip>
