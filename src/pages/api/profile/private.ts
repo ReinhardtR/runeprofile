@@ -71,6 +71,6 @@ async function putHandler(req: NextApiRequest, res: NextApiResponse) {
 
   return res.status(200).json({
     isPrivate: updatedAccount.isPrivate,
-    generatedPath: updatedAccount.generatedPath ?? updatedAccount.username,
+    generatedPath: updatedAccount.generatedPath ?? "None",
   });
 }
