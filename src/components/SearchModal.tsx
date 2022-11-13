@@ -89,7 +89,7 @@ export const SearchModal: React.FC = () => {
             onChange={(user: User) => {
               if (user) {
                 setIsSearchOpen(false);
-                router.push(`/u/${user.username}`);
+                router.push(`/${user.username}`);
               }
             }}
             as="div"
