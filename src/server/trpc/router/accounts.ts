@@ -11,6 +11,13 @@ export const accountsRouter = router({
     .query(async ({ ctx, input }) => {
       const query = input.query.trim();
 
+      if (query == "") {
+        return {
+          query,
+          accounts: [],
+        };
+      }
+
       const accounts = await ctx.prisma.account.findMany({
         where: {
           username: {
