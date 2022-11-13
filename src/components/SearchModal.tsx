@@ -23,7 +23,7 @@ export const SearchModal: React.FC = () => {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounceValue(query, 500);
 
-  const { data, isLoading } = trpc.accounts.search.useQuery(
+  const { data, isFetching } = trpc.accounts.search.useQuery(
     {
       query: debouncedQuery,
     },
@@ -105,12 +105,12 @@ export const SearchModal: React.FC = () => {
                 placeholder="Search for a profile..."
               />
             </div>
-            {isLoading && (
+            {isFetching && (
               <div className="h-24">
                 <Spinner />
               </div>
             )}
-            {!isLoading && accounts.length > 0 && (
+            {!isFetching && accounts.length > 0 && (
               <Combobox.Options
                 static
                 className="max-h-96 overflow-y-auto py-4 text-sm divide-y divide-background-light"
@@ -152,7 +152,7 @@ export const SearchModal: React.FC = () => {
                 ))}
               </Combobox.Options>
             )}
-            {!isLoading && query && accounts.length === 0 && (
+            {!isFetching && query && accounts.length === 0 && (
               <p className="p-4 text-sm text-gray-500">No accounts found.</p>
             )}
           </Combobox>
