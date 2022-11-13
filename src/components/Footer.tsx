@@ -1,6 +1,7 @@
 import { Discord, Github, Twitter } from "@icons-pack/react-simple-icons";
 import clsx from "clsx";
 import Image from "next/future/image";
+import Link from "next/link";
 
 type FooterLinkProps = {
   disabled?: boolean;
@@ -77,13 +78,17 @@ export const Footer: React.FC = () => {
 
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
-          <FooterLink disabled>
-            <a href="#" target="_blank" rel="noreferrer">
+          <FooterLink>
+            <Link
+              href="/leaderboards/collection"
+              target="_blank"
+              rel="noreferrer"
+            >
               <p>Collection Log</p>
-            </a>
+            </Link>
           </FooterLink>
           <FooterLink disabled>
-            <a href="#" target="_blank">
+            <a href="#" target="_blank" rel="noreferrer">
               <p>Items</p>
             </a>
           </FooterLink>

@@ -1,5 +1,5 @@
 import { Storage } from "@google-cloud/storage";
-import { env } from "./env";
+import { env } from "../../env";
 
 const storage = new Storage({
   projectId: env.GCP_PROJECT_ID,

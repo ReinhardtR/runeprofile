@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
 import type { CollectionLogSchemaType } from "@/lib/data-schema";
 import { z } from "zod";
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/server/clients/prisma";
 import {
   AchievementDiaryTierName,
   CollectionLog,

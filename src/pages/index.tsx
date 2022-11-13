@@ -2,7 +2,7 @@ import { Footer } from "@/components/Footer";
 import { Tooltip } from "@/components/Misc/Tooltip";
 import { Profile } from "@/components/Profile";
 import { accountQuery } from "@/lib/account-query";
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/server/clients/prisma";
 import type { InferNextProps } from "@/utils/infer-next-props-type";
 import { SearchIcon } from "@heroicons/react/outline";
 import type { NextPage } from "next";

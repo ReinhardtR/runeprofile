@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { generatePath } from "@/lib/generate-path";
 import { PlayerDataSchema } from "@/lib/data-schema";
 import { z } from "zod";
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/server/clients/prisma";
 import { startRevalidateTask } from "@/lib/start-revalidate-task";
 
 export default async function handler(

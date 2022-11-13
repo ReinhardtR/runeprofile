@@ -1,6 +1,6 @@
 import type { InferNextProps } from "@/utils/infer-next-props-type";
 import type { GetStaticPropsContext, NextPage } from "next";
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/server/clients/prisma";
 import Head from "next/head";
 import {
   accountQuery,

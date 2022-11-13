@@ -205,15 +205,12 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
   entryName,
   isSelected,
 }) => {
-  const { data, error, isLoading } = trpc.useQuery(
-    [
-      "entries.byName",
-      {
-        username,
-        tabName,
-        entryName,
-      },
-    ],
+  const { data, error, isLoading } = trpc.entries.byName.useQuery(
+    {
+      username,
+      tabName,
+      entryName,
+    },
     {
       enabled: isSelected,
       staleTime: Infinity,

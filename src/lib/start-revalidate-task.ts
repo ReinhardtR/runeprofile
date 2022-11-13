@@ -1,7 +1,7 @@
 import { NextApiRequest } from "next";
 import https from "https";
 import http from "http";
-import { env } from "@/server/env";
+import { env } from "@/env";
 
 export const startRevalidateTask = async (
   nextReq: NextApiRequest,
