@@ -1,12 +1,12 @@
 import { NextApiRequest } from "next";
 import https from "https";
 import http from "http";
-import { env } from "@/server/env";
+import { env } from "@/env";
 
 export const startRevalidateTask = async (
   nextReq: NextApiRequest,
   accountHash: string,
-  extraPaths: string[] = [] // prefixed with /u/
+  extraPaths: string[] = []
 ) => {
   // create url from nextReq
   const host = nextReq.headers.host;

@@ -20,11 +20,16 @@ module.exports = {
           dark: "rgb(10, 10, 10)",
         },
         primary: {
-          light: "rgb(80, 90, 190)",
-          DEFAULT: "rgb(70, 70, 135)",
+          light: "rgb(81, 91, 195)",
+          DEFAULT: "rgb(80, 90, 190)",
           dark: "rgb(60, 60, 110)",
         },
         accent: "rgb(230, 200, 140)",
+        ranks: {
+          "1st": "rgb(230, 200, 140)",
+          "2nd": "rgb(170, 170, 170)",
+          "3rd": "rgb(125, 75, 0)",
+        },
         osrs: {
           yellow: "rgb(255, 255, 0)",
           orange: "rgb(255, 132, 31)",

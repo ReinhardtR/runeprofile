@@ -1,9 +1,10 @@
-import { SearchIcon } from "@heroicons/react/outline";
+import { Popover, Transition } from "@headlessui/react";
+import { ChevronDownIcon, EyeIcon, SearchIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
 import { useSetAtom } from "jotai";
 import Image from "next/future/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { isSearchOpenAtom } from "./SearchModal";
 
 export const Header: React.FC = () => {
@@ -53,15 +54,15 @@ export const Header: React.FC = () => {
             />
             <a>
               <div className="text-lg font-black tracking-wide drop-shadow leading-none">
-                <p className="text-primary">RUNE</p>
+                <p className="text-primary-light">RUNE</p>
                 <p className="text-accent">PROFILE</p>
               </div>
             </a>
           </div>
         </Link>
-        {/* <div className="flex text-light-gray text-lg">
+        <div className="flex text-light-gray text-lg">
           <Popover className="relative">
-            <Popover.Button className="drop-shadow-xl">
+            <Popover.Button className="drop-shadow-sm">
               <div className="flex justify-center items-center hover:text-white">
                 Leaderboards
                 <ChevronDownIcon className="w-5 h-5 ml-2" />
@@ -80,7 +81,7 @@ export const Header: React.FC = () => {
               <Popover.Panel className="absolute left-1/2 z-50 mt-3 w-screen max-w-sm -translate-x-1/2 transform p-4 sm:px-0">
                 <div className="overflow-hidden bg-background border-accent border-2 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="flex flex-col p-4 space-y-4">
-                    <Link href="/leaderboards/collection-log">
+                    <Link href="/leaderboards/collection">
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
                           <Image
@@ -99,7 +100,7 @@ export const Header: React.FC = () => {
                         </div>
                       </a>
                     </Link>
-                    <Link href="/leaderboards/items">
+                    {/* <Link href="/leaderboards/items">
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
                           <Image
@@ -118,28 +119,13 @@ export const Header: React.FC = () => {
                           </p>
                         </div>
                       </a>
-                    </Link>
-                    <Link href="/leaderboards/items">
-                      <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
-                        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
-                          <EyeIcon />
-                        </div>
-                        <div className="ml-4">
-                          <p className="text-sm font-medium text-light-gray">
-                            Views
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Which scaper has the most views?
-                          </p>
-                        </div>
-                      </a>
-                    </Link>
+                    </Link> */}
                   </div>
                 </div>
               </Popover.Panel>
             </Transition>
           </Popover>
-        </div> */}
+        </div>
         <div
           className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow-md hover:cursor-pointer hover:border-primary transition-colors"
           onClick={() => setIsSearchOpen(true)}

@@ -1,4 +1,4 @@
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/server/clients/prisma";
 import { AsyncReturnType } from "@/types/AsyncReturnType";
 
 // Username may also be a generated string for private accounts.

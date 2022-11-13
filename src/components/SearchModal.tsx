@@ -23,13 +23,10 @@ export const SearchModal: React.FC = () => {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounceValue(query, 500);
 
-  const { data, isLoading } = trpc.useQuery(
-    [
-      "accounts.search",
-      {
-        query: debouncedQuery,
-      },
-    ],
+  const { data, isLoading } = trpc.accounts.search.useQuery(
+    {
+      query: debouncedQuery,
+    },
     {
       enabled: debouncedQuery.length > 0 && isSearchOpen,
     }

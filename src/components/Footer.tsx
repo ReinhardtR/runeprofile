@@ -1,6 +1,7 @@
 import { Discord, Github, Twitter } from "@icons-pack/react-simple-icons";
 import clsx from "clsx";
 import Image from "next/future/image";
+import Link from "next/link";
 
 type FooterLinkProps = {
   disabled?: boolean;
@@ -13,7 +14,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({
 }) => (
   <div
     className={clsx(
-      "text-gray-300 hover:text-white text-sm transition-colors",
+      "text-gray-300 hover:text-white hover:cursor-pointer text-sm transition-colors",
       disabled && "opacity-50 pointer-events-none"
     )}
   >
@@ -33,7 +34,7 @@ export const Footer: React.FC = () => {
           <h3 className="mb-1 text-xl font-bold">RuneProfile</h3>
           <div className="text-sm text-gray-400">
             <FooterLink>
-              <a href="/u/PGN" target="_blank" className="group">
+              <a href="/PGN" target="_blank" className="group">
                 <div>
                   Developed{" "}
                   <span className="hidden group-hover:inline">
@@ -77,13 +78,17 @@ export const Footer: React.FC = () => {
 
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
-          <FooterLink disabled>
-            <a href="#" target="_blank" rel="noreferrer">
+          <FooterLink>
+            <Link
+              href="/leaderboards/collection"
+              target="_blank"
+              rel="noreferrer"
+            >
               <p>Collection Log</p>
-            </a>
+            </Link>
           </FooterLink>
           <FooterLink disabled>
-            <a href="#" target="_blank">
+            <a href="#" target="_blank" rel="noreferrer">
               <p>Items</p>
             </a>
           </FooterLink>

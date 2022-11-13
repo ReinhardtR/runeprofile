@@ -2,7 +2,7 @@ import { Footer } from "@/components/Footer";
 import { Tooltip } from "@/components/Misc/Tooltip";
 import { Profile } from "@/components/Profile";
 import { accountQuery } from "@/lib/account-query";
-import { prisma } from "@/server/prisma";
+import { prisma } from "@/server/clients/prisma";
 import type { InferNextProps } from "@/utils/infer-next-props-type";
 import { SearchIcon } from "@heroicons/react/outline";
 import type { NextPage } from "next";
@@ -66,7 +66,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
           <div className="flex flex-col justify-center items-center space-y-2 mt-12 mb-16">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold drop-shadow-solid">
               <span className="text-accent">RUNE</span>
-              <span className="text-primary-light">PROFILE</span>
+              <span className="text-primary">PROFILE</span>
             </h1>
             <p className="text-md md:text-lg lg:text-xl text-light-gray drop-shadow-solid-sm font-medium">
               Share your OSRS achievements
@@ -128,7 +128,7 @@ const Home: NextPage<InferNextProps<typeof getStaticProps>> = ({ account }) => {
             Scroll to Profile Example
           </a>
         </main>
-        <div className="bg-primary z-20 h-full w-full inset-0 absolute">
+        <div className="bg-primary-dark z-20 h-full w-full inset-0 absolute">
           <Image
             src={heroImage}
             placeholder="blur"

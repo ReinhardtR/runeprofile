@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "@/server/prisma";
-import { env } from "@/server/env";
+import { prisma } from "@/server/clients/prisma";
+import { env } from "@/env";
 import { z } from "zod";
 
 export default async function handler(
@@ -21,6 +21,9 @@ const PostQueryParams = z.object({
 });
 
 const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const queryStart = new Date();
+  console.log("Query Start: ", queryStart.toUTCString());
+
   const {
     accountHash,
     secretToken,
@@ -66,6 +69,12 @@ const postHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   promises.push(res.revalidate(`/${account.username}`));
 
   await Promise.all(promises);
+
+  const queryEnd = new Date();
+  console.log("Query End: ", queryEnd.toUTCString());
+
+  const queryTime = queryEnd.getTime() - queryStart.getTime();
+  console.log("Query Time: ", queryTime / 1000, "s");
 
   return res.end();
 };

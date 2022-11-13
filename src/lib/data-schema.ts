@@ -1,5 +1,5 @@
 import { QuestType, QuestState, AccountType } from "@prisma/client";
-import { z, ZodLazy } from "zod";
+import { z } from "zod";
 import { QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
 
 const CollectionLogItemSchema = z.object({
@@ -36,6 +36,8 @@ const CollectionLogSchema = z.object({
   uniqueItemsTotal: z.number(),
   tabs: z.record(CollectionLogTabSchema),
 });
+
+export type CollectionLogSchemaType = z.infer<typeof CollectionLogSchema>;
 
 const QuestSchema = z.object({
   name: z.string(),
