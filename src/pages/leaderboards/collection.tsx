@@ -51,7 +51,7 @@ const CollectionLogLeaderboard: NextPage = () => {
 
                 return (
                   <Link
-                    href={`/u/${user.account.username}`}
+                    href={`/${user.account.username}`}
                     target="_blank"
                     rel="noreferrer"
                     key={user.account.username}
