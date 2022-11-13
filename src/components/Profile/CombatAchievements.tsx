@@ -45,12 +45,13 @@ export const CombatAchievements: React.FC<CombatAchievementsProps> = ({
               <p className="text-shadow text-lg leading-none text-osrs-orange">
                 {capitalize(tier.tier)}
               </p>
-              <div className="relative w-[38px] my-[1px] aspect-square">
+              <div className="relative my-[1px]">
                 <Image
                   src={`/assets/combat-achievement-icons/${tier.tier.toLowerCase()}.png`}
                   alt={tier.tier}
                   quality={100}
-                  fill
+                  width={38}
+                  height={38}
                   className="drop-shadow-xl"
                 />
               </div>

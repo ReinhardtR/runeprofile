@@ -106,14 +106,13 @@ export const SkillElement: React.FC<SkillElementProps> = ({
     >
       <div className="runescape-stats-tile flex items-center justify-between px-3">
         {!isOverall && (
-          <div className="relative h-full flex-1">
-            <Image
-              src={`/assets/skill-icons/${name.toLowerCase()}.png`}
-              alt={name}
-              className="drop-shadow object-contain"
-              fill
-            />
-          </div>
+          <Image
+            src={`/assets/skill-icons/${name.toLowerCase()}.png`}
+            alt={name}
+            className="drop-shadow object-contain flex-1"
+            width={24}
+            height={38}
+          />
         )}
         <p
           className={clsx(

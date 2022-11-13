@@ -114,12 +114,13 @@ const LeaderboardTypeTab: React.FC<LeaderboardTypeTabProps> = ({
               selected ? "bg-background" : "bg-transparent"
             )}
           >
-            <div className="relative w-4 h-5 drop-shadow-solid mx-auto">
+            <div className="relative drop-shadow-solid mx-auto">
               <Image
                 src={`/assets/hiscores/account-types/${leaderboardType.toLowerCase()}.png`}
                 alt={leaderboardType}
                 quality={100}
-                fill
+                width={16}
+                height={20}
               />
             </div>
           </div>
@@ -152,12 +153,13 @@ const EntryTypeTab: React.FC<EntryTypeTabProps> = ({ entryType }) => {
               selected ? "bg-background" : "bg-transparent"
             )}
           >
-            <div className="relative w-5 h-5 drop-shadow-solid">
+            <div className="relative drop-shadow-solid">
               <Image
                 src={`/assets/hiscores/entry-types/${entryType}.png`}
                 alt={entryType}
                 quality={100}
-                fill
+                width={20}
+                height={20}
               />
             </div>
           </div>
@@ -184,7 +186,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
         </thead>
 
         <tbody className="text-osrs-yellow text-lg font-bold">
-          {skills.map((skill) => (
+          {skills.map((skill, index) => (
             <Tooltip
               key={skill.name}
               content={
@@ -198,13 +200,14 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
             >
               <tr>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
-                    <Image
-                      src={`/assets/hiscores/skills/${skill.name.toLowerCase()}.png`}
-                      alt={skill.name}
-                      fill
-                    />
-                  </div>
+                  <Image
+                    src={`/assets/hiscores/skills/${skill.name.toLowerCase()}.png`}
+                    alt={skill.name}
+                    className="relative mx-auto drop-shadow-solid-sm"
+                    quality={100}
+                    width={24}
+                    height={24}
+                  />
                 </td>
                 <td className="text-center text-shadow">{skill.level}</td>
 
@@ -250,16 +253,16 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
             >
               <tr key={activity.name}>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
-                    <Image
-                      src={`/assets/hiscores/activities/${entryNameToPath(
-                        activity.name
-                      )}.png`}
-                      alt={activity.name}
-                      quality={100}
-                      fill
-                    />
-                  </div>
+                  <Image
+                    src={`/assets/hiscores/activities/${entryNameToPath(
+                      activity.name
+                    )}.png`}
+                    className="relative mx-auto drop-shadow-solid-sm"
+                    alt={activity.name}
+                    quality={100}
+                    width={24}
+                    height={24}
+                  />
                 </td>
                 <td className="text-center text-shadow">
                   {activity.score == -1
@@ -309,16 +312,16 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
             >
               <tr key={boss.name}>
                 <td>
-                  <div className="relative w-6 h-6 mx-auto drop-shadow-solid-sm">
-                    <Image
-                      src={`/assets/hiscores/bosses/${entryNameToPath(
-                        boss.name
-                      )}.png`}
-                      alt={boss.name}
-                      quality={100}
-                      fill
-                    />
-                  </div>
+                  <Image
+                    src={`/assets/hiscores/bosses/${entryNameToPath(
+                      boss.name
+                    )}.png`}
+                    className="relative mx-auto drop-shadow-solid-sm"
+                    alt={boss.name}
+                    quality={100}
+                    width={24}
+                    height={24}
+                  />
                 </td>
                 <td className="text-center text-shadow">
                   {boss.kills == -1 ? "X" : numberWithCommas(boss.kills)}

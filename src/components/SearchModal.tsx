@@ -120,10 +120,24 @@ export const SearchModal: React.FC = () => {
                     {({ active }) => (
                       <div
                         className={clsx(
-                          "flex w-full justify-between px-4 py-3 hover:cursor-pointer",
+                          "flex w-full px-4 py-3 hover:cursor-pointer items-center",
                           active ? "bg-accent" : "bg-background"
                         )}
                       >
+                        <div className="flex justify-center items-center w-7 h-7 mr-2">
+                          {account.accountType != "NORMAL" && (
+                            <div className="bg-background w-full h-full rounded flex justify-center items-center p-1">
+                              <Image
+                                src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
+                                alt={account.accountType}
+                                quality={100}
+                                width={14}
+                                height={12}
+                                className="drop-shadow-solid"
+                              />
+                            </div>
+                          )}
+                        </div>
                         <p
                           className={clsx(
                             active
@@ -133,19 +147,6 @@ export const SearchModal: React.FC = () => {
                         >
                           {account.username}
                         </p>
-                        {account.accountType != "NORMAL" && (
-                          <div className="bg-background p-[5px] w-6 h-6 rounded">
-                            <div className="relative w-full h-full">
-                              <Image
-                                src={`/assets/account-type/${account.accountType.toLowerCase()}.png`}
-                                alt={account.accountType}
-                                quality={100}
-                                fill
-                                className="drop-shadow-solid object-contain"
-                              />
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
                   </Combobox.Option>

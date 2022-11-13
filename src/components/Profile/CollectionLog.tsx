@@ -313,7 +313,7 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
       placement="bottom"
     >
       <div className="flex-shrink group">
-        <div className="relative w-[50px] aspect-[36/32]">
+        <div className="relative">
           {item.quantity > 1 && (
             <p className="text-shadow absolute top-[-5px] z-20 text-osrs-yellow">
               {item.quantity}
@@ -327,7 +327,8 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
               "brightness-[.60] drop-shadow-2xl z-10",
               !item.quantity && "opacity-30"
             )}
-            fill
+            width={50}
+            height={50}
           />
         </div>
       </div>

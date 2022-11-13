@@ -27,8 +27,13 @@ export const Footer: React.FC = () => {
     <footer className="relative z-50 w-full pt-3 border-t border-primary bg-background-dark">
       <div className="mx-auto grid grid-cols-2 gap-6 p-8 pt-10 pb-20 m-auto text-white min-h-64  lg:grid-cols-6 container">
         <div className="col-span-2">
-          <div className="relative w-10 h-10 mb-3">
-            <Image src="/assets/misc/logo.png" fill alt="Logo" />
+          <div className="relative mb-3">
+            <Image
+              src="/assets/misc/logo.png"
+              width={40}
+              height={40}
+              alt="RuneProfile Logo"
+            />
           </div>
 
           <h3 className="mb-1 text-xl font-bold">RuneProfile</h3>

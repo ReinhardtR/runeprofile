@@ -21,8 +21,14 @@ export const Card: React.FC<CardProps> = ({
       {...restProps}
     >
       {iconPath && (
-        <div className="absolute w-7 h-7 mx-auto inset-x-0 -top-[14px] drop-shadow-solid">
-          <Image src={iconPath} fill alt="Icon" />
+        <div className="absolute inset-x-0 -top-[14px] drop-shadow-solid">
+          <Image
+            src={iconPath}
+            width={28}
+            height={28}
+            alt=""
+            className="mx-auto"
+          />
         </div>
       )}
 
