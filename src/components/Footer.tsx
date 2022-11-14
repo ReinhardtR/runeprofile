@@ -111,9 +111,13 @@ export const Footer: React.FC = () => {
 
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Information</h3>
-          <FooterLink disabled>
-            <a href="#" target="_blank" rel="noreferrer">
-              FAQ
+          <FooterLink>
+            <a
+              href="https://github.com/ReinhardtR/runeprofile-plugin#guide"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Guide
             </a>
           </FooterLink>
 
