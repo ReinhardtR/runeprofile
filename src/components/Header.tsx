@@ -53,7 +53,7 @@ export const Header: React.FC = () => {
               className="drop-shadow"
             />
             <a>
-              <div className="text-lg font-black tracking-wide drop-shadow leading-none">
+              <div className="text-lg font-black tracking-wide drop-shadow leading-none hidden sm:block">
                 <p className="text-primary-light">RUNE</p>
                 <p className="text-accent">PROFILE</p>
               </div>
@@ -133,9 +133,13 @@ export const Header: React.FC = () => {
         >
           <div className="flex space-x-1 items-center">
             <SearchIcon className="w-[18px] h-[18px]" />
-            <span className="text-sm font-meidum">Search...</span>
+            <span className="text-sm font-meidum hidden sm:block">
+              Search...
+            </span>
           </div>
-          <span className="text-sm font-bold text-primary">Ctrl K</span>
+          <span className="text-sm font-bold text-primary hidden sm:block">
+            Ctrl K
+          </span>
         </div>
       </div>
     </header>

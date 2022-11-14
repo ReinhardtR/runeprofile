@@ -2,6 +2,10 @@ import { AccountType } from "@prisma/client";
 import { Card } from "../Card";
 import Image from "next/future/image";
 import { PlayerModel } from "./PlayerModel";
+import { InformationCircleIcon } from "@heroicons/react/outline";
+import { Tooltip } from "../Misc/Tooltip";
+import { Fragment } from "react";
+import { format } from "date-fns";
 
 type PlayerDisplayProps = {
   username: string;
@@ -9,6 +13,8 @@ type PlayerDisplayProps = {
   accountType: AccountType;
   description: string;
   modelUri: string | null;
+  createdAt: Date;
+  updatedAt: Date | null;
 };
 
 const defaultModel =
@@ -20,6 +26,8 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
   accountType,
   description,
   modelUri,
+  createdAt,
+  updatedAt,
 }) => {
   return (
     <Card className="flex max-w-[260px] flex-col 1.5xl:min-w-[400px] 1.5xl:min-h-[730px]">
@@ -57,13 +65,32 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
       </div>
 
       {/* Description Container */}
-      {!!description && (
-        <div className="absolute bottom-4 left-0 w-full px-4">
+      <div className="absolute bottom-4 left-0 w-full px-4">
+        <Tooltip
+          content={
+            <div className="flex flex-col space-y-1 w-60 text-lg font-runescape">
+              <p>
+                <span className="text-osrs-orange font-bold">CREATED AT </span>
+                <span>{format(createdAt, "PPP")}</span>
+              </p>
+              <p>
+                <span className="text-osrs-orange font-bold">UPDATED AT </span>
+                <span>{updatedAt ? format(updatedAt, "PPP") : "Never"}</span>
+              </p>
+            </div>
+          }
+          transparent={false}
+          placement="top"
+        >
+          <InformationCircleIcon className="ml-auto w-6 h-6 text-osrs-orange drop-shadow-solid m-1" />
+        </Tooltip>
+
+        {!!description && (
           <p className="bg-black/50 text-xs text-light-gray p-2 rounded border border-osrs-border">
             {description}
           </p>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 };

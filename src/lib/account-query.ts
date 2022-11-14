@@ -34,6 +34,8 @@ export const accountQuery = async ({
     select: {
       username: true,
       accountType: true,
+      createdAt: true,
+      updatedAt: true,
       description: true,
       combatLevel: true,
       modelUri: true,

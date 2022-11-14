@@ -21,6 +21,8 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
         username={account.username}
         modelUri={account.modelUri}
         combatLevel={account.combatLevel}
+        createdAt={account.createdAt}
+        updatedAt={account.updatedAt}
       />
     );
   }, [
