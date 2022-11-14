@@ -1,5 +1,6 @@
 // @ts-check
 /* eslint-disable @typescript-eslint/no-var-requires */
+const { withAxiom } = require("next-axiom");
 const { env } = require("./src/env");
 
 /**
@@ -14,20 +15,22 @@ function getConfig(config) {
   return config;
 }
 
-module.exports = getConfig({
-  reactStrictMode: true,
-  swcMinify: true,
-  experimental: {
-    images: {
-      allowFutureImage: true,
-    },
-    swcPlugins: [
-      [
-        "next-superjson-plugin",
-        {
-          excluded: [],
-        },
+module.exports = withAxiom(
+  getConfig({
+    reactStrictMode: true,
+    swcMinify: true,
+    experimental: {
+      images: {
+        allowFutureImage: true,
+      },
+      swcPlugins: [
+        [
+          "next-superjson-plugin",
+          {
+            excluded: [],
+          },
+        ],
       ],
-    ],
-  },
-});
+    },
+  })
+);

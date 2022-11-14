@@ -26,7 +26,11 @@ export const createContextInner = async (opts: CreateContextOptions) => {
  * @link https://trpc.io/docs/context
  **/
 export const createContext = async (opts: CreateNextContextOptions) => {
-  return await createContextInner({});
+  return {
+    req: opts.req,
+    res: opts.res,
+    prisma,
+  };
 };
 
 export type Context = inferAsyncReturnType<typeof createContext>;

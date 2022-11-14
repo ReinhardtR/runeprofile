@@ -1,7 +1,9 @@
 import { Discord, Github, Twitter } from "@icons-pack/react-simple-icons";
 import clsx from "clsx";
+import { useSetAtom } from "jotai";
 import Image from "next/future/image";
 import Link from "next/link";
+import { isFeedbackOpenAtom } from "./FeedbackModal";
 
 type FooterLinkProps = {
   disabled?: boolean;
@@ -23,9 +25,11 @@ const FooterLink: React.FC<FooterLinkProps> = ({
 );
 
 export const Footer: React.FC = () => {
+  const setFeedbackIsOpen = useSetAtom(isFeedbackOpenAtom);
+
   return (
     <footer className="relative z-50 w-full pt-3 border-t border-primary bg-background-dark">
-      <div className="mx-auto grid grid-cols-2 gap-6 p-8 pt-10 pb-20 m-auto text-white min-h-64  lg:grid-cols-6 container">
+      <div className="mx-auto grid grid-cols-2 gap-6 p-8 pt-10 pb-8 m-auto text-white min-h-64 lg:grid-cols-6 container">
         <div className="col-span-2">
           <div className="relative mb-3">
             <Image
@@ -49,7 +53,7 @@ export const Footer: React.FC = () => {
                 </div>
               </a>
             </FooterLink>
-            <div className="flex mt-4 mb-10 space-x-3">
+            <div className="flex mt-4 mb-4 space-x-3">
               <FooterLink>
                 <a
                   href="https://www.twitter.com/reinhardtdev"
@@ -79,6 +83,12 @@ export const Footer: React.FC = () => {
               </FooterLink>
             </div>
           </div>
+          <button
+            className="border-primary text-sm text-accent font-medium border p-2 rounded hover:border-accent hover:opacity-100"
+            onClick={() => setFeedbackIsOpen(true)}
+          >
+            Send Quick Feedback
+          </button>
         </div>
 
         <div className="flex flex-col col-span-1 space-y-2">
@@ -100,24 +110,28 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="flex flex-col col-span-1 space-y-2">
-          <h3 className="mb-1 text-xs font-bold uppercase">Contact</h3>
-          <FooterLink>
+          <h3 className="mb-1 text-xs font-bold uppercase">Information</h3>
+          <FooterLink disabled>
             <a
               href="mailto:pgn@runeprofile.com"
               target="_blank"
               rel="noreferrer"
             >
-              Email
+              FAQ
             </a>
           </FooterLink>
 
           <FooterLink>
             <a
+              className="relative"
               href="https://github.com/ReinhardtR/runeprofile/issues"
               target="_blank"
               rel="noreferrer"
             >
-              <p>Report Issue</p>
+              {/* <p className="text-accent text-xs absolute inset-0 left-[76px] -top-[10px]">
+                NEW
+              </p> */}
+              <p>Change Log</p>
             </a>
           </FooterLink>
         </div>

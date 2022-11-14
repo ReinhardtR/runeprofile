@@ -4,6 +4,7 @@ import Head from "next/head";
 import { type AppType } from "next/dist/shared/lib/utils";
 import { Analytics } from "@vercel/analytics/react";
 import { trpc } from "../utils/trpc";
+import { FeedbackModal } from "@/components/FeedbackModal";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -13,6 +14,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           <title>RuneProfile</title>
         </Head>
         <SearchModal />
+        <FeedbackModal />
 
         <Component {...pageProps} />
       </div>
