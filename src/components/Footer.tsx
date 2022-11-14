@@ -112,27 +112,19 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col col-span-1 space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Information</h3>
           <FooterLink disabled>
-            <a
-              href="mailto:pgn@runeprofile.com"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="#" target="_blank" rel="noreferrer">
               FAQ
             </a>
           </FooterLink>
 
           <FooterLink>
-            <a
-              className="relative"
-              href="https://github.com/ReinhardtR/runeprofile/issues"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link className="relative" href="/info/change-log">
+              {/* maybe rotate this text */}
               {/* <p className="text-accent text-xs absolute inset-0 left-[76px] -top-[10px]">
                 NEW
               </p> */}
               <p>Change Log</p>
-            </a>
+            </Link>
           </FooterLink>
         </div>
 
