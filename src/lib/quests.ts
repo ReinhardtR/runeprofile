@@ -83,6 +83,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "The Fremennik Exiles": QuestType.P2P,
   "The Fremennik Isles": QuestType.P2P,
   "The Fremennik Trials": QuestType.P2P,
+  "The Garden of Death": QuestType.P2P,
   "Garden of Tranquillity": QuestType.P2P,
   "Gertrude's Cat": QuestType.P2P,
   "Getting Ahead": QuestType.P2P,
