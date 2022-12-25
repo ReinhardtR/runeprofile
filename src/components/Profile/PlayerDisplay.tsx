@@ -39,7 +39,7 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
         <div className="flex items-center space-x-2">
           {unqiueName && (
             <Tooltip
-              placement="top"
+              placement="bottom"
               content={
                 <p className="font-medium text-xl">{unqiueName.infoText}</p>
               }
