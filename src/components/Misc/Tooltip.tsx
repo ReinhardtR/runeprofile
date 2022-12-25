@@ -70,7 +70,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         >
           <div
             className={clsx(
-              "relative p-2 border border-white/25 rounded-sm z-40",
+              "relative p-2 border border-white/25 rounded-sm z-[9999]",
               transparent ? "bg-black/70" : "bg-black"
             )}
           >
