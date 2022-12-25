@@ -6,6 +6,7 @@ import { InformationCircleIcon } from "@heroicons/react/outline";
 import { Tooltip } from "../Misc/Tooltip";
 import { Fragment } from "react";
 import { format } from "date-fns";
+import { UNIQUE_NAMES } from "@/lib/unique-names";
 
 type PlayerDisplayProps = {
   username: string;
@@ -29,11 +30,33 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
   createdAt,
   updatedAt,
 }) => {
+  const unqiueName = UNIQUE_NAMES[username];
+
   return (
     <Card className="flex max-w-[260px] flex-col 1.5xl:min-w-[400px] 1.5xl:min-h-[730px]">
       {/* Name and Combat Level banner */}
       <div className="absolute inset-x-0 mx-auto flex flex-wrap justify-center items-center text-shadow font-runescape text-2xl font-bold leading-none space-x-4 p-2 z-20">
         <div className="flex items-center space-x-2">
+          {unqiueName && (
+            <Tooltip
+              placement="top"
+              content={
+                <p className="font-medium text-xl">{unqiueName.infoText}</p>
+              }
+              transparent={false}
+            >
+              <div>
+                <Image
+                  src={unqiueName.iconPath}
+                  alt="A unique badge for this username"
+                  quality={100}
+                  width={16}
+                  height={20}
+                  className="drop-shadow-solid"
+                />
+              </div>
+            </Tooltip>
+          )}
           {accountType != AccountType.NORMAL && (
             <Image
               src={`/assets/account-type/${accountType.toLowerCase()}.png`}
