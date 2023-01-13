@@ -18,6 +18,7 @@ export const RFD_QUESTS = {
 };
 
 export const QUEST_TYPE_MAP: QuestTypeMapType = {
+  // F2P Quests
   "Below Ice Mountain": QuestType.F2P,
   "Black Knights' Fortress": QuestType.F2P,
   "Cook's Assistant": QuestType.F2P,
@@ -40,6 +41,8 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "Vampyre Slayer": QuestType.F2P,
   "Witch's Potion": QuestType.F2P,
   "X Marks the Spot": QuestType.F2P,
+
+  // P2P Quests
   "Animal Magnetism": QuestType.P2P,
   "Another Slice of H.A.M.": QuestType.P2P,
   "The Ascent of Arceuus": QuestType.P2P,
@@ -58,7 +61,9 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "Death Plateau": QuestType.P2P,
   "Death to the Dorgeshuun": QuestType.P2P,
   "The Depths of Despair": QuestType.P2P,
-  "Desert Treasure": QuestType.P2P,
+  "Desert Treasure I": QuestType.P2P,
+  // NOT RELEASED YET
+  // "Desert Treasure II": QuestType.P2P,
   "Devious Minds": QuestType.P2P,
   "The Dig Site": QuestType.P2P,
   "Dragon Slayer II": QuestType.P2P,
@@ -141,6 +146,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "Rum Deal": QuestType.P2P,
   "Scorpion Catcher": QuestType.P2P,
   "Sea Slug": QuestType.P2P,
+  "Secrets of the North": QuestType.P2P,
   "Shades of Mort'ton": QuestType.P2P,
   "Shadow of the Storm": QuestType.P2P,
   "Sheep Herder": QuestType.P2P,
@@ -173,6 +179,8 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "What Lies Below": QuestType.P2P,
   "Witch's House": QuestType.P2P,
   "Zogre Flesh Eaters": QuestType.P2P,
+
+  // Mini Quests
   "Alfred Grimhand's Barcrawl": QuestType.MINI,
   "Architectural Alliance": QuestType.MINI,
   "Bear Your Soul": QuestType.MINI,
@@ -185,6 +193,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "The General's Shadow": QuestType.MINI,
   "Hopespear's Will": QuestType.MINI,
   "In Search of Knowledge": QuestType.MINI,
+  "Into the Tombs": QuestType.MINI,
   "Lair of Tarn Razorlor": QuestType.MINI,
   "Mage Arena I": QuestType.MINI,
   "Mage Arena II": QuestType.MINI,
