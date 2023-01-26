@@ -29,7 +29,7 @@ export default withAxiom(handler);
 const removeDeprecatedEntries = (data: z.infer<typeof PlayerDataSchema>) => {
   // remove entries with name Callisto, Venenatis or Vet'ion
 
-  if (!data.collectionLog.tabs) return;
+  if (!data.collectionLog.tabs) return data;
 
   if (data.collectionLog.tabs["Bosses"]) {
     const deprecatedBosses = ["Callisto", "Venenatis", "Vet'ion"];
@@ -38,13 +38,16 @@ const removeDeprecatedEntries = (data: z.infer<typeof PlayerDataSchema>) => {
       (boss) => delete data.collectionLog.tabs["Bosses"][boss]
     );
   }
+
+  return data;
 };
 
 async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
   const queryStart = new Date();
   console.log("Query Start: ", queryStart.toUTCString());
 
-  const data = PlayerDataSchema.parse(req.body);
+  let data = PlayerDataSchema.parse(req.body);
+  data = removeDeprecatedEntries(data);
 
   // req.log.info("Update Profile API Request Body", {
   //   skills: data.skills,
