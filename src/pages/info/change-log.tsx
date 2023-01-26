@@ -9,23 +9,26 @@ export const ChangeLog: NextPage = () => {
         <div className="p-8 py-6 container max-w-[800px] flex flex-col space-y-2">
           <Title dateString="2023-01-26" number={1} />
           <Content>
-            <p>
-              The Wilderness Boss Reworked changed the names of the Collection
-              Log entries of the wilderness bosses (Callisto, Venenatis and Vet
-              &apos;ion). This required some manual work on the stored profile
-              data.
-            </p>
+            <>
+              <p>
+                The Wilderness Boss Reworked changed the names of the Collection
+                Log entries of the wilderness bosses (Callisto, Venenatis and
+                Vet &apos;ion). This required some manual work on the stored
+                profile data.
+              </p>
 
-            <br />
+              <br />
 
-            <p>
-              The data from the old entries should now be moved to the new ones.
-              This includes kill counts and the kill counts which the items were
-              obtained at. The data should be moved automatically. If you dont
-              see the entry on your profile, try opening the entry in-game and
-              then updating your profile. If there is any issues you can send
-              quick feedback or contact me on Discord through the footer.
-            </p>
+              <p>
+                The data from the old entries should now be moved to the new
+                ones. This includes kill counts and the kill counts which the
+                items were obtained at. The data should be moved automatically.
+                If you dont see the entry on your profile, try opening the entry
+                in-game and then updating your profile. If there is any issues
+                you can send quick feedback or contact me on Discord through the
+                footer.
+              </p>
+            </>
           </Content>
         </div>
       </div>
