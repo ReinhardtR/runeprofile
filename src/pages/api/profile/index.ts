@@ -26,6 +26,20 @@ async function handler(req: AxiomAPIRequest, res: NextApiResponse) {
 
 export default withAxiom(handler);
 
+const removeDeprecatedEntries = (data: z.infer<typeof PlayerDataSchema>) => {
+  // remove entries with name Callisto, Venenatis or Vet'ion
+
+  if (!data.collectionLog.tabs) return;
+
+  if (data.collectionLog.tabs["Bosses"]) {
+    const deprecatedBosses = ["Callisto", "Venenatis", "Vet'ion"];
+
+    deprecatedBosses.forEach(
+      (boss) => delete data.collectionLog.tabs["Bosses"][boss]
+    );
+  }
+};
+
 async function putHandler(req: AxiomAPIRequest, res: NextApiResponse) {
   const queryStart = new Date();
   console.log("Query Start: ", queryStart.toUTCString());
