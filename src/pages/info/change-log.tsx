@@ -11,8 +11,8 @@ export const ChangeLog: NextPage = () => {
           <Content>
             <p>
               The Wilderness Boss Reworked changed the names of the Collection
-              Log entries of the wilderness bosses (Callisto, Venenatis and
-              Vet'ion). This required some manual work on the stored profile
+              Log entries of the wilderness bosses (Callisto, Venenatis and Vet
+              &apos;ion). This required some manual work on the stored profile
               data.
             </p>
 
@@ -21,9 +21,10 @@ export const ChangeLog: NextPage = () => {
             <p>
               The data from the old entries should now be moved to the new ones.
               This includes kill counts and the kill counts which the items were
-              obtained at. The data should be moved automatically, but if you
-              notice any issues, please let me know. You can send quick feedback
-              or contact me on Discord through the footer.
+              obtained at. The data should be moved automatically. If you dont
+              see the entry on your profile, try opening the entry in-game and
+              then updating your profile. If there is any issues you can send
+              quick feedback or contact me on Discord through the footer.
             </p>
           </Content>
         </div>
