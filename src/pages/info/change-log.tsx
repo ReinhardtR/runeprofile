@@ -55,7 +55,9 @@ const Title = ({
 };
 
 const Content = ({ children }: { children: React.ReactNode }) => {
-  return <p className="leading-loose text-light-gray text-lg">{children}</p>;
+  return (
+    <div className="leading-loose text-light-gray text-lg">{children}</div>
+  );
 };
 
 export default ChangeLog;
