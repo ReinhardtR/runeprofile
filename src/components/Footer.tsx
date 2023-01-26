@@ -123,10 +123,12 @@ export const Footer: React.FC = () => {
 
           <FooterLink>
             <Link className="relative" href="/info/change-log">
-              <p className="text-accent text-xs absolute inset-0 left-[76px] -top-[10px] rotate-12">
-                NEW
-              </p>
-              <p>Change Log</p>
+              <>
+                <p className="text-accent text-xs absolute inset-0 left-[76px] -top-[10px] rotate-12">
+                  NEW
+                </p>
+                <p>Change Log</p>
+              </>
             </Link>
           </FooterLink>
         </div>
