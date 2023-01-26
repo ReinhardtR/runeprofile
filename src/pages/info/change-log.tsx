@@ -11,7 +11,7 @@ export const ChangeLog: NextPage = () => {
           <Content>
             <>
               <p>
-                The Wilderness Boss Reworked changed the names of the Collection
+                The Wilderness Boss Rework changed the names of the Collection
                 Log entries of the wilderness bosses (Callisto, Venenatis and
                 Vet &apos;ion). This required some manual work on the stored
                 profile data.
@@ -48,7 +48,9 @@ const Title = ({
 
   return (
     <div className="flex space-x-2 -ml-11">
-      <p className="text-3xl text-primary font-bold">#{number}</p>
+      <p id={number.toString()} className="text-3xl text-primary font-bold">
+        #{number}
+      </p>
       <h1 className="text-3xl font-bold text-accent">{formattedDate}</h1>
     </div>
   );
