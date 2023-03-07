@@ -21,9 +21,6 @@ module.exports = withAxiom(
     experimental: {
       appDir: true,
       typedRoutes: true,
-      images: {
-        allowFutureImage: true,
-      },
       swcPlugins: [
         [
           "next-superjson-plugin",
