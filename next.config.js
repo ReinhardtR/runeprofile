@@ -1,5 +1,4 @@
 // @ts-check
-/* eslint-disable @typescript-eslint/no-var-requires */
 const { withAxiom } = require("next-axiom");
 const { env } = require("./src/env");
 
@@ -20,6 +19,8 @@ module.exports = withAxiom(
     reactStrictMode: true,
     swcMinify: true,
     experimental: {
+      appDir: true,
+      typedRoutes: true,
       images: {
         allowFutureImage: true,
       },
