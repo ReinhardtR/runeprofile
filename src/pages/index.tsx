@@ -6,7 +6,7 @@ import { prisma } from "@/server/clients/prisma";
 import type { InferNextProps } from "@/utils/infer-next-props-type";
 import { SearchIcon } from "@heroicons/react/outline";
 import type { NextPage } from "next";
-import Image from "next/future/image";
+import Image from "next/image";
 import { useSetAtom } from "jotai";
 import { isSearchOpenAtom } from "@/components/SearchModal";
 import heroImage from "@/assets/hero-image.png";

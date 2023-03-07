@@ -4,7 +4,7 @@ import { trpc } from "@/utils/trpc";
 import { Fragment, useEffect, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
-import Image from "next/future/image";
+import Image from "next/image";
 import { AccountType } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
