@@ -3,7 +3,7 @@ import {
   getVirtualLevelFromXP,
   getXPUntilNextLevel,
 } from "@/lib/xp-to-level";
-import Image from "next/future/image";
+import Image from "next/image";
 import { useMemo } from "react";
 import { Card } from "../Card";
 import clsx from "clsx";

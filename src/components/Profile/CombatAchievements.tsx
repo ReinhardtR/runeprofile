@@ -1,6 +1,6 @@
 import { capitalize } from "@/utils/capitalize-string";
 import clsx from "clsx";
-import Image from "next/future/image";
+import Image from "next/image";
 import { Card } from "../Card";
 
 type CombatAchievementTier = {

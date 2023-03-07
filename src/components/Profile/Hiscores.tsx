@@ -3,7 +3,7 @@ import { entryNameToPath } from "@/utils/entry-name-to-path";
 import { numberWithCommas } from "@/utils/number-with-commas";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
-import Image from "next/future/image";
+import Image from "next/image";
 import { Fragment } from "react";
 import { Card } from "../Card";
 import { Tooltip } from "../Misc/Tooltip";

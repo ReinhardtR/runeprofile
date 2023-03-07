@@ -2,7 +2,7 @@ import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment } from "react";
 import { Card } from "../Card";
-import Image from "next/future/image";
+import Image from "next/image";
 import itemIcons from "@/assets/item-icons.json";
 import { Tooltip } from "../Misc/Tooltip";
 import { format } from "date-fns";

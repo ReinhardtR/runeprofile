@@ -1,7 +1,7 @@
 import { Discord, Github, Twitter } from "@icons-pack/react-simple-icons";
 import clsx from "clsx";
 import { useSetAtom } from "jotai";
-import Image from "next/future/image";
+import Image from "next/image";
 import Link from "next/link";
 import { isFeedbackOpenAtom } from "./FeedbackModal";
 

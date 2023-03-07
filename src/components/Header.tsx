@@ -2,7 +2,7 @@ import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon, EyeIcon, SearchIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
 import { useSetAtom } from "jotai";
-import Image from "next/future/image";
+import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { isSearchOpenAtom } from "./SearchModal";

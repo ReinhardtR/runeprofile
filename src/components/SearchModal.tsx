@@ -7,7 +7,7 @@ import { atom, useAtom } from "jotai";
 import { useDebounceValue } from "@/utils/use-debounce";
 import { trpc } from "@/utils/trpc";
 import Spinner from "./Misc/Spinner";
-import Image from "next/future/image";
+import Image from "next/image";
 
 type User = {
   username: string;

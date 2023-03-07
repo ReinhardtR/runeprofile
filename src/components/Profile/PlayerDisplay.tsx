@@ -1,6 +1,6 @@
 import { AccountType } from "@prisma/client";
 import { Card } from "../Card";
-import Image from "next/future/image";
+import Image from "next/image";
 import { PlayerModel } from "./PlayerModel";
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { Tooltip } from "../Misc/Tooltip";
