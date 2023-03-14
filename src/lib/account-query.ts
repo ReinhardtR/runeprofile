@@ -1,5 +1,5 @@
-import { prisma } from "@/server/clients/prisma";
-import { AsyncReturnType } from "@/types/AsyncReturnType";
+import { prisma } from "~/server/clients/prisma";
+import { AsyncReturnType } from "~/types/AsyncReturnType";
 
 // Username may also be a generated string for private accounts.
 export const minimalAccountQueryByUsername = (username: string) => {

@@ -1,14 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PlayerDataSchema, TabsOrder } from "@/lib/data-schema";
-import type { CollectionLogSchemaType } from "@/lib/data-schema";
+import { PlayerDataSchema, TabsOrder } from "~/lib/data-schema";
+import type { CollectionLogSchemaType } from "~/lib/data-schema";
 import { z } from "zod";
-import { prisma } from "@/server/clients/prisma";
+import { prisma } from "~/server/clients/prisma";
 import {
   AchievementDiaryTierName,
   CollectionLog,
   Prisma,
 } from "@prisma/client";
-import { startRevalidateTask } from "@/lib/start-revalidate-task";
+import { startRevalidateTask } from "~/lib/start-revalidate-task";
 import { withAxiom } from "next-axiom";
 import type { AxiomAPIRequest } from "next-axiom/dist/withAxiom";
 

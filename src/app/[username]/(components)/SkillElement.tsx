@@ -1,61 +1,14 @@
-import {
-  getLevelFromXP,
-  getVirtualLevelFromXP,
-  getXPUntilNextLevel,
-} from "@/lib/xp-to-level";
-import Image from "next/image";
-import { useMemo } from "react";
-import { Card } from "../Card";
-import clsx from "clsx";
-import { Tooltip } from "../Misc/Tooltip";
-import { numberWithCommas } from "@/utils/number-with-commas";
+"use client";
 
-const OVERALL_NAME = "Overall";
+import { OVERALL_NAME } from "~/app/[username]/(components)/Skills";
+import { Tooltip } from "~/components/Misc/Tooltip";
+import { getVirtualLevelFromXP, getXPUntilNextLevel } from "~/lib/xp-to-level";
+import { numberWithCommas } from "~/utils/number-with-commas";
+import Image from "next/image";
+import clsx from "clsx";
+
 const MAX_SKILL_LEVEL = 99;
 const MAX_TOTAL_LEVEL = 2277;
-
-type Skill = {
-  name: string;
-  xp: number;
-};
-
-type SkillsCardProps = {
-  skills: Skill[];
-};
-
-export const SkillsCard: React.FC<SkillsCardProps> = ({ skills }) => {
-  const overallLevel = useMemo(
-    () =>
-      skills.reduce((totalXP, skill) => totalXP + getLevelFromXP(skill.xp), 0),
-    [skills]
-  );
-
-  const overallXP = useMemo(
-    () => skills.reduce((totalXP, skill) => totalXP + skill.xp, 0),
-    [skills]
-  );
-
-  return (
-    <Card iconPath="/assets/icons/skills.png" className="w-[260px]">
-      <div className="grid-rows-8 grid grid-cols-3 p-1 mt-2">
-        {skills.map(({ name, xp }) => (
-          <SkillElement
-            key={name}
-            name={name}
-            level={getLevelFromXP(xp)}
-            xp={xp}
-          />
-        ))}
-        <SkillElement
-          key={OVERALL_NAME}
-          name={OVERALL_NAME}
-          level={overallLevel}
-          xp={overallXP}
-        />
-      </div>
-    </Card>
-  );
-};
 
 type SkillElementProps = {
   name: string;

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "@/server/clients/prisma";
-import { env } from "@/env";
+import { prisma } from "~/server/clients/prisma";
+import { env } from "~/env";
 import { z } from "zod";
 
 export default async function handler(

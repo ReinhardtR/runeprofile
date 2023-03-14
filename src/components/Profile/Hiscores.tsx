@@ -1,27 +1,29 @@
-import { LeaderboardType } from "@prisma/client";
-import { entryNameToPath } from "@/utils/entry-name-to-path";
-import { numberWithCommas } from "@/utils/number-with-commas";
+"use client";
+
+import { entryNameToPath } from "~/utils/entry-name-to-path";
+import { numberWithCommas } from "~/utils/number-with-commas";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Image from "next/image";
 import { Fragment } from "react";
 import { Card } from "../Card";
 import { Tooltip } from "../Misc/Tooltip";
+import { LeaderboardType } from "~/db/database-types";
 
-type Skill = {
+export type Skill = {
   name: string;
   rank: number;
   level: number;
   xp: number;
 };
 
-type Activity = {
+export type Activity = {
   name: string;
   rank: number;
   score: number;
 };
 
-type Boss = {
+export type Boss = {
   name: string;
   rank: number;
   kills: number;

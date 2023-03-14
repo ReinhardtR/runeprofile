@@ -1,6 +1,6 @@
 import clsx from "clsx";
+import { QuestState, QuestType } from "~/lib/quests";
 import { Card } from "../Card";
-import { QuestState, QuestType } from "@prisma/client";
 
 type Quest = {
   name: string;

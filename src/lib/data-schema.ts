@@ -1,6 +1,24 @@
-import { QuestType, QuestState, AccountType } from "@prisma/client";
 import { z } from "zod";
-import { QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
+import { QuestType, QuestState, QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
+
+export const AccountType = {
+  NORMAL: "NORMAL",
+  IRONMAN: "IRONMAN",
+  HARDCORE_IRONMAN: "HARDCORE_IRONMAN",
+  ULTIMATE_IRONMAN: "ULTIMATE_IRONMAN",
+  GROUP_IRONMAN: "GROUP_IRONMAN",
+  HARDCORE_GROUP_IRONMAN: "HARDCORE_GROUP_IRONMAN",
+  UNRANKED_GROUP_IRONMAN: "UNRANKED_GROUP_IRONMAN",
+} as const;
+export type AccountType = keyof typeof AccountType;
+
+export const LeaderboardType = {
+  NORMAL: "NORMAL",
+  IRONMAN: "IRONMAN",
+  HARDCORE: "HARDCORE",
+  ULTIMATE: "ULTIMATE",
+} as const;
+export type LeaderboardType = keyof typeof LeaderboardType;
 
 const CollectionLogItemSchema = z.object({
   index: z.number(),
@@ -131,6 +149,9 @@ const HiscoresSkillsSchema = z.array(
     xp: z.number(),
   })
 );
+export type HiscoresSkillSchemaType = z.infer<
+  typeof HiscoresSkillsSchema
+>[number];
 
 const HiscoresActivitiesSchema = z.array(
   z.object({
@@ -140,6 +161,9 @@ const HiscoresActivitiesSchema = z.array(
     score: z.number(),
   })
 );
+export type HiscoresActivitySchemaType = z.infer<
+  typeof HiscoresActivitiesSchema
+>[number];
 
 const HiscoresBossesSchema = z.array(
   z.object({
@@ -149,6 +173,14 @@ const HiscoresBossesSchema = z.array(
     kills: z.number(),
   })
 );
+export type HiscoresBossSchemaType = z.infer<
+  typeof HiscoresBossesSchema
+>[number];
+
+export type HiscoresElementSchemaType =
+  | HiscoresActivitySchemaType
+  | HiscoresBossSchemaType
+  | HiscoresSkillSchemaType;
 
 const HiscoresLeaderboardSchema = z.object({
   skills: HiscoresSkillsSchema,

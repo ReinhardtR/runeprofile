@@ -1,13 +1,18 @@
-import { Tab } from "@headlessui/react";
+import {
+  Tab,
+  TabGroup,
+  TabList,
+  TabPanel,
+  TabPanels,
+} from "~/components/client-wrappers/tab";
 import clsx from "clsx";
 import { Fragment } from "react";
-import { Card } from "../Card";
+import { Card } from "../../Card";
 import Image from "next/image";
-import itemIcons from "@/assets/item-icons.json";
-import { Tooltip } from "../Misc/Tooltip";
+import itemIcons from "~/assets/item-icons.json";
+import { Tooltip } from "../../Misc/Tooltip";
 import { format } from "date-fns";
 import { useRouter } from "next/router";
-import { trpc } from "@/utils/trpc";
 
 type KillCountType = {
   name: string;
@@ -43,10 +48,7 @@ type CollectionLogProps = {
   };
 };
 
-export const CollectionLog: React.FC<CollectionLogProps> = ({
-  username,
-  collectionLog,
-}) => {
+export function CollectionLog({ username, collectionLog }: CollectionLogProps) {
   if (!collectionLog || collectionLog.tabs.length === 0) {
     return (
       <Card
@@ -89,16 +91,27 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
         {collectionLog.uniqueItemsObtained} / {collectionLog.uniqueItemsTotal}
       </div>
 
-      <Tab.Group
+      <TabGroup
         as="div"
         className="flex h-full w-full flex-col px-0.5 pt-0.5 font-runescape text-osrs-orange"
       >
-        <Tab.List className="flex md:space-x-1">
-          {collectionLog.tabs.map(({ name }) => (
-            <CollectionLogTab key={name} name={name} />
+        <TabList className="flex md:space-x-1">
+          {collectionLog.tabs.map((tab) => (
+            <Tab as={Fragment} key={tab.name}>
+              {({ selected }) => (
+                <button
+                  className={clsx(
+                    "text-shadow box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
+                    selected && "bg-osrs-tab-selected"
+                  )}
+                >
+                  {tab.name}
+                </button>
+              )}
+            </Tab>
           ))}
-        </Tab.List>
-        <Tab.Panels className="h-full overflow-y-clip">
+        </TabList>
+        <TabPanels className="h-full overflow-y-clip">
           {collectionLog.tabs.map((tab) => (
             <CollectionLogTabPanel
               key={tab.name}
@@ -106,32 +119,11 @@ export const CollectionLog: React.FC<CollectionLogProps> = ({
               username={username}
             />
           ))}
-        </Tab.Panels>
-      </Tab.Group>
+        </TabPanels>
+      </TabGroup>
     </Card>
   );
-};
-
-type CollectionLogTabProps = {
-  name: string;
-};
-
-const CollectionLogTab: React.FC<CollectionLogTabProps> = ({ name }) => {
-  return (
-    <Tab as={Fragment}>
-      {({ selected }) => (
-        <button
-          className={clsx(
-            "text-shadow box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
-            selected && "bg-osrs-tab-selected"
-          )}
-        >
-          {name}
-        </button>
-      )}
-    </Tab>
-  );
-};
+}
 
 type CollectionLogTabPanelProps = {
   tab: TabType;
@@ -143,52 +135,43 @@ const CollectionLogTabPanel: React.FC<CollectionLogTabPanelProps> = ({
   username,
 }) => {
   return (
-    <Tab.Panel className="h-full">
-      <Tab.Group as="div" vertical className="flex h-full flex-col sm:flex-row">
-        <Tab.List className="flex w-full min-h-[100px] sm:h-full sm:w-[260px] flex-col overflow-y-scroll border-t-2 border-osrs-border">
+    <TabPanel className="h-full">
+      <TabGroup as="div" vertical className="flex h-full flex-col sm:flex-row">
+        <TabList className="flex w-full min-h-[100px] sm:h-full sm:w-[260px] flex-col overflow-y-scroll border-t-2 border-osrs-border">
           {tab.entries.map((entry) => (
-            <CollectionLogEntry key={entry.name} entry={entry} />
-          ))}
-        </Tab.List>
-        <Tab.Panels className="flex-1">
-          {tab.entries.map((entry) => (
-            <Tab.Panel key={entry.name} className="flex h-full flex-col">
+            <Tab as={Fragment} key={entry.name}>
               {({ selected }) => (
-                <CollectionLogEntryPanel
-                  username={username}
-                  tabName={tab.name}
-                  entryName={entry.name}
-                  isSelected={selected}
-                />
+                <button
+                  className={clsx(
+                    "text-shadow px-1 text-start text-xl hover:bg-white hover:bg-opacity-[0.20]",
+                    selected && "bg-white bg-opacity-[0.15]",
+                    !selected && "odd:bg-white odd:bg-opacity-[0.05]",
+                    entry.isCompleted && "text-osrs-green"
+                  )}
+                >
+                  {entry.name}
+                </button>
               )}
-            </Tab.Panel>
+            </Tab>
           ))}
-        </Tab.Panels>
-      </Tab.Group>
-    </Tab.Panel>
-  );
-};
-
-type CollectionLogEntryProps = {
-  entry: EntryType;
-};
-
-const CollectionLogEntry: React.FC<CollectionLogEntryProps> = ({ entry }) => {
-  return (
-    <Tab as={Fragment}>
-      {({ selected }) => (
-        <button
-          className={clsx(
-            "text-shadow px-1 text-start text-xl hover:bg-white hover:bg-opacity-[0.20]",
-            selected && "bg-white bg-opacity-[0.15]",
-            !selected && "odd:bg-white odd:bg-opacity-[0.05]",
-            entry.isCompleted && "text-osrs-green"
-          )}
-        >
-          {entry.name}
-        </button>
-      )}
-    </Tab>
+        </TabList>
+        <TabPanels className="flex-1">
+          {tab.entries.map((entry) => (
+            <TabPanel key={entry.name} className="flex h-full flex-col">
+              {({ selected }) => (
+                // <CollectionLogEntryPanel
+                //   username={username}
+                //   tabName={tab.name}
+                //   entryName={entry.name}
+                //   isSelected={selected}
+                // />
+                <div>Items</div>
+              )}
+            </TabPanel>
+          ))}
+        </TabPanels>
+      </TabGroup>
+    </TabPanel>
   );
 };
 
@@ -205,18 +188,6 @@ const CollectionLogEntryPanel: React.FC<CollectionLogEntryPanelProps> = ({
   entryName,
   isSelected,
 }) => {
-  const { data, error, isLoading } = trpc.entries.byName.useQuery(
-    {
-      username,
-      tabName,
-      entryName,
-    },
-    {
-      enabled: isSelected,
-      staleTime: Infinity,
-    }
-  );
-
   if (isLoading) {
     return (
       <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">

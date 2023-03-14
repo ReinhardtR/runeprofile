@@ -1,6 +1,7 @@
-import { Html, useProgress } from "@react-three/drei";
+"use client";
+
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
@@ -11,9 +12,7 @@ type PlayerModelProps = {
 export const PlayerModel: React.FC<PlayerModelProps> = ({ modelUri }) => {
   return (
     <Canvas>
-      <Suspense fallback={<Loader />}>
-        <Model modelUri={modelUri} />
-      </Suspense>
+      <Model modelUri={modelUri} />
     </Canvas>
   );
 };
@@ -59,14 +58,5 @@ const Model: React.FC<ModelProps> = ({ modelUri }) => {
         </>
       )}
     </>
-  );
-};
-
-const Loader: React.FC = () => {
-  const { progress } = useProgress();
-  return (
-    <Html center className="font-runescape text-osrs-yellow">
-      {progress}%
-    </Html>
   );
 };

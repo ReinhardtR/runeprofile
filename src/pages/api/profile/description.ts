@@ -1,6 +1,6 @@
-import { PlayerDataSchema } from "@/lib/data-schema";
-import { startRevalidateTask } from "@/lib/start-revalidate-task";
-import { prisma } from "@/server/clients/prisma";
+import { PlayerDataSchema } from "~/lib/data-schema";
+import { startRevalidateTask } from "~/lib/start-revalidate-task";
+import { prisma } from "~/server/clients/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 

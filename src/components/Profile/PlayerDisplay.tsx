@@ -1,12 +1,13 @@
-import { AccountType } from "@prisma/client";
+"use client";
+
+import { AccountType } from "~/lib/data-schema";
 import { Card } from "../Card";
 import Image from "next/image";
 import { PlayerModel } from "./PlayerModel";
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { Tooltip } from "../Misc/Tooltip";
-import { Fragment } from "react";
-import { format } from "date-fns";
-import { UNIQUE_NAMES } from "@/lib/unique-names";
+import { UNIQUE_NAMES } from "~/lib/unique-names";
+import { memo } from "react";
 
 type PlayerDisplayProps = {
   username: string;
@@ -14,14 +15,14 @@ type PlayerDisplayProps = {
   accountType: AccountType;
   description: string;
   modelUri: string | null;
-  createdAt: Date;
-  updatedAt: Date | null;
+  createdAt: string; // can't pass dates from server to client components
+  updatedAt: string; // can't pass dates from server to client components
 };
 
 const defaultModel =
   "https://storage.googleapis.com/runeprofile-models/models/_default.ply";
 
-export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
+const PlayerDisplayComponent: React.FC<PlayerDisplayProps> = ({
   username,
   combatLevel,
   accountType,
@@ -91,14 +92,14 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
       <div className="absolute bottom-4 left-0 w-full px-4">
         <Tooltip
           content={
-            <div className="flex flex-col space-y-1 w-60 text-lg font-runescape">
+            <div className="flex flex-col space-y-1 w-48 text-lg font-runescape">
               <p>
                 <span className="text-osrs-orange font-bold">CREATED AT </span>
-                <span>{format(createdAt, "PPP")}</span>
+                <span className="text-light-gray">{createdAt}</span>
               </p>
               <p>
                 <span className="text-osrs-orange font-bold">UPDATED AT </span>
-                <span>{updatedAt ? format(updatedAt, "PPP") : "Never"}</span>
+                <span className="text-light-gray">{updatedAt}</span>
               </p>
             </div>
           }
@@ -117,3 +118,5 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
     </Card>
   );
 };
+
+export const PlayerDisplay = memo(PlayerDisplayComponent);

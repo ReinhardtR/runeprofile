@@ -1,4 +1,17 @@
-import { QuestType } from "@prisma/client";
+export const QuestType = {
+  F2P: "F2P",
+  P2P: "P2P",
+  MINI: "MINI",
+  UNKNOWN: "UNKNOWN",
+} as const;
+export type QuestType = keyof typeof QuestType;
+
+export const QuestState = {
+  NOT_STARTED: "NOT_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  FINISHED: "FINISHED",
+} as const;
+export type QuestState = keyof typeof QuestState;
 
 type QuestTypeMapType = {
   [key: string]: QuestType;

@@ -1,12 +1,12 @@
-datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+generator kysely {
+  provider = "npx prisma-generator-kysely"
+  output   = "../src/db"
 }
 
-generator js {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity", "fullTextSearch", "fullTextIndex", "filteredRelationCount"]
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Account {
@@ -28,10 +28,8 @@ model Account {
   questList          QuestList?
   collectionLog      CollectionLog?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-
-  @@fulltext([username])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AccountType {
@@ -144,6 +142,8 @@ model QuestList {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([accountHash])
 }
 
 model Quest {

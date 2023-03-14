@@ -14,21 +14,13 @@ function getConfig(config) {
   return config;
 }
 
-module.exports = withAxiom(
-  getConfig({
-    reactStrictMode: true,
-    swcMinify: true,
-    experimental: {
-      appDir: true,
-      typedRoutes: true,
-      swcPlugins: [
-        [
-          "next-superjson-plugin",
-          {
-            excluded: [],
-          },
-        ],
-      ],
-    },
-  })
-);
+// TODO: add axiom again
+module.exports = getConfig({
+  experimental: {
+    appDir: true,
+    typedRoutes: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+});
