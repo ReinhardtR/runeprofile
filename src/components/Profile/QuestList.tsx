@@ -16,6 +16,8 @@ type QuestListProps = {
 };
 
 export const QuestList: React.FC<QuestListProps> = ({ questList }) => {
+  console.log("QUEST LIST RERENDER");
+
   const completedQuests = Object.values(questList.quests).reduce(
     (acc, quest) => {
       if (quest.state == QuestState.FINISHED) {
