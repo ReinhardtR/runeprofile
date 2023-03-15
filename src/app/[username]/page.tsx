@@ -25,12 +25,10 @@ const cacheAccount = cache(async (username: string) =>
 
 export default async function ProfilePage({
   params,
-  searchParams,
 }: {
   params: {
     username: string;
   };
-  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const account = await cacheAccount(params.username);
 
@@ -83,8 +81,6 @@ export default async function ProfilePage({
         <CollectionLog
           username={account.username}
           collectionLog={account.collectionLog}
-          selectedTab={searchParams?.["clog-tab"] as string | undefined}
-          selectedEntry={searchParams?.["clog-entry"] as string | undefined}
         />
       </div>
     </div>

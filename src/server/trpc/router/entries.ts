@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, router } from "../trpc";
+import { getCollectionLogEntry } from "~/lib/domain/collection-log";
 
 export const entriesRouter = router({
   byName: publicProcedure
@@ -12,66 +13,11 @@ export const entriesRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const account = await ctx.prisma.account.findUnique({
-        where: {
-          username: input.username,
+      return {
+        entry: {
+          name: "TEST",
         },
-        select: {
-          accountHash: true,
-        },
-      });
-
-      if (!account) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-        });
-      }
-
-      const entry = await ctx.prisma.entry.findUnique({
-        where: {
-          accountHash_tabName_name: {
-            accountHash: account.accountHash,
-            tabName: input.tabName,
-            name: input.entryName,
-          },
-        },
-        select: {
-          name: true,
-          killCounts: {
-            select: {
-              name: true,
-              count: true,
-            },
-            orderBy: {
-              index: "asc",
-            },
-          },
-          items: {
-            select: {
-              id: true,
-              name: true,
-              quantity: true,
-              obtainedAt: {
-                select: {
-                  date: true,
-                  killCounts: {
-                    select: {
-                      name: true,
-                      count: true,
-                    },
-                    orderBy: {
-                      index: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            orderBy: {
-              index: "asc",
-            },
-          },
-        },
-      });
+      };
 
       if (!entry) {
         throw new TRPCError({

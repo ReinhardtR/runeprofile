@@ -1,9 +1,6 @@
-// src/server/router/context.ts
-import * as trpc from "@trpc/server";
 import { inferAsyncReturnType } from "@trpc/server";
-import * as trpcNext from "@trpc/server/adapters/next";
 import { CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { prisma } from "../clients/prisma";
+import { db } from "~/db/client";
 
 /**
  * Replace this with an object if you want to pass things to createContextInner
@@ -17,7 +14,7 @@ type CreateContextOptions = Record<string, never>;
  **/
 export const createContextInner = async (opts: CreateContextOptions) => {
   return {
-    prisma,
+    db,
   };
 };
 
@@ -29,7 +26,7 @@ export const createContext = async (opts: CreateNextContextOptions) => {
   return {
     req: opts.req,
     res: opts.res,
-    prisma,
+    db,
   };
 };
 

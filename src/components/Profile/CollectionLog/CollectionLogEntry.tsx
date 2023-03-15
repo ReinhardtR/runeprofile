@@ -1,52 +1,50 @@
-import { getCollectionLogEntry } from "~/lib/domain/collection-log";
+"use client";
 
-type CollectionLogEntryProps = {
+import { api } from "~/utils/api";
+
+export function CollectionLogEntry(props: {
   username: string;
-  tabName?: string;
-  entryName?: string;
-};
+  tabName: string;
+  entryName: string;
+}) {
+  const { username, tabName, entryName } = props;
 
-export async function CollectionLogEntry({
-  username,
-  tabName,
-  entryName,
-}: CollectionLogEntryProps) {
-  const entry = await getCollectionLogEntry({ username, tabName, entryName });
+  const { data, error, isLoading } = api.entries.byName.useQuery(
+    {
+      username,
+      tabName,
+      entryName,
+    },
+    {
+      staleTime: Infinity,
+    }
+  );
 
-  if (!entry) {
-    return <div>Not Found</div>;
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
+        <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+          Loading...
+        </div>
+      </div>
+    );
   }
+  if (error) {
+    return (
+      <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
+        <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+          Error: {error.message}
+        </div>
+      </div>
+    );
+  }
+  const { entry } = data!;
 
   return <div>{entry.name}</div>;
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
-  //       <div className="text-shadow text-xl text-osrs-yellow font-runescape">
-  //         Loading...
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // if (error) {
-  //   return (
-  //     <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
-  //       <div className="text-shadow text-xl text-osrs-yellow font-runescape">
-  //         Error: {error.message}
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // const { entry } = data!;
-
   // const obtainedItemsCount = entry.items.filter(
   //   (item) => item.quantity > 0
   // ).length;
-
   // const totalItemsCount = entry.items.length;
-
   // return (
   //   <>
   //     <div className="w-full border-2 border-osrs-border p-1 relative">

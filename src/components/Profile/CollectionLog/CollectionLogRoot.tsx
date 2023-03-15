@@ -1,16 +1,17 @@
-import React, { Suspense } from "react";
+"use client";
+
 import { clsx } from "clsx";
 import { Card } from "~/components/Card";
-import {
-  Tab,
-  TabGroup,
-  TabList,
-  TabPanels,
-  TabPanel,
-} from "~/components/client-wrappers/tab";
 import { CollectionLogEntry } from "~/components/Profile/CollectionLog/CollectionLogEntry";
 import { CollectionLogEntryList } from "~/components/Profile/CollectionLog/CollectionLogEntryList";
 import Link from "next/link";
+import {
+  ReadonlyURLSearchParams,
+  useSearchParams,
+  useRouter,
+  usePathname,
+} from "next/navigation";
+import React from "react";
 
 export type EntryType = {
   name: string;
@@ -22,23 +23,30 @@ export type TabType = {
   entries: EntryType[];
 };
 
-type CollectionLogProps = {
+export function CollectionLog(props: {
   username: string;
   collectionLog?: {
     uniqueItemsObtained: number;
     uniqueItemsTotal: number;
     tabs: TabType[];
   };
-  selectedTab?: string;
-  selectedEntry?: string;
-};
+}) {
+  const { username, collectionLog } = props;
 
-export function CollectionLog({
-  username,
-  collectionLog,
-  selectedTab,
-  selectedEntry,
-}: CollectionLogProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams() as ReadonlyURLSearchParams;
+
+  const createQueryString = React.useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+
   if (!collectionLog || collectionLog.tabs.length === 0) {
     return (
       <Card
@@ -64,13 +72,24 @@ export function CollectionLog({
     );
   }
 
+  // Selected Tab
+  const selectedTabName =
+    searchParams.get("clog-tab") || collectionLog.tabs[0].name;
+
+  const selectedTab =
+    collectionLog.tabs.find((tab) => tab.name === selectedTabName) ||
+    collectionLog.tabs[0];
+
+  // Selected entry
+  const selectedEntryName =
+    searchParams.get("clog-entry") || selectedTab.entries[0].name;
+
+  const selectedEntry =
+    selectedTab?.entries.find((entry) => entry.name === selectedEntryName) ||
+    selectedTab?.entries[0];
+
   const logIsCompleted =
     collectionLog.uniqueItemsObtained === collectionLog.uniqueItemsTotal;
-
-  const currentTab =
-    selectedTab && collectionLog.tabs.find((tab) => tab.name === selectedTab)
-      ? collectionLog.tabs.find((tab) => tab.name === selectedTab)
-      : collectionLog.tabs[0];
 
   return (
     <Card
@@ -89,16 +108,20 @@ export function CollectionLog({
       <div className="flex h-full w-full flex-col px-0.5 pt-0.5 font-runescape text-osrs-orange">
         <div className="flex md:space-x-1">
           {collectionLog.tabs.map((tab) => (
-            <Link
+            <button
+              onClick={() => {
+                router.push(
+                  pathname + "?" + createQueryString("clog-tab", tab.name)
+                );
+              }}
               key={tab.name}
-              href={`/${username}?clog-tab=${tab.name}`}
               className={clsx(
                 "text-shadow text-center box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
-                tab.name === currentTab?.name! && "bg-osrs-tab-selected"
+                tab.name === selectedTabName && "bg-osrs-tab-selected"
               )}
             >
               {tab.name}
-            </Link>
+            </button>
           ))}
         </div>
         <div className="h-full overflow-y-clip">
@@ -106,19 +129,18 @@ export function CollectionLog({
             <div className="h-full">
               <CollectionLogEntryList
                 username={username}
-                selectedTabName={currentTab?.name!}
-                selectedEntryName={selectedEntry!}
-                entries={currentTab?.entries!}
+                entries={selectedTab.entries}
+                selectedTabName={selectedTab.name}
+                selectedEntryName={selectedEntry.name}
               />
             </div>
 
             <div className="flex-1">
               <div className="flex h-full flex-col">
-                {/* @ts-expect-error Async Server */}
                 <CollectionLogEntry
                   username={username}
-                  tabName={currentTab?.name!}
-                  entryName={selectedEntry!}
+                  tabName={selectedTab.name}
+                  entryName={selectedEntry.name}
                 />
               </div>
             </div>

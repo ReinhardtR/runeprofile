@@ -6,8 +6,8 @@ export async function getCollectionLogEntry({
   entryName,
 }: {
   username: string;
-  tabName?: string;
-  entryName?: string;
+  tabName: string;
+  entryName: string;
 }) {
   const account = await db
     .selectFrom("Account")
@@ -23,7 +23,7 @@ export async function getCollectionLogEntry({
     .selectFrom("Entry")
     .select(["Entry.name"])
     .where("Entry.accountHash", "=", account.accountHash)
-    .$if(!!tabName, (qb) => qb.where("Entry.tabName", "=", tabName!))
-    .$if(!!entryName, (qb) => qb.where("Entry.name", "=", entryName!))
+    .where("Entry.tabName", "=", tabName)
+    .where("Entry.name", "=", entryName)
     .executeTakeFirst();
 }
