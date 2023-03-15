@@ -1,7 +1,6 @@
 "use client";
 
 import { clsx } from "clsx";
-import Link from "next/link";
 import { EntryType } from "~/components/Profile/CollectionLog/CollectionLogRoot";
 
 export function CollectionLogEntryList(props: {
@@ -9,13 +8,14 @@ export function CollectionLogEntryList(props: {
   selectedTabName: string;
   selectedEntryName: string;
   entries: EntryType[];
+  onEntryClick: (entryName: string) => void;
 }) {
   return (
     <div className="flex w-full min-h-[100px] sm:h-full sm:w-[260px] flex-col overflow-y-scroll border-t-2 border-osrs-border">
       {props.entries.map((entry) => (
-        <Link
+        <button
           key={entry.name}
-          href={`/${props.username}?clog-tab=${props.selectedTabName}&clog-entry=${entry.name}`}
+          onClick={() => props.onEntryClick(entry.name)}
           className={clsx(
             "text-shadow px-1 text-start text-xl hover:bg-white hover:bg-opacity-[0.20]",
             entry.isCompleted && "text-osrs-green",
@@ -25,7 +25,7 @@ export function CollectionLogEntryList(props: {
           )}
         >
           {entry.name}
-        </Link>
+        </button>
       ))}
     </div>
   );

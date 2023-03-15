@@ -4,13 +4,6 @@ import { clsx } from "clsx";
 import { Card } from "~/components/Card";
 import { CollectionLogEntry } from "~/components/Profile/CollectionLog/CollectionLogEntry";
 import { CollectionLogEntryList } from "~/components/Profile/CollectionLog/CollectionLogEntryList";
-import Link from "next/link";
-import {
-  ReadonlyURLSearchParams,
-  useSearchParams,
-  useRouter,
-  usePathname,
-} from "next/navigation";
 import React from "react";
 
 export type EntryType = {
@@ -33,19 +26,13 @@ export function CollectionLog(props: {
 }) {
   const { username, collectionLog } = props;
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams() as ReadonlyURLSearchParams;
+  const [selectedTabName, setSelectedTabName] = React.useState<
+    string | undefined
+  >(collectionLog?.tabs[0].name);
 
-  const createQueryString = React.useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams]
-  );
+  const [selectedEntryName, setSelectedEntryName] = React.useState<
+    string | undefined
+  >(collectionLog?.tabs[0].entries[0].name);
 
   if (!collectionLog || collectionLog.tabs.length === 0) {
     return (
@@ -73,17 +60,11 @@ export function CollectionLog(props: {
   }
 
   // Selected Tab
-  const selectedTabName =
-    searchParams.get("clog-tab") || collectionLog.tabs[0].name;
-
   const selectedTab =
     collectionLog.tabs.find((tab) => tab.name === selectedTabName) ||
     collectionLog.tabs[0];
 
   // Selected entry
-  const selectedEntryName =
-    searchParams.get("clog-entry") || selectedTab.entries[0].name;
-
   const selectedEntry =
     selectedTab?.entries.find((entry) => entry.name === selectedEntryName) ||
     selectedTab?.entries[0];
@@ -109,12 +90,8 @@ export function CollectionLog(props: {
         <div className="flex md:space-x-1">
           {collectionLog.tabs.map((tab) => (
             <button
-              onClick={() => {
-                router.push(
-                  pathname + "?" + createQueryString("clog-tab", tab.name)
-                );
-              }}
               key={tab.name}
+              onClick={() => setSelectedTabName(tab.name)}
               className={clsx(
                 "text-shadow text-center box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
                 tab.name === selectedTabName && "bg-osrs-tab-selected"
@@ -132,6 +109,7 @@ export function CollectionLog(props: {
                 entries={selectedTab.entries}
                 selectedTabName={selectedTab.name}
                 selectedEntryName={selectedEntry.name}
+                onEntryClick={(entryName) => setSelectedEntryName(entryName)}
               />
             </div>
 

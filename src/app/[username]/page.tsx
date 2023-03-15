@@ -10,6 +10,7 @@ import { getAccounts, getFullAccount } from "~/lib/domain/account";
 import { getDateString } from "~/utils/time";
 
 export const dynamic = "force-static";
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const accounts = await getAccounts();
