@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { cache } from "react";
 import { SkillsCard } from "~/app/[username]/(components)/Skills";
 import { AchievementDiaries } from "~/components/Profile/AchievementDiaries";
@@ -9,8 +10,12 @@ import { QuestList } from "~/components/Profile/QuestList";
 import { getAccounts, getFullAccount } from "~/lib/domain/account";
 import { getDateString } from "~/utils/time";
 
+// should be "error", look at this issue: https://github.com/vercel/next.js/issues/46694
 export const dynamic = "force-static";
-export const dynamicParams = false;
+
+const getFullAccountCached = cache(async (username: string) => {
+  return getFullAccount(username);
+});
 
 export async function generateStaticParams() {
   const accounts = await getAccounts();
@@ -20,22 +25,41 @@ export async function generateStaticParams() {
   }));
 }
 
-const cacheAccount = cache(async (username: string) =>
-  getFullAccount(username)
-);
-
-export default async function ProfilePage({
+export async function generateMetadata({
   params,
 }: {
+  params: { username: string };
+}) {
+  const account = await getFullAccountCached(params.username);
+
+  const metadata: Metadata = {
+    title: `${account.username} - RuneProfile`,
+    openGraph: {
+      title: `${account.username} - RuneProfile`,
+      description: account.description,
+      images: [
+        {
+          // TODO: change to runeprofile.com when in prod
+          url: `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    robots: {
+      index: true,
+    },
+  };
+
+  return metadata;
+}
+
+export default async function ProfilePage(props: {
   params: {
     username: string;
   };
 }) {
-  const account = await cacheAccount(params.username);
-
-  if (!account) {
-    return <div>Not found</div>;
-  }
+  const account = await getFullAccountCached(props.params.username);
 
   return (
     <div className="flex justify-center gap-6">

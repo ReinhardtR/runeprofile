@@ -1,4 +1,3 @@
-import { sql } from "kysely";
 import { Activity, Boss, Skill } from "~/components/Profile/Hiscores";
 import { db } from "~/db/client";
 import { LeaderboardType } from "~/lib/data-schema";
@@ -19,8 +18,6 @@ export function getAccount(username: string) {
 }
 
 export async function getFullAccount(username: string) {
-  const start = new Date();
-
   const { accountHash, ...account } = await db
     .selectFrom("Account")
     .select([
@@ -51,10 +48,6 @@ export async function getFullAccount(username: string) {
     getCombatAchievements(accountHash),
     getHiscores(accountHash),
   ]);
-
-  const end = new Date();
-
-  console.log(`getFullAccount took ${end.getTime() - start.getTime()}ms`);
 
   return {
     ...account,
