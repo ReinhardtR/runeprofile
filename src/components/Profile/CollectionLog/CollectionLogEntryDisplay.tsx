@@ -4,9 +4,9 @@ import React from "react";
 import Image from "next/image";
 import { api } from "~/utils/api";
 import { clsx } from "clsx";
-import { format } from "date-fns";
 import { Tooltip } from "~/components/Misc/Tooltip";
 import itemIcons from "~/assets/item-icons.json";
+import { getDateString } from "~/utils/time";
 
 type ItemType = {
   name: string;
@@ -111,7 +111,7 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
             <React.Fragment>
               <p className="text-osrs-green font-bold text-lg">{item.name}</p>
               <p className="text-osrs-gray text-sm">
-                {format(item.obtainedAt.date, "PPP")}
+                {getDateString(item.obtainedAt.date)}
               </p>
               <div className="flex flex-col">
                 {item.obtainedAt.killCounts.map((killCount) => (

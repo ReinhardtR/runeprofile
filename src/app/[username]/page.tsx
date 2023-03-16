@@ -32,18 +32,22 @@ export async function generateMetadata({
 }) {
   const account = await getFullAccountCached(params.username);
 
+  const title = `${account.username} | RuneProfile`;
+  const description = account.description;
+  const ogImageUrl = `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`;
+
   const metadata: Metadata = {
-    title: `${account.username} - RuneProfile`,
+    title,
     openGraph: {
-      title: `${account.username} - RuneProfile`,
-      description: account.description,
+      title,
+      description,
       type: "website",
       siteName: "RuneProfile",
       url: `https://runeprofile.com/${account.username}`,
       images: [
         {
           // TODO: change to runeprofile.com when in prod
-          url: `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           type: "image/png",
@@ -51,12 +55,10 @@ export async function generateMetadata({
       ],
     },
     twitter: {
+      title,
+      description,
       card: "summary_large_image",
-      title: `${account.username} - RuneProfile`,
-      description: account.description,
-      images: [
-        `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`,
-      ],
+      images: [ogImageUrl],
     },
     robots: {
       index: true,
