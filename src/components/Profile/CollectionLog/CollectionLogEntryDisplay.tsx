@@ -8,7 +8,7 @@ import { Tooltip } from "~/components/Misc/Tooltip";
 import itemIcons from "~/assets/item-icons.json";
 import { getDateString } from "~/utils/time";
 
-type ItemType = {
+export type ItemType = {
   name: string;
   quantity: number;
   obtainedAt?: {

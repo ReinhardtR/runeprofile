@@ -1,5 +1,5 @@
 import { inferAsyncReturnType } from "@trpc/server";
-import { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { db } from "~/db/client";
 
 /**
@@ -22,10 +22,9 @@ export const createContextInner = async (opts: CreateContextOptions) => {
  * This is the actual context you'll use in your router
  * @link https://trpc.io/docs/context
  **/
-export const createContext = async (opts: CreateNextContextOptions) => {
+export const createContext = async (opts: FetchCreateContextFnOptions) => {
   return {
     req: opts.req,
-    res: opts.res,
     db,
   };
 };
