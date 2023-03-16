@@ -37,13 +37,25 @@ export async function generateMetadata({
     openGraph: {
       title: `${account.username} - RuneProfile`,
       description: account.description,
+      type: "website",
+      siteName: "RuneProfile",
+      url: `https://runeprofile.com/${account.username}`,
       images: [
         {
           // TODO: change to runeprofile.com when in prod
           url: `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`,
           width: 1200,
           height: 630,
+          type: "image/png",
         },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${account.username} - RuneProfile`,
+      description: account.description,
+      images: [
+        `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`,
       ],
     },
     robots: {
