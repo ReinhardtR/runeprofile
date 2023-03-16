@@ -73,31 +73,25 @@ export default async function ProfilePage(props: {
 }) {
   const account = await getFullAccountCached(props.params.username);
 
+  const playerDisplay = (
+    <PlayerDisplay
+      accountType={account.accountType}
+      description={account.description}
+      username={account.username}
+      modelUri={account.modelUri}
+      combatLevel={account.combatLevel}
+      createdAt={getDateString(account.createdAt!)}
+      updatedAt={getDateString(account.updatedAt)}
+    />
+  );
+
   return (
     <div className="flex justify-center gap-6">
-      <div className="hidden 1.5xl:block">
-        <PlayerDisplay
-          accountType={account.accountType}
-          description={account.description}
-          username={account.username}
-          modelUri={account.modelUri}
-          combatLevel={account.combatLevel}
-          createdAt={getDateString(account.createdAt!)}
-          updatedAt={getDateString(account.updatedAt)}
-        />
-      </div>
+      {/* Large display */}
+      <div className="hidden 1.5xl:block">playerDisplay</div>
       <div className="flex sm:flex-wrap gap-6 justify-center items-center 1.5xl:max-w-[1120px] flex-col sm:flex-row">
-        <div className="block 1.5xl:hidden">
-          <PlayerDisplay
-            accountType={account.accountType}
-            description={account.description}
-            username={account.username}
-            modelUri={account.modelUri}
-            combatLevel={account.combatLevel}
-            createdAt={getDateString(account.createdAt!)}
-            updatedAt={getDateString(account.updatedAt)}
-          />
-        </div>
+        {/* Small display */}
+        <div className="block 1.5xl:hidden">{playerDisplay}</div>
 
         <SkillsCard skills={account.skills} />
 

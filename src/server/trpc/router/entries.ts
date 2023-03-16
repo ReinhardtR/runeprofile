@@ -13,11 +13,7 @@ export const entriesRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      return {
-        entry: {
-          name: "TEST",
-        },
-      };
+      const entry = await getCollectionLogEntry(input);
 
       if (!entry) {
         throw new TRPCError({

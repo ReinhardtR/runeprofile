@@ -92,7 +92,7 @@ const PlayerDisplayComponent: React.FC<PlayerDisplayProps> = ({
       <div className="absolute bottom-4 left-0 w-full px-4">
         <Tooltip
           content={
-            <div className="flex flex-col space-y-1 w-48 text-lg font-runescape">
+            <div className="flex flex-col space-y-1 w-[230px] text-lg font-runescape">
               <p>
                 <span className="text-osrs-orange font-bold">CREATED AT </span>
                 <span className="text-light-gray">{createdAt}</span>

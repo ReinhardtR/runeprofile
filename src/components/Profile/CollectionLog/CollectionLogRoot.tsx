@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import { Card } from "~/components/Card";
-import { CollectionLogEntry } from "~/components/Profile/CollectionLog/CollectionLogEntry";
+import { CollectionLogEntryDisplay } from "~/components/Profile/CollectionLog/CollectionLogEntryDisplay";
 import { CollectionLogEntryList } from "~/components/Profile/CollectionLog/CollectionLogEntryList";
 import React from "react";
 
@@ -115,7 +115,7 @@ export function CollectionLog(props: {
 
             <div className="flex-1">
               <div className="flex h-full flex-col">
-                <CollectionLogEntry
+                <CollectionLogEntryDisplay
                   username={username}
                   tabName={selectedTab.name}
                   entryName={selectedEntry.name}
