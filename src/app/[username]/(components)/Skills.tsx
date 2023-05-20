@@ -1,4 +1,4 @@
-import { getLevelFromXP } from "~/lib/xp-to-level";
+import { getLevelFromXP } from "~/utils/xp-and-levels";
 import { Card } from "../../../components/Card";
 import { SkillElement } from "~/app/[username]/(components)/SkillElement";
 

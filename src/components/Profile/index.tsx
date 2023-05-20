@@ -7,8 +7,8 @@ import { Hiscores } from "./Hiscores";
 import { PlayerDisplay } from "./PlayerDisplay";
 import { QuestList } from "./QuestList";
 import { SkillsCard } from "../../app/[username]/(components)/Skills";
-import { AccountType } from "~/lib/data-schema";
-import { QuestState } from "~/lib/quests";
+import { AccountType } from "~/lib/plugin-data-schema";
+import { QuestState } from "~/lib/quests-schema";
 
 type ProfileProps = {
   account: {

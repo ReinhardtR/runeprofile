@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:unit:ui": "vitest --ui"
   },
   "dependencies": {
     "@floating-ui/react-dom-interactions": "^0.9.2",
@@ -51,6 +54,7 @@
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
     "@types/three": "^0.141.0",
+    "@vitest/ui": "^0.29.7",
     "autoprefixer": "^10.4.7",
     "eslint": "8.18.0",
     "eslint-config-next": "13.2.3",
@@ -60,6 +64,7 @@
     "prisma": "^4.11.0",
     "prisma-generator-kysely": "^0.0.3",
     "tailwindcss": "^3.1.4",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "vitest": "^0.29.3"
   }
 }

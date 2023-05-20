@@ -2,7 +2,10 @@
 
 import { OVERALL_NAME } from "~/app/[username]/(components)/Skills";
 import { Tooltip } from "~/components/Misc/Tooltip";
-import { getVirtualLevelFromXP, getXPUntilNextLevel } from "~/lib/xp-to-level";
+import {
+  getVirtualLevelFromXP,
+  getXPUntilNextLevel,
+} from "~/utils/xp-and-levels";
 import { numberWithCommas } from "~/utils/number-with-commas";
 import Image from "next/image";
 import clsx from "clsx";

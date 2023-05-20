@@ -1,10 +1,10 @@
 import { Kysely } from "kysely";
 import { PlanetScaleDialect } from "kysely-planetscale";
-import { Database } from "~/db/database-types";
+import { Database } from "~/db/generated/database-types";
+import { env } from "~/env/index.mjs";
 
 export const db = new Kysely<Database>({
   dialect: new PlanetScaleDialect({
-    url: process.env.DATABASE_URL,
-    fetch: (url, options) => fetch(url, options),
+    url: env.DATABASE_URL,
   }),
 });

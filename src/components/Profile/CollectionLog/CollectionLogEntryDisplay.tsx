@@ -2,23 +2,12 @@
 
 import React from "react";
 import Image from "next/image";
-import { api } from "~/utils/api";
+import { api } from "~/lib/api";
 import { clsx } from "clsx";
 import { Tooltip } from "~/components/Misc/Tooltip";
 import itemIcons from "~/assets/item-icons.json";
 import { getDateString } from "~/utils/time";
-
-export type ItemType = {
-  name: string;
-  quantity: number;
-  obtainedAt?: {
-    date: Date;
-    killCounts: {
-      name: string;
-      count: number;
-    }[];
-  };
-};
+import { ItemType } from "~/lib/domain/profile-data-types";
 
 export function CollectionLogEntryDisplay(props: {
   username: string;

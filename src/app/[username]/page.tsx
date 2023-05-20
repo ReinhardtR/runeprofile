@@ -7,14 +7,14 @@ import { CombatAchievements } from "~/components/Profile/CombatAchievements";
 import { Hiscores } from "~/components/Profile/Hiscores";
 import { PlayerDisplay } from "~/components/Profile/PlayerDisplay";
 import { QuestList } from "~/components/Profile/QuestList";
-import { getAccounts, getFullAccount } from "~/lib/domain/account";
+import { getAccounts, getAccountDisplayData } from "~/lib/domain/account";
 import { getDateString } from "~/utils/time";
 
 // should be "error", look at this issue: https://github.com/vercel/next.js/issues/46694
 export const dynamic = "force-static";
 
 const getFullAccountCached = cache(async (username: string) => {
-  return getFullAccount(username);
+  return getAccountDisplayData(username);
 });
 
 export async function generateStaticParams() {

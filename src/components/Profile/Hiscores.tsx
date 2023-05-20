@@ -1,6 +1,5 @@
 "use client";
 
-import { entryNameToPath } from "~/utils/entry-name-to-path";
 import { numberWithCommas } from "~/utils/number-with-commas";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
@@ -8,7 +7,7 @@ import Image from "next/image";
 import { Fragment } from "react";
 import { Card } from "../Card";
 import { Tooltip } from "../Misc/Tooltip";
-import { LeaderboardType } from "~/db/database-types";
+import { LeaderboardType } from "~/db/generated/database-types";
 
 export type Skill = {
   name: string;
@@ -340,3 +339,11 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
     </Tab.Panel>
   );
 };
+
+function entryNameToPath(name: string) {
+  return name
+    .replace(" - ", "_")
+    .replace(/[\s-]/g, "_")
+    .replace(/[':()]/g, "")
+    .toLowerCase();
+}

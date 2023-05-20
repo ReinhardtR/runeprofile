@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { QuestState, QuestType } from "~/lib/quests";
+import { QuestState, QuestType } from "~/lib/quests-schema";
 import { Card } from "../Card";
 
 type Quest = {

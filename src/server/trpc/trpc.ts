@@ -1,4 +1,4 @@
-import { transformer } from "~/utils/api";
+import { transformer } from "~/lib/api";
 import { initTRPC } from "@trpc/server";
 import type { Context } from "./context";
 

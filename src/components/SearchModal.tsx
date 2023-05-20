@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useRouter } from "next/router";
 import { atom, useAtom } from "jotai";
 import { useDebounceValue } from "~/utils/use-debounce";
-import { trpc } from "~/utils/api";
+import { trpc } from "~/lib/api";
 import Spinner from "./Misc/Spinner";
 import Image from "next/image";
 

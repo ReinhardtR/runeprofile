@@ -1,6 +1,6 @@
 generator kysely {
   provider = "npx prisma-generator-kysely"
-  output   = "../src/db"
+  output   = "../src/db/generated"
 }
 
 datasource db {

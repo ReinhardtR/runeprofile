@@ -1,6 +1,6 @@
 "use client";
 
-import { AccountType } from "~/lib/data-schema";
+import { AccountType } from "~/lib/plugin-data-schema";
 import { Card } from "../Card";
 import Image from "next/image";
 import { PlayerModel } from "./PlayerModel";

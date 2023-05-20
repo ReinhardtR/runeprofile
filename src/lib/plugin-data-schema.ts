@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { QuestType, QuestState, QUEST_TYPE_MAP, RFD_QUESTS } from "./quests";
+import {
+  QuestType,
+  QuestState,
+  QUEST_TYPE_MAP,
+  RFD_QUESTS,
+} from "./quests-schema";
 
 export const AccountType = {
   NORMAL: "NORMAL",
@@ -208,3 +213,5 @@ export const PlayerDataSchema = z.object({
   hiscores: HiscoresSchema,
   collectionLog: CollectionLogSchema,
 });
+
+export type PluginAccountData = z.infer<typeof PlayerDataSchema>;

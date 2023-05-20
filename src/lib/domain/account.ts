@@ -1,6 +1,12 @@
 import { Activity, Boss, Skill } from "~/components/Profile/Hiscores";
 import { db } from "~/db/client";
-import { LeaderboardType } from "~/lib/data-schema";
+import {
+  CollectionLog,
+  CollectionLogTab,
+  CollectionLogTabWithoutItems,
+  CollectionLogWithoutItems,
+} from "~/lib/domain/profile-data-types";
+import { LeaderboardType } from "~/lib/plugin-data-schema";
 
 export function getAccounts() {
   return db
@@ -9,7 +15,7 @@ export function getAccounts() {
     .execute();
 }
 
-export function getAccount(username: string) {
+export function getAccountUsernameAndPath(username: string) {
   return db
     .selectFrom("Account")
     .select(["username", "generatedPath", "isPrivate"])
@@ -17,7 +23,11 @@ export function getAccount(username: string) {
     .executeTakeFirst();
 }
 
-export async function getFullAccount(username: string) {
+export async function getAccountDisplayData(
+  username: string,
+  includeAccountHash = false,
+  includeItems = false
+) {
   const { accountHash, ...account } = await db
     .selectFrom("Account")
     .select([
@@ -43,13 +53,14 @@ export async function getFullAccount(username: string) {
   ] = await Promise.all([
     getSkills(accountHash),
     getQuestList(accountHash),
-    getCollectionLog(accountHash),
+    getCollectionLog(accountHash, includeItems),
     getAchievementDiaries(accountHash),
     getCombatAchievements(accountHash),
     getHiscores(accountHash),
   ]);
 
   return {
+    ...(includeAccountHash ? { accountHash } : {}),
     ...account,
     skills,
     questList,
@@ -63,7 +74,7 @@ export async function getFullAccount(username: string) {
 function getSkills(accountHash: string) {
   return db
     .selectFrom("Skill")
-    .select(["name", "xp"])
+    .select(["index", "name", "xp"])
     .where("accountHash", "=", accountHash)
     .orderBy("index", "asc")
     .execute();
@@ -79,7 +90,7 @@ async function getQuestList(accountHash: string) {
     // ---
     db
       .selectFrom("Quest")
-      .select(["name", "state", "type"])
+      .select(["index", "name", "state", "type"])
       .where("accountHash", "=", accountHash)
       .orderBy("index", "asc")
       .execute(),
@@ -92,57 +103,144 @@ async function getQuestList(accountHash: string) {
 }
 
 // Collection Log
-async function getCollectionLog(accountHash: string) {
-  const [log, entries, killCounts] = await Promise.all([
-    // log
-    db
-      .selectFrom("CollectionLog")
-      .select(["uniqueItemsObtained", "uniqueItemsTotal"])
-      .where("accountHash", "=", accountHash)
-      .executeTakeFirstOrThrow(),
-    // entries
-    db
-      .selectFrom("Entry")
-      .leftJoin("Item", (join) =>
-        join
-          .onRef("Entry.accountHash", "=", "Item.accountHash")
-          .onRef("Entry.name", "=", "Item.entryName")
-          .onRef("Entry.tabName", "=", "Item.tabName")
-      )
-      .select([
-        "Entry.name",
-        "Entry.tabName",
-        (eb) => eb.fn.count("Item.entryName").as("totalItemsCount"),
-        (eb) => eb.fn.sum("Item.quantity").as("obtainedItemsCount"),
-      ])
-      .where("Entry.accountHash", "=", accountHash)
-      .groupBy(["Entry.name", "Entry.tabName"])
-      .orderBy("Entry.index", "asc")
-      .execute(),
-    // kill counts
-    db
-      .selectFrom("KillCount")
-      .select(["tabName", "entryName", "name", "count"])
-      .where("accountHash", "=", accountHash)
-      .orderBy("index", "asc")
-      .execute(),
-  ]);
+async function getCollectionLog(
+  accountHash: string,
+  includeItems: boolean | false
+): Promise<CollectionLogWithoutItems>;
 
-  const tabs: {
-    name: string;
-    entries: {
-      name: string;
-      isCompleted: boolean;
-      killCounts: {
-        name: string;
-        count: number;
-      }[];
-    }[];
-  }[] = [];
+async function getCollectionLog(
+  accountHash: string,
+  includeItems: true
+): Promise<CollectionLog>;
 
-  // group by tab name
-  entries.forEach((entry) => {
+async function getCollectionLog(
+  accountHash: string,
+  includeItems = false
+): Promise<CollectionLog | CollectionLogWithoutItems> {
+  const [log, tabs, entries, killCounts, items, obtainedAt] = await Promise.all(
+    [
+      // log
+      db
+        .selectFrom("CollectionLog")
+        .select(["uniqueItemsObtained", "uniqueItemsTotal"])
+        .where("accountHash", "=", accountHash)
+        .executeTakeFirstOrThrow(),
+      // tabs
+      db
+        .selectFrom("Tab")
+        .select(["index", "name"])
+        .where("accountHash", "=", accountHash)
+        .orderBy("index", "asc")
+        .execute(),
+      // entries
+      db
+        .selectFrom("Entry")
+        .leftJoin("Item", (join) =>
+          join
+            .onRef("Entry.accountHash", "=", "Item.accountHash")
+            .onRef("Entry.name", "=", "Item.entryName")
+            .onRef("Entry.tabName", "=", "Item.tabName")
+        )
+        .select([
+          "Entry.index",
+          "Entry.name",
+          "Entry.tabName",
+          (eb) => eb.fn.count("Item.entryName").as("totalItemsCount"),
+          (eb) => eb.fn.sum("Item.quantity").as("obtainedItemsCount"),
+        ])
+        .where("Entry.accountHash", "=", accountHash)
+        .groupBy(["Entry.name", "Entry.tabName"])
+        .orderBy("Entry.index", "asc")
+        .execute(),
+      // kill counts
+      db
+        .selectFrom("KillCount")
+        .select(["index", "tabName", "entryName", "name", "count"])
+        .where("accountHash", "=", accountHash)
+        .orderBy("index", "asc")
+        .execute(),
+      // OPTIONAL ITEMS - items
+      includeItems
+        ? db
+            .selectFrom("Item")
+            .select(["index", "id", "tabName", "entryName", "name", "quantity"])
+            .where("accountHash", "=", accountHash)
+            .orderBy("index", "asc")
+            .execute()
+        : null,
+      // OPTIONAL ITEMS - items obtained at
+      includeItems
+        ? db
+            .selectFrom("ObtainedAtKillCount")
+            .where("ObtainedAtKillCount.accountHash", "=", accountHash)
+            .leftJoin("ObtainedAt", (join) =>
+              join
+                .onRef(
+                  "ObtainedAt.accountHash",
+                  "=",
+                  "ObtainedAtKillCount.accountHash"
+                )
+                .onRef("ObtainedAt.tabName", "=", "ObtainedAtKillCount.tabName")
+                .onRef(
+                  "ObtainedAt.entryName",
+                  "=",
+                  "ObtainedAtKillCount.entryName"
+                )
+                .onRef("ObtainedAt.itemId", "=", "ObtainedAtKillCount.itemId")
+            )
+            .select([
+              "ObtainedAtKillCount.index",
+              "ObtainedAtKillCount.tabName",
+              "ObtainedAtKillCount.entryName",
+              "ObtainedAtKillCount.itemId",
+              "ObtainedAtKillCount.name",
+              "ObtainedAtKillCount.count",
+              "ObtainedAt.date",
+            ])
+            .orderBy("ObtainedAtKillCount.index", "asc")
+            .execute()
+        : null,
+    ]
+  );
+
+  const initialTabsArray = includeItems
+    ? ([] as CollectionLogTab[])
+    : ([] as CollectionLogTabWithoutItems[]);
+  const tabsFormatted = entries.reduce((tabsAcc, entry) => {
     const { tabName, ...rest } = entry;
+
+    const entryItems = items
+      ?.filter(
+        (item) => item.tabName === tabName && item.entryName === entry.name
+      )
+      .map((item) => {
+        const obtainedAtDataForItem = obtainedAt?.filter(
+          (obtainedAt) =>
+            obtainedAt.tabName === tabName &&
+            obtainedAt.entryName === entry.name &&
+            obtainedAt.itemId === item.id
+        );
+
+        const obtainedAtResultForItem =
+          obtainedAtDataForItem && obtainedAtDataForItem.length > 0
+            ? {
+                date: obtainedAtDataForItem[0].date,
+                killCounts: obtainedAtDataForItem.map((obtainedAt) => ({
+                  index: obtainedAt.index,
+                  name: obtainedAt.name,
+                  count: obtainedAt.count,
+                })),
+              }
+            : null;
+
+        return {
+          index: item.index,
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          obtainedAt: obtainedAtResultForItem,
+        };
+      });
 
     const entryKillCounts = killCounts
       .filter(
@@ -150,6 +248,7 @@ async function getCollectionLog(accountHash: string) {
           killCount.tabName === tabName && killCount.entryName === entry.name
       )
       .map((killCount) => ({
+        index: killCount.index,
         name: killCount.name,
         count: killCount.count,
       }));
@@ -158,23 +257,28 @@ async function getCollectionLog(accountHash: string) {
       ...rest,
       isCompleted: entry.totalItemsCount === entry.obtainedItemsCount,
       killCounts: entryKillCounts,
+      ...(includeItems && { items: entryItems }),
     };
 
-    const tab = tabs.find((tab) => tab.name === tabName);
+    const tabIndex = tabs.find((tab) => tab.name === tabName)?.index ?? 0;
+    const tabFormatted = tabsAcc.find((tab) => tab.name === tabName);
 
-    if (!tab) {
-      tabs.push({
+    if (!tabFormatted) {
+      tabsAcc.push({
+        index: tabIndex,
         name: tabName,
         entries: [fullEntry],
       });
     } else {
-      tab.entries.push(fullEntry);
+      tabFormatted.entries.push(fullEntry);
     }
-  });
+
+    return tabsAcc;
+  }, initialTabsArray);
 
   return {
     ...log,
-    tabs,
+    tabs: tabsFormatted,
   };
 }
 
@@ -188,7 +292,6 @@ async function getAchievementDiaries(accountHash: string) {
     .execute();
 
   // format into [{area: name, tiers :[]}]
-
   const diaries: {
     area: string;
     tiers: {
