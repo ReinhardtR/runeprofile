@@ -1,0 +1,1343 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "5",
+  "dialect": "mysql",
+  "tables": {
+    "Account": {
+      "name": "Account",
+      "columns": {
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(40)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "username": {
+          "autoincrement": false,
+          "name": "username",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountType": {
+          "autoincrement": false,
+          "name": "accountType",
+          "type": "enum('NORMAL','IRONMAN','HARDCORE_IRONMAN','ULTIMATE_IRONMAN','GROUP_IRONMAN','HARDCORE_GROUP_IRONMAN','UNRANKED_GROUP_IRONMAN')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isPrivate": {
+          "default": 0,
+          "autoincrement": false,
+          "name": "isPrivate",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "generatedPath": {
+          "autoincrement": false,
+          "name": "generatedPath",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "modelUri": {
+          "autoincrement": false,
+          "name": "modelUri",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "default": "''",
+          "autoincrement": false,
+          "name": "description",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "combatLevel": {
+          "autoincrement": false,
+          "name": "combatLevel",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {
+        "Account_username_key": {
+          "name": "Account_username_key",
+          "columns": [
+            "username"
+          ],
+          "isUnique": true
+        },
+        "Account_generatedPath_key": {
+          "name": "Account_generatedPath_key",
+          "columns": [
+            "generatedPath"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {}
+    },
+    "AchievementDiary": {
+      "name": "AchievementDiary",
+      "columns": {
+        "area": {
+          "autoincrement": false,
+          "name": "area",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "AchievementDiary_accountHash_area": {
+          "name": "AchievementDiary_accountHash_area",
+          "columns": [
+            "accountHash",
+            "area"
+          ]
+        }
+      },
+      "indexes": {
+        "AchievementDiary_accountHash_idx": {
+          "name": "AchievementDiary_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "AchievementDiaryTier": {
+      "name": "AchievementDiaryTier",
+      "columns": {
+        "tier": {
+          "autoincrement": false,
+          "name": "tier",
+          "type": "enum('EASY','MEDIUM','HARD','ELITE')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "completed": {
+          "autoincrement": false,
+          "name": "completed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total": {
+          "autoincrement": false,
+          "name": "total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area": {
+          "autoincrement": false,
+          "name": "area",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "AchievementDiaryTier_accountHash_area_tier": {
+          "name": "AchievementDiaryTier_accountHash_area_tier",
+          "columns": [
+            "accountHash",
+            "area",
+            "tier"
+          ]
+        }
+      },
+      "indexes": {
+        "AchievementDiaryTier_accountHash_area_idx": {
+          "name": "AchievementDiaryTier_accountHash_area_idx",
+          "columns": [
+            "accountHash",
+            "area"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "CollectionLog": {
+      "name": "CollectionLog",
+      "columns": {
+        "uniqueItemsObtained": {
+          "autoincrement": false,
+          "name": "uniqueItemsObtained",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uniqueItemsTotal": {
+          "autoincrement": false,
+          "name": "uniqueItemsTotal",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {
+        "CollectionLog_accountHash_idx": {
+          "name": "CollectionLog_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "CombatAchievementTier": {
+      "name": "CombatAchievementTier",
+      "columns": {
+        "tier": {
+          "autoincrement": false,
+          "name": "tier",
+          "type": "enum('EASY','MEDIUM','HARD','ELITE','MASTER','GRANDMASTER')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "completed": {
+          "autoincrement": false,
+          "name": "completed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total": {
+          "autoincrement": false,
+          "name": "total",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "CombatAchievementTier_accountHash_tier": {
+          "name": "CombatAchievementTier_accountHash_tier",
+          "columns": [
+            "accountHash",
+            "tier"
+          ]
+        }
+      },
+      "indexes": {
+        "CombatAchievementTier_accountHash_idx": {
+          "name": "CombatAchievementTier_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "CombatAchievements": {
+      "name": "CombatAchievements",
+      "columns": {
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {
+        "CombatAchievements_accountHash_idx": {
+          "name": "CombatAchievements_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "Entry": {
+      "name": "Entry",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabName": {
+          "autoincrement": false,
+          "name": "tabName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Entry_accountHash_name_tabName": {
+          "name": "Entry_accountHash_name_tabName",
+          "columns": [
+            "accountHash",
+            "name",
+            "tabName"
+          ]
+        }
+      },
+      "indexes": {
+        "Entry_accountHash_tabName_idx": {
+          "name": "Entry_accountHash_tabName_idx",
+          "columns": [
+            "accountHash",
+            "tabName"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "HiscoresActivity": {
+      "name": "HiscoresActivity",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank": {
+          "autoincrement": false,
+          "name": "rank",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "autoincrement": false,
+          "name": "score",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leaderboardType": {
+          "autoincrement": false,
+          "name": "leaderboardType",
+          "type": "enum('NORMAL','IRONMAN','HARDCORE','ULTIMATE')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "HiscoresActivity_accountHash_leaderboardType_name": {
+          "name": "HiscoresActivity_accountHash_leaderboardType_name",
+          "columns": [
+            "accountHash",
+            "leaderboardType",
+            "name"
+          ]
+        }
+      },
+      "indexes": {
+        "HiscoresActivity_accountHash_leaderboardType_idx": {
+          "name": "HiscoresActivity_accountHash_leaderboardType_idx",
+          "columns": [
+            "accountHash",
+            "leaderboardType"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "HiscoresBoss": {
+      "name": "HiscoresBoss",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank": {
+          "autoincrement": false,
+          "name": "rank",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kills": {
+          "autoincrement": false,
+          "name": "kills",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leaderboardType": {
+          "autoincrement": false,
+          "name": "leaderboardType",
+          "type": "enum('NORMAL','IRONMAN','HARDCORE','ULTIMATE')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "HiscoresBoss_accountHash_leaderboardType_name": {
+          "name": "HiscoresBoss_accountHash_leaderboardType_name",
+          "columns": [
+            "accountHash",
+            "leaderboardType",
+            "name"
+          ]
+        }
+      },
+      "indexes": {
+        "HiscoresBoss_accountHash_leaderboardType_idx": {
+          "name": "HiscoresBoss_accountHash_leaderboardType_idx",
+          "columns": [
+            "accountHash",
+            "leaderboardType"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "HiscoresLeaderboard": {
+      "name": "HiscoresLeaderboard",
+      "columns": {
+        "type": {
+          "autoincrement": false,
+          "name": "type",
+          "type": "enum('NORMAL','IRONMAN','HARDCORE','ULTIMATE')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "HiscoresLeaderboard_accountHash_type": {
+          "name": "HiscoresLeaderboard_accountHash_type",
+          "columns": [
+            "accountHash",
+            "type"
+          ]
+        }
+      },
+      "indexes": {
+        "HiscoresLeaderboard_accountHash_idx": {
+          "name": "HiscoresLeaderboard_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "HiscoresSkill": {
+      "name": "HiscoresSkill",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank": {
+          "autoincrement": false,
+          "name": "rank",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "autoincrement": false,
+          "name": "level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "xp": {
+          "autoincrement": false,
+          "name": "xp",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leaderboardType": {
+          "autoincrement": false,
+          "name": "leaderboardType",
+          "type": "enum('NORMAL','IRONMAN','HARDCORE','ULTIMATE')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "HiscoresSkill_accountHash_leaderboardType_name": {
+          "name": "HiscoresSkill_accountHash_leaderboardType_name",
+          "columns": [
+            "accountHash",
+            "leaderboardType",
+            "name"
+          ]
+        }
+      },
+      "indexes": {
+        "HiscoresSkill_accountHash_leaderboardType_idx": {
+          "name": "HiscoresSkill_accountHash_leaderboardType_idx",
+          "columns": [
+            "accountHash",
+            "leaderboardType"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "Item": {
+      "name": "Item",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "autoincrement": false,
+          "name": "quantity",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabName": {
+          "autoincrement": false,
+          "name": "tabName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entryName": {
+          "autoincrement": false,
+          "name": "entryName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Item_accountHash_entryName_id_tabName": {
+          "name": "Item_accountHash_entryName_id_tabName",
+          "columns": [
+            "accountHash",
+            "entryName",
+            "id",
+            "tabName"
+          ]
+        }
+      },
+      "indexes": {
+        "Item_accountHash_tabName_entryName_idx": {
+          "name": "Item_accountHash_tabName_entryName_idx",
+          "columns": [
+            "accountHash",
+            "tabName",
+            "entryName"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "KillCount": {
+      "name": "KillCount",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "autoincrement": false,
+          "name": "count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabName": {
+          "autoincrement": false,
+          "name": "tabName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entryName": {
+          "autoincrement": false,
+          "name": "entryName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "KillCount_accountHash_entryName_name_tabName": {
+          "name": "KillCount_accountHash_entryName_name_tabName",
+          "columns": [
+            "accountHash",
+            "entryName",
+            "name",
+            "tabName"
+          ]
+        }
+      },
+      "indexes": {
+        "KillCount_accountHash_tabName_entryName_idx": {
+          "name": "KillCount_accountHash_tabName_entryName_idx",
+          "columns": [
+            "accountHash",
+            "tabName",
+            "entryName"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "ObtainedAt": {
+      "name": "ObtainedAt",
+      "columns": {
+        "date": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabName": {
+          "autoincrement": false,
+          "name": "tabName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entryName": {
+          "autoincrement": false,
+          "name": "entryName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "itemId": {
+          "autoincrement": false,
+          "name": "itemId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "ObtainedAt_accountHash_entryName_itemId_tabName": {
+          "name": "ObtainedAt_accountHash_entryName_itemId_tabName",
+          "columns": [
+            "accountHash",
+            "entryName",
+            "itemId",
+            "tabName"
+          ]
+        }
+      },
+      "indexes": {
+        "ObtainedAt_accountHash_tabName_entryName_itemId_idx": {
+          "name": "ObtainedAt_accountHash_tabName_entryName_itemId_idx",
+          "columns": [
+            "accountHash",
+            "tabName",
+            "entryName",
+            "itemId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "ObtainedAtKillCount": {
+      "name": "ObtainedAtKillCount",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "autoincrement": false,
+          "name": "count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabName": {
+          "autoincrement": false,
+          "name": "tabName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entryName": {
+          "autoincrement": false,
+          "name": "entryName",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "itemId": {
+          "autoincrement": false,
+          "name": "itemId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "ObtainedAtKillCount_accountHash_entryName_itemId_name_tabName": {
+          "name": "ObtainedAtKillCount_accountHash_entryName_itemId_name_tabName",
+          "columns": [
+            "accountHash",
+            "entryName",
+            "itemId",
+            "name",
+            "tabName"
+          ]
+        }
+      },
+      "indexes": {
+        "ObtainedAtKillCount_accountHash_tabName_entryName_itemId_idx": {
+          "name": "ObtainedAtKillCount_accountHash_tabName_entryName_itemId_idx",
+          "columns": [
+            "accountHash",
+            "tabName",
+            "entryName",
+            "itemId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "Quest": {
+      "name": "Quest",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "autoincrement": false,
+          "name": "state",
+          "type": "enum('NOT_STARTED','IN_PROGRESS','FINISHED')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "autoincrement": false,
+          "name": "type",
+          "type": "enum('F2P','P2P','MINI','UNKNOWN')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Quest_accountHash_name": {
+          "name": "Quest_accountHash_name",
+          "columns": [
+            "accountHash",
+            "name"
+          ]
+        }
+      },
+      "indexes": {
+        "Quest_accountHash_idx": {
+          "name": "Quest_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "QuestList": {
+      "name": "QuestList",
+      "columns": {
+        "points": {
+          "autoincrement": false,
+          "name": "points",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {
+        "QuestList_accountHash_idx": {
+          "name": "QuestList_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "Skill": {
+      "name": "Skill",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "xp": {
+          "autoincrement": false,
+          "name": "xp",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Skill_accountHash_name": {
+          "name": "Skill_accountHash_name",
+          "columns": [
+            "accountHash",
+            "name"
+          ]
+        }
+      },
+      "indexes": {
+        "Skill_accountHash_idx": {
+          "name": "Skill_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    },
+    "Tab": {
+      "name": "Tab",
+      "columns": {
+        "index": {
+          "autoincrement": false,
+          "name": "index",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountHash": {
+          "autoincrement": false,
+          "name": "accountHash",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "(CURRENT_TIMESTAMP(3))",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Tab_accountHash_name": {
+          "name": "Tab_accountHash_name",
+          "columns": [
+            "accountHash",
+            "name"
+          ]
+        }
+      },
+      "indexes": {
+        "Tab_accountHash_idx": {
+          "name": "Tab_accountHash_idx",
+          "columns": [
+            "accountHash"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {}
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
