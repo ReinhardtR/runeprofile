@@ -30,7 +30,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/lib/domain/transformers"
+    "src/lib/domain/transformers",
+    "src/env.mjs"
   ],
   "exclude": ["node_modules"]
 }
