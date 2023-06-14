@@ -191,6 +191,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "Family Pest": QuestType.MINI,
   "The Frozen Door": QuestType.MINI,
   "The General's Shadow": QuestType.MINI,
+  "His Faithful Servants": QuestType.MINI,
   "Hopespear's Will": QuestType.MINI,
   "In Search of Knowledge": QuestType.MINI,
   "Into the Tombs": QuestType.MINI,
