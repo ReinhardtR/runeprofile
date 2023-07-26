@@ -62,8 +62,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "Death to the Dorgeshuun": QuestType.P2P,
   "The Depths of Despair": QuestType.P2P,
   "Desert Treasure I": QuestType.P2P,
-  // NOT RELEASED YET
-  // "Desert Treasure II": QuestType.P2P,
+  "Desert Treasure II - The Fallen Empire": QuestType.P2P,
   "Devious Minds": QuestType.P2P,
   "The Dig Site": QuestType.P2P,
   "Dragon Slayer II": QuestType.P2P,
