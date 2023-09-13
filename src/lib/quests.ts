@@ -130,6 +130,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   "Observatory Quest": QuestType.P2P,
   "Olaf's Quest": QuestType.P2P,
   "One Small Favour": QuestType.P2P,
+  "The Path of Glouphrie": QuestType.P2P,
   "Plague City": QuestType.P2P,
   "A Porcine of Interest": QuestType.P2P,
   "Priest in Peril": QuestType.P2P,
