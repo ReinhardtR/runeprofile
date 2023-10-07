@@ -11,7 +11,7 @@ import { getAccounts, getAccountDisplayData } from "~/lib/domain/account";
 import { getDateString } from "~/utils/time";
 
 // should be "error", look at this issue: https://github.com/vercel/next.js/issues/46694
-export const dynamic = "force-static";
+export const dynamic = "error";
 
 const getFullAccountCached = cache(async (username: string) => {
   return getAccountDisplayData(username);

@@ -5,7 +5,6 @@ import "./src/env.mjs";
 const config = {
   reactStrictMode: true,
   experimental: {
-    appDir: true,
     typedRoutes: true,
   },
   typescript: {

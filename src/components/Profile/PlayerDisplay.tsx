@@ -7,7 +7,6 @@ import { PlayerModel } from "./PlayerModel";
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { Tooltip } from "../Misc/Tooltip";
 import { UNIQUE_NAMES } from "~/lib/unique-names";
-import { memo } from "react";
 
 type PlayerDisplayProps = {
   username: string;
@@ -22,7 +21,7 @@ type PlayerDisplayProps = {
 const defaultModel =
   "https://storage.googleapis.com/runeprofile-models/models/_default.ply";
 
-const PlayerDisplayComponent: React.FC<PlayerDisplayProps> = ({
+export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
   username,
   combatLevel,
   accountType,
@@ -118,5 +117,3 @@ const PlayerDisplayComponent: React.FC<PlayerDisplayProps> = ({
     </Card>
   );
 };
-
-export const PlayerDisplay = memo(PlayerDisplayComponent);
