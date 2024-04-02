@@ -1,0 +1,1196 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "id": "ea29063b-e614-4ce8-93c2-e4b43f5d8f93",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "acc_achievement_diaries": {
+      "name": "acc_achievement_diaries",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "diary_id": {
+          "name": "diary_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tasks_completed": {
+          "name": "tasks_completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_achievement_diaries_account_hash_accounts_account_hash_fk": {
+          "name": "acc_achievement_diaries_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_achievement_diaries",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_achievement_diaries_diary_id_achievement_diaries_id_fk": {
+          "name": "acc_achievement_diaries_diary_id_achievement_diaries_id_fk",
+          "tableFrom": "acc_achievement_diaries",
+          "tableTo": "achievement_diaries",
+          "columnsFrom": [
+            "diary_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_achievement_diaries_account_hash_diary_id_pk": {
+          "columns": [
+            "account_hash",
+            "diary_id"
+          ],
+          "name": "acc_achievement_diaries_account_hash_diary_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_clog_item_obtained_kcs": {
+      "name": "acc_clog_item_obtained_kcs",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kc_id": {
+          "name": "kc_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_clog_item_obtained_kcs_account_hash_accounts_account_hash_fk": {
+          "name": "acc_clog_item_obtained_kcs_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_clog_item_obtained_kcs",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_clog_item_obtained_kcs_item_id_clog_items_id_fk": {
+          "name": "acc_clog_item_obtained_kcs_item_id_clog_items_id_fk",
+          "tableFrom": "acc_clog_item_obtained_kcs",
+          "tableTo": "clog_items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_clog_item_obtained_kcs_kc_id_clog_kcs_id_fk": {
+          "name": "acc_clog_item_obtained_kcs_kc_id_clog_kcs_id_fk",
+          "tableFrom": "acc_clog_item_obtained_kcs",
+          "tableTo": "clog_kcs",
+          "columnsFrom": [
+            "kc_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_clog_item_obtained_kcs_account_hash_item_id_kc_id_pk": {
+          "columns": [
+            "account_hash",
+            "item_id",
+            "kc_id"
+          ],
+          "name": "acc_clog_item_obtained_kcs_account_hash_item_id_kc_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_clog_items": {
+      "name": "acc_clog_items",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "obtained_at": {
+          "name": "obtained_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_clog_items_account_hash_accounts_account_hash_fk": {
+          "name": "acc_clog_items_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_clog_items",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_clog_items_item_id_clog_items_id_fk": {
+          "name": "acc_clog_items_item_id_clog_items_id_fk",
+          "tableFrom": "acc_clog_items",
+          "tableTo": "clog_items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_clog_items_account_hash_item_id_pk": {
+          "columns": [
+            "account_hash",
+            "item_id"
+          ],
+          "name": "acc_clog_items_account_hash_item_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_clog_kcs": {
+      "name": "acc_clog_kcs",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kc_id": {
+          "name": "kc_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_clog_kcs_account_hash_accounts_account_hash_fk": {
+          "name": "acc_clog_kcs_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_clog_kcs",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_clog_kcs_kc_id_clog_kcs_id_fk": {
+          "name": "acc_clog_kcs_kc_id_clog_kcs_id_fk",
+          "tableFrom": "acc_clog_kcs",
+          "tableTo": "clog_kcs",
+          "columnsFrom": [
+            "kc_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_clog_kcs_account_hash_kc_id_pk": {
+          "columns": [
+            "account_hash",
+            "kc_id"
+          ],
+          "name": "acc_clog_kcs_account_hash_kc_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_ca_tiers": {
+      "name": "acc_ca_tiers",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tier_id": {
+          "name": "tier_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tasks_completed": {
+          "name": "tasks_completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_ca_tiers_account_hash_accounts_account_hash_fk": {
+          "name": "acc_ca_tiers_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_ca_tiers",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_ca_tiers_tier_id_combat_achievement_tiers_id_fk": {
+          "name": "acc_ca_tiers_tier_id_combat_achievement_tiers_id_fk",
+          "tableFrom": "acc_ca_tiers",
+          "tableTo": "combat_achievement_tiers",
+          "columnsFrom": [
+            "tier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_ca_tiers_account_hash_tier_id_pk": {
+          "columns": [
+            "account_hash",
+            "tier_id"
+          ],
+          "name": "acc_ca_tiers_account_hash_tier_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_hiscores_entries": {
+      "name": "acc_hiscores_entries",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "entry_id": {
+          "name": "entry_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rank": {
+          "name": "rank",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_hiscores_entries_account_hash_accounts_account_hash_fk": {
+          "name": "acc_hiscores_entries_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_hiscores_entries",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_hiscores_entries_entry_id_hiscores_entries_id_fk": {
+          "name": "acc_hiscores_entries_entry_id_hiscores_entries_id_fk",
+          "tableFrom": "acc_hiscores_entries",
+          "tableTo": "hiscores_entries",
+          "columnsFrom": [
+            "entry_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_hiscores_entries_account_hash_entry_id_pk": {
+          "columns": [
+            "account_hash",
+            "entry_id"
+          ],
+          "name": "acc_hiscores_entries_account_hash_entry_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_quests": {
+      "name": "acc_quests",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quest_id": {
+          "name": "quest_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_quests_account_hash_accounts_account_hash_fk": {
+          "name": "acc_quests_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_quests",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_quests_quest_id_quests_id_fk": {
+          "name": "acc_quests_quest_id_quests_id_fk",
+          "tableFrom": "acc_quests",
+          "tableTo": "quests",
+          "columnsFrom": [
+            "quest_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_quests_account_hash_quest_id_pk": {
+          "columns": [
+            "account_hash",
+            "quest_id"
+          ],
+          "name": "acc_quests_account_hash_quest_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "acc_skills": {
+      "name": "acc_skills",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_id": {
+          "name": "skill_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "xp": {
+          "name": "xp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "acc_skills_account_hash_accounts_account_hash_fk": {
+          "name": "acc_skills_account_hash_accounts_account_hash_fk",
+          "tableFrom": "acc_skills",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_hash"
+          ],
+          "columnsTo": [
+            "account_hash"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "acc_skills_skill_id_skills_id_fk": {
+          "name": "acc_skills_skill_id_skills_id_fk",
+          "tableFrom": "acc_skills",
+          "tableTo": "skills",
+          "columnsFrom": [
+            "skill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "acc_skills_account_hash_skill_id_pk": {
+          "columns": [
+            "account_hash",
+            "skill_id"
+          ],
+          "name": "acc_skills_account_hash_skill_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "accounts": {
+      "name": "accounts",
+      "columns": {
+        "account_hash": {
+          "name": "account_hash",
+          "type": "text(40)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "account_type": {
+          "name": "account_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "username": {
+          "name": "username",
+          "type": "text(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "generated_url_path": {
+          "name": "generated_url_path",
+          "type": "text(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "model_uri": {
+          "name": "model_uri",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "quest_points": {
+          "name": "quest_points",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_private": {
+          "name": "is_private",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_banned": {
+          "name": "is_banned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP)"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP)"
+        }
+      },
+      "indexes": {
+        "accounts_username_unique": {
+          "name": "accounts_username_unique",
+          "columns": [
+            "username"
+          ],
+          "isUnique": true
+        },
+        "accounts_generated_url_path_unique": {
+          "name": "accounts_generated_url_path_unique",
+          "columns": [
+            "generated_url_path"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "achievement_diaries": {
+      "name": "achievement_diaries",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "area": {
+          "name": "area",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tier": {
+          "name": "tier",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tasks_total": {
+          "name": "tasks_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "area_tier": {
+          "name": "area_tier",
+          "columns": [
+            "area",
+            "tier"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "clog_items": {
+      "name": "clog_items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "clog_kcs": {
+      "name": "clog_kcs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "clog_kcs_label_unique": {
+          "name": "clog_kcs_label_unique",
+          "columns": [
+            "label"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "clog_pages": {
+      "name": "clog_pages",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "tab": {
+          "name": "tab",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_idx": {
+          "name": "order_idx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "clog_pages_name_unique": {
+          "name": "clog_pages_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "clog_pages_items": {
+      "name": "clog_pages_items",
+      "columns": {
+        "page_id": {
+          "name": "page_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_idx": {
+          "name": "order_idx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "clog_pages_items_page_id_clog_pages_id_fk": {
+          "name": "clog_pages_items_page_id_clog_pages_id_fk",
+          "tableFrom": "clog_pages_items",
+          "tableTo": "clog_pages",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "clog_pages_items_item_id_clog_items_id_fk": {
+          "name": "clog_pages_items_item_id_clog_items_id_fk",
+          "tableFrom": "clog_pages_items",
+          "tableTo": "clog_items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "clog_pages_items_page_id_item_id_pk": {
+          "columns": [
+            "item_id",
+            "page_id"
+          ],
+          "name": "clog_pages_items_page_id_item_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "clog_pages_kcs": {
+      "name": "clog_pages_kcs",
+      "columns": {
+        "page_id": {
+          "name": "page_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kc_id": {
+          "name": "kc_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_idx": {
+          "name": "order_idx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "clog_pages_kcs_page_id_clog_pages_id_fk": {
+          "name": "clog_pages_kcs_page_id_clog_pages_id_fk",
+          "tableFrom": "clog_pages_kcs",
+          "tableTo": "clog_pages",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "clog_pages_kcs_kc_id_clog_kcs_id_fk": {
+          "name": "clog_pages_kcs_kc_id_clog_kcs_id_fk",
+          "tableFrom": "clog_pages_kcs",
+          "tableTo": "clog_kcs",
+          "columnsFrom": [
+            "kc_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "clog_pages_kcs_page_id_kc_id_pk": {
+          "columns": [
+            "kc_id",
+            "page_id"
+          ],
+          "name": "clog_pages_kcs_page_id_kc_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "combat_achievement_tiers": {
+      "name": "combat_achievement_tiers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "combat_achievement_tier": {
+          "name": "combat_achievement_tier",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tasks_total": {
+          "name": "tasks_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "combat_achievement_tiers_combat_achievement_tier_unique": {
+          "name": "combat_achievement_tiers_combat_achievement_tier_unique",
+          "columns": [
+            "combat_achievement_tier"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "hiscores_entries": {
+      "name": "hiscores_entries",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "game_mode": {
+          "name": "game_mode",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "activity": {
+          "name": "activity",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_idx": {
+          "name": "order_idx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "game_mode_activity_unique_idx": {
+          "name": "game_mode_activity_unique_idx",
+          "columns": [
+            "game_mode",
+            "activity"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "quests": {
+      "name": "quests",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_idx": {
+          "name": "order_idx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "quests_name_unique": {
+          "name": "quests_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "skills": {
+      "name": "skills",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order_idx": {
+          "name": "order_idx",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "meta_approved": {
+          "name": "meta_approved",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "skills_name_unique": {
+          "name": "skills_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
