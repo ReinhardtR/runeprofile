@@ -1,15 +1,15 @@
 import { Metadata } from "next";
 import { Suspense, cache } from "react";
-import { Skills } from "~/app/[username]/(components)/Skills";
-import { AchievementDiaries } from "~/app/[username]/(components)/AchievementDiaries";
-import { CombatAchievements } from "~/app/[username]/(components)/CombatAchievements";
+import { Skills } from "~/app/[username]/_components/Skills";
+import { AchievementDiaries } from "~/app/[username]/_components/AchievementDiaries";
+import { CombatAchievements } from "~/app/[username]/_components/CombatAchievements";
 import { PlayerDisplay } from "~/components/Profile/PlayerDisplay";
-import { QuestList } from "~/app/[username]/(components)/QuestList";
+import { QuestList } from "~/app/[username]/_components/QuestList";
 import { getProfilFullWithHash } from "~/lib/data/get-profile";
 import { getCombatLevelFromSkills } from "~/lib/helpers/xp-and-levels";
 import { getDateString } from "~/lib/utils/time";
-import { Hiscores } from "~/app/[username]/(components)/Hiscores";
-import { CollectionLog } from "~/app/[username]/(components)/collection-log/CollectionLog";
+import { Hiscores } from "~/app/[username]/_components/Hiscores";
+import { CollectionLog } from "~/app/[username]/_components/collection-log/CollectionLog";
 
 const getProfilleCached = cache(getProfilFullWithHash);
 
