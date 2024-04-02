@@ -12,7 +12,7 @@ const config = {
   trailingComma: "es5",
   importOrder: ["<THIRD_PARTY_MODULES>", "", "^~/", "^[../]", "^[./]"],
   importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
-  importOrderTypeScriptVersion: "5.2.2",
+  importOrderTypeScriptVersion: "5.4.3",
 };
 
 export default config;

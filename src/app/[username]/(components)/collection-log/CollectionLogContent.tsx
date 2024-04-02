@@ -11,7 +11,7 @@ import {
 } from "~/components/ui/new-tooltip";
 import { TabName, isValidTab } from "~/lib/constants/collection-log";
 import {
-  CollectionLogItem,
+  type CollectionLogItem as CollectionLogItemType,
   CollectionLogKillCount,
 } from "~/lib/domain/profile-data-types";
 import { cn } from "~/lib/utils/cn";
@@ -23,7 +23,7 @@ import { Route } from "next";
 type CollectionLogPageFormatted = {
   displayName: string;
   kcs: CollectionLogKillCount[];
-  items: CollectionLogItem[];
+  items: CollectionLogItemType[];
 };
 
 type CollectionLogTabFormatted = {
@@ -233,7 +233,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
 };
 
 type CollectionLogItemProps = {
-  item: CollectionLogItem;
+  item: CollectionLogItemType;
 };
 
 const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
