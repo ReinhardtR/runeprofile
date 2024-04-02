@@ -13,6 +13,7 @@ import { updateProfile } from "~/lib/data/update-profile";
 import { ProfileFullWithHash } from "~/lib/domain/profile-data-types";
 
 export async function GET(request: Request) {
+  console.log("Updating profile...", request.url);
   const rawPluginData = await readFile("PGN-update.json");
   const parsedPluginData = PlayerDataSchema.parse(
     JSON.parse(rawPluginData.toString())
