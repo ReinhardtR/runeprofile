@@ -5,10 +5,10 @@ import { useSetAtom } from "jotai";
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
-import { isSearchOpenAtom } from "./SearchModal";
+// import { isSearchOpenAtom } from "./SearchModal";
 
 export const Header: React.FC = () => {
-  const setIsSearchOpen = useSetAtom(isSearchOpenAtom);
+  // const setIsSearchOpen = useSetAtom(isSearchOpenAtom);
 
   const [isAtTop, setIsAtTop] = useState(true);
 
@@ -133,7 +133,7 @@ export const Header: React.FC = () => {
         </div>
         <div
           className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow-md hover:cursor-pointer hover:border-primary transition-colors"
-          onClick={() => setIsSearchOpen(true)}
+          // onClick={() => setIsSearchOpen(true)}
         >
           <div className="flex space-x-1 items-center">
             <SearchIcon className="w-[18px] h-[18px]" />
