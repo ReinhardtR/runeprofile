@@ -10,5 +10,5 @@ const client = createClient({
 
 export const db = drizzle(client, {
   schema,
-  logger: false,
+  logger: true,
 });
