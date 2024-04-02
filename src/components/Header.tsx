@@ -30,6 +30,7 @@ export const Header: React.FC = () => {
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -81,7 +82,10 @@ export const Header: React.FC = () => {
               <Popover.Panel className="absolute left-1/2 z-50 mt-3 w-screen max-w-sm -translate-x-1/2 transform p-4 sm:px-0">
                 <div className="overflow-hidden bg-background border-accent border-2 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="flex flex-col p-4 space-y-4">
-                    <Link href="/leaderboards/collection">
+                    <Link
+                      //  href="/leaderboards/collection"
+                      href="/"
+                    >
                       <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
                         <div className="relative flex shrink-0 items-center justify-center text-white">
                           <Image
