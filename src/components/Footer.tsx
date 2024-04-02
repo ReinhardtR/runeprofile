@@ -1,4 +1,4 @@
-import { Discord, Github, Twitter } from "@icons-pack/react-simple-icons";
+import { DiscordLogoIcon, TwitterLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSetAtom } from "jotai";
 import Image from "next/image";
@@ -60,7 +60,7 @@ export const Footer: React.FC = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Twitter />
+                  <TwitterLogoIcon />
                 </a>
               </FooterLink>
               <FooterLink>
@@ -69,7 +69,7 @@ export const Footer: React.FC = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Discord />
+                  <DiscordLogoIcon />
                 </a>
               </FooterLink>
               <FooterLink>
@@ -78,7 +78,7 @@ export const Footer: React.FC = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Github />
+                  <GitHubLogoIcon />
                 </a>
               </FooterLink>
             </div>
@@ -95,7 +95,8 @@ export const Footer: React.FC = () => {
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
           <FooterLink>
             <Link
-              href="/leaderboards/collection"
+              // href="/leaderboards/collection"
+              href="/"
               target="_blank"
               rel="noreferrer"
             >
@@ -122,7 +123,10 @@ export const Footer: React.FC = () => {
           </FooterLink>
 
           <FooterLink>
-            <Link href="/info/change-log">
+            <Link
+            //  href="/info/change-log"
+            href="/"
+            >
               <div className="relative">
                 <p className="text-accent text-xs absolute inset-0 left-[70px] top-[2px] rotate-12">
                   NEW
