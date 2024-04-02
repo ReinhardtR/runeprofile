@@ -4,9 +4,9 @@ import React from "react";
 import Image from "next/image";
 import { api } from "~/lib/api";
 import { clsx } from "clsx";
-import { Tooltip } from "~/components/Misc/Tooltip";
+import { Tooltip } from "~/components/ui/tooltip";
 import itemIcons from "~/assets/item-icons.json";
-import { getDateString } from "~/utils/time";
+import { getDateString } from "~/lib/utils/time";
 import { ItemType } from "~/lib/domain/profile-data-types";
 
 export function CollectionLogEntryDisplay(props: {
@@ -30,7 +30,7 @@ export function CollectionLogEntryDisplay(props: {
   if (isLoading) {
     return (
       <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
-        <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+        <div className="solid-text-shadow text-xl text-osrs-yellow font-runescape">
           Loading...
         </div>
       </div>
@@ -39,7 +39,7 @@ export function CollectionLogEntryDisplay(props: {
   if (error) {
     return (
       <div className="flex-1 flex justify-center items-center w-full border-t-2 border-osrs-border p-1 relative">
-        <div className="text-shadow text-xl text-osrs-yellow font-runescape">
+        <div className="solid-text-shadow text-xl text-osrs-yellow font-runescape">
           Error: {error.message}
         </div>
       </div>
@@ -55,10 +55,10 @@ export function CollectionLogEntryDisplay(props: {
   return (
     <>
       <div className="w-full border-2 border-osrs-border p-1 relative">
-        <p className="text-shadow text-2xl font-bold leading-none">
+        <p className="solid-text-shadow text-2xl font-bold leading-none">
           {entry.name}
         </p>
-        <p className="text-shadow text-lg leading-none">
+        <p className="solid-text-shadow text-lg leading-none">
           Obtained:{" "}
           <span
             className={clsx(
@@ -71,7 +71,10 @@ export function CollectionLogEntryDisplay(props: {
           </span>
         </p>
         {entry.killCounts?.map((killCount) => (
-          <p key={killCount.name} className="text-shadow text-lg leading-none">
+          <p
+            key={killCount.name}
+            className="solid-text-shadow text-lg leading-none"
+          >
             {killCount.name}:{" "}
             <span className="text-light-gray">{killCount.count}</span>
           </p>
@@ -123,7 +126,7 @@ const CollectionLogItem: React.FC<CollectionLogItemProps> = ({ item }) => {
       <div className="flex-shrink group">
         <div className="relative">
           {item.quantity > 1 && (
-            <p className="text-shadow absolute top-[-5px] z-20 text-osrs-yellow">
+            <p className="solid-text-shadow absolute top-[-5px] z-20 text-osrs-yellow">
               {item.quantity}
             </p>
           )}

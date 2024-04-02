@@ -1,0 +1,3120 @@
+{
+  "username": "PGN",
+  "accountType": "IRONMAN",
+  "createdAt": "2022-10-20T21:48:05.318Z",
+  "updatedAt": "2022-12-01T18:32:50.000Z",
+  "description": "",
+  "combatLevel": 120,
+  "modelUri": "https://storage.googleapis.com/runeprofile-models/models/PGN.ply",
+  "skills": [
+    {
+      "name": "Attack",
+      "xp": 7200077
+    },
+    {
+      "name": "Hitpoints",
+      "xp": 18186313
+    },
+    {
+      "name": "Mining",
+      "xp": 2445056
+    },
+    {
+      "name": "Strength",
+      "xp": 11866165
+    },
+    {
+      "name": "Agility",
+      "xp": 2880008
+    },
+    {
+      "name": "Smithing",
+      "xp": 3604920
+    },
+    {
+      "name": "Defence",
+      "xp": 7974108
+    },
+    {
+      "name": "Herblore",
+      "xp": 5831062
+    },
+    {
+      "name": "Fishing",
+      "xp": 8921542
+    },
+    {
+      "name": "Ranged",
+      "xp": 13132585
+    },
+    {
+      "name": "Thieving",
+      "xp": 16418330
+    },
+    {
+      "name": "Cooking",
+      "xp": 5729701
+    },
+    {
+      "name": "Prayer",
+      "xp": 1751025
+    },
+    {
+      "name": "Crafting",
+      "xp": 7572277
+    },
+    {
+      "name": "Firemaking",
+      "xp": 25035339
+    },
+    {
+      "name": "Magic",
+      "xp": 13849663
+    },
+    {
+      "name": "Fletching",
+      "xp": 6333403
+    },
+    {
+      "name": "Woodcutting",
+      "xp": 3414274
+    },
+    {
+      "name": "Runecraft",
+      "xp": 3284879
+    },
+    {
+      "name": "Slayer",
+      "xp": 7403686
+    },
+    {
+      "name": "Farming",
+      "xp": 13372689
+    },
+    {
+      "name": "Construction",
+      "xp": 2747864
+    },
+    {
+      "name": "Hunter",
+      "xp": 7822093
+    }
+  ],
+  "achievementDiaries": [
+    {
+      "area": "Ardougne",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "HARD",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "ELITE",
+          "completed": 4,
+          "total": 8
+        }
+      ]
+    },
+    {
+      "area": "Desert",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "HARD",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "ELITE",
+          "completed": 1,
+          "total": 6
+        }
+      ]
+    },
+    {
+      "area": "Falador",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 14,
+          "total": 14
+        },
+        {
+          "tier": "HARD",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "ELITE",
+          "completed": 2,
+          "total": 6
+        }
+      ]
+    },
+    {
+      "area": "Fremennik",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 9,
+          "total": 9
+        },
+        {
+          "tier": "HARD",
+          "completed": 9,
+          "total": 9
+        },
+        {
+          "tier": "ELITE",
+          "completed": 6,
+          "total": 6
+        }
+      ]
+    },
+    {
+      "area": "Kandarin",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 14,
+          "total": 14
+        },
+        {
+          "tier": "HARD",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "ELITE",
+          "completed": 2,
+          "total": 7
+        }
+      ]
+    },
+    {
+      "area": "Karamja",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 19,
+          "total": 19
+        },
+        {
+          "tier": "HARD",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "ELITE",
+          "completed": 4,
+          "total": 5
+        }
+      ]
+    },
+    {
+      "area": "Kourend & Kebos",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 13,
+          "total": 13
+        },
+        {
+          "tier": "HARD",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "ELITE",
+          "completed": 7,
+          "total": 8
+        }
+      ]
+    },
+    {
+      "area": "Lumbridge & Draynor",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "HARD",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "ELITE",
+          "completed": 6,
+          "total": 6
+        }
+      ]
+    },
+    {
+      "area": "Morytania",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "HARD",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "ELITE",
+          "completed": 6,
+          "total": 6
+        }
+      ]
+    },
+    {
+      "area": "Varrock",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 14,
+          "total": 14
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 13,
+          "total": 13
+        },
+        {
+          "tier": "HARD",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "ELITE",
+          "completed": 1,
+          "total": 5
+        }
+      ]
+    },
+    {
+      "area": "Western Provinces",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 13,
+          "total": 13
+        },
+        {
+          "tier": "HARD",
+          "completed": 13,
+          "total": 13
+        },
+        {
+          "tier": "ELITE",
+          "completed": 3,
+          "total": 7
+        }
+      ]
+    },
+    {
+      "area": "Wilderness",
+      "tiers": [
+        {
+          "tier": "EASY",
+          "completed": 12,
+          "total": 12
+        },
+        {
+          "tier": "MEDIUM",
+          "completed": 11,
+          "total": 11
+        },
+        {
+          "tier": "HARD",
+          "completed": 10,
+          "total": 10
+        },
+        {
+          "tier": "ELITE",
+          "completed": 2,
+          "total": 7
+        }
+      ]
+    }
+  ],
+  "combatAchievements": {
+    "tiers": [
+      {
+        "tier": "EASY",
+        "completed": 33,
+        "total": 33
+      },
+      {
+        "tier": "MEDIUM",
+        "completed": 41,
+        "total": 42
+      },
+      {
+        "tier": "HARD",
+        "completed": 35,
+        "total": 61
+      },
+      {
+        "tier": "ELITE",
+        "completed": 40,
+        "total": 125
+      },
+      {
+        "tier": "MASTER",
+        "completed": 5,
+        "total": 122
+      },
+      {
+        "tier": "GRANDMASTER",
+        "completed": 1,
+        "total": 89
+      }
+    ]
+  },
+  "questList": {
+    "points": 290,
+    "quests": [
+      {
+        "name": "Below Ice Mountain",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Black Knights' Fortress",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Cook's Assistant",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "The Corsair Curse",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Demon Slayer",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Doric's Quest",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Dragon Slayer I",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Ernest the Chicken",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Goblin Diplomacy",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Imp Catcher",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "The Knight's Sword",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Misthalin Mystery",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Pirate's Treasure",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Prince Ali Rescue",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "The Restless Ghost",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Romeo & Juliet",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Rune Mysteries",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Sheep Shearer",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Shield of Arrav",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Vampyre Slayer",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Witch's Potion",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "X Marks the Spot",
+        "state": "FINISHED",
+        "type": "F2P"
+      },
+      {
+        "name": "Animal Magnetism",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Another Slice of H.A.M.",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Ascent of Arceuus",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Beneath Cursed Sands",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Between a Rock...",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Big Chompy Bird Hunting",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Biohazard",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Bone Voyage",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Cabin Fever",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Client of Kourend",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Clock Tower",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Cold War",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Contact!",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Creature of Fenkenstrain",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Darkness of Hallowvale",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Death Plateau",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Death to the Dorgeshuun",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Depths of Despair",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Desert Treasure",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Devious Minds",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Dig Site",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Dragon Slayer II",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Dream Mentor",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Druidic Ritual",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Dwarf Cannon",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Eadgar's Ruse",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Eagles' Peak",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Elemental Workshop I",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Elemental Workshop II",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Enakhra's Lament",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Enlightened Journey",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Eyes of Glouphrie",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Fairytale I - Growing Pains",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Fairytale II - Cure a Queen",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Family Crest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Feud",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Fight Arena",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Fishing Contest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Forgettable Tale...",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Forsaken Tower",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Fremennik Exiles",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Fremennik Isles",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Fremennik Trials",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Garden of Tranquillity",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Gertrude's Cat",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Getting Ahead",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Ghosts Ahoy",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Giant Dwarf",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Golem",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Grand Tree",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Great Brain Robbery",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Grim Tales",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Hand in the Sand",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Haunted Mine",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Hazeel Cult",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Heroes' Quest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Holy Grail",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Horror from the Deep",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Icthlarin's Little Helper",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "In Aid of the Myreque",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "In Search of the Myreque",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Jungle Potion",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "King's Ransom",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "A Kingdom Divided",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Land of the Goblins",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Legends' Quest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Lost City",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Lost Tribe",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Lunar Diplomacy",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Making Friends with My Arm",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Making History",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Merlin's Crystal",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Monk's Friend",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Monkey Madness I",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Monkey Madness II",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Mountain Daughter",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Mourning's End Part I",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Mourning's End Part II",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Murder Mystery",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "My Arm's Big Adventure",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Nature Spirit",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "A Night at the Theatre",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Observatory Quest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Olaf's Quest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "One Small Favour",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Plague City",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "A Porcine of Interest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Priest in Peril",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Queen of Thieves",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Rag and Bone Man I",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Rag and Bone Man II",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Ratcatchers",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Recipe for Disaster",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Recruitment Drive",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Regicide",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Roving Elves",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Royal Trouble",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Rum Deal",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Scorpion Catcher",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Sea Slug",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Shades of Mort'ton",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Shadow of the Storm",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Sheep Herder",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Shilo Village",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Sins of the Father",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Sleeping Giants",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Slug Menace",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Song of the Elves",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "A Soul's Bane",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Spirits of the Elid",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Swan Song",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Tai Bwo Wannai Trio",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "A Tail of Two Cats",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Tale of the Righteous",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "A Taste of Hope",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Tears of Guthix",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Temple of Ikov",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Temple of the Eye",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Throne of Miscellania",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "The Tourist Trap",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Tower of Life",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Tree Gnome Village",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Tribal Totem",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Troll Romance",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Troll Stronghold",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Underground Pass",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Wanted!",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Watchtower",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Waterfall Quest",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "What Lies Below",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Witch's House",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Zogre Flesh Eaters",
+        "state": "FINISHED",
+        "type": "P2P"
+      },
+      {
+        "name": "Alfred Grimhand's Barcrawl",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Architectural Alliance",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Bear Your Soul",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Curse of the Empty Lord",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Daddy's Home",
+        "state": "NOT_STARTED",
+        "type": "MINI"
+      },
+      {
+        "name": "The Enchanted Key",
+        "state": "IN_PROGRESS",
+        "type": "MINI"
+      },
+      {
+        "name": "Enter the Abyss",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Family Pest",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "The Frozen Door",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "The General's Shadow",
+        "state": "NOT_STARTED",
+        "type": "MINI"
+      },
+      {
+        "name": "Hopespear's Will",
+        "state": "NOT_STARTED",
+        "type": "MINI"
+      },
+      {
+        "name": "In Search of Knowledge",
+        "state": "NOT_STARTED",
+        "type": "MINI"
+      },
+      {
+        "name": "Lair of Tarn Razorlor",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Mage Arena I",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Mage Arena II",
+        "state": "FINISHED",
+        "type": "MINI"
+      },
+      {
+        "name": "Skippy and the Mogres",
+        "state": "FINISHED",
+        "type": "MINI"
+      }
+    ]
+  },
+  "hiscores": [
+    {
+      "type": "NORMAL",
+      "skills": [
+        {
+          "name": "Overall",
+          "rank": 111782,
+          "level": 2106,
+          "xp": 196777059
+        },
+        {
+          "name": "Attack",
+          "rank": 385278,
+          "level": 93,
+          "xp": 7200077
+        },
+        {
+          "name": "Defence",
+          "rank": 312816,
+          "level": 94,
+          "xp": 7974108
+        },
+        {
+          "name": "Strength",
+          "rank": 449454,
+          "level": 98,
+          "xp": 11866165
+        },
+        {
+          "name": "Hitpoints",
+          "rank": 257257,
+          "level": 99,
+          "xp": 18186313
+        },
+        {
+          "name": "Ranged",
+          "rank": 351236,
+          "level": 99,
+          "xp": 13132585
+        },
+        {
+          "name": "Prayer",
+          "rank": 365094,
+          "level": 78,
+          "xp": 1751025
+        },
+        {
+          "name": "Magic",
+          "rank": 181494,
+          "level": 99,
+          "xp": 13849663
+        },
+        {
+          "name": "Cooking",
+          "rank": 383892,
+          "level": 90,
+          "xp": 5729701
+        },
+        {
+          "name": "Woodcutting",
+          "rank": 299740,
+          "level": 85,
+          "xp": 3414274
+        },
+        {
+          "name": "Fletching",
+          "rank": 248100,
+          "level": 91,
+          "xp": 6333403
+        },
+        {
+          "name": "Fishing",
+          "rank": 126558,
+          "level": 95,
+          "xp": 8921542
+        },
+        {
+          "name": "Firemaking",
+          "rank": 7216,
+          "level": 99,
+          "xp": 25035339
+        },
+        {
+          "name": "Crafting",
+          "rank": 147660,
+          "level": 93,
+          "xp": 7572277
+        },
+        {
+          "name": "Smithing",
+          "rank": 193401,
+          "level": 86,
+          "xp": 3604920
+        },
+        {
+          "name": "Mining",
+          "rank": 276023,
+          "level": 82,
+          "xp": 2445056
+        },
+        {
+          "name": "Herblore",
+          "rank": 114876,
+          "level": 90,
+          "xp": 5831062
+        },
+        {
+          "name": "Agility",
+          "rank": 168598,
+          "level": 83,
+          "xp": 2880008
+        },
+        {
+          "name": "Thieving",
+          "rank": 18313,
+          "level": 99,
+          "xp": 16418330
+        },
+        {
+          "name": "Slayer",
+          "rank": 228962,
+          "level": 93,
+          "xp": 7403686
+        },
+        {
+          "name": "Farming",
+          "rank": 119146,
+          "level": 99,
+          "xp": 13372689
+        },
+        {
+          "name": "Runecraft",
+          "rank": 141349,
+          "level": 85,
+          "xp": 3284879
+        },
+        {
+          "name": "Hunter",
+          "rank": 79916,
+          "level": 93,
+          "xp": 7822093
+        },
+        {
+          "name": "Construction",
+          "rank": 255105,
+          "level": 83,
+          "xp": 2747864
+        }
+      ],
+      "activities": [
+        {
+          "name": "League Points",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Bounty Hunter - Hunter",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Bounty Hunter - Rogue",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (all)",
+          "rank": 149082,
+          "score": 263
+        },
+        {
+          "name": "Clue Scrolls (beginner)",
+          "rank": 189921,
+          "score": 13
+        },
+        {
+          "name": "Clue Scrolls (easy)",
+          "rank": 305036,
+          "score": 13
+        },
+        {
+          "name": "Clue Scrolls (medium)",
+          "rank": 165935,
+          "score": 61
+        },
+        {
+          "name": "Clue Scrolls (hard)",
+          "rank": 118749,
+          "score": 140
+        },
+        {
+          "name": "Clue Scrolls (elite)",
+          "rank": 86184,
+          "score": 32
+        },
+        {
+          "name": "Clue Scrolls (master)",
+          "rank": 166063,
+          "score": 4
+        },
+        {
+          "name": "Last Man Standing",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "PvP Arena - Rank",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Soul Wars Zeal",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Rifts closed",
+          "rank": 64482,
+          "score": 142
+        }
+      ],
+      "bosses": [
+        {
+          "name": "Abyssal Sire",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Alchemical Hydra",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Barrows Chests",
+          "rank": 16323,
+          "kills": 1000
+        },
+        {
+          "name": "Bryophyta",
+          "rank": 118140,
+          "kills": 6
+        },
+        {
+          "name": "Callisto",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Cerberus",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chambers of Xeric",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chambers of Xeric: Challenge Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chaos Elemental",
+          "rank": 10051,
+          "kills": 302
+        },
+        {
+          "name": "Chaos Fanatic",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Commander Zilyana",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Corporeal Beast",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Crazy Archaeologist",
+          "rank": 104841,
+          "kills": 50
+        },
+        {
+          "name": "Dagannoth Prime",
+          "rank": 142401,
+          "kills": 122
+        },
+        {
+          "name": "Dagannoth Rex",
+          "rank": 112186,
+          "kills": 282
+        },
+        {
+          "name": "Dagannoth Supreme",
+          "rank": 136726,
+          "kills": 133
+        },
+        {
+          "name": "Deranged Archaeologist",
+          "rank": 34314,
+          "kills": 50
+        },
+        {
+          "name": "General Graardor",
+          "rank": 149277,
+          "kills": 141
+        },
+        {
+          "name": "Giant Mole",
+          "rank": 201199,
+          "kills": 50
+        },
+        {
+          "name": "Grotesque Guardians",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Hespori",
+          "rank": 115437,
+          "kills": 54
+        },
+        {
+          "name": "Kalphite Queen",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "King Black Dragon",
+          "rank": 329885,
+          "kills": 52
+        },
+        {
+          "name": "Kraken",
+          "rank": 230207,
+          "kills": 657
+        },
+        {
+          "name": "Kree'arra",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "K'ril Tsutsaroth",
+          "rank": 113218,
+          "kills": 56
+        },
+        {
+          "name": "Mimic",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Nex",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Nightmare",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Phosani's Nightmare",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Obor",
+          "rank": 180490,
+          "kills": 5
+        },
+        {
+          "name": "Sarachnis",
+          "rank": 80655,
+          "kills": 64
+        },
+        {
+          "name": "Scorpia",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Skotizo",
+          "rank": 189678,
+          "kills": 20
+        },
+        {
+          "name": "Tempoross",
+          "rank": 174638,
+          "kills": 59
+        },
+        {
+          "name": "The Gauntlet",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "The Corrupted Gauntlet",
+          "rank": 45041,
+          "kills": 165
+        },
+        {
+          "name": "Theatre of Blood",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Theatre of Blood: Hard Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Thermonuclear Smoke Devil",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tombs of Amascut",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tombs of Amascut: Expert Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "TzKal-Zuk",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "TzTok-Jad",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Venenatis",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Vet'ion",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Vorkath",
+          "rank": 340984,
+          "kills": 51
+        },
+        {
+          "name": "Wintertodt",
+          "rank": 4360,
+          "kills": 1110
+        },
+        {
+          "name": "Zalcano",
+          "rank": 45650,
+          "kills": 161
+        },
+        {
+          "name": "Zulrah",
+          "rank": 102712,
+          "kills": 827
+        }
+      ]
+    },
+    {
+      "type": "IRONMAN",
+      "skills": [
+        {
+          "name": "Overall",
+          "rank": 22013,
+          "level": 2106,
+          "xp": 196777059
+        },
+        {
+          "name": "Attack",
+          "rank": 40584,
+          "level": 93,
+          "xp": 7200077
+        },
+        {
+          "name": "Defence",
+          "rank": 31733,
+          "level": 94,
+          "xp": 7974108
+        },
+        {
+          "name": "Strength",
+          "rank": 45103,
+          "level": 98,
+          "xp": 11866165
+        },
+        {
+          "name": "Hitpoints",
+          "rank": 31131,
+          "level": 99,
+          "xp": 18186313
+        },
+        {
+          "name": "Ranged",
+          "rank": 33592,
+          "level": 99,
+          "xp": 13132585
+        },
+        {
+          "name": "Prayer",
+          "rank": 40955,
+          "level": 78,
+          "xp": 1751025
+        },
+        {
+          "name": "Magic",
+          "rank": 24220,
+          "level": 99,
+          "xp": 13849663
+        },
+        {
+          "name": "Cooking",
+          "rank": 42225,
+          "level": 90,
+          "xp": 5729701
+        },
+        {
+          "name": "Woodcutting",
+          "rank": 44923,
+          "level": 85,
+          "xp": 3414274
+        },
+        {
+          "name": "Fletching",
+          "rank": 19726,
+          "level": 91,
+          "xp": 6333403
+        },
+        {
+          "name": "Fishing",
+          "rank": 21216,
+          "level": 95,
+          "xp": 8921542
+        },
+        {
+          "name": "Firemaking",
+          "rank": 2612,
+          "level": 99,
+          "xp": 25035339
+        },
+        {
+          "name": "Crafting",
+          "rank": 27588,
+          "level": 93,
+          "xp": 7572277
+        },
+        {
+          "name": "Smithing",
+          "rank": 30020,
+          "level": 86,
+          "xp": 3604920
+        },
+        {
+          "name": "Mining",
+          "rank": 54316,
+          "level": 82,
+          "xp": 2445056
+        },
+        {
+          "name": "Herblore",
+          "rank": 24122,
+          "level": 90,
+          "xp": 5831062
+        },
+        {
+          "name": "Agility",
+          "rank": 34476,
+          "level": 83,
+          "xp": 2880008
+        },
+        {
+          "name": "Thieving",
+          "rank": 6135,
+          "level": 99,
+          "xp": 16418330
+        },
+        {
+          "name": "Slayer",
+          "rank": 38756,
+          "level": 93,
+          "xp": 7403686
+        },
+        {
+          "name": "Farming",
+          "rank": 24095,
+          "level": 99,
+          "xp": 13372689
+        },
+        {
+          "name": "Runecraft",
+          "rank": 23194,
+          "level": 85,
+          "xp": 3284879
+        },
+        {
+          "name": "Hunter",
+          "rank": 14519,
+          "level": 93,
+          "xp": 7822093
+        },
+        {
+          "name": "Construction",
+          "rank": 31641,
+          "level": 83,
+          "xp": 2747864
+        }
+      ],
+      "activities": [
+        {
+          "name": "League Points",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Bounty Hunter - Hunter",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Bounty Hunter - Rogue",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (all)",
+          "rank": 44283,
+          "score": 263
+        },
+        {
+          "name": "Clue Scrolls (beginner)",
+          "rank": 60601,
+          "score": 13
+        },
+        {
+          "name": "Clue Scrolls (easy)",
+          "rank": 97004,
+          "score": 13
+        },
+        {
+          "name": "Clue Scrolls (medium)",
+          "rank": 49949,
+          "score": 61
+        },
+        {
+          "name": "Clue Scrolls (hard)",
+          "rank": 30333,
+          "score": 140
+        },
+        {
+          "name": "Clue Scrolls (elite)",
+          "rank": 19484,
+          "score": 32
+        },
+        {
+          "name": "Clue Scrolls (master)",
+          "rank": 25734,
+          "score": 4
+        },
+        {
+          "name": "Last Man Standing",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "PvP Arena - Rank",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Soul Wars Zeal",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Rifts closed",
+          "rank": 17365,
+          "score": 142
+        }
+      ],
+      "bosses": [
+        {
+          "name": "Abyssal Sire",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Alchemical Hydra",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Barrows Chests",
+          "rank": 7978,
+          "kills": 1000
+        },
+        {
+          "name": "Bryophyta",
+          "rank": 18100,
+          "kills": 6
+        },
+        {
+          "name": "Callisto",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Cerberus",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chambers of Xeric",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chambers of Xeric: Challenge Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chaos Elemental",
+          "rank": 2126,
+          "kills": 302
+        },
+        {
+          "name": "Chaos Fanatic",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Commander Zilyana",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Corporeal Beast",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Crazy Archaeologist",
+          "rank": 30995,
+          "kills": 50
+        },
+        {
+          "name": "Dagannoth Prime",
+          "rank": 22398,
+          "kills": 122
+        },
+        {
+          "name": "Dagannoth Rex",
+          "rank": 20646,
+          "kills": 282
+        },
+        {
+          "name": "Dagannoth Supreme",
+          "rank": 21526,
+          "kills": 133
+        },
+        {
+          "name": "Deranged Archaeologist",
+          "rank": 9026,
+          "kills": 50
+        },
+        {
+          "name": "General Graardor",
+          "rank": 20839,
+          "kills": 141
+        },
+        {
+          "name": "Giant Mole",
+          "rank": 24273,
+          "kills": 50
+        },
+        {
+          "name": "Grotesque Guardians",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Hespori",
+          "rank": 36252,
+          "kills": 54
+        },
+        {
+          "name": "Kalphite Queen",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "King Black Dragon",
+          "rank": 24491,
+          "kills": 52
+        },
+        {
+          "name": "Kraken",
+          "rank": 34765,
+          "kills": 657
+        },
+        {
+          "name": "Kree'arra",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "K'ril Tsutsaroth",
+          "rank": 28619,
+          "kills": 56
+        },
+        {
+          "name": "Mimic",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Nex",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Nightmare",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Phosani's Nightmare",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Obor",
+          "rank": 25068,
+          "kills": 5
+        },
+        {
+          "name": "Sarachnis",
+          "rank": 16334,
+          "kills": 64
+        },
+        {
+          "name": "Scorpia",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Skotizo",
+          "rank": 35279,
+          "kills": 20
+        },
+        {
+          "name": "Tempoross",
+          "rank": 49699,
+          "kills": 59
+        },
+        {
+          "name": "The Gauntlet",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "The Corrupted Gauntlet",
+          "rank": 20864,
+          "kills": 165
+        },
+        {
+          "name": "Theatre of Blood",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Theatre of Blood: Hard Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Thermonuclear Smoke Devil",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tombs of Amascut",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tombs of Amascut: Expert Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "TzKal-Zuk",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "TzTok-Jad",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Venenatis",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Vet'ion",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Vorkath",
+          "rank": 26362,
+          "kills": 51
+        },
+        {
+          "name": "Wintertodt",
+          "rank": 1819,
+          "kills": 1110
+        },
+        {
+          "name": "Zalcano",
+          "rank": 10720,
+          "kills": 161
+        },
+        {
+          "name": "Zulrah",
+          "rank": 22119,
+          "kills": 827
+        }
+      ]
+    },
+    {
+      "type": "HARDCORE",
+      "skills": [
+        {
+          "name": "Overall",
+          "rank": 222742,
+          "level": 300,
+          "xp": 1302582
+        },
+        {
+          "name": "Attack",
+          "rank": 385447,
+          "level": 2,
+          "xp": 116
+        },
+        {
+          "name": "Defence",
+          "rank": 465114,
+          "level": 1,
+          "xp": 0
+        },
+        {
+          "name": "Strength",
+          "rank": 465434,
+          "level": 1,
+          "xp": 12
+        },
+        {
+          "name": "Hitpoints",
+          "rank": 432281,
+          "level": 10,
+          "xp": 1219
+        },
+        {
+          "name": "Ranged",
+          "rank": 181516,
+          "level": 2,
+          "xp": 96
+        },
+        {
+          "name": "Prayer",
+          "rank": 257819,
+          "level": 9,
+          "xp": 1138
+        },
+        {
+          "name": "Magic",
+          "rank": 499770,
+          "level": 1,
+          "xp": 7
+        },
+        {
+          "name": "Cooking",
+          "rank": 437471,
+          "level": 4,
+          "xp": 370
+        },
+        {
+          "name": "Woodcutting",
+          "rank": 144413,
+          "level": 51,
+          "xp": 119486
+        },
+        {
+          "name": "Fletching",
+          "rank": 122407,
+          "level": 38,
+          "xp": 31414
+        },
+        {
+          "name": "Fishing",
+          "rank": 252810,
+          "level": 24,
+          "xp": 7185
+        },
+        {
+          "name": "Firemaking",
+          "rank": 108818,
+          "level": 74,
+          "xp": 1112892
+        },
+        {
+          "name": "Crafting",
+          "rank": 194012,
+          "level": 8,
+          "xp": 960
+        },
+        {
+          "name": "Smithing",
+          "rank": 462901,
+          "level": 1,
+          "xp": 18
+        },
+        {
+          "name": "Mining",
+          "rank": 275799,
+          "level": 15,
+          "xp": 2460
+        },
+        {
+          "name": "Herblore",
+          "rank": 345863,
+          "level": 1,
+          "xp": 0
+        },
+        {
+          "name": "Agility",
+          "rank": 229059,
+          "level": 1,
+          "xp": 10
+        },
+        {
+          "name": "Thieving",
+          "rank": 118614,
+          "level": 34,
+          "xp": 20744
+        },
+        {
+          "name": "Slayer",
+          "rank": 356962,
+          "level": 1,
+          "xp": 0
+        },
+        {
+          "name": "Farming",
+          "rank": 339522,
+          "level": 1,
+          "xp": 0
+        },
+        {
+          "name": "Runecraft",
+          "rank": 332543,
+          "level": 1,
+          "xp": 0
+        },
+        {
+          "name": "Hunter",
+          "rank": 344918,
+          "level": 1,
+          "xp": 0
+        },
+        {
+          "name": "Construction",
+          "rank": 111241,
+          "level": 19,
+          "xp": 4455
+        }
+      ],
+      "activities": [
+        {
+          "name": "League Points",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Bounty Hunter - Hunter",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Bounty Hunter - Rogue",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (all)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (beginner)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (easy)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (medium)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (hard)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (elite)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Clue Scrolls (master)",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Last Man Standing",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "PvP Arena - Rank",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Soul Wars Zeal",
+          "rank": -1,
+          "score": -1
+        },
+        {
+          "name": "Rifts closed",
+          "rank": -1,
+          "score": -1
+        }
+      ],
+      "bosses": [
+        {
+          "name": "Abyssal Sire",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Alchemical Hydra",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Barrows Chests",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Bryophyta",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Callisto",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Cerberus",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chambers of Xeric",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chambers of Xeric: Challenge Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chaos Elemental",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Chaos Fanatic",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Commander Zilyana",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Corporeal Beast",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Crazy Archaeologist",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Dagannoth Prime",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Dagannoth Rex",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Dagannoth Supreme",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Deranged Archaeologist",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "General Graardor",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Giant Mole",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Grotesque Guardians",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Hespori",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Kalphite Queen",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "King Black Dragon",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Kraken",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Kree'arra",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "K'ril Tsutsaroth",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Mimic",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Nex",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Nightmare",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Phosani's Nightmare",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Obor",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Sarachnis",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Scorpia",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Skotizo",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tempoross",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "The Gauntlet",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "The Corrupted Gauntlet",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Theatre of Blood",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Theatre of Blood: Hard Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Thermonuclear Smoke Devil",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tombs of Amascut",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Tombs of Amascut: Expert Mode",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "TzKal-Zuk",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "TzTok-Jad",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Venenatis",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Vet'ion",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Vorkath",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Wintertodt",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Zalcano",
+          "rank": -1,
+          "kills": -1
+        },
+        {
+          "name": "Zulrah",
+          "rank": -1,
+          "kills": -1
+        }
+      ]
+    },
+    {
+      "type": "ULTIMATE",
+      "skills": [],
+      "activities": [],
+      "bosses": []
+    }
+  ],
+  "collectionLog": {
+    "uniqueItemsObtained": 397,
+    "uniqueItemsTotal": 1430,
+    "tabs": [
+      {
+        "name": "Bosses",
+        "entries": [
+          {
+            "name": "Abyssal Sire",
+            "isCompleted": false
+          },
+          {
+            "name": "Alchemical Hydra",
+            "isCompleted": false
+          },
+          {
+            "name": "Barrows Chests",
+            "isCompleted": false
+          },
+          {
+            "name": "Bryophyta",
+            "isCompleted": false
+          },
+          {
+            "name": "Callisto",
+            "isCompleted": false
+          },
+          {
+            "name": "Cerberus",
+            "isCompleted": false
+          },
+          {
+            "name": "Chaos Elemental",
+            "isCompleted": true
+          },
+          {
+            "name": "Chaos Fanatic",
+            "isCompleted": false
+          },
+          {
+            "name": "Commander Zilyana",
+            "isCompleted": false
+          },
+          {
+            "name": "Corporeal Beast",
+            "isCompleted": false
+          },
+          {
+            "name": "Crazy Archaeologist",
+            "isCompleted": false
+          },
+          {
+            "name": "Dagannoth Kings",
+            "isCompleted": false
+          },
+          {
+            "name": "The Fight Caves",
+            "isCompleted": false
+          },
+          {
+            "name": "The Gauntlet",
+            "isCompleted": false
+          },
+          {
+            "name": "General Graardor",
+            "isCompleted": false
+          },
+          {
+            "name": "Giant Mole",
+            "isCompleted": false
+          },
+          {
+            "name": "Grotesque Guardians",
+            "isCompleted": false
+          },
+          {
+            "name": "Hespori",
+            "isCompleted": true
+          },
+          {
+            "name": "The Inferno",
+            "isCompleted": false
+          },
+          {
+            "name": "Kalphite Queen",
+            "isCompleted": false
+          },
+          {
+            "name": "King Black Dragon",
+            "isCompleted": false
+          },
+          {
+            "name": "Kraken",
+            "isCompleted": false
+          },
+          {
+            "name": "Kree'arra",
+            "isCompleted": false
+          },
+          {
+            "name": "K'ril Tsutsaroth",
+            "isCompleted": false
+          },
+          {
+            "name": "Nex",
+            "isCompleted": false
+          },
+          {
+            "name": "The Nightmare",
+            "isCompleted": false
+          },
+          {
+            "name": "Obor",
+            "isCompleted": false
+          },
+          {
+            "name": "Sarachnis",
+            "isCompleted": false
+          },
+          {
+            "name": "Scorpia",
+            "isCompleted": false
+          },
+          {
+            "name": "Skotizo",
+            "isCompleted": false
+          },
+          {
+            "name": "Tempoross",
+            "isCompleted": false
+          },
+          {
+            "name": "Thermonuclear Smoke Devil",
+            "isCompleted": false
+          },
+          {
+            "name": "Venenatis",
+            "isCompleted": false
+          },
+          {
+            "name": "Vet'ion",
+            "isCompleted": false
+          },
+          {
+            "name": "Vorkath",
+            "isCompleted": false
+          },
+          {
+            "name": "Wintertodt",
+            "isCompleted": false
+          },
+          {
+            "name": "Zalcano",
+            "isCompleted": false
+          },
+          {
+            "name": "Zulrah",
+            "isCompleted": false
+          }
+        ]
+      },
+      {
+        "name": "Raids",
+        "entries": [
+          {
+            "name": "Chambers of Xeric",
+            "isCompleted": false
+          },
+          {
+            "name": "Theatre of Blood",
+            "isCompleted": false
+          },
+          {
+            "name": "Tombs of Amascut",
+            "isCompleted": false
+          }
+        ]
+      },
+      {
+        "name": "Clues",
+        "entries": [
+          {
+            "name": "Beginner Treasure Trails",
+            "isCompleted": false
+          },
+          {
+            "name": "Easy Treasure Trails",
+            "isCompleted": false
+          },
+          {
+            "name": "Medium Treasure Trails",
+            "isCompleted": false
+          },
+          {
+            "name": "Hard Treasure Trails",
+            "isCompleted": false
+          },
+          {
+            "name": "Elite Treasure Trails",
+            "isCompleted": false
+          },
+          {
+            "name": "Master Treasure Trails",
+            "isCompleted": false
+          },
+          {
+            "name": "Hard Treasure Trails (Rare)",
+            "isCompleted": false
+          },
+          {
+            "name": "Elite Treasure Trails (Rare)",
+            "isCompleted": false
+          },
+          {
+            "name": "Master Treasure Trails (Rare)",
+            "isCompleted": false
+          },
+          {
+            "name": "Shared Treasure Trail Rewards",
+            "isCompleted": false
+          }
+        ]
+      },
+      {
+        "name": "Minigames",
+        "entries": [
+          {
+            "name": "Barbarian Assault",
+            "isCompleted": false
+          },
+          {
+            "name": "Brimhaven Agility Arena",
+            "isCompleted": false
+          },
+          {
+            "name": "Castle Wars",
+            "isCompleted": false
+          },
+          {
+            "name": "Fishing Trawler",
+            "isCompleted": true
+          },
+          {
+            "name": "Giants' Foundry",
+            "isCompleted": false
+          },
+          {
+            "name": "Gnome Restaurant",
+            "isCompleted": false
+          },
+          {
+            "name": "Guardians of the Rift",
+            "isCompleted": false
+          },
+          {
+            "name": "Hallowed Sepulchre",
+            "isCompleted": false
+          },
+          {
+            "name": "Last Man Standing",
+            "isCompleted": false
+          },
+          {
+            "name": "Magic Training Arena",
+            "isCompleted": false
+          },
+          {
+            "name": "Mahogany Homes",
+            "isCompleted": false
+          },
+          {
+            "name": "Pest Control",
+            "isCompleted": false
+          },
+          {
+            "name": "Rogues' Den",
+            "isCompleted": true
+          },
+          {
+            "name": "Shades of Mort'ton",
+            "isCompleted": false
+          },
+          {
+            "name": "Soul Wars",
+            "isCompleted": false
+          },
+          {
+            "name": "Temple Trekking",
+            "isCompleted": true
+          },
+          {
+            "name": "Tithe Farm",
+            "isCompleted": false
+          },
+          {
+            "name": "Trouble Brewing",
+            "isCompleted": false
+          },
+          {
+            "name": "Volcanic Mine",
+            "isCompleted": false
+          }
+        ]
+      },
+      {
+        "name": "Other",
+        "entries": [
+          {
+            "name": "Aerial Fishing",
+            "isCompleted": false
+          },
+          {
+            "name": "All Pets",
+            "isCompleted": false
+          },
+          {
+            "name": "Camdozaal",
+            "isCompleted": false
+          },
+          {
+            "name": "Champion's Challenge",
+            "isCompleted": false
+          },
+          {
+            "name": "Chaos Druids",
+            "isCompleted": false
+          },
+          {
+            "name": "Chompy Bird Hunting",
+            "isCompleted": false
+          },
+          {
+            "name": "Creature Creation",
+            "isCompleted": false
+          },
+          {
+            "name": "Cyclopes",
+            "isCompleted": true
+          },
+          {
+            "name": "Fossil Island Notes",
+            "isCompleted": false
+          },
+          {
+            "name": "Glough's Experiments",
+            "isCompleted": false
+          },
+          {
+            "name": "Monkey Backpacks",
+            "isCompleted": false
+          },
+          {
+            "name": "Motherlode Mine",
+            "isCompleted": false
+          },
+          {
+            "name": "My Notes",
+            "isCompleted": false
+          },
+          {
+            "name": "Random Events",
+            "isCompleted": false
+          },
+          {
+            "name": "Revenants",
+            "isCompleted": false
+          },
+          {
+            "name": "Rooftop Agility",
+            "isCompleted": true
+          },
+          {
+            "name": "Shayzien Armour",
+            "isCompleted": true
+          },
+          {
+            "name": "Shooting Stars",
+            "isCompleted": false
+          },
+          {
+            "name": "Skilling Pets",
+            "isCompleted": false
+          },
+          {
+            "name": "Slayer",
+            "isCompleted": false
+          },
+          {
+            "name": "TzHaar",
+            "isCompleted": false
+          },
+          {
+            "name": "Miscellaneous",
+            "isCompleted": false
+          }
+        ]
+      }
+    ]
+  }
+}

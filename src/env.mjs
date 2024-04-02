@@ -2,14 +2,16 @@ import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
+  client: {},
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
 
     // RuneProfile Secret Token
     SECRET_TOKEN: z.string(),
 
-    // PlanetScale
-    DATABASE_URL: z.string().url(),
+    // Turso
+    TURSO_CONNECTION_URL: z.string().url(),
+    TURSO_AUTH_TOKEN: z.string(),
 
     // Google Cloud Storage
     GCP_PROJECT_ID: z.string(),
@@ -19,8 +21,15 @@ export const env = createEnv({
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+
+    // RuneProfile Secret Token
     SECRET_TOKEN: process.env.SECRET_TOKEN,
-    DATABASE_URL: process.env.DATABASE_URL,
+
+    // Turos
+    TURSO_CONNECTION_URL: process.env.TURSO_CONNECTION_URL,
+    TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
+
+    // Google Cloud Storage
     GCP_PROJECT_ID: process.env.GCP_PROJECT_ID,
     GCP_CLIENT_EMAIL: process.env.GCP_CLIENT_EMAIL,
     GCP_PRIVATE_KEY: process.env.GCP_PRIVATE_KEY,

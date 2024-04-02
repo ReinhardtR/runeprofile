@@ -1,64 +1,113 @@
+import { relations } from "drizzle-orm";
 import {
-  index,
-  int,
-  mysqlTable,
+  integer,
   primaryKey,
-  timestamp,
-  varchar,
-} from "drizzle-orm/mysql-core";
-import { accountHashColumn } from "~/db/schema/account";
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
+import { accounts } from "~/db/schema/account";
+import { clogItems, clogKcs } from "~/db/schema/collection-log";
 
-export const accClogItems = mysqlTable(
-  "acc_collection_log_items",
+export const accClogItems = sqliteTable(
+  "acc_clog_items",
   {
-    accountHash: accountHashColumn,
-    itemId: int("item_id").notNull(),
-    quantity: int("quantity").notNull(),
-    obtainedAt: timestamp("obtained_at"),
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    itemId: integer("item_id")
+      .notNull()
+      .references(() => clogItems.id),
+    quantity: integer("quantity").notNull(),
+    obtainedAt: integer("obtained_at", { mode: "timestamp" }),
   },
   (table) => ({
-    accountHashItemIdPk: primaryKey(table.accountHash, table.itemId),
-    accountHashIdx: index("account_hash_idx").on(table.accountHash),
-    itemIdIdx: index("item_id_idx").on(table.itemId),
+    accountHashItemIdPk: primaryKey({
+      columns: [table.accountHash, table.itemId],
+    }),
   })
 );
 
-export const accClogPageKcs = mysqlTable(
-  "acc_collection_log_page_kcs",
+export const accClogItemsRelations = relations(accClogItems, ({ one }) => ({
+  account: one(accounts, {
+    fields: [accClogItems.accountHash],
+    references: [accounts.accountHash],
+  }),
+  item: one(clogItems, {
+    fields: [accClogItems.itemId],
+    references: [clogItems.id],
+  }),
+}));
+
+export const accClogKcs = sqliteTable(
+  "acc_clog_kcs",
   {
-    accountHash: accountHashColumn,
-    pageId: int("page_id").notNull(),
-    kcId: int("kc_id").notNull(),
-    count: int("count").notNull(),
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    kcId: integer("kc_id")
+      .notNull()
+      .references(() => clogKcs.id),
+    count: integer("count").notNull(),
   },
   (table) => ({
-    accountHashPageIdKcIdPk: primaryKey(
-      table.accountHash,
-      table.pageId,
-      table.kcId
-    ),
-    accountHashIdx: index("account_hash_idx").on(table.accountHash),
-    pageIdIdx: index("page_id_idx").on(table.pageId),
-    kcIdIdx: index("kc_id_idx").on(table.kcId),
+    accountHashPageIdKcIdPk: primaryKey({
+      columns: [table.accountHash, table.kcId],
+    }),
   })
 );
 
-export const accClogItemObtainedKcs = mysqlTable(
-  "acc_collection_log_item_obtained_kcs",
+export const accClogKcsRelations = relations(accClogKcs, ({ one }) => ({
+  account: one(accounts, {
+    fields: [accClogKcs.accountHash],
+    references: [accounts.accountHash],
+  }),
+  kc: one(clogKcs, {
+    fields: [accClogKcs.kcId],
+    references: [clogKcs.id],
+  }),
+}));
+
+export const accClogItemObtainedKcs = sqliteTable(
+  "acc_clog_item_obtained_kcs",
   {
-    accountHash: accountHashColumn,
-    itemId: int("item_id").notNull(),
-    kcId: int("kc_id").notNull(),
-    count: int("count").notNull(),
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    itemId: integer("item_id")
+      .notNull()
+      .references(() => clogItems.id),
+    kcId: integer("kc_id")
+      .notNull()
+      .references(() => clogKcs.id),
+    count: integer("count").notNull(),
   },
   (table) => ({
-    accountHashItemIdKcIdPk: primaryKey(
-      table.accountHash,
-      table.itemId,
-      table.kcId
-    ),
-    accountHashIdx: index("account_hash_idx").on(table.accountHash),
-    itemIdIdx: index("item_id_idx").on(table.itemId),
-    kcIdIdx: index("kc_id_idx").on(table.kcId),
+    accountHashItemIdKcIdPk: primaryKey({
+      columns: [table.accountHash, table.itemId, table.kcId],
+    }),
+  })
+);
+
+export const accClogItemObtainedKcsRelations = relations(
+  accClogItemObtainedKcs,
+  ({ one }) => ({
+    account: one(accounts, {
+      fields: [accClogItemObtainedKcs.accountHash],
+      references: [accounts.accountHash],
+    }),
+    item: one(clogItems, {
+      fields: [accClogItemObtainedKcs.itemId],
+      references: [clogItems.id],
+    }),
+    kc: one(clogKcs, {
+      fields: [accClogItemObtainedKcs.kcId],
+      references: [clogKcs.id],
+    }),
   })
 );

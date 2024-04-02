@@ -1,13 +1,43 @@
-import { index, int, mysqlTable } from "drizzle-orm/mysql-core";
-import { accountHashColumn } from "~/db/schema/account";
+import { relations } from "drizzle-orm";
+import {
+  integer,
+  primaryKey,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
+import { accounts } from "~/db/schema/account";
+import { achievementDiaries } from "~/db/schema/achievement-diaries";
 
-export const accAchievementDiaries = mysqlTable(
+export const accAchievementDiaries = sqliteTable(
   "acc_achievement_diaries",
   {
-    accountHash: accountHashColumn,
-    tasksCompletedTotal: int("tasks_completed_total").notNull(),
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    diaryId: integer("diary_id")
+      .notNull()
+      .references(() => achievementDiaries.id),
+    tasksCompleted: integer("tasks_completed").notNull(),
   },
   (table) => ({
-    accountHashIdx: index("account_hash_idx").on(table.accountHash),
+    accountHashAreaTierPk: primaryKey({
+      columns: [table.accountHash, table.diaryId],
+    }),
+  })
+);
+
+export const accAchievementDiariesRelations = relations(
+  accAchievementDiaries,
+  ({ one }) => ({
+    account: one(accounts, {
+      fields: [accAchievementDiaries.accountHash],
+      references: [accounts.accountHash],
+    }),
+    achievementDiary: one(achievementDiaries, {
+      fields: [accAchievementDiaries.diaryId],
+      references: [achievementDiaries.id],
+    }),
   })
 );

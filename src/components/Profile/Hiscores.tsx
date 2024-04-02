@@ -1,12 +1,12 @@
 "use client";
 
-import { numberWithCommas } from "~/utils/number-with-commas";
+import { numberWithDelimiter } from "~/lib/utils/numbers";
 import { Tab } from "@headlessui/react";
 import clsx from "clsx";
 import Image from "next/image";
 import { Fragment } from "react";
 import { Card } from "../Card";
-import { Tooltip } from "../Misc/Tooltip";
+import { Tooltip } from "../ui/tooltip";
 import { LeaderboardType } from "~/db/generated/database-types";
 
 export type Skill = {
@@ -179,7 +179,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
     <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-dark-border font-runescape">
       <table>
         <thead>
-          <tr className="text-osrs-orange font-bold text-xl text-shadow">
+          <tr className="text-osrs-orange font-bold text-xl solid-text-shadow">
             <th>Skill</th>
             <th>Level</th>
             <th>Rank</th>
@@ -193,7 +193,7 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
               content={
                 <p className="uppercase font-runescape font-bold text-light-gray tracking-wide">
                   <span className="text-osrs-orange">{skill.name} XP </span>
-                  {numberWithCommas(skill.xp)}
+                  {numberWithDelimiter(skill.xp)}
                 </p>
               }
               transparent={false}
@@ -210,10 +210,10 @@ const SkillsPanel: React.FC<SkillsPanelProps> = ({ skills }) => {
                     height={24}
                   />
                 </td>
-                <td className="text-center text-shadow">{skill.level}</td>
+                <td className="text-center solid-text-shadow">{skill.level}</td>
 
-                <td className="text-center text-shadow">
-                  {skill.rank == -1 ? "X" : numberWithCommas(skill.rank)}
+                <td className="text-center solid-text-shadow">
+                  {skill.rank == -1 ? "X" : numberWithDelimiter(skill.rank)}
                 </td>
               </tr>
             </Tooltip>
@@ -233,7 +233,7 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
     <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-dark-border font-runescape">
       <table>
         <thead>
-          <tr className="text-osrs-orange font-bold text-xl text-shadow">
+          <tr className="text-osrs-orange font-bold text-xl solid-text-shadow">
             <th>Game</th>
             <th>Score</th>
             <th>Rank</th>
@@ -265,14 +265,16 @@ const ActivitiesPanel: React.FC<ActivitiesPanelProps> = ({ activities }) => {
                     height={24}
                   />
                 </td>
-                <td className="text-center text-shadow">
+                <td className="text-center solid-text-shadow">
                   {activity.score == -1
                     ? "X"
-                    : numberWithCommas(activity.score)}
+                    : numberWithDelimiter(activity.score)}
                 </td>
 
-                <td className="text-center text-shadow">
-                  {activity.rank == -1 ? "X" : numberWithCommas(activity.rank)}
+                <td className="text-center solid-text-shadow">
+                  {activity.rank == -1
+                    ? "X"
+                    : numberWithDelimiter(activity.rank)}
                 </td>
               </tr>
             </Tooltip>
@@ -292,7 +294,7 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
     <Tab.Panel className="flex flex-col overflow-y-scroll h-[230px] mt-2 border-2 border-osrs-dark-border font-runescape">
       <table>
         <thead>
-          <tr className="text-osrs-orange font-bold text-xl text-shadow">
+          <tr className="text-osrs-orange font-bold text-xl solid-text-shadow">
             <th>Boss</th>
             <th>Kills</th>
             <th>Rank</th>
@@ -324,12 +326,12 @@ const BossesPanel: React.FC<BossesPanelProps> = ({ bosses }) => {
                     height={24}
                   />
                 </td>
-                <td className="text-center text-shadow">
-                  {boss.kills == -1 ? "X" : numberWithCommas(boss.kills)}
+                <td className="text-center solid-text-shadow">
+                  {boss.kills == -1 ? "X" : numberWithDelimiter(boss.kills)}
                 </td>
 
-                <td className="text-center text-shadow">
-                  {boss.rank == -1 ? "X" : numberWithCommas(boss.rank)}
+                <td className="text-center solid-text-shadow">
+                  {boss.rank == -1 ? "X" : numberWithDelimiter(boss.rank)}
                 </td>
               </tr>
             </Tooltip>

@@ -1,28 +1,49 @@
+import { relations } from "drizzle-orm";
 import {
-  index,
-  int,
-  mysqlEnum,
-  mysqlTable,
+  integer,
   primaryKey,
-} from "drizzle-orm/mysql-core";
-import { accountHashColumn } from "~/db/schema/account";
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
+import { accounts } from "~/db/schema/account";
+import { quests } from "~/db/schema/quests";
 
-export const questStateEnum = mysqlEnum("quest_state", [
-  "not_started",
-  "in_progress",
-  "finished",
-]);
+const QUEST_STATE = {
+  NOT_STARTED: "not_started",
+  IN_PROGRESS: "in_progress",
+  FINISHED: "finished",
+} as const;
+export type QuestStateEnum = keyof typeof QUEST_STATE;
 
-export const accQuests = mysqlTable(
+export const accQuests = sqliteTable(
   "acc_quests",
   {
-    accountHash: accountHashColumn,
-    questId: int("quest_id").notNull(),
-    state: questStateEnum.notNull(),
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    questId: integer("quest_id")
+      .notNull()
+      .references(() => quests.id),
+    state: text("state", {
+      enum: Object.values(QUEST_STATE) as [string, ...string[]],
+    }).notNull(),
   },
   (table) => ({
-    accountHashQuestIdPk: primaryKey(table.accountHash, table.questId),
-    accountHashIdx: index("account_hash_idx").on(table.accountHash),
-    questIdIdx: index("quest_id_idx").on(table.questId),
+    accountHashQuestIdPk: primaryKey({
+      columns: [table.accountHash, table.questId],
+    }),
   })
 );
+
+export const accQuestsRelations = relations(accQuests, ({ one }) => ({
+  account: one(accounts, {
+    fields: [accQuests.accountHash],
+    references: [accounts.accountHash],
+  }),
+  quest: one(quests, {
+    fields: [accQuests.questId],
+    references: [quests.id],
+  }),
+}));

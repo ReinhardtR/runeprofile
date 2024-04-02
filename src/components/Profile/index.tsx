@@ -1,14 +1,14 @@
 import { AccountQueryResult } from "~/lib/account-query";
 import { useMemo } from "react";
-import { AchievementDiaries } from "./AchievementDiaries";
+import { AchievementDiaries } from "../../app/[username]/(components)/AchievementDiaries";
 import { CollectionLog } from "./CollectionLog/CollectionLog";
-import { CombatAchievements } from "./CombatAchievements";
+import { CombatAchievements } from "../../app/[username]/(components)/CombatAchievements";
 import { Hiscores } from "./Hiscores";
 import { PlayerDisplay } from "./PlayerDisplay";
-import { QuestList } from "./QuestList";
-import { SkillsCard } from "../../app/[username]/(components)/Skills";
-import { AccountType } from "~/lib/plugin-data-schema";
-import { QuestState } from "~/lib/quests-schema";
+import { QuestList } from "../../app/[username]/(components)/QuestList";
+import { Skills } from "../../app/[username]/(components)/Skills";
+import { AccountType } from "~/lib/domain/plugin-data-schema";
+import { QuestState } from "~/lib/constants/quests";
 
 type ProfileProps = {
   account: {
@@ -60,7 +60,7 @@ export const Profile: React.FC<ProfileProps> = ({ account }) => {
           />
         </div>
 
-        <SkillsCard skills={account.skills} />
+        <Skills skills={account.skills} />
         {/*
         {account.questList && <QuestList questList={account.questList} />}
 

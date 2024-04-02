@@ -1,7 +1,16 @@
-import { int, mysqlTable, varchar } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { accSkills } from "~/db/schema/acc-skills";
 
-export const skills = mysqlTable("skills", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  orderIdx: int("order_idx").notNull(),
+export const skills = sqliteTable("skills", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name", { length: 255 }).unique().notNull(),
+  orderIdx: integer("order_idx").notNull(),
+  metaApproved: integer("meta_approved", { mode: "boolean" })
+    .notNull()
+    .default(false),
 });
+
+export const skillsRelations = relations(skills, ({ many }) => ({
+  accSkills: many(accSkills),
+}));

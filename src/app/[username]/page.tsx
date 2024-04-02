@@ -1,40 +1,33 @@
 import { Metadata } from "next";
-import { cache } from "react";
-import { SkillsCard } from "~/app/[username]/(components)/Skills";
-import { AchievementDiaries } from "~/components/Profile/AchievementDiaries";
-import { CollectionLog } from "~/components/Profile/CollectionLog/CollectionLogRoot";
-import { CombatAchievements } from "~/components/Profile/CombatAchievements";
-import { Hiscores } from "~/components/Profile/Hiscores";
+import { Suspense, cache } from "react";
+import { Skills } from "~/app/[username]/(components)/Skills";
+import { AchievementDiaries } from "~/app/[username]/(components)/AchievementDiaries";
+import { CombatAchievements } from "~/app/[username]/(components)/CombatAchievements";
 import { PlayerDisplay } from "~/components/Profile/PlayerDisplay";
-import { QuestList } from "~/components/Profile/QuestList";
-import { getAccounts, getAccountDisplayData } from "~/lib/domain/account";
-import { getDateString } from "~/utils/time";
+import { QuestList } from "~/app/[username]/(components)/QuestList";
+import { getProfilFullWithHash } from "~/lib/data/get-profile";
+import { getCombatLevelFromSkills } from "~/lib/helpers/xp-and-levels";
+import { getDateString } from "~/lib/utils/time";
+import { Hiscores } from "~/app/[username]/(components)/Hiscores";
+import { CollectionLog } from "~/app/[username]/(components)/collection-log/CollectionLog";
 
-// should be "error", look at this issue: https://github.com/vercel/next.js/issues/46694
-export const dynamic = "error";
+const getProfilleCached = cache(getProfilFullWithHash);
 
-const getFullAccountCached = cache(async (username: string) => {
-  return getAccountDisplayData(username);
-});
-
+// Prevent generating pages at build time
 export async function generateStaticParams() {
-  const accounts = await getAccounts();
-
-  return accounts.map((account) => ({
-    username: account.isPrivate ? account.generatedPath : account.username,
-  }));
+  return [];
 }
 
-export async function generateMetadata({
-  params,
-}: {
+export async function generateMetadata(props: {
   params: { username: string };
 }) {
-  const account = await getFullAccountCached(params.username);
+  const profile = await getProfilleCached({
+    username: props.params.username,
+  });
 
-  const title = `${account.username} | RuneProfile`;
-  const description = account.description;
-  const ogImageUrl = `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${account.username}`;
+  const title = `${profile.username} | RuneProfile`;
+  const description = profile.description ?? "";
+  const ogImageUrl = `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${profile.username}`;
 
   const metadata: Metadata = {
     title,
@@ -43,7 +36,7 @@ export async function generateMetadata({
       description,
       type: "website",
       siteName: "RuneProfile",
-      url: `https://runeprofile.com/${account.username}`,
+      url: `https://runeprofile.com/${profile.username}`,
       images: [
         {
           // TODO: change to runeprofile.com when in prod
@@ -73,47 +66,47 @@ export default async function ProfilePage(props: {
     username: string;
   };
 }) {
-  const account = await getFullAccountCached(props.params.username);
+  console.log("ProfilePage");
+  const profile = await getProfilleCached({
+    username: props.params.username,
+  });
 
   const playerDisplay = (
     <PlayerDisplay
-      accountType={account.accountType}
-      description={account.description}
-      username={account.username}
-      modelUri={account.modelUri}
-      combatLevel={account.combatLevel}
-      createdAt={getDateString(account.createdAt!)}
-      updatedAt={getDateString(account.updatedAt)}
+      accountType={profile.accountType}
+      description={profile.description ?? ""}
+      username={profile.username}
+      modelUri={profile.modelUri}
+      combatLevel={getCombatLevelFromSkills(profile.skills)}
+      createdAt={getDateString(profile.createdAt)}
+      updatedAt={getDateString(profile.updatedAt)}
     />
   );
 
   return (
-    <div className="flex justify-center gap-6">
+    // TODO: remove py-12
+    <div className="flex justify-center gap-6 py-12">
       {/* Large display */}
-      <div className="hidden 1.5xl:block">playerDisplay</div>
+      <div className="hidden 1.5xl:block">{playerDisplay}</div>
       <div className="flex sm:flex-wrap gap-6 justify-center items-center 1.5xl:max-w-[1120px] flex-col sm:flex-row">
         {/* Small display */}
         <div className="block 1.5xl:hidden">{playerDisplay}</div>
 
-        <SkillsCard skills={account.skills} />
+        <Skills skills={profile.skills} />
 
-        {account.questList && <QuestList questList={account.questList} />}
+        <QuestList questList={profile.questList} />
 
-        <AchievementDiaries achievementDiaries={account.achievementDiaries} />
+        <AchievementDiaries achievementDiaries={profile.achievementDiaries} />
 
-        <Hiscores hiscores={account.hiscores} />
+        <Suspense>
+          <Hiscores hiscores={profile.hiscores} />
+        </Suspense>
 
-        {account.combatAchievements && (
-          <CombatAchievements
-            combatAchievements={{
-              tiers: account.combatAchievements,
-            }}
-          />
-        )}
+        <CombatAchievements combatAchievements={profile.combatAchievements} />
 
         <CollectionLog
-          username={account.username}
-          collectionLog={account.collectionLog}
+          username={profile.username}
+          collectionLog={profile.collectionLog}
         />
       </div>
     </div>

@@ -1,4 +1,33 @@
-// The types for the profile-data after it has been processed to be used by the app.
+import { QuestState, QuestType } from "~/lib/constants/quests";
+
+// omit skills and questList
+export type Account = Omit<
+  ProfileFull,
+  | "skills"
+  | "questList"
+  | "collectionLog"
+  | "achievementDiaries"
+  | "combatAchievements"
+  | "hiscores"
+>;
+
+export type ProfileFull = Omit<ProfileFullWithHash, "accountHash">;
+
+export type ProfileFullWithHash = {
+  accountHash: string;
+  username: string;
+  accountType: AccountType;
+  createdAt: Date;
+  updatedAt: Date;
+  description: string | null;
+  modelUri: string | null;
+  skills: Skill[];
+  questList: QuestList;
+  achievementDiaries: AchievementDiaries;
+  combatAchievements: CombatAchievements;
+  collectionLog: CollectionLog;
+  hiscores: Hiscores;
+};
 
 // Account
 export const AccountType = {
@@ -12,71 +41,24 @@ export const AccountType = {
 } as const;
 export type AccountType = keyof typeof AccountType;
 
-export type Account = {
-  username: string;
-  accountType: AccountType;
-  createdAt: Date;
-  updatedAt: Date;
-  description: string;
-  combatLevel: number;
-  modelUri: string | null;
-};
-
-export type FullAccount = {
-  username: string;
-  accountType: AccountType;
-  createdAt: Date;
-  updatedAt: Date;
-  description: string;
-  combatLevel: number;
-  modelUri: string | null;
-  skills: Skills;
-  questList: QuestList;
-  collectionLog: CollectionLog;
-  achievementDiaries: AchievementDiaries;
-  combatAchievements: CombatAchievements;
-  hiscores: Hiscores;
-};
-
-export type FullAccountWithAccountHash = FullAccount & {
-  accountHash: string;
-};
-
 // Skills
 export type Skill = {
-  index: number;
   name: string;
   xp: number;
+  orderIdx: number;
 };
 
-export type Skills = Skill[];
-
 //  Quests
-export const QuestState = {
-  NOT_STARTED: "NOT_STARTED",
-  IN_PROGRESS: "IN_PROGRESS",
-  FINISHED: "FINISHED",
-} as const;
-export type QuestState = keyof typeof QuestState;
-
-export const QuestType = {
-  F2P: "F2P",
-  P2P: "P2P",
-  MINI: "MINI",
-  UNKNOWN: "UNKNOWN",
-} as const;
-export type QuestType = keyof typeof QuestType;
-
 export type Quest = {
-  index: number;
   name: string;
   state: QuestState;
   type: QuestType;
+  orderIdx: number;
 };
 
 export type QuestList = {
-  quests: Quest[];
   points: number;
+  quests: Quest[];
 };
 
 // Achievement Diaries
@@ -89,20 +71,20 @@ export const AchievementDiaryTierName = {
 export type AchievementDiaryTierName = keyof typeof AchievementDiaryTierName;
 
 export type AchievementDiaryTier = {
-  tier: AchievementDiaryTierName;
-  completed: number;
-  total: number;
+  name: AchievementDiaryTierName;
+  tasksTotal: number;
+  tasksCompleted: number;
 };
 
-export type AchievementDiary = {
+export type AchievementDiaryArea = {
   area: string;
   tiers: AchievementDiaryTier[];
 };
 
-export type AchievementDiaries = AchievementDiary[];
+export type AchievementDiaries = AchievementDiaryArea[];
 
 // Combat Achievements
-export const CombatAchievementTierName = {
+export const CombatAchievementsTierName = {
   EASY: "EASY",
   MEDIUM: "MEDIUM",
   HARD: "HARD",
@@ -110,110 +92,75 @@ export const CombatAchievementTierName = {
   MASTER: "MASTER",
   GRANDMASTER: "GRANDMASTER",
 } as const;
-export type CombatAchievementTierName = keyof typeof CombatAchievementTierName;
+export type CombatAchievementsTierName =
+  keyof typeof CombatAchievementsTierName;
 
-export type CombatAchievementTier = {
-  tier: CombatAchievementTierName;
-  completed: number;
-  total: number;
+export type CombatAchievementsTier = {
+  tier: CombatAchievementsTierName;
+  tasksTotal: number;
+  tasksCompleted: number;
 };
 
-export type CombatAchievements = CombatAchievementTier[];
+export type CombatAchievements = CombatAchievementsTier[];
 
 // Collection Log
-export type KillCount = {
-  index: number;
-  name: string;
-  count: number;
-};
-
-export type CollectionLogEntry = {
-  index: number;
-  name: string;
-  isCompleted: boolean;
-  killCounts: KillCount[];
-  items: ItemType[];
+export type CollectionLog = {
+  uniqueItemsTotal: number;
+  uniqueItemsObtained: number;
+  tabs: CollectionLogTab[];
+  items: CollectionLogItem[];
 };
 
 export type CollectionLogTab = {
   name: string;
-  entries: CollectionLogEntry[];
+  orderIdx: number;
+  pages: CollectionLogPage[];
 };
 
-export type CollectionLog = {
-  tabs: CollectionLogTab[];
-  uniqueItemsObtained: number;
-  uniqueItemsTotal: number;
+export type CollectionLogPage = {
+  name: string;
+  orderIdx: number;
+  killCounts: CollectionLogKillCount[];
+  itemIds: number[];
 };
 
-export type CollectionlogEntryWithoutItems = Omit<CollectionLogEntry, "items">;
-
-export type CollectionLogTabWithoutItems = Omit<CollectionLogTab, "entries"> & {
-  entries: CollectionlogEntryWithoutItems[];
+export type CollectionLogKillCount = {
+  label: string;
+  count: number;
+  orderIdx: number;
 };
 
-export type CollectionLogWithoutItems = Omit<CollectionLog, "tabs"> & {
-  tabs: CollectionLogTabWithoutItems[];
-};
-
-// Collection Log Items
-export type ItemType = {
+export type CollectionLogItem = {
   id: number;
-  index: number;
   name: string;
   quantity: number;
-  obtainedAt?: ObtainedAtType;
+  obtainedAt?: CollectionLogItemObtainedAt;
 };
 
-export type ObtainedAtType = {
-  date: Date;
-  killCounts: KillCount[];
+export type CollectionLogItemObtainedAt = {
+  timestamp: Date;
+  killCounts: CollectionLogKillCount[];
 };
 
 // Hiscores
-export const LeaderboardType = {
+export const HiscoresGameMode = {
   NORMAL: "NORMAL",
   IRONMAN: "IRONMAN",
   HARDCORE: "HARDCORE",
   ULTIMATE: "ULTIMATE",
 } as const;
-export type LeaderboardType = keyof typeof LeaderboardType;
+export type HiscoresGameMode = keyof typeof HiscoresGameMode;
 
-export const HiscoresAccountType = {
-  NORMAL: "NORMAL",
-  IRONMAN: "IRONMAN",
-  HARDCORE: "HARDCORE",
-  ULTIMATE: "ULTIMATE",
-};
-export type HiscoresAccountType = keyof typeof HiscoresAccountType;
-
-export type HiscoresSkill = {
-  index: number;
-  name: string;
-  rank: number;
-  level: number;
-  xp: number;
-};
-
-export type HiscoresActivity = {
-  index: number;
-  name: string;
-  rank: number;
+export type HiscoresEntry = {
+  activity: string;
   score: number;
-};
-
-export type HiscoresBoss = {
-  index: number;
-  name: string;
   rank: number;
-  kills: number;
+  orderIdx: number;
 };
 
 export type HiscoresLeaderboard = {
-  type: HiscoresAccountType;
-  skills: HiscoresSkill[];
-  activities: HiscoresActivity[];
-  bosses: HiscoresBoss[];
+  gameMode: HiscoresGameMode;
+  entries: HiscoresEntry[];
 };
 
 export type Hiscores = HiscoresLeaderboard[];

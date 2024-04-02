@@ -1,15 +1,11 @@
-import { ClientProviders } from "~/app/ClientProviders";
+import { Providers } from "~/app/Providers";
 import "~/styles/globals.css";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <ClientProviders>{children}</ClientProviders>
+        <Providers>{props.children}</Providers>
       </body>
     </html>
   );

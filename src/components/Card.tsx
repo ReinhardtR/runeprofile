@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { twMerge } from "tailwind-merge";
+import { cn } from "~/lib/utils/cn";
 
 type CardProps = React.HTMLProps<HTMLDivElement> & {
   iconPath?: string;
@@ -14,7 +14,7 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={twMerge(
+      className={cn(
         "runescape-panel h-[353px] p-2 shadow-md relative",
         className
       )}

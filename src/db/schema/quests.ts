@@ -1,10 +1,27 @@
-import { int, mysqlEnum, mysqlTable, varchar } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { accQuests } from "~/db/schema/acc-quests";
 
-export const questTypeEnum = mysqlEnum("quest_type", ["f2p", "p2p", "mini"]);
+const QUEST_TYPE = {
+  F2P: "f2p",
+  P2P: "p2p",
+  MINI: "mini",
+  UNKNOWN: "unknown",
+} as const;
+export type QuestType = keyof typeof QUEST_TYPE;
 
-export const quests = mysqlTable("quests", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  type: questTypeEnum.notNull(),
-  orderIdx: int("order_idx").notNull(),
+export const quests = sqliteTable("quests", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name", { length: 255 }).unique().notNull(),
+  type: text("type", {
+    enum: Object.values(QUEST_TYPE) as [string, ...string[]],
+  }).notNull(),
+  orderIdx: integer("order_idx").notNull(),
+  metaApproved: integer("meta_approved", { mode: "boolean" })
+    .notNull()
+    .default(false),
 });
+
+export const questsRelation = relations(quests, ({ many }) => ({
+  accQuests: many(accQuests),
+}));

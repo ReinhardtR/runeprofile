@@ -1,22 +1,43 @@
+import { relations } from "drizzle-orm";
 import {
-  index,
-  int,
-  mysqlTable,
+  integer,
   primaryKey,
-} from "drizzle-orm/mysql-core";
-import { accountHashColumn } from "~/db/schema/account";
-import { combatAchievementTiersEnum } from "~/db/schema/combat-achievements";
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
+import { accounts } from "~/db/schema/account";
+import { combatAchievementTiers } from "~/db/schema/combat-achievements";
 
-export const accCombatAchievementTiers = mysqlTable(
-  "acc_combat_achievement_tiers",
+export const accCombatAchievementTiers = sqliteTable(
+  "acc_ca_tiers",
   {
-    accountHash: accountHashColumn,
-    tier: combatAchievementTiersEnum.notNull(),
-    tasksCompletedTotal: int("tasks_completed_total").notNull(),
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    tierId: integer("tier_id")
+      .notNull()
+      .references(() => combatAchievementTiers.id),
+    tasksCompleted: integer("tasks_completed").notNull(),
   },
   (table) => ({
-    accountHashTierPk: primaryKey(table.accountHash, table.tier),
-    accountHashIdx: index("account_hash_idx").on(table.accountHash),
-    tierIdx: index("tier_idx").on(table.tier),
+    accountHashCombatAchievementTierIdPk: primaryKey({
+      columns: [table.accountHash, table.tierId],
+    }),
+  })
+);
+
+export const accCombatAchievementTiersRelations = relations(
+  accCombatAchievementTiers,
+  ({ one }) => ({
+    account: one(accounts, {
+      fields: [accCombatAchievementTiers.accountHash],
+      references: [accounts.accountHash],
+    }),
+    combatAchievementTier: one(combatAchievementTiers, {
+      fields: [accCombatAchievementTiers.tierId],
+      references: [combatAchievementTiers.id],
+    }),
   })
 );

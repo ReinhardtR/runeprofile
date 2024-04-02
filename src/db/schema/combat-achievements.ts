@@ -1,11 +1,10 @@
-import { int, mysqlEnum, mysqlTable } from "drizzle-orm/mysql-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const combatAchievementTiersEnum = mysqlEnum(
-  "combat_achievement_tiers",
-  ["easy", "medium", "hard", "elite", "master", "grandmaster"]
-);
-
-export const combatAchievementTiers = mysqlTable("combat_achievements", {
-  tier: combatAchievementTiersEnum.primaryKey(),
-  tasksTotal: int("tasks_total").notNull(),
+export const combatAchievementTiers = sqliteTable("combat_achievement_tiers", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  tier: text("combat_achievement_tier", { length: 255 }).unique().notNull(),
+  tasksTotal: integer("tasks_total").notNull(),
+  metaApproved: integer("meta_approved", { mode: "boolean" })
+    .notNull()
+    .default(false),
 });

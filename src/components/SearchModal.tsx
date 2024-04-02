@@ -4,9 +4,9 @@ import { SearchIcon } from "@heroicons/react/outline";
 import clsx from "clsx";
 import { useRouter } from "next/router";
 import { atom, useAtom } from "jotai";
-import { useDebounceValue } from "~/utils/use-debounce";
+import { useDebounceValue } from "~/lib/utils/use-debounce";
 import { trpc } from "~/lib/api";
-import Spinner from "./Misc/Spinner";
+import Spinner from "./ui/spinner";
 import Image from "next/image";
 
 type User = {

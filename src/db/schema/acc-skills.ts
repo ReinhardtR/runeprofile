@@ -1,11 +1,40 @@
-import { index, int, mysqlTable, primaryKey } from "drizzle-orm/mysql-core";
-import { accountHashColumn } from "~/db/schema/account";
+import { relations } from "drizzle-orm";
+import {
+  integer,
+  primaryKey,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
+import { accounts } from "~/db/schema/account";
+import { skills } from "~/db/schema/skills";
 
-export const accSkills = mysqlTable("acc_skills", {
-  accountHash: accountHashColumn,
-  skillId: int("skill_id").notNull(),
-  xp: int("xp").notNull(),
-}, (table) => ({
-  accountHashSkillIdPk: primaryKey(table.accountHash, table.skillId),
-  accountHashIdx: index("account_hash_idx").on(table.accountHash),
-}))
+export const accSkills = sqliteTable(
+  "acc_skills",
+  {
+    accountHash: text("account_hash", {
+      length: 40,
+    })
+      .notNull()
+      .references(() => accounts.accountHash),
+    skillId: integer("skill_id")
+      .notNull()
+      .references(() => skills.id),
+    xp: integer("xp").notNull(),
+  },
+  (table) => ({
+    accountHashSkillIdPk: primaryKey({
+      columns: [table.accountHash, table.skillId],
+    }),
+  })
+);
+
+export const accSkillsRelations = relations(accSkills, ({ one }) => ({
+  account: one(accounts, {
+    fields: [accSkills.accountHash],
+    references: [accounts.accountHash],
+  }),
+  skill: one(skills, {
+    fields: [accSkills.skillId],
+    references: [skills.id],
+  }),
+}));

@@ -5,35 +5,17 @@ import { Card } from "~/components/Card";
 import { CollectionLogEntryDisplay } from "~/components/Profile/CollectionLog/CollectionLogEntryDisplay";
 import { CollectionLogEntryList } from "~/components/Profile/CollectionLog/CollectionLogEntryList";
 import React from "react";
+import { type CollectionLog as CollectionLogType } from "~/lib/domain/profile-data-types";
 
-export type EntryType = {
-  name: string;
-  isCompleted: boolean;
-};
-
-export type TabType = {
-  name: string;
-  entries: EntryType[];
-};
-
-export function CollectionLog(props: {
+type CollectionLogProps = {
   username: string;
-  collectionLog?: {
-    uniqueItemsObtained: number;
-    uniqueItemsTotal: number;
-    tabs: TabType[];
-  };
-}) {
-  const { username, collectionLog } = props;
+  collectionLog: CollectionLogType;
+};
 
-  const [selectedTabName, setSelectedTabName] = React.useState<
-    string | undefined
-  >(collectionLog?.tabs[0].name);
-
-  const [selectedEntryName, setSelectedEntryName] = React.useState<
-    string | undefined
-  >(collectionLog?.tabs[0].entries[0].name);
-
+export const CollectionLog: React.FC<CollectionLogProps> = ({
+  username,
+  collectionLog,
+}) => {
   if (!collectionLog || collectionLog.tabs.length === 0) {
     return (
       <Card
@@ -41,7 +23,7 @@ export function CollectionLog(props: {
         className="w-[260px] sm:w-full md:w-[640px]"
       >
         <div className="flex flex-col justify-center items-center space-y-1 h-full text-center">
-          <div className="text-shadow font-runescape text-2xl text-osrs-orange">
+          <div className="solid-text-shadow font-runescape text-2xl text-osrs-orange">
             <span className="font-bold">{username}</span>{" "}
             <span>haven&apos;t shared their Collection Log yet.</span>
           </div>
@@ -79,7 +61,7 @@ export function CollectionLog(props: {
     >
       <div
         className={clsx(
-          "absolute mx-auto inset-x-0 -top-[14px] font-runescape text-lg font-bold text-shadow w-24 left-[140px]",
+          "absolute mx-auto inset-x-0 -top-[14px] font-runescape text-lg font-bold solid-text-shadow w-24 left-[140px]",
           logIsCompleted ? "text-osrs-green" : "text-osrs-orange"
         )}
       >
@@ -93,7 +75,7 @@ export function CollectionLog(props: {
               key={tab.name}
               onClick={() => setSelectedTabName(tab.name)}
               className={clsx(
-                "text-shadow text-center box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
+                "solid-text-shadow text-center box-border flex-1 max-w-[25%] rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-xl outline-0 truncate",
                 tab.name === selectedTabName && "bg-osrs-tab-selected"
               )}
             >
@@ -127,4 +109,4 @@ export function CollectionLog(props: {
       </div>
     </Card>
   );
-}
+};

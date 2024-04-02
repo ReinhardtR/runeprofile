@@ -1,13 +1,13 @@
-import { getAccountDisplayData } from "~/lib/domain/account";
-
-export const dynamic = "force-static";
+import { getProfilFullWithHash } from "~/lib/data/get-profile";
 
 export default async function Page() {
-  const account = await getAccountDisplayData("PGN");
+  const data = await getProfilFullWithHash({
+    accountHash: "123",
+  });
 
   return (
     <div className="text-white">
-      <pre>{JSON.stringify(account, null, 2)}</pre>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
 }

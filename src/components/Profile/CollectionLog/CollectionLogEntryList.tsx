@@ -17,7 +17,7 @@ export function CollectionLogEntryList(props: {
           key={entry.name}
           onClick={() => props.onEntryClick(entry.name)}
           className={clsx(
-            "text-shadow px-1 text-start text-xl hover:bg-white hover:bg-opacity-[0.20]",
+            "solid-text-shadow px-1 text-start text-xl hover:bg-white hover:bg-opacity-[0.20]",
             entry.isCompleted && "text-osrs-green",
             entry.name === props.selectedEntryName
               ? "bg-white bg-opacity-[0.15]"
