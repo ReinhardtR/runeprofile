@@ -202,6 +202,9 @@ devDependencies:
   eslint-config-next:
     specifier: 13.2.3
     version: 13.2.3(eslint@8.18.0)(typescript@5.4.3)
+  eslint-plugin-tailwindcss:
+    specifier: ^3.15.1
+    version: 3.15.1(tailwindcss@3.3.3)
   postcss:
     specifier: ^8.4.30
     version: 8.4.30
@@ -4720,6 +4723,17 @@ packages:
       string.prototype.matchall: 4.0.10
     dev: true
 
+  /eslint-plugin-tailwindcss@3.15.1(tailwindcss@3.3.3):
+    resolution: {integrity: sha512-4RXRMIaMG07C2TBEW1k0VM4+dDazz1kxcZhkK4zirvmHGZTA4jnlSO2kq5mamuSPi+Wo17dh2SlC8IyFBuCd7Q==}
+    engines: {node: '>=12.13.0'}
+    peerDependencies:
+      tailwindcss: ^3.4.0
+    dependencies:
+      fast-glob: 3.3.1
+      postcss: 8.4.31
+      tailwindcss: 3.3.3
+    dev: true
+
   /eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
     engines: {node: '>=8.0.0'}
@@ -6873,7 +6887,6 @@ packages:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
-    dev: false
 
   /potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -8221,7 +8234,7 @@ packages:
     dependencies:
       '@types/node': 20.12.2
       esbuild: 0.18.20
-      postcss: 8.4.30
+      postcss: 8.4.31
       rollup: 3.29.3
     optionalDependencies:
       fsevents: 2.3.3

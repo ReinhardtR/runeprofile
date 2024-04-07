@@ -11,7 +11,7 @@ const PutBodySchema = z.object({
   description: PlayerDataSchema.shape.description,
 });
 
-export default async function PUT(request: Request) {
+export async function PUT(request: Request) {
   const parseResult = PutBodySchema.safeParse(request.body);
   if (!parseResult.success) {
     return new Response("Invalid input", { status: 400 });

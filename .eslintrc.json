@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/eslintrc",
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": true },
+  "parserOptions": { "project": ["tsconfig.json"] },
   "plugins": ["@typescript-eslint", "tailwindcss"],
   "extends": [
     "next/core-web-vitals",
@@ -31,4 +31,3 @@
     }
   }
 }
-

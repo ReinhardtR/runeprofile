@@ -1,4 +1,5 @@
 import React from "react";
+import { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { DiscordLogoIcon, Pencil2Icon } from "@radix-ui/react-icons";
@@ -92,7 +93,7 @@ export const Footer: React.FC = () => {
           </FooterLink>
 
           <FooterLink>
-            <Link href="/info/change-log">
+            <Link href={`/info/change-log` as Route}>
               <div className="relative">
                 {isChangeLogNew(CHANGE_LOG_CONFIG.lastDate) && (
                   <p className="absolute inset-0 left-[70px] top-[2px] rotate-12 text-xs font-semibold text-secondary">

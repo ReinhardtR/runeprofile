@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -13,7 +12,7 @@ const PutBodySchema = z.object({
   model: z.string(),
 });
 
-export default async function PUT(request: Request) {
+export async function PUT(request: Request) {
   const parseResult = PutBodySchema.safeParse(request.body);
   if (!parseResult.success) {
     return new Response("Invalid input", { status: 400 });
