@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
 import { accAchievementDiaries } from "~/db/schema/acc-achievement-diaries";
 import {
   accClogItemObtainedKcs,
@@ -38,10 +39,10 @@ export const accounts = sqliteTable("accounts", {
   isBanned: integer("is_banned", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
+    .default(sql`(unixepoch())`),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .default(sql`(CURRENT_TIMESTAMP)`),
+    .default(sql`(unixepoch())`),
 });
 
 export const accountsRelations = relations(accounts, ({ many }) => ({

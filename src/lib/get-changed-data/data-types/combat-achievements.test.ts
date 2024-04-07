@@ -1,10 +1,11 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
+
 import { CombatAchievementsTierName } from "~/lib/domain/profile-data-types";
 import {
-  getCombatAchievementTierChanges,
+  AccountCombatAchievementTierChange,
   CombatAchievementTierChange,
   getAccountCombatAchievementTierChanges,
-  AccountCombatAchievementTierChange,
+  getCombatAchievementTierChanges,
 } from "~/lib/get-changed-data/data-types/combat-achievements";
 
 describe("getCombatAchievementTierChanges", () => {

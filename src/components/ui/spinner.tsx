@@ -2,7 +2,7 @@ export default function Spinner() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="m-auto block shape w-full h-full"
+      className="shape m-auto block h-full w-full"
       // style="margin: auto; background: rgb(255, 255, 255); display: block; shape-rendering: auto;"
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid"

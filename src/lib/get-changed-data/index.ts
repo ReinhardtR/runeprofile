@@ -1,6 +1,7 @@
+import { PluginData } from "~/lib/domain/plugin-data-schema";
 import {
-  type ProfileFullWithHash,
   type HiscoresGameMode,
+  type ProfileFullWithHash,
 } from "~/lib/domain/profile-data-types";
 import {
   AccountChange,
@@ -8,61 +9,60 @@ import {
 } from "~/lib/get-changed-data/data-types/account";
 import {
   getAccountAchievementDiaryTierChanges,
+  getAchievementDiaryTierChanges,
   type AccountAchievementDiaryTierChange,
   type AchievementDiaryTierChange,
-  getAchievementDiaryTierChanges,
 } from "~/lib/get-changed-data/data-types/achievement-diaries";
 import {
+  getAccountCollectionLogItemChanges,
+  getAccountCollectionLogPageKillCountChanges,
+  getCollectionLogItemChanges,
+  getCollectionLogPageChanges,
+  getCollectionLogPageItemChanges,
+  getCollectionLogPageKillCountChanges,
   type AccountCollectionLogItemChange,
   type AccountCollectionLogPageKillCountChange,
   type CollectionLogItemChange,
   type CollectionLogPageChange,
   type CollectionLogPageItemChange,
   type CollectionLogPageKillCountChange,
-  getAccountCollectionLogItemChanges,
-  getAccountCollectionLogPageKillCountChanges,
-  getCollectionLogPageChanges,
-  getCollectionLogPageKillCountChanges,
-  getCollectionLogPageItemChanges,
-  getCollectionLogItemChanges,
   type GetAccountCollectionLogItemChangesInputDataNew,
   type GetAccountCollectionLogItemChangesInputDataOld,
-  type GetAccountCollectionLogPageKillCountChangesInputDataOld,
   type GetAccountCollectionLogPageKillCountChangesInputDataNew,
-  type GetCollectionLogPageKillCountChangesInputDataOld,
-  type GetCollectionLogPageKillCountChangesInputDataNew,
-  type GetCollectionLogPageItemChangesInputDataOld,
+  type GetAccountCollectionLogPageKillCountChangesInputDataOld,
   type GetCollectionLogPageItemChangesInputDataNew,
+  type GetCollectionLogPageItemChangesInputDataOld,
+  type GetCollectionLogPageKillCountChangesInputDataNew,
+  type GetCollectionLogPageKillCountChangesInputDataOld,
 } from "~/lib/get-changed-data/data-types/collection-log";
 import {
   getAccountCombatAchievementTierChanges,
+  getCombatAchievementTierChanges,
   type AccountCombatAchievementTierChange,
   type CombatAchievementTierChange,
-  getCombatAchievementTierChanges,
 } from "~/lib/get-changed-data/data-types/combat-achievements";
 import {
   getAccountHiscoresActivityChanges,
-  type AccountHiscoresActivityChange,
-  type HiscoresActivityChange,
   getHiscoresActivityChanges,
-  type GetAccountHiscoresActivityChangesInputDataOld,
+  type AccountHiscoresActivityChange,
   type GetAccountHiscoresActivityChangesInputDataNew,
+  type GetAccountHiscoresActivityChangesInputDataOld,
+  type HiscoresActivityChange,
 } from "~/lib/get-changed-data/data-types/hiscores";
 import {
+  getAccountQuestChanges,
+  getAccountQuestListChange,
   getQuestChanges,
   type AccountQuestChange,
   type AccountQuestListChange,
   type QuestChange,
-  getAccountQuestListChange,
-  getAccountQuestChanges,
 } from "~/lib/get-changed-data/data-types/quests";
 import {
-  type SkillChange,
-  type AccountSkillChange,
-  getSkillChanges,
   getAccountSkillChanges,
+  getSkillChanges,
+  type AccountSkillChange,
+  type SkillChange,
 } from "~/lib/get-changed-data/data-types/skills";
-import { PluginData } from "~/lib/domain/plugin-data-schema";
 
 export type ChangedDataResult = {
   account: {

@@ -1,9 +1,9 @@
 import { relations } from "drizzle-orm";
 import {
-  sqliteTable,
-  text,
   integer,
   primaryKey,
+  sqliteTable,
+  text,
 } from "drizzle-orm/sqlite-core";
 
 export const clogPages = sqliteTable("clog_pages", {

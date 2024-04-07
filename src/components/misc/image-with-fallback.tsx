@@ -1,5 +1,5 @@
-import Image, { ImageProps } from "next/image";
 import React from "react";
+import Image, { ImageProps } from "next/image";
 
 export interface ImageWithFallbackProps extends ImageProps {
   fallback?: string;
@@ -23,7 +23,7 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   if ((!fallback && hasOriginalFailed) || hasFallbackFailed) {
     return (
       <p
-        className="text-osrs-orange font-runescape solid-text-shadow text-center pointer-events-none"
+        className="pointer-events-none text-center font-runescape text-osrs-orange solid-text-shadow"
         style={{
           width: props.width,
           height: props.height,

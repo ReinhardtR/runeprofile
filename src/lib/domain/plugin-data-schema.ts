@@ -1,15 +1,17 @@
 import { z } from "zod";
-import {
-  QuestType,
-  QUEST_TYPE_MAP,
-  RFD_QUESTS,
-  QuestState,
-} from "../constants/quests";
+
 import {
   AchievementDiaryTierName,
   CombatAchievementsTierName,
   HiscoresGameMode,
 } from "~/lib/domain/profile-data-types";
+
+import {
+  QUEST_TYPE_MAP,
+  QuestState,
+  QuestType,
+  RFD_QUESTS,
+} from "../constants/quests";
 
 const AccountType = {
   NORMAL: "NORMAL",

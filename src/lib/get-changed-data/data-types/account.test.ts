@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+
 import { AccountType } from "~/lib/domain/profile-data-types";
 import {
   AccountChange,

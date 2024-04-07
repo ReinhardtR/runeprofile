@@ -1,11 +1,11 @@
-import { describe, test, expect } from "vitest";
-import { HiscoresGameMode } from "~/lib/domain/profile-data-types";
+import { describe, expect, test } from "vitest";
 
+import { HiscoresGameMode } from "~/lib/domain/profile-data-types";
 import {
+  AccountHiscoresActivityChange,
+  getAccountHiscoresActivityChanges,
   getHiscoresActivityChanges,
   HiscoresActivityChange,
-  getAccountHiscoresActivityChanges,
-  AccountHiscoresActivityChange,
 } from "~/lib/get-changed-data/data-types/hiscores";
 
 describe("getHiscoresActivityChanges", () => {

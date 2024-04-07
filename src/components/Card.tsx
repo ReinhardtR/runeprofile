@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import { cn } from "~/lib/utils/cn";
 
 type CardProps = React.HTMLProps<HTMLDivElement> & {
@@ -15,7 +16,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={cn(
-        "runescape-panel h-[353px] p-2 shadow-md relative",
+        "runescape-panel osrs-scrollbar relative h-[353px] p-2 shadow-md",
         className
       )}
       {...restProps}

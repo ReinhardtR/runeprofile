@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+
 import { AchievementDiaryTierName } from "~/lib/domain/profile-data-types";
 import {
   AccountAchievementDiaryTierChange,

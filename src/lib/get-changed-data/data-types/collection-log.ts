@@ -216,8 +216,8 @@ export function getAccountCollectionLogItemChanges(
               ],
             }
           : newlyObtained && newItem.kcs.length > 0
-          ? { kcs: newItem.kcs }
-          : undefined;
+            ? { kcs: newItem.kcs }
+            : undefined;
       } else {
         changes.push({
           itemId: newItem.itemId,

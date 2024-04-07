@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+
 import { db } from "~/db";
 import { clogPages } from "~/db/schema";
 
@@ -9,7 +10,7 @@ export const getAvailableCollectionLogPages = async () => {
       name: true,
       orderIdx: true,
     },
-    where: eq(clogPages.metaApproved, true),
+    // where: eq(clogPages.metaApproved, true),
     orderBy: (page, { asc }) => [asc(page.orderIdx)],
     with: {
       pageKcs: {
@@ -32,7 +33,7 @@ export const getAvailableCollectionLogPages = async () => {
 
   return pages.map((page) => {
     const kcs = page.pageKcs
-      .filter((pageKc) => pageKc.metaApproved && pageKc.kc.metaApproved)
+      // .filter((pageKc) => pageKc.metaApproved && pageKc.kc.metaApproved)
       .map((pageKc) => {
         return {
           label: pageKc.kc.label,

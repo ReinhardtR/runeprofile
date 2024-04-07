@@ -5,13 +5,14 @@ import {
   sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
+
 import { accounts } from "~/db/schema/account";
 import { quests } from "~/db/schema/quests";
 
 const QUEST_STATE = {
-  NOT_STARTED: "not_started",
-  IN_PROGRESS: "in_progress",
-  FINISHED: "finished",
+  NOT_STARTED: "NOT_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  FINISHED: "FINISHED",
 } as const;
 export type QuestStateEnum = keyof typeof QUEST_STATE;
 
@@ -22,7 +23,7 @@ export const accQuests = sqliteTable(
       length: 40,
     })
       .notNull()
-      .references(() => accounts.accountHash),
+      .references(() => accounts.accountHash, { onDelete: "cascade" }),
     questId: integer("quest_id")
       .notNull()
       .references(() => quests.id),

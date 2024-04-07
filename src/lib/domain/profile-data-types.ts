@@ -68,6 +68,9 @@ export const AchievementDiaryTierName = {
   HARD: "HARD",
   ELITE: "ELITE",
 } as const;
+export const AchievementDiaryTierNames = Object.keys(
+  AchievementDiaryTierName
+) as AchievementDiaryTierName[];
 export type AchievementDiaryTierName = keyof typeof AchievementDiaryTierName;
 
 export type AchievementDiaryTier = {
@@ -92,6 +95,9 @@ export const CombatAchievementsTierName = {
   MASTER: "MASTER",
   GRANDMASTER: "GRANDMASTER",
 } as const;
+export const CombatAchievementsTierNames = Object.keys(
+  CombatAchievementsTierName
+) as CombatAchievementsTierName[];
 export type CombatAchievementsTierName =
   keyof typeof CombatAchievementsTierName;
 

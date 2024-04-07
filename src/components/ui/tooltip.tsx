@@ -1,85 +1,30 @@
 "use client";
 
-import { cloneElement, Fragment, useMemo, useState } from "react";
-import {
-  Placement,
-  offset,
-  flip,
-  shift,
-  autoUpdate,
-  useFloating,
-  useInteractions,
-  useHover,
-  useFocus,
-  useRole,
-  useDismiss,
-} from "@floating-ui/react-dom-interactions";
-import { mergeRefs } from "react-merge-refs";
-import clsx from "clsx";
+import * as React from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
-type TooltipProps = {
-  content: JSX.Element;
-  children: JSX.Element;
-  placement: Placement;
-  delay?: number;
-  transparent?: boolean;
-};
+import { cn } from "~/lib/utils/cn";
 
-export const Tooltip: React.FC<TooltipProps> = ({
-  content,
-  children,
-  placement,
-  delay = 30,
-  transparent = true,
-}) => {
-  const [open, setOpen] = useState(false);
+const TooltipProvider = TooltipPrimitive.Provider;
 
-  const { x, y, reference, floating, strategy, context } = useFloating({
-    placement,
-    open,
-    onOpenChange: setOpen,
-    middleware: [offset(5), flip(), shift({ padding: 8 })],
-    whileElementsMounted: autoUpdate,
-  });
+const Tooltip = TooltipPrimitive.Root;
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    useHover(context, { restMs: delay }),
-    useFocus(context),
-    useRole(context, { role: "tooltip" }),
-    useDismiss(context),
-  ]);
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
-  // Preserve the consumer's ref
-  const ref = useMemo(
-    () => mergeRefs([reference, (children as any).ref]),
-    [reference, children]
-  );
+const TooltipContent = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  <TooltipPrimitive.Content
+    ref={ref}
+    sideOffset={sideOffset}
+    className={cn(
+      "z-50 overflow-hidden rounded-md border border-secondary bg-card px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+      className
+    )}
+    {...props}
+  />
+));
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-  return (
-    <Fragment>
-      {cloneElement(children, getReferenceProps({ ref, ...children.props }))}
-
-      {open && (
-        <div
-          {...getFloatingProps({
-            ref: floating,
-            style: {
-              position: strategy,
-              top: y ?? 0,
-              left: x ?? 0,
-            },
-          })}
-        >
-          <div
-            className={clsx(
-              "relative p-2 border border-white/25 rounded-sm z-[9999]",
-              transparent ? "bg-black/70" : "bg-black"
-            )}
-          >
-            {content}
-          </div>
-        </div>
-      )}
-    </Fragment>
-  );
-};
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

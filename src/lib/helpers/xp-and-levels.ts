@@ -21,7 +21,7 @@ export const getLevelFromXP = (xp: number) => {
     }
   }
 
-  return -1;
+  return 1;
 };
 
 const virtualLevels = [
@@ -64,13 +64,13 @@ export const getVirtualLevelFromXP = (xp: number) => {
     }
   }
 
-  return -1;
+  return 1;
 };
 
 export const getXPUntilNextLevel = (xp: number) => {
   const level = getVirtualLevelFromXP(xp);
   const virtualLevel = virtualLevels[level];
-  return virtualLevel ? virtualLevel - xp : -1;
+  return virtualLevel ? virtualLevel - xp : 0;
 };
 
 type CombatSkills = {

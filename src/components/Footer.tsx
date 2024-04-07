@@ -1,102 +1,71 @@
-import { DiscordLogoIcon, TwitterLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
-import clsx from "clsx";
-import { useSetAtom } from "jotai";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { isFeedbackOpenAtom } from "./FeedbackModal";
+import { DiscordLogoIcon, Pencil2Icon } from "@radix-ui/react-icons";
 
-type FooterLinkProps = {
-  disabled?: boolean;
-  children: React.ReactNode;
-};
-
-const FooterLink: React.FC<FooterLinkProps> = ({
-  disabled = false,
-  children,
-}) => (
-  <div
-    className={clsx(
-      "text-gray-300 hover:text-white hover:cursor-pointer text-sm transition-colors",
-      disabled && "opacity-50 pointer-events-none"
-    )}
-  >
-    {children}
-  </div>
-);
+import { CHANGE_LOG_CONFIG, isChangeLogNew } from "~/config/change-log";
+import { cn } from "~/lib/utils/cn";
+import { Button, buttonVariants } from "~/components/ui/button";
 
 export const Footer: React.FC = () => {
-  const setFeedbackIsOpen = useSetAtom(isFeedbackOpenAtom);
-
   return (
-    <footer className="relative z-50 w-full pt-3 border-t border-primary bg-background-dark">
-      <div className="mx-auto grid grid-cols-2 gap-6 p-8 pt-10 pb-8 m-auto text-white min-h-64 lg:grid-cols-6 container">
-        <div className="col-span-2">
-          <div className="relative mb-3">
+    <footer className="relative z-50 w-full border-t border-primary bg-background pt-3">
+      <div className="min-h-64 container m-auto mx-auto grid grid-cols-2 gap-6 p-8 pb-8 pt-10 lg:grid-cols-6">
+        <div className="col-span-2 flex flex-col items-start">
+          <Link href="/">
             <Image
               src="/assets/misc/logo.png"
               width={40}
               height={40}
               alt="RuneProfile Logo"
             />
-          </div>
+            <p className="text-xl font-bold">RuneProfile</p>
+          </Link>
 
-          <h3 className="mb-1 text-xl font-bold">RuneProfile</h3>
-          <div className="text-sm text-gray-400">
-            <FooterLink>
-              <a href="/PGN" target="_blank" className="group">
-                <div>
-                  Developed{" "}
-                  <span className="hidden group-hover:inline">
-                    with ❤️ and xp waste
-                  </span>{" "}
-                  by PGN
-                </div>
-              </a>
-            </FooterLink>
-            <div className="flex mt-4 mb-4 space-x-3">
-              <FooterLink>
-                <a
-                  href="https://www.twitter.com/reinhardtdev"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <TwitterLogoIcon />
-                </a>
-              </FooterLink>
-              <FooterLink>
-                <a
-                  href="https://discord.com/users/476302464493158400"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <DiscordLogoIcon />
-                </a>
-              </FooterLink>
-              <FooterLink>
-                <a
-                  href="https://github.com/ReinhardtR"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <GitHubLogoIcon />
-                </a>
-              </FooterLink>
-            </div>
-          </div>
-          <button
-            className="border-primary text-sm text-accent font-medium border p-2 rounded hover:border-accent hover:opacity-100"
-            onClick={() => setFeedbackIsOpen(true)}
-          >
-            Send Quick Feedback
-          </button>
+          <FooterLink>
+            <a
+              href="/PGN"
+              target="_blank"
+              className="group text-primary-foreground/30 hover:text-secondary"
+            >
+              <p>
+                Developed{" "}
+                <span className="hidden group-hover:inline">
+                  with ❤️ and xp waste{" "}
+                </span>
+                by PGN
+              </p>
+            </a>
+          </FooterLink>
+
+          <Button className="mt-4" size="lg" asChild>
+            <a
+              href="https://discord.com/users/476302464493158400"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <DiscordLogoIcon className="mr-2 h-5 w-5" />
+              Join the Discord
+            </a>
+          </Button>
+
+          <Button className="mt-4" size="lg" variant="outline" asChild>
+            <a
+              href="https://discord.com/users/476302464493158400"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Pencil2Icon className="mr-2 h-5 w-5" />
+              Quick Feedback
+            </a>
+          </Button>
         </div>
 
-        <div className="flex flex-col col-span-1 space-y-2">
+        <div className="col-span-1 flex flex-col items-start space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
-          <FooterLink>
+          <FooterLink disabled>
             <Link
-              // href="/leaderboards/collection"
-              href="/"
+              href="/leaderboards/collection-log"
               target="_blank"
               rel="noreferrer"
             >
@@ -110,7 +79,7 @@ export const Footer: React.FC = () => {
           </FooterLink>
         </div>
 
-        <div className="flex flex-col col-span-1 space-y-2">
+        <div className="col-span-1 flex flex-col items-start space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Information</h3>
           <FooterLink>
             <a
@@ -123,21 +92,20 @@ export const Footer: React.FC = () => {
           </FooterLink>
 
           <FooterLink>
-            <Link
-            //  href="/info/change-log"
-            href="/"
-            >
+            <Link href="/info/change-log">
               <div className="relative">
-                <p className="text-accent text-xs absolute inset-0 left-[70px] top-[2px] rotate-12">
-                  NEW
-                </p>
+                {isChangeLogNew(CHANGE_LOG_CONFIG.lastDate) && (
+                  <p className="absolute inset-0 left-[70px] top-[2px] rotate-12 text-xs font-semibold text-secondary">
+                    NEW
+                  </p>
+                )}
                 <p>Change Log</p>
               </div>
             </Link>
           </FooterLink>
         </div>
 
-        <div className="flex flex-col col-span-1 space-y-2">
+        <div className="col-span-1 flex flex-col items-start space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Contribute</h3>
           <FooterLink>
             <a
@@ -159,8 +127,8 @@ export const Footer: React.FC = () => {
           </FooterLink>
         </div>
 
-        <div className="flex flex-col col-span-1 space-y-2">
-          <h3 className="mb-1 text-xs font-bold uppercase ">RuneScape</h3>
+        <div className="col-span-1 flex flex-col items-start space-y-2">
+          <h3 className="mb-1 text-xs font-bold uppercase">RuneScape</h3>
           <FooterLink>
             <a href="https://runelite.net/" target="_blank" rel="noreferrer">
               <p>RuneLite</p>
@@ -183,7 +151,7 @@ export const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex space-x-1 justify-center items-center col-span-6 text-sm mb-16">
+      <div className="col-span-6 mb-16 flex items-center space-x-1 px-8 text-sm lg:justify-center">
         <FooterLink>
           <a
             href="https://oldschool.runescape.com/"
@@ -202,5 +170,23 @@ export const Footer: React.FC = () => {
         </FooterLink>
       </div>
     </footer>
+  );
+};
+
+const FooterLink: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
+  className,
+  ...props
+}) => {
+  return (
+    <Button
+      variant="link"
+      className={cn(
+        buttonVariants({ variant: "link" }),
+        "h-auto p-0 text-primary-foreground/80 hover:text-primary-foreground",
+        className
+      )}
+      asChild
+      {...props}
+    />
   );
 };

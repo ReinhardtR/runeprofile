@@ -1,7 +1,8 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
+
+import { PluginData } from "~/lib/domain/plugin-data-schema";
 import { ProfileFullWithHash } from "~/lib/domain/profile-data-types";
 import { ChangedDataResult, getChangedData } from "~/lib/get-changed-data";
-import { PluginData } from "~/lib/domain/plugin-data-schema";
 
 describe("getChangedData", () => {
   test("profile update example", () => {

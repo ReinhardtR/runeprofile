@@ -1,12 +1,13 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
+
 import { QuestState, QuestType } from "~/lib/constants/quests";
 import {
+  AccountQuestChange,
+  AccountQuestListChange,
+  getAccountQuestChanges,
+  getAccountQuestListChange,
   getQuestChanges,
   QuestChange,
-  getAccountQuestChanges,
-  AccountQuestChange,
-  getAccountQuestListChange,
-  AccountQuestListChange,
 } from "~/lib/get-changed-data/data-types/quests";
 
 describe("getQuestChanges", () => {

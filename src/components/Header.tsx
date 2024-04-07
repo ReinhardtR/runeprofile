@@ -1,18 +1,29 @@
-import { Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, EyeIcon, SearchIcon } from "@heroicons/react/outline";
-import clsx from "clsx";
-import { useSetAtom } from "jotai";
+"use client";
+
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment, useEffect, useState } from "react";
-// import { isSearchOpenAtom } from "./SearchModal";
+import { DiscordLogoIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { useSetAtom } from "jotai";
+
+import { cn } from "~/lib/utils/cn";
+import { Button, buttonVariants } from "~/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "~/components/ui/navigation-menu";
+import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 
 export const Header: React.FC = () => {
-  // const setIsSearchOpen = useSetAtom(isSearchOpenAtom);
+  const setIsSearchOpen = useSetAtom(isSearchDialogOpenAtom);
 
-  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAtTop, setIsAtTop] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!window) return;
 
     function onScroll() {
@@ -35,16 +46,16 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className={clsx(
-        "fixed h-20 z-[60] border-b flex justify-center w-full",
+      className={cn(
+        "sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         isAtTop
-          ? "bg-transparent border-transparent"
+          ? "border-transparent bg-transparent"
           : "border-primary bg-background bg-opacity-80 backdrop-blur"
       )}
     >
-      <div className="container flex items-center h-full px-2 justify-between">
-        <Link href="/">
-          <div className="flex space-x-2 items-center hover:cursor-pointer">
+      <div className="container flex h-16 max-w-screen-2xl items-center">
+        <div className="mr-4 flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image
               src="/assets/misc/logo.png"
               alt="Logo"
@@ -53,99 +64,106 @@ export const Header: React.FC = () => {
               quality={100}
               className="drop-shadow"
             />
-            <a>
-              <div className="text-lg font-black tracking-wide drop-shadow leading-none hidden sm:block">
-                <p className="text-primary-light">RUNE</p>
-                <p className="text-accent">PROFILE</p>
-              </div>
-            </a>
-          </div>
-        </Link>
-        <div className="flex text-light-gray text-lg">
-          <Popover className="relative">
-            <Popover.Button className="drop-shadow-sm">
-              <div className="flex justify-center items-center hover:text-white">
-                Leaderboards
-                <ChevronDownIcon className="w-5 h-5 ml-2" />
-              </div>
-            </Popover.Button>
-
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <Popover.Panel className="absolute left-1/2 z-50 mt-3 w-screen max-w-sm -translate-x-1/2 transform p-4 sm:px-0">
-                <div className="overflow-hidden bg-background border-accent border-2 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
-                  <div className="flex flex-col p-4 space-y-4">
-                    <Link
-                      //  href="/leaderboards/collection"
-                      href="/"
+            <p className="hidden flex-col text-lg font-black leading-none tracking-wide drop-shadow sm:flex">
+              <span className="text-primary">RUNE</span>
+              <span className="text-secondary">PROFILE</span>
+            </p>
+          </Link>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent">
+                  Leaderboards
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                    <ListItem
+                      href="/leaderboards/collection-log"
+                      title="Collection Log"
+                      icon="/assets/icons/collection-log.png"
                     >
-                      <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
-                        <div className="relative flex shrink-0 items-center justify-center text-white">
-                          <Image
-                            src="/assets/icons/collection-log.png"
-                            width={40}
-                            height={40}
-                            alt="Collection Log book"
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <p className="text-sm font-medium text-light-gray">
-                            Collection Log
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            The most succesful collectors in Gilineor
-                          </p>
-                        </div>
-                      </a>
-                    </Link>
-                    {/* <Link href="/leaderboards/items">
-                      <a className="flex items-center rounded-md px-2 py-3 transition duration-150 ease-in-out hover:bg-background-light focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
-                        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center text-white">
-                          <Image
-                            src="/assets/leaderboard-icons/justi-helmet.png"
-                            alt="A Justiciar helmet"
-                            height={40}
-                            width={32}
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <p className="text-sm font-medium text-light-gray">
-                            Items
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Who has collected the most of <i>x</i> item?
-                          </p>
-                        </div>
-                      </a>
-                    </Link> */}
-                  </div>
-                </div>
-              </Popover.Panel>
-            </Transition>
-          </Popover>
+                      The most succesful collectors in Gilineor
+                    </ListItem>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
-        <div
-          className="flex justify-between space-x-2 items-center rounded border-accent border-[2px] py-[6px] px-[7px] pr-2 text-accent shadow-md hover:cursor-pointer hover:border-primary transition-colors"
-          // onClick={() => setIsSearchOpen(true)}
-        >
-          <div className="flex space-x-1 items-center">
-            <SearchIcon className="w-[18px] h-[18px]" />
-            <span className="text-sm font-meidum hidden sm:block">
-              Search...
-            </span>
+
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <Button
+              variant="outline"
+              className={cn(
+                "relative h-8 w-full justify-start rounded-[0.5rem] bg-background pl-2 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-64"
+              )}
+              onClick={() => setIsSearchOpen(true)}
+            >
+              <MagnifyingGlassIcon className="mr-1 h-4 w-4 fill-current" />
+              <span className="hidden lg:inline-flex">
+                Search by username...
+              </span>
+              <span className="inline-flex lg:hidden">Search...</span>
+              <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                <span className="text-sm">⌘</span>
+                <span>K</span>
+              </kbd>
+            </Button>
           </div>
-          <span className="text-sm font-bold text-primary hidden sm:block">
-            Ctrl K
-          </span>
+          <nav>
+            <Link
+              href="https://discord.gg/6XgBcePAfj"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <div
+                className={cn(
+                  buttonVariants({
+                    variant: "ghost",
+                  }),
+                  "w-9 px-0"
+                )}
+              >
+                <DiscordLogoIcon className="h-4 w-4 fill-current" />
+                <span className="sr-only">Discord</span>
+              </div>
+            </Link>
+          </nav>
         </div>
       </div>
     </header>
   );
 };
+
+interface ListItemProps extends React.ComponentPropsWithoutRef<"a"> {
+  icon?: string;
+}
+
+const ListItem = React.forwardRef<React.ElementRef<"a">, ListItemProps>(
+  ({ className, title, children, icon, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              "flex select-none items-center space-x-4 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+              className
+            )}
+            {...props}
+          >
+            {icon && <Image src={icon} width={40} height={40} alt={""} />}
+            <div className="space-y-1">
+              <div className="text-sm font-medium leading-none">{title}</div>
+              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                {children}
+              </p>
+            </div>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  }
+);
+ListItem.displayName = "ListItem";

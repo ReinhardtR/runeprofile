@@ -5,6 +5,7 @@ import {
   sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
+
 import { accounts } from "~/db/schema/account";
 import { clogItems, clogKcs } from "~/db/schema/collection-log";
 
@@ -15,7 +16,7 @@ export const accClogItems = sqliteTable(
       length: 40,
     })
       .notNull()
-      .references(() => accounts.accountHash),
+      .references(() => accounts.accountHash, { onDelete: "cascade" }),
     itemId: integer("item_id")
       .notNull()
       .references(() => clogItems.id),
@@ -47,7 +48,7 @@ export const accClogKcs = sqliteTable(
       length: 40,
     })
       .notNull()
-      .references(() => accounts.accountHash),
+      .references(() => accounts.accountHash, { onDelete: "cascade" }),
     kcId: integer("kc_id")
       .notNull()
       .references(() => clogKcs.id),
@@ -78,7 +79,7 @@ export const accClogItemObtainedKcs = sqliteTable(
       length: 40,
     })
       .notNull()
-      .references(() => accounts.accountHash),
+      .references(() => accounts.accountHash, { onDelete: "cascade" }),
     itemId: integer("item_id")
       .notNull()
       .references(() => clogItems.id),

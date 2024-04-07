@@ -5,6 +5,7 @@ import {
   sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
+
 import { accounts } from "~/db/schema/account";
 import { skills } from "~/db/schema/skills";
 
@@ -15,7 +16,7 @@ export const accSkills = sqliteTable(
       length: 40,
     })
       .notNull()
-      .references(() => accounts.accountHash),
+      .references(() => accounts.accountHash, { onDelete: "cascade" }),
     skillId: integer("skill_id")
       .notNull()
       .references(() => skills.id),

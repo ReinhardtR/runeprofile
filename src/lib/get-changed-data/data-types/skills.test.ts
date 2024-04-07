@@ -1,9 +1,10 @@
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
+
 import {
   AccountSkillChange,
-  SkillChange,
   getAccountSkillChanges,
   getSkillChanges,
+  SkillChange,
 } from "~/lib/get-changed-data/data-types/skills";
 
 describe("getSkillChanges", () => {

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "ea29063b-e614-4ce8-93c2-e4b43f5d8f93",
+  "id": "83c1c20b-e3b6-45f4-b508-e4301eabf905",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "acc_achievement_diaries": {
@@ -41,7 +41,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_achievement_diaries_diary_id_achievement_diaries_id_fk": {
@@ -113,7 +113,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_clog_item_obtained_kcs_item_id_clog_items_id_fk": {
@@ -199,7 +199,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_clog_items_item_id_clog_items_id_fk": {
@@ -264,7 +264,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_clog_kcs_kc_id_clog_kcs_id_fk": {
@@ -329,7 +329,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_ca_tiers_tier_id_combat_achievement_tiers_id_fk": {
@@ -401,7 +401,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_hiscores_entries_entry_id_hiscores_entries_id_fk": {
@@ -466,7 +466,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_quests_quest_id_quests_id_fk": {
@@ -531,7 +531,7 @@
           "columnsTo": [
             "account_hash"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "acc_skills_skill_id_skills_id_fk": {
