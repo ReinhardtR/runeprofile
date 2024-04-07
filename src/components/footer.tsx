@@ -65,18 +65,18 @@ export const Footer: React.FC = () => {
         <div className="col-span-1 flex flex-col items-start space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase ">Leaderboards</h3>
           <FooterLink disabled>
-            <Link
+            {/* <Link
               href="/leaderboards/collection-log"
               target="_blank"
               rel="noreferrer"
-            >
-              <p>Collection Log</p>
-            </Link>
+            > */}
+            <p className="opacity-50">Collection Log</p>
+            {/* </Link> */}
           </FooterLink>
           <FooterLink disabled>
-            <a href="#" target="_blank" rel="noreferrer">
-              <p>Items</p>
-            </a>
+            {/* <a href="#" target="_blank" rel="noreferrer"> */}
+            <p className="opacity-50">Items</p>
+            {/* </a> */}
           </FooterLink>
         </div>
 

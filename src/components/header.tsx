@@ -69,7 +69,7 @@ export const Header: React.FC = () => {
               <span className="text-secondary">PROFILE</span>
             </p>
           </Link>
-          <NavigationMenu>
+          {/* <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent">
@@ -88,7 +88,7 @@ export const Header: React.FC = () => {
                 </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
-          </NavigationMenu>
+          </NavigationMenu> */}
         </div>
 
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
