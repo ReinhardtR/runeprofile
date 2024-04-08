@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "~/db";
-import { clogPages } from "~/db/schema";
 
 export const getAvailableCollectionLogPages = async () => {
   const pages = await db.query.clogPages.findMany({

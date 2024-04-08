@@ -10,10 +10,7 @@ import { Providers } from "~/app/Providers";
 import "~/styles/globals.css";
 
 import { cn } from "~/lib/utils/cn";
-import { Footer } from "~/components/footer";
-import { Header } from "~/components/header";
 import { TailwindIndicator } from "~/components/misc/tailwind-indicator";
-import { SearchDialog } from "~/components/search-dialog";
 
 const fontSans = FontSans({
   subsets: ["latin"],

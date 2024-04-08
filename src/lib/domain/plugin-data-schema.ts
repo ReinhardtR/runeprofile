@@ -90,7 +90,14 @@ const CollectionLogEntrySchema = z.object({
   killCounts: z.array(KillCountSchema).optional(),
 });
 
-const CollectionLogTabSchema = z.record(CollectionLogEntrySchema);
+const CollectionLogTabSchema = z
+  .record(CollectionLogEntrySchema)
+  .transform((tab) => {
+    delete tab["Callisto"];
+    delete tab["Vet'ion"];
+    delete tab["Venenatis"];
+    return tab;
+  });
 
 const CollectionLogSchema = z.object({
   uniqueItemsObtained: z.number(),
