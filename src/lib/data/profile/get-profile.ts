@@ -4,6 +4,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { QuestState, QuestType } from "~/lib/constants/quests";
 import {
   AccountIsPrivateError,
+  AccountNotFoundByGeneratedUrlPath,
   AccountNotFoundByHashError,
   AccountNotFoundByUsernameError,
 } from "~/lib/data/errors";
@@ -75,8 +76,10 @@ export async function getProfileFullWithHash({
       throw new AccountNotFoundByHashError(accountHash);
     } else if (username) {
       throw new AccountNotFoundByUsernameError(username);
+    } else if (generatedUrlPath) {
+      throw new AccountNotFoundByGeneratedUrlPath(generatedUrlPath);
     } else {
-      throw new Error("Invalid options");
+      throw new Error("Invalid params");
     }
   }
 

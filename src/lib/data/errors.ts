@@ -16,6 +16,12 @@ export class AccountNotFoundByUsernameError extends AccountNotFoundError {
   }
 }
 
+export class AccountNotFoundByGeneratedUrlPath extends AccountNotFoundError {
+  constructor(generatedUrlPath: string) {
+    super(`Account with generatedUrlPath ${generatedUrlPath} not found`);
+  }
+}
+
 export class AccountIsPrivateError extends Error {
   constructor(username: string) {
     super(`Account with username ${username} is private`);

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { AccountIsPrivateError } from "~/lib/data/errors";
 import { getProfileFull } from "~/lib/data/profile/get-profile";
@@ -42,7 +43,7 @@ export async function generateMetadata(props: {
     }
 
     return {
-      title: "Profile not found | RuneProfile",
+      title: "Not found | RuneProfile",
       robots: {
         index: false,
       },
@@ -108,7 +109,7 @@ export default async function ProfilePage(props: {
       );
     }
 
-    throw error;
+    return notFound();
   }
 
   return <Profile profile={profile} />;
