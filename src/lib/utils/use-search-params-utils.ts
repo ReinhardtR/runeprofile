@@ -25,11 +25,11 @@ const createParamsString = (
   params: URLSearchParams,
   newParams: Record<string, string>
 ) => {
-  const paramsCopy = new URLSearchParams(params.toString());
+  const paramsCopy = new URLSearchParams(params);
   for (const [name, value] of Object.entries(newParams)) {
-    params.set(name, value);
+    paramsCopy.set(name, value);
   }
-  return params.toString();
+  return paramsCopy.toString();
 };
 
 const createPathString = (
@@ -37,9 +37,6 @@ const createPathString = (
   params: URLSearchParams,
   newParams: Record<string, string>
 ) => {
-  const paramsCopy = new URLSearchParams();
-  for (const [name, value] of Object.entries(newParams)) {
-    paramsCopy.set(name, value);
-  }
-  return `${pathname}?${paramsCopy.toString()}` as Route;
+  const paramsString = createParamsString(params, newParams);
+  return `${pathname}?${paramsString}` as Route;
 };
