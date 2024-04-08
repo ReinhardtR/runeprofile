@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { QuestState, QuestType } from "~/lib/constants/quests";
 import {
@@ -49,7 +49,7 @@ export async function getProfileFullWithHash({
 }: FindAccountParams): Promise<ProfileFullWithHash> {
   const condition = accountHash
     ? eq(accounts.accountHash, accountHash!)
-    : eq(accounts.username, username!);
+    : eq(sql`LOWER(${accounts.username})`, username!.toLowerCase());
 
   const data = await db.query.accounts.findFirst({
     where: condition,
