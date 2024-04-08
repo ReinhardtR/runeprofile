@@ -2,11 +2,12 @@ import React from "react";
 import { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { DiscordLogoIcon, Pencil2Icon } from "@radix-ui/react-icons";
 
 import { CHANGE_LOG_CONFIG, isChangeLogNew } from "~/config/change-log";
 import { cn } from "~/lib/utils/cn";
 import { Button, buttonVariants } from "~/components/ui/button";
+import { JoinDiscordButton } from "~/components/join-discord-button";
+import { QuickFeedbackButton } from "~/components/quick-feedback-button";
 
 export const Footer: React.FC = () => {
   return (
@@ -39,27 +40,8 @@ export const Footer: React.FC = () => {
             </a>
           </FooterLink>
 
-          <Button className="mt-4" size="lg" asChild>
-            <a
-              href="https://discord.com/users/476302464493158400"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <DiscordLogoIcon className="mr-2 h-5 w-5" />
-              Join the Discord
-            </a>
-          </Button>
-
-          <Button className="mt-4" size="lg" variant="outline" asChild>
-            <a
-              href="https://discord.com/users/476302464493158400"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Pencil2Icon className="mr-2 h-5 w-5" />
-              Quick Feedback
-            </a>
-          </Button>
+          <JoinDiscordButton />
+          <QuickFeedbackButton />
         </div>
 
         <div className="col-span-1 flex flex-col items-start space-y-2">
@@ -96,7 +78,7 @@ export const Footer: React.FC = () => {
             <Link href={`/info/change-log` as Route}>
               <div className="relative">
                 {isChangeLogNew(CHANGE_LOG_CONFIG.lastDate) && (
-                  <p className="absolute inset-0 left-[70px] top-[2px] rotate-12 text-xs font-semibold text-secondary">
+                  <p className="absolute inset-0 -top-[10px] left-[70px] rotate-12 text-xs font-semibold text-secondary">
                     NEW
                   </p>
                 )}

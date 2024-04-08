@@ -1,4 +1,71 @@
 import { Title } from "./components";
+import { JoinDiscordButton } from "~/components/join-discord-button";
+import { QuickFeedbackButton } from "~/components/quick-feedback-button";
+
+<Title title="Technical Overhaul" date="2024-04-08" />
+
+## Skills
+
+<div className="flex space-x-4">
+  - Level number on skills at the minimum level are now red. Intended to make
+  pures stand out more.
+  <img src="/assets/change-log/2024-04-08/skills-level-red.png" width={200} />
+</div>
+
+- XP numbers now use commas as the delimiter, i.e. 1,000,000 instead of
+  1.000.000. _Thanks for the feedback!_
+
+## Collection Log
+
+- The selected tab and page is now reflected in the URL, so it can be shared as a link.
+
+<div className="flex space-x-4">
+  - Items now show KC for all places where it can be obtained when hovering.
+  <img src="/assets/change-log/2024-04-08/collection-log-obtained-at-kcs.png" width={400} />
+</div>
+
+- Items are now stored in a more efficient way, where the same item data is used on all pages where that item appears. This means you don't need to open all Wilderness Boss pages with the plugin when you obtain a Dragon Pickaxe.
+
+- Now shows a fallback icon when no item icon can be found. *Please report any missing icons!*
+
+- Pages where no items have been obtained are now marked with a red color.
+
+- Pages that have not been submitted are marked with a grey color.
+
+## HiScores
+
+<div className="flex space-x-4">
+  - Added a fallback icon for HiScores activities. Which can be hovered to
+  display the name of the activity. For cases where the icon has not been added
+  yet. *Please report any missing icons!*
+  <img src="/assets/change-log/2024-04-08/hiscores-missing-icon.png" width={200} />
+</div>
+
+<div className="flex space-x-4">
+  - Reworked the Game Mode selector in the HiScores panel.
+  - The currently selected Game Mode is now reflected in the URL, so it can be shared as a link.
+  - The dropdown will only show Game Modes that apply to the account.
+  <img src="/assets/change-log/2024-04-08/hiscores-dropdown.png" width={200} />
+</div>
+
+<div className="flex space-x-4">
+  - Activities where there is no score or rank, is now marked with dashes and a red color.
+  <img src="/assets/change-log/2024-04-08/hiscores-missing-values.png" width={200} />
+</div>
+
+<div className="flex space-x-4">
+  - Rank 1 and 200M are new marked with a green color.
+  <img src="/assets/change-log/2024-04-08/hiscores-green-values.png" width={200} />
+</div>
+
+## Technical
+
+A bunch of technical changes have been made to support future features. This means you might experience some issues that previously didn't occur. So if you experience a reoccurring issue, I would really appreciate if you would send a message through the feedback button or in the Discord.
+
+<div className="flex space-x-4">
+  <JoinDiscordButton />
+  <QuickFeedbackButton />
+</div>
 
 <Title title="Updated Wilderness Bosses" date="2023-01-26" />
 

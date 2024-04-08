@@ -52,7 +52,7 @@ export async function generateMetadata(props: {
 
   const title = `${profile.username} | RuneProfile`;
   const description = profile.description ?? "";
-  const ogImageUrl = `https://runeprofile-git-next-13-app-dir-reinhardtr.vercel.app/api/og?username=${profile.username}`;
+  const ogImageUrl = `https://runeprofile.com/api/og?username=${profile.username}`;
 
   const metadata: Metadata = {
     title,
