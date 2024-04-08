@@ -1,6 +1,5 @@
 "use client";
 
-import { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
@@ -119,6 +118,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
   const prefetchPage = (newPage: string) => {
     router.prefetch(
       createPathString({
+        [TAB_PARAM_KEY]: tabName,
         [PAGE_PARAM_KEY]: newPage,
       })
     );
