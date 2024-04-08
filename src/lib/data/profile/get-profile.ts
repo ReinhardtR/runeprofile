@@ -1,8 +1,9 @@
 import { cache } from "react";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { QuestState, QuestType } from "~/lib/constants/quests";
 import {
+  AccountIsPrivateError,
   AccountNotFoundByHashError,
   AccountNotFoundByUsernameError,
 } from "~/lib/data/errors";
@@ -29,10 +30,17 @@ type FindAccountParams =
   | {
       accountHash: string;
       username?: never;
+      generatedUrlPath?: never;
     }
   | {
       username: string;
       accountHash?: never;
+      generatedUrlPath?: never;
+    }
+  | {
+      generatedUrlPath: string;
+      accountHash?: never;
+      username?: never;
     };
 
 export async function getProfileFull(
@@ -46,13 +54,38 @@ export async function getProfileFull(
 export async function getProfileFullWithHash({
   accountHash,
   username,
+  generatedUrlPath,
 }: FindAccountParams): Promise<ProfileFullWithHash> {
   const condition = accountHash
     ? eq(accounts.accountHash, accountHash!)
-    : eq(sql`LOWER(${accounts.username})`, username!.toLowerCase());
+    : username
+      ? eq(sql`LOWER(${accounts.username})`, username!.toLowerCase())
+      : eq(accounts.generatedUrlPath, generatedUrlPath!.toLowerCase());
+
+  const accountCheck = await db.query.accounts.findFirst({
+    where: condition,
+    columns: {
+      accountHash: true,
+      isPrivate: true,
+    },
+  });
+
+  if (!accountCheck) {
+    if (accountHash) {
+      throw new AccountNotFoundByHashError(accountHash);
+    } else if (username) {
+      throw new AccountNotFoundByUsernameError(username);
+    } else {
+      throw new Error("Invalid options");
+    }
+  }
+
+  if (username && accountCheck.isPrivate) {
+    throw new AccountIsPrivateError(username);
+  }
 
   const data = await db.query.accounts.findFirst({
-    where: condition,
+    where: eq(accounts.accountHash, accountCheck.accountHash),
     with: {
       skills: {
         with: {
@@ -155,13 +188,7 @@ export async function getProfileFullWithHash({
   });
 
   if (!data) {
-    if (accountHash) {
-      throw new AccountNotFoundByHashError(accountHash);
-    } else if (username) {
-      throw new AccountNotFoundByUsernameError(username);
-    } else {
-      throw new Error("Invalid options");
-    }
+    throw new Error("Account data not found");
   }
 
   // map data into AccountFullWithHash

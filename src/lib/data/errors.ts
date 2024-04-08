@@ -15,3 +15,9 @@ export class AccountNotFoundByUsernameError extends AccountNotFoundError {
     super(`Account with username ${username} not found`);
   }
 }
+
+export class AccountIsPrivateError extends Error {
+  constructor(username: string) {
+    super(`Account with username ${username} is private`);
+  }
+}

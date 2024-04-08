@@ -1,10 +1,24 @@
 import { cache } from "react";
 import { Metadata } from "next";
 
+import { AccountIsPrivateError } from "~/lib/data/errors";
 import { getProfileFull } from "~/lib/data/profile/get-profile";
+import { ProfileFull } from "~/lib/domain/profile-data-types";
 import { Profile } from "~/components/profile";
 
-const getProfilleFullCached = cache(getProfileFull);
+const getProfilleFullCached = cache((param: string) => {
+  const decodedParam = decodeURIComponent(param);
+  return getProfileFull(
+    // usernames has a max length of 12 characters
+    param.length > 12
+      ? {
+          generatedUrlPath: decodedParam,
+        }
+      : {
+          username: decodedParam,
+        }
+  );
+});
 
 // Prevent generating pages at build time
 export async function generateStaticParams() {
@@ -14,9 +28,26 @@ export async function generateStaticParams() {
 export async function generateMetadata(props: {
   params: { username: string };
 }) {
-  const profile = await getProfilleFullCached({
-    username: decodeURIComponent(props.params.username),
-  });
+  let profile: ProfileFull | null = null;
+  try {
+    profile = await getProfilleFullCached(props.params.username);
+  } catch (error) {
+    if (error instanceof AccountIsPrivateError) {
+      return {
+        title: `${decodeURIComponent(props.params.username)} | RuneProfile`,
+        robots: {
+          index: false,
+        },
+      };
+    }
+
+    return {
+      title: "Profile not found | RuneProfile",
+      robots: {
+        index: false,
+      },
+    };
+  }
 
   const title = `${profile.username} | RuneProfile`;
   const description = profile.description ?? "";
@@ -59,9 +90,26 @@ export default async function ProfilePage(props: {
     username: string;
   };
 }) {
-  const profile = await getProfilleFullCached({
-    username: decodeURIComponent(props.params.username),
-  });
+  let profile: ProfileFull | null = null;
+  try {
+    profile = await getProfilleFullCached(props.params.username);
+  } catch (error) {
+    if (error instanceof AccountIsPrivateError) {
+      return (
+        <div className="container flex flex-col items-center justify-center space-y-2 pt-48">
+          <p className="text-5xl font-bold text-primary">
+            PRIVATE <span className="text-secondary">PROFILE</span>
+          </p>
+          <p className="text-primary-foreground">
+            {decodeURIComponent(props.params.username)} has set their profile to
+            private
+          </p>
+        </div>
+      );
+    }
+
+    throw error;
+  }
 
   return <Profile profile={profile} />;
 }
