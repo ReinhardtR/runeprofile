@@ -39,6 +39,13 @@ const fontOsrs = localFont({
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>RuneProfile</title>
+        <desc>
+          RuneProfile is a website and plugin that allows you to track and share
+          your Old School RuneScape progress and achievements with others.
+        </desc>
+      </head>
       <body
         className={cn(
           "m-0 min-h-screen scroll-smooth bg-background font-sans text-foreground",
