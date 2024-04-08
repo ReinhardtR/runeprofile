@@ -11,6 +11,7 @@ import "~/styles/globals.css";
 
 import { cn } from "~/lib/utils/cn";
 import { TailwindIndicator } from "~/components/misc/tailwind-indicator";
+import { QuickFeedbackDialog } from "~/components/quick-feedback-dialog";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <Providers>
+          <QuickFeedbackDialog />
           {/* <SearchDialog /> */}
           {props.children}
         </Providers>

@@ -1,50 +1,51 @@
-export default function Spinner() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="shape m-auto block h-full w-full"
-      // style="margin: auto; background: rgb(255, 255, 255); display: block; shape-rendering: auto;"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="xMidYMid"
-    >
-      <circle cx="30" cy="50" className="fill-primary" r="20">
-        <animate
-          attributeName="cx"
-          repeatCount="indefinite"
-          dur="1s"
-          keyTimes="0;0.5;1"
-          values="30;70;30"
-          begin="-0.5s"
-        ></animate>
-      </circle>
-      <circle cx="70" cy="50" className="fill-accent" r="20">
-        <animate
-          attributeName="cx"
-          repeatCount="indefinite"
-          dur="1s"
-          keyTimes="0;0.5;1"
-          values="30;70;30"
-          begin="0s"
-        ></animate>
-      </circle>
-      <circle cx="30" cy="50" className="fill-primary" r="20">
-        <animate
-          attributeName="cx"
-          repeatCount="indefinite"
-          dur="1s"
-          keyTimes="0;0.5;1"
-          values="30;70;30"
-          begin="-0.5s"
-        ></animate>
-        <animate
-          attributeName="fill-opacity"
-          values="0;0;1;1"
-          calcMode="discrete"
-          keyTimes="0;0.499;0.5;1"
-          dur="1s"
-          repeatCount="indefinite"
-        ></animate>
-      </circle>
-    </svg>
-  );
-}
+import React from "react";
+import { cva, VariantProps } from "class-variance-authority";
+
+import { cn } from "~/lib/utils/cn";
+
+const spinnerVariants = cva("animate-spin", {
+  variants: {
+    variant: {
+      default: "text-primary-foreground",
+    },
+    size: {
+      default: "h-4 w-4",
+      sm: "h-3 w-3",
+      lg: "h-5 w-5",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+    size: "default",
+  },
+});
+
+export interface SpinnerProps
+  extends React.HTMLAttributes<SVGSVGElement>,
+    VariantProps<typeof spinnerVariants> {}
+
+const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>(
+  ({ className, variant, size, ...props }, ref) => {
+    return (
+      <svg
+        ref={ref}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        className={cn(spinnerVariants({ variant, size, className }))}
+        {...props}
+      >
+        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+      </svg>
+    );
+  }
+);
+Spinner.displayName = "Spinner";
+
+export { Spinner };
