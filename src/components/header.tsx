@@ -92,7 +92,7 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
+          {/* <div className="w-full flex-1 md:w-auto md:flex-none">
             <Button
               variant="outline"
               className={cn(
@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
                 <span>K</span>
               </kbd>
             </Button>
-          </div>
+          </div> */}
           <nav>
             <Link
               href="https://discord.gg/6XgBcePAfj"

@@ -51,7 +51,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <Providers>
-          <SearchDialog />
+          {/* <SearchDialog /> */}
           {props.children}
         </Providers>
         <TailwindIndicator />
