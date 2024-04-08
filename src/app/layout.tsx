@@ -41,10 +41,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <title>RuneProfile</title>
-        <desc>
-          RuneProfile is a website and plugin that allows you to track and share
-          your Old School RuneScape progress and achievements with others.
-        </desc>
+        <meta
+          name="description"
+          content="RuneProfile is a website and RuneLite plugin that allows you to track and share your Old School RuneScape progress and achievements."
+        />
       </head>
       <body
         className={cn(
