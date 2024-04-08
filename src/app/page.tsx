@@ -97,14 +97,14 @@ export default async function LandingPage() {
             Scroll to Profile Example
           </Link>
         </div>
-        <div className="absolute inset-0 z-20 h-full w-full bg-primary">
+        <div className="max-w-screen absolute inset-0 z-20 h-full max-h-screen w-full bg-primary">
           <Image
             src={heroImage}
             placeholder="blur"
             quality={100}
             priority
             alt=""
-            className="h-full w-full object-cover mix-blend-multiply"
+            className="max-w-screen h-full max-h-screen w-full object-cover mix-blend-multiply"
           />
         </div>
       </div>
