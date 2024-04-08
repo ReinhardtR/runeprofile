@@ -181,7 +181,7 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
 };
 
 const getAccountTypeAssetUrl = (gameMode: string) => {
-  return `/assets/hiscores/account-types/${gameMode}.png`;
+  return `/assets/hiscores/account-types/${gameMode.toLowerCase()}.png`;
 };
 
 const getActivityAssetUrl = (name: string) => {
