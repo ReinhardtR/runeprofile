@@ -31,8 +31,6 @@ export const getAvailableCollectionLogPages = async () => {
     },
   });
 
-  console.log(pages.map((p) => p.pageKcs));
-
   return pages.map((page) => {
     const kcs = page.pageKcs
       .filter((pageKc) => pageKc.metaApproved && pageKc.kc.metaApproved)
