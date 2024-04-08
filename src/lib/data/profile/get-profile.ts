@@ -115,6 +115,7 @@ export async function getProfileFullWithHash({
                 columns: {
                   orderIdx: true,
                 },
+                where: (page) => eq(page.metaApproved, true),
                 with: {
                   page: {
                     columns: {
