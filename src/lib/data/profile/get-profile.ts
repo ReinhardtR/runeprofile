@@ -124,6 +124,7 @@ export async function getProfileFullWithHash({
             },
             with: {
               kcPages: {
+                where: (page) => eq(page.metaApproved, true),
                 columns: {
                   orderIdx: true,
                 },
@@ -172,6 +173,7 @@ export async function getProfileFullWithHash({
           kc: {
             columns: {
               label: true,
+              metaApproved: true,
             },
             with: {
               kcPages: {
@@ -179,6 +181,7 @@ export async function getProfileFullWithHash({
                   pageId: true,
                   orderIdx: true,
                 },
+                where: (data) => eq(data.metaApproved, true),
               },
             },
           },
