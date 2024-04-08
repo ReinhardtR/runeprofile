@@ -70,7 +70,7 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
               className="drop-shadow-solid"
             />
           )}
-          <span className="text-osrs-white text-xl">{username}</span>
+          <span className="text-xl text-osrs-white">{username}</span>
         </div>
 
         <div className="flex items-center justify-center space-x-1 text-osrs-orange">
@@ -96,7 +96,7 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
           <TooltipTrigger asChild>
             <InfoCircledIcon className="m-1 ml-auto h-6 w-6 text-osrs-orange drop-shadow-solid" />
           </TooltipTrigger>
-          <TooltipContent className="flex w-[230px] flex-col space-y-1 font-runescape text-lg">
+          <TooltipContent className="flex w-[250px] flex-col space-y-1 font-runescape text-lg">
             <p>
               <span className="font-bold text-osrs-orange">CREATED AT </span>
               <span className="text-light-gray">{createdAt}</span>
