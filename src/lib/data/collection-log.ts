@@ -10,7 +10,7 @@ export const getAvailableCollectionLogPages = async () => {
       name: true,
       orderIdx: true,
     },
-    where: eq(clogPages.metaApproved, true),
+    where: (row) => eq(row.metaApproved, true),
     orderBy: (page, { asc }) => [asc(page.orderIdx)],
     with: {
       pageKcs: {
@@ -30,6 +30,8 @@ export const getAvailableCollectionLogPages = async () => {
       },
     },
   });
+
+  console.log(pages.map((p) => p.pageKcs));
 
   return pages.map((page) => {
     const kcs = page.pageKcs
