@@ -37,9 +37,56 @@ const KillCountSchema = z.object({
   count: z.number(),
 });
 
+const ITEMS_TO_MERGE = [
+  {
+    fromId: 13641,
+    toId: 13640,
+    toName: "Farmer's boro trousers",
+  },
+  {
+    fromId: 13643,
+    toId: 13642,
+    toName: "Farmer's jacket",
+  },
+  {
+    fromId: 13645,
+    toId: 13644,
+    toName: "Farmer's strawhat",
+  },
+  {
+    fromId: 13647,
+    toId: 13646,
+    toName: "Farmer's boots",
+  },
+] as const;
+
 const CollectionLogEntrySchema = z.object({
   index: z.number(),
-  items: z.array(CollectionLogItemSchema),
+  items: z.array(CollectionLogItemSchema).transform((items) => {
+    return items.flatMap((item, _index, self) => {
+      for (const { fromId, toId, toName } of ITEMS_TO_MERGE) {
+        if (item.id === fromId) {
+          const other = self.find((i) => i.id === toId);
+
+          if (!other) {
+            return {
+              ...item,
+              id: toId,
+              name: toName,
+            };
+          }
+
+          return {
+            ...other,
+            name: toName,
+            quantity: Math.max(item.quantity, other.quantity),
+          };
+        }
+      }
+
+      return item;
+    });
+  }),
   killCounts: z.array(KillCountSchema).optional(),
 });
 

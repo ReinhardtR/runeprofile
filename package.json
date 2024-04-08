@@ -16,7 +16,7 @@
     "db:push": "drizzle-kit push:sqlite",
     "db:migrate": "NODE_ENV=development tsx --env-file=.env ./src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
-    "move": "NODE_ENV=development NODE_OPTIONS=--max-old-space-size=12000 tsx --env-file=.env ./move.ts"
+    "move": "NODE_ENV=development tsx --env-file=.env ./move.ts"
   },
   "dependencies": {
     "@google-cloud/storage": "^6.12.0",
