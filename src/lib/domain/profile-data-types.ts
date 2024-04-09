@@ -152,8 +152,10 @@ export type CollectionLogItemObtainedAt = {
 export const HiscoresGameMode = {
   NORMAL: "NORMAL",
   IRONMAN: "IRONMAN",
-  HARDCORE: "HARDCORE",
-  ULTIMATE: "ULTIMATE",
+  HARDCORE_IRONMAN: "HARDCORE_IRONMAN",
+  ULTIMATE_IRONMAN: "ULTIMATE_IRONMAN",
+  "1_DEFENCE_PURE": "1_DEFENCE_PURE",
+  LEVEL_3_SKILLER: "LEVEL_3_SKILLER",
 } as const;
 export type HiscoresGameMode = keyof typeof HiscoresGameMode;
 
