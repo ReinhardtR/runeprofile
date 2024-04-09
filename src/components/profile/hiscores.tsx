@@ -110,15 +110,13 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
       </Select>
       <div className="mt-1 h-full overflow-y-scroll border-2 border-osrs-dark-border">
         <Table>
-          <TableHeader className="font-runescape text-lg">
+          <TableHeader className="font-runescape">
             <TableRow className="!border-0">
-              <TableHead className="h-1 w-[16px] font-bold text-osrs-orange">
-                Icon
-              </TableHead>
-              <TableHead className="h-1 font-bold text-osrs-orange">
+              <TableHead className="h-0" />
+              <TableHead className="h-0 font-bold leading-none text-osrs-gray">
                 Score
               </TableHead>
-              <TableHead className="h-1 text-right font-bold text-osrs-orange">
+              <TableHead className="leadning-none h-0 text-right font-bold text-osrs-gray">
                 Rank
               </TableHead>
             </TableRow>
@@ -126,53 +124,55 @@ export const Hiscores: React.FC<HiscoresProps> = ({ hiscores }) => {
           <TableBody className="text-white">
             {hiscores
               .find((h) => h.gameMode === gameMode)
-              ?.entries.map((entry) => (
-                <TableRow
-                  key={entry.activity}
-                  className="border-0 font-runescape text-lg font-bold text-osrs-yellow"
-                >
-                  <TableCell className="w-[16px] py-1">
-                    <Tooltip>
-                      <TooltipTrigger className="cursor-default">
-                        <ImageWithFallback
-                          src={getActivityAssetUrl(entry.activity)}
-                          alt={entry.activity}
-                          width={24}
-                          height={24}
-                          quality={100}
-                          className="drop-shadow-solid-sm"
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent className="text-lg text-osrs-orange">
-                        {entry.activity}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TableCell>
+              ?.entries.map((entry) => {
+                return (
+                  <TableRow
+                    key={entry.activity}
+                    className="border border-osrs-dark-border font-runescape text-lg font-bold text-osrs-yellow"
+                  >
+                    <TableCell className="p-1 pl-2 pr-1">
+                      <Tooltip>
+                        <TooltipTrigger className="cursor-default">
+                          <ImageWithFallback
+                            src={getActivityAssetUrl(entry.activity)}
+                            alt={entry.activity}
+                            width={24}
+                            height={24}
+                            quality={100}
+                            className="drop-shadow-solid-sm"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent className="text-lg text-osrs-orange">
+                          {entry.activity}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableCell>
 
-                  <TableCell
-                    className={cn("py-1", {
-                      "text-osrs-green": entry.score === 200_000_000,
-                      "text-osrs-red": entry.score === -1,
-                    })}
-                  >
-                    {entry.score === -1
-                      ? "---"
-                      : entry.score > 10_000
-                        ? numberWithAbbreviation(entry.score)
-                        : numberWithDelimiter(entry.score)}
-                  </TableCell>
-                  <TableCell
-                    className={cn("py-1 text-right", {
-                      "text-osrs-green": entry.rank === 1,
-                      "text-osrs-red": entry.rank === -1,
-                    })}
-                  >
-                    {entry.rank === -1
-                      ? "---"
-                      : numberWithDelimiter(entry.rank)}
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell
+                      className={cn("py-1", {
+                        "text-osrs-green": entry.score === 200_000_000,
+                        "text-osrs-red": entry.score === -1,
+                      })}
+                    >
+                      {entry.score === -1
+                        ? "---"
+                        : entry.score > 10_000
+                          ? numberWithAbbreviation(entry.score)
+                          : numberWithDelimiter(entry.score)}
+                    </TableCell>
+                    <TableCell
+                      className={cn("py-1 text-right", {
+                        "text-osrs-green": entry.rank === 1,
+                        "text-osrs-red": entry.rank === -1,
+                      })}
+                    >
+                      {entry.rank === -1
+                        ? "---"
+                        : numberWithDelimiter(entry.rank)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </div>
