@@ -43,6 +43,8 @@ export async function updateProfile({
 
   const queries: BatchItem<"sqlite">[] = [];
 
+  console.log(`-- Updating profile for ${username} --`);
+
   // --- UPDATE GAME QUERIES ---
   // update skills
   if (changedData.game.skills.length > 0) {
