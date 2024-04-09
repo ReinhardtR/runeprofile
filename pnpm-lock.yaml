@@ -158,6 +158,9 @@ dependencies:
   three:
     specifier: ^0.141.0
     version: 0.141.0
+  use-debounce:
+    specifier: ^10.0.0
+    version: 10.0.0(react@18.2.0)
   zod:
     specifier: ^3.22.2
     version: 3.22.2
@@ -8150,6 +8153,15 @@ packages:
       '@types/react': 18.2.73
       react: 18.2.0
       tslib: 2.6.2
+    dev: false
+
+  /use-debounce@10.0.0(react@18.2.0):
+    resolution: {integrity: sha512-XRjvlvCB46bah9IBXVnq/ACP2lxqXyZj0D9hj4K5OzNroMDpTEBg8Anuh1/UfRTRs7pLhQ+RiNxxwZu9+MVl1A==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /use-sidecar@1.1.2(@types/react@18.2.73)(react@18.2.0):
