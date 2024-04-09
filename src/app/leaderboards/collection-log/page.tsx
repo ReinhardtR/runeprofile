@@ -1,3 +1,4 @@
+import { Route } from "next";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -83,7 +84,7 @@ export default async function CollectionLeaderboardPage({
           <Link href="/">Home Teleport</Link>
         </Button>
         <Button size="lg" variant="outline" asChild>
-          <Link href="/info/change-log">Change Log</Link>
+          <Link href={`/info/change-log` as Route}>Change Log</Link>
         </Button>
       </div>
     </StatusLayout>
