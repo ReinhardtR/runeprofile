@@ -2,21 +2,22 @@ import Link from "next/link";
 
 import { Button } from "~/components/ui/button";
 import { Layout } from "~/components/layout";
+import { StatusLayout, StatusMessage, StatusTitle } from "~/components/status";
 
 export default function NotFound() {
   return (
     <Layout>
-      <div className="container flex flex-col items-center justify-center space-y-2 pt-48">
-        <p className="text-5xl font-bold text-primary">
+      <StatusLayout>
+        <StatusTitle>
           NOT <span className="text-secondary">FOUND</span>
-        </p>
-        <p className="pb-8 text-primary-foreground">
+        </StatusTitle>
+        <StatusMessage>
           The page you were trying to access does not exist.
-        </p>
+        </StatusMessage>
         <Button size="lg">
           <Link href="/">Home Teleport</Link>
         </Button>
-      </div>
+      </StatusLayout>
     </Layout>
   );
 }

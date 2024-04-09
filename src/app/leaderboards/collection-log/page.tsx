@@ -1,7 +1,10 @@
 import { unstable_cache } from "next/cache";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { count, desc, eq, sql } from "drizzle-orm";
 
+import { Button } from "~/components/ui/button";
+import { StatusLayout, StatusMessage, StatusTitle } from "~/components/status";
 import { db } from "~/db";
 import { accClogItems, accounts } from "~/db/schema";
 
@@ -70,10 +73,19 @@ export default async function CollectionLeaderboardPage({
   }
 
   return (
-    <div>
-      <pre className="text-primary-foreground">
-        {JSON.stringify(pagination, null, 2)}
-      </pre>
-    </div>
+    <StatusLayout>
+      <StatusTitle>
+        UNDER <span className="text-secondary">MAINTENANCE</span>
+      </StatusTitle>
+      <StatusMessage>Check the change log for more information.</StatusMessage>
+      <div className="flex space-x-4">
+        <Button size="lg">
+          <Link href="/">Home Teleport</Link>
+        </Button>
+        <Button size="lg" variant="outline" asChild>
+          <Link href="/info/change-log">Change Log</Link>
+        </Button>
+      </div>
+    </StatusLayout>
   );
 }

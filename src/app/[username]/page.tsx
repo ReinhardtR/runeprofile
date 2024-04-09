@@ -6,6 +6,7 @@ import { AccountIsPrivateError } from "~/lib/data/errors";
 import { getProfileFull } from "~/lib/data/profile/get-profile";
 import { ProfileFull } from "~/lib/domain/profile-data-types";
 import { Profile } from "~/components/profile";
+import { StatusLayout, StatusMessage, StatusTitle } from "~/components/status";
 
 const getProfilleFullCached = cache((param: string) => {
   const decodedParam = decodeURIComponent(param);
@@ -97,15 +98,15 @@ export default async function ProfilePage(props: {
   } catch (error) {
     if (error instanceof AccountIsPrivateError) {
       return (
-        <div className="container flex flex-col items-center justify-center space-y-2 pt-48">
-          <p className="text-5xl font-bold text-primary">
+        <StatusLayout>
+          <StatusTitle>
             PRIVATE <span className="text-secondary">PROFILE</span>
-          </p>
-          <p className="text-primary-foreground">
+          </StatusTitle>
+          <StatusMessage>
             {decodeURIComponent(props.params.username)} has set their profile to
             private
-          </p>
-        </div>
+          </StatusMessage>
+        </StatusLayout>
       );
     }
 
