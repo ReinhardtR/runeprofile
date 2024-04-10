@@ -199,7 +199,8 @@ export function getAccountCollectionLogItemChanges(
 
     if (
       !oldItem || //
-      oldItem.quantity < newItem.quantity
+      oldItem.quantity < newItem.quantity ||
+      (!oldItem.obtainedAt && newItem.quantity > 0)
     ) {
       const existingChange = changes.find((c) => c.itemId === newItem.itemId);
       const newlyObtained =
