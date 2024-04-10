@@ -23,6 +23,7 @@ import {
   combatAchievementTiers,
   hiscoresEntries,
   quests,
+  SchemaAccountType,
   skills,
 } from "~/db/schema";
 
@@ -283,7 +284,9 @@ export async function updateProfile({
         .insert(accounts)
         .values({
           accountHash,
-          accountType: changedData.account.account?.accountType || accountType,
+          accountType: (
+            changedData.account.account?.accountType || accountType
+          ).toLowerCase() as SchemaAccountType,
           username: changedData.account.account?.username || username,
           questPoints: changedData.account.questList?.points || questPoints,
         })
