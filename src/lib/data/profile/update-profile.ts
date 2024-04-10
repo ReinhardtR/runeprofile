@@ -1,4 +1,4 @@
-import { and, eq, ne, or, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import { BatchItem } from "drizzle-orm/batch";
 
 import { AccountType } from "~/lib/domain/profile-data-types";
@@ -492,7 +492,10 @@ export async function updateProfile({
           },
           where: or(
             ne(accClogItems.quantity, sql`excluded.quantity`),
-            ne(accClogItems.obtainedAt, sql`excluded.obtained_at`)
+            and(
+              isNull(accClogItems.obtainedAt),
+              isNotNull(sql`excluded.obtained_at`)
+            )
           ),
         })
     );
