@@ -12,22 +12,20 @@ import { accHiscoresEntries } from "~/db/schema/acc-hiscores-entries";
 import { accQuests } from "~/db/schema/acc-quests";
 import { accSkills } from "~/db/schema/acc-skills";
 
-const ACCOUNT_TYPE = {
-  NORMAL: "normal",
-  IRONMAN: "ironman",
-  HARDCORE_IRONMAN: "hardcore_ironman",
-  ULTIMATE_IRONMAN: "ultimate_ironman",
-  GROUP_IRONMAN: "group_ironman",
-  HARDCORE_GROUP_IRONMAN: "hardcore_group_ironman",
-  UNRANKED_GROUP_IRONMAN: "unranked_group_ironman",
-} as const;
-export type AccountTypeEnum = keyof typeof ACCOUNT_TYPE;
+const AccountTypeEnum = [
+  "normal",
+  "ironman",
+  "hardcore_ironman",
+  "ultimate_ironman",
+  "group_ironman",
+  "hardcore_group_ironman",
+  "unranked_group_ironman",
+] as const;
+export type SchemaAccountType = (typeof AccountTypeEnum)[number];
 
 export const accounts = sqliteTable("accounts", {
   accountHash: text("account_hash", { length: 40 }).notNull().primaryKey(),
-  accountType: text("account_type", {
-    enum: Object.values(ACCOUNT_TYPE) as [string, ...string[]],
-  }).notNull(),
+  accountType: text("account_type", { enum: AccountTypeEnum }).notNull(),
   username: text("username", { length: 12 }).unique().notNull(),
   generatedUrlPath: text("generated_url_path", { length: 16 }).unique(),
   modelUri: text("model_uri", { length: 255 }),
