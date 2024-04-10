@@ -490,6 +490,13 @@ export async function updateProfile({
             quantity: sql`excluded.quantity`,
             obtainedAt: sql`excluded.obtained_at`,
           },
+          where: or(
+            ne(accClogItems.quantity, sql`excluded.quantity`),
+            and(
+              isNull(accClogItems.obtainedAt),
+              isNotNull(sql`excluded.obtained_at`)
+            )
+          ),
         })
     );
   }
