@@ -172,14 +172,21 @@ export type AccountCollectionLogItemChange = {
 export type GetAccountCollectionLogItemChangesInputDataOld = {
   itemId: number;
   quantity: number;
+  obtainedAt?: Date;
   kcs: {
     label: string;
     count: number;
   }[];
 }[];
 
-export type GetAccountCollectionLogItemChangesInputDataNew =
-  GetAccountCollectionLogItemChangesInputDataOld;
+export type GetAccountCollectionLogItemChangesInputDataNew = {
+  itemId: number;
+  quantity: number;
+  kcs: {
+    label: string;
+    count: number;
+  }[];
+}[];
 
 export function getAccountCollectionLogItemChanges(
   oldData: GetAccountCollectionLogItemChangesInputDataOld | undefined,
@@ -196,7 +203,8 @@ export function getAccountCollectionLogItemChanges(
     ) {
       const existingChange = changes.find((c) => c.itemId === newItem.itemId);
       const newlyObtained =
-        (!oldItem || oldItem.quantity === 0) && newItem.quantity > 0;
+        (!oldItem || oldItem.quantity === 0 || !oldItem.obtainedAt) &&
+        newItem.quantity > 0;
 
       if (existingChange) {
         existingChange.quantity = Math.max(
@@ -215,17 +223,14 @@ export function getAccountCollectionLogItemChanges(
                 ),
               ],
             }
-          : newlyObtained && newItem.kcs.length > 0
+          : newlyObtained
             ? { kcs: newItem.kcs }
             : undefined;
       } else {
         changes.push({
           itemId: newItem.itemId,
           quantity: newItem.quantity,
-          newlyObtained:
-            newlyObtained && newItem.kcs.length > 0
-              ? { kcs: newItem.kcs }
-              : undefined,
+          newlyObtained: newlyObtained ? { kcs: newItem.kcs } : undefined,
         });
       }
     }

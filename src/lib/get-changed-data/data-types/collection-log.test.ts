@@ -394,6 +394,7 @@ describe("getAccountCollectionLogItemChanges", () => {
         {
           itemId: 1,
           quantity: 1,
+          obtainedAt: new Date(),
           kcs: [],
         },
       ],
@@ -425,6 +426,7 @@ describe("getAccountCollectionLogItemChanges", () => {
         {
           itemId: 1,
           quantity: 1,
+          obtainedAt: new Date(),
           kcs: [],
         },
         {
@@ -525,6 +527,7 @@ describe("getAccountCollectionLogItemChanges", () => {
         {
           itemId: 1,
           quantity: 1,
+          obtainedAt: new Date(),
           kcs: [
             {
               label: "Abyssal Sire kills",

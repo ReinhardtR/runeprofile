@@ -142,6 +142,7 @@ const getAccountCollectionLogItemChangesInputDataOld = (
   return data.collectionLog.items.map((item) => ({
     itemId: item.id,
     quantity: item.quantity,
+    obtainedAt: item.obtainedAt?.timestamp,
     kcs: data.collectionLog.tabs
       .flatMap((t) => t.pages)
       .filter((p) => p.itemIds.includes(item.id))
