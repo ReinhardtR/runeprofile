@@ -12,7 +12,7 @@ const getProfilleFullCached = cache((param: string) => {
   const decodedParam = decodeURIComponent(param);
   return getProfileFull(
     // usernames has a max length of 12 characters
-    param.length > 12
+    decodedParam.length > 12
       ? {
           generatedUrlPath: decodedParam,
         }
