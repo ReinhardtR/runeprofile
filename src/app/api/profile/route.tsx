@@ -19,8 +19,7 @@ import { db } from "~/db";
 import { accounts } from "~/db/schema";
 
 export async function PUT(request: Request) {
-  const body = await request.json();
-  const parsedPluginData = PlayerDataSchema.parse(body);
+  const parsedPluginData = PlayerDataSchema.parse(await request.json());
   const newData = getFormattedPluginData(parsedPluginData);
   let oldData: ProfileFullWithHash | null = null;
 

@@ -13,7 +13,7 @@ const PutBodySchema = z.object({
 });
 
 export async function PUT(request: Request) {
-  const parseResult = PutBodySchema.safeParse(request.body);
+  const parseResult = PutBodySchema.safeParse(await request.json());
   if (!parseResult.success) {
     return new Response("Invalid input", { status: 400 });
   }
