@@ -110,6 +110,7 @@ export default async function ProfilePage(props: {
       );
     }
 
+    console.error(error);
     return notFound();
   }
 

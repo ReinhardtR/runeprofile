@@ -38,6 +38,7 @@ export async function PUT(request: Request) {
       buffer: Buffer.from(model, "base64"),
     });
   } catch (error) {
+    console.error(error);
     return new Response("Failed to upload model to storage", { status: 500 });
   }
 
