@@ -237,10 +237,12 @@ const HiscoresLeaderboardSchema = z.object({
 });
 
 const HiscoresSchema = z.object({
-  normal: HiscoresLeaderboardSchema,
-  ironman: HiscoresLeaderboardSchema,
-  hardcore: HiscoresLeaderboardSchema,
-  ultimate: HiscoresLeaderboardSchema,
+  NORMAL: HiscoresLeaderboardSchema,
+  IRONMAN: HiscoresLeaderboardSchema,
+  HARDCORE_IRONMAN: HiscoresLeaderboardSchema,
+  ULTIMATE_IRONMAN: HiscoresLeaderboardSchema,
+  "1_DEFENCE_PURE": HiscoresLeaderboardSchema,
+  LEVEL_3_SKILLER: HiscoresLeaderboardSchema,
 });
 
 export const PlayerDataSchema = z.object({
@@ -306,7 +308,7 @@ export function getFormattedPluginData(pluginData: PluginDataRaw) {
 
   const hiscores = Object.entries(pluginData.hiscores).map(
     ([gameMode, data]) => ({
-      gameMode: gameMode.toUpperCase() as HiscoresGameMode,
+      gameMode: gameMode as HiscoresGameMode,
       activities: [
         ...data.skills.map((skill) => ({
           name: skill.name,
