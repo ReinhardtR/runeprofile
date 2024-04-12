@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -62,5 +63,8 @@ export async function PUT(request: Request) {
     return new Response("Failed to revalidate profile", { status: 500 });
   }
 
-  return new Response("ok", { status: 200 });
+  return NextResponse.json({
+    isPrivate: isPrivate,
+    generatedPath: newGeneratedPath ?? "None",
+  });
 }
