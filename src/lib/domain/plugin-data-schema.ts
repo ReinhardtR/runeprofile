@@ -255,7 +255,7 @@ export const PlayerDataSchema = z.object({
   questList: QuestListSchema,
   achievementDiaries: AchievementDiariesSchema,
   combatAchievements: CombatAchievementsSchema,
-  hiscores: HiscoresSchema,
+  // hiscores: HiscoresSchema,
   collectionLog: CollectionLogSchema,
 });
 
@@ -306,31 +306,31 @@ export function getFormattedPluginData(pluginData: PluginDataRaw) {
     })
   );
 
-  const hiscores = Object.entries(pluginData.hiscores).map(
-    ([gameMode, data]) => ({
-      gameMode: gameMode as HiscoresGameMode,
-      activities: [
-        ...data.skills.map((skill) => ({
-          name: skill.name,
-          rank: skill.rank,
-          score: skill.xp,
-          orderIdx: skill.index,
-        })),
-        ...data.activities.map((activity) => ({
-          name: activity.name,
-          rank: activity.rank,
-          score: activity.score,
-          orderIdx: activity.index,
-        })),
-        ...data.bosses.map((boss) => ({
-          name: boss.name,
-          rank: boss.rank,
-          score: boss.kills,
-          orderIdx: boss.index,
-        })),
-      ],
-    })
-  );
+  // const hiscores = Object.entries(pluginData.hiscores).map(
+  //   ([gameMode, data]) => ({
+  //     gameMode: gameMode as HiscoresGameMode,
+  //     activities: [
+  //       ...data.skills.map((skill) => ({
+  //         name: skill.name,
+  //         rank: skill.rank,
+  //         score: skill.xp,
+  //         orderIdx: skill.index,
+  //       })),
+  //       ...data.activities.map((activity) => ({
+  //         name: activity.name,
+  //         rank: activity.rank,
+  //         score: activity.score,
+  //         orderIdx: activity.index,
+  //       })),
+  //       ...data.bosses.map((boss) => ({
+  //         name: boss.name,
+  //         rank: boss.rank,
+  //         score: boss.kills,
+  //         orderIdx: boss.index,
+  //       })),
+  //     ],
+  //   })
+  // );
 
   const collectionLog = {
     uniqueItemsTotal: pluginData.collectionLog.uniqueItemsTotal,
@@ -364,7 +364,8 @@ export function getFormattedPluginData(pluginData: PluginDataRaw) {
     questList,
     achievementDiaries,
     combatAchievements,
-    hiscores,
+    // hiscores,
+    hiscores: [],
     collectionLog,
   };
 }
