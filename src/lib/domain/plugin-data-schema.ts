@@ -358,6 +358,16 @@ export function getFormattedPluginData(pluginData: PluginDataRaw) {
     ),
   };
 
+  const hiscores: {
+    gameMode: HiscoresGameMode;
+    activities: {
+      name: string;
+      rank: number;
+      score: number;
+      orderIdx: number;
+    }[];
+  }[] = [];
+
   return {
     ...account,
     skills,
@@ -365,7 +375,7 @@ export function getFormattedPluginData(pluginData: PluginDataRaw) {
     achievementDiaries,
     combatAchievements,
     // hiscores,
-    hiscores: [],
+    hiscores,
     collectionLog,
   };
 }
