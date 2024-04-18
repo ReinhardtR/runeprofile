@@ -237,12 +237,12 @@ const HiscoresLeaderboardSchema = z.object({
 });
 
 const HiscoresSchema = z.object({
-  NORMAL: HiscoresLeaderboardSchema,
-  IRONMAN: HiscoresLeaderboardSchema,
-  HARDCORE_IRONMAN: HiscoresLeaderboardSchema,
-  ULTIMATE_IRONMAN: HiscoresLeaderboardSchema,
-  "1_DEFENCE_PURE": HiscoresLeaderboardSchema,
-  LEVEL_3_SKILLER: HiscoresLeaderboardSchema,
+  NORMAL: HiscoresLeaderboardSchema.optional(),
+  IRONMAN: HiscoresLeaderboardSchema.optional(),
+  HARDCORE_IRONMAN: HiscoresLeaderboardSchema.optional(),
+  ULTIMATE_IRONMAN: HiscoresLeaderboardSchema.optional(),
+  "1_DEFENCE_PURE": HiscoresLeaderboardSchema.optional(),
+  LEVEL_3_SKILLER: HiscoresLeaderboardSchema.optional(),
 });
 
 export const PlayerDataSchema = z.object({
