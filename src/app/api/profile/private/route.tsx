@@ -33,11 +33,12 @@ export async function PUT(request: Request) {
     return new Response("Account not found", { status: 404 });
   }
 
-  if (currentAccount.isPrivate === isPrivate) {
-    return new Response(`Account privacy is already set to ${isPrivate}`, {
-      status: 400,
-    });
-  }
+  // this should work but for some reason it doesn't
+  // if (currentAccount.isPrivate === isPrivate) {
+  //   return new Response(`Account privacy is already set to ${isPrivate}`, {
+  //     status: 400,
+  //   });
+  // }
 
   const newGeneratedPath = isPrivate ? generatePath() : null;
 

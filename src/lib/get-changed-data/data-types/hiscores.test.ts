@@ -13,17 +13,17 @@ describe("getHiscoresActivityChanges", () => {
     const result = getHiscoresActivityChanges(
       [
         { gameMode: HiscoresGameMode.IRONMAN, orderIdx: 0, name: "A" },
-        { gameMode: HiscoresGameMode.HARDCORE, orderIdx: 1, name: "B" },
+        { gameMode: HiscoresGameMode.HARDCORE_IRONMAN, orderIdx: 1, name: "B" },
       ],
       [
         { gameMode: HiscoresGameMode.IRONMAN, orderIdx: 0, name: "A" },
-        { gameMode: HiscoresGameMode.HARDCORE, orderIdx: 1, name: "B" },
-        { gameMode: HiscoresGameMode.ULTIMATE, orderIdx: 2, name: "C" },
+        { gameMode: HiscoresGameMode.HARDCORE_IRONMAN, orderIdx: 1, name: "B" },
+        { gameMode: HiscoresGameMode.ULTIMATE_IRONMAN, orderIdx: 2, name: "C" },
       ]
     );
 
     expect(result).toEqual<HiscoresActivityChange[]>([
-      { gameMode: HiscoresGameMode.ULTIMATE, orderIdx: 2, name: "C" },
+      { gameMode: HiscoresGameMode.ULTIMATE_IRONMAN, orderIdx: 2, name: "C" },
     ]);
   });
 
@@ -49,11 +49,11 @@ describe("getHiscoresActivityChanges", () => {
     const result = getHiscoresActivityChanges(
       [
         { gameMode: HiscoresGameMode.IRONMAN, orderIdx: 0, name: "A" },
-        { gameMode: HiscoresGameMode.HARDCORE, orderIdx: 1, name: "B" },
+        { gameMode: HiscoresGameMode.HARDCORE_IRONMAN, orderIdx: 1, name: "B" },
       ],
       [
         { gameMode: HiscoresGameMode.IRONMAN, orderIdx: 0, name: "A" },
-        { gameMode: HiscoresGameMode.HARDCORE, orderIdx: 1, name: "B" },
+        { gameMode: HiscoresGameMode.HARDCORE_IRONMAN, orderIdx: 1, name: "B" },
       ]
     );
 
@@ -62,6 +62,41 @@ describe("getHiscoresActivityChanges", () => {
 });
 
 describe("getAccountHiscoresActivityChanges", () => {
+  test("initial", () => {
+    const result = getAccountHiscoresActivityChanges(
+      [],
+      [
+        {
+          gameMode: HiscoresGameMode.NORMAL,
+          name: "A",
+          rank: 1,
+          score: 100,
+        },
+        {
+          gameMode: HiscoresGameMode.IRONMAN,
+          name: "B",
+          rank: 2,
+          score: 200,
+        },
+      ]
+    );
+
+    expect(result).toEqual<AccountHiscoresActivityChange[]>([
+      {
+        gameMode: HiscoresGameMode.NORMAL,
+        name: "A",
+        rank: 1,
+        score: 100,
+      },
+      {
+        gameMode: HiscoresGameMode.IRONMAN,
+        name: "B",
+        rank: 2,
+        score: 200,
+      },
+    ]);
+  });
+
   test("activity score changed", () => {
     const result = getAccountHiscoresActivityChanges(
       [
@@ -176,7 +211,7 @@ describe("getAccountHiscoresActivityChanges", () => {
           score: 200,
         },
         {
-          gameMode: HiscoresGameMode.ULTIMATE,
+          gameMode: HiscoresGameMode.ULTIMATE_IRONMAN,
           name: "C",
           rank: 3,
           score: 300,
@@ -186,7 +221,7 @@ describe("getAccountHiscoresActivityChanges", () => {
 
     expect(result).toEqual<AccountHiscoresActivityChange[]>([
       {
-        gameMode: HiscoresGameMode.ULTIMATE,
+        gameMode: HiscoresGameMode.ULTIMATE_IRONMAN,
         name: "C",
         rank: 3,
         score: 300,

@@ -105,8 +105,9 @@ export type ChangedDataResult = {
 const getAccountHiscoresActivityChangesInputDataOld = (
   data: ProfileFullWithHash
 ): GetAccountHiscoresActivityChangesInputDataOld => {
+  console.log("hiscores: ", data.hiscores);
   const result: GetAccountHiscoresActivityChangesInputDataOld = [];
-  for (const leaderboard of Object.values(data.hiscores)) {
+  for (const leaderboard of data.hiscores) {
     for (const entry of leaderboard.entries) {
       result.push({
         gameMode: leaderboard.gameMode,
@@ -123,7 +124,7 @@ const getAccountHiscoresActivityChangesInputDataNew = (
   data: PluginData
 ): GetAccountHiscoresActivityChangesInputDataNew => {
   const result: GetAccountHiscoresActivityChangesInputDataNew = [];
-  for (const leaderboard of Object.values(data.hiscores)) {
+  for (const leaderboard of data.hiscores) {
     for (const entry of leaderboard.activities) {
       result.push({
         gameMode: leaderboard.gameMode,

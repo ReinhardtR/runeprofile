@@ -546,14 +546,29 @@ describe("getChangedData", () => {
           {
             itemId: 3,
             quantity: 0,
+            newlyObtained: undefined,
+          },
+          {
+            itemId: 4,
+            quantity: 1,
+            newlyObtained: {
+              kcs: [
+                {
+                  label: "Alchemical Hydra kills",
+                  count: 1,
+                },
+              ],
+            },
           },
           {
             itemId: 5,
             quantity: 0,
+            newlyObtained: undefined,
           },
           {
             itemId: 6,
             quantity: 0,
+            newlyObtained: undefined,
           },
         ],
         collectionLogPageKillCounts: [

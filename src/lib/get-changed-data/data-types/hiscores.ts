@@ -60,6 +60,8 @@ export function getAccountHiscoresActivityChanges(
   oldData: GetAccountHiscoresActivityChangesInputDataOld | undefined,
   newData: GetAccountHiscoresActivityChangesInputDataNew
 ): AccountHiscoresActivityChange[] {
+  console.log("oldData", oldData);
+  console.log("newData", newData);
   const changes: AccountHiscoresActivityChange[] = [];
 
   for (const newActivity of newData) {
@@ -82,5 +84,6 @@ export function getAccountHiscoresActivityChanges(
     }
   }
 
+  console.log("changes", changes);
   return changes;
 }
