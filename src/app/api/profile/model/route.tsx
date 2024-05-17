@@ -27,6 +27,7 @@ export async function PUT(request: Request) {
   });
 
   if (!account) {
+    console.log("Account not found", { accountHash })
     return new Response("Account not found", { status: 404 });
   }
 

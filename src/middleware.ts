@@ -20,9 +20,20 @@ export default async function middleware(
 ): Promise<Response | undefined> {
   const ip = request.ip ?? "127.0.0.1";
   const { success } = await ratelimit.limit(ip);
-  return success
-    ? NextResponse.next()
-    : new Response("Rate limit exceeded", { status: 429 });
+
+  if (!success) {
+    return new Response("Rate limit exceeded", { status: 429 });
+  }
+
+  const response = NextResponse.next();
+
+  console.log({
+    event,
+    request,
+    response,
+  });
+
+  return response;
 }
 
 export const config = {

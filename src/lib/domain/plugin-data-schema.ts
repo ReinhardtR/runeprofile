@@ -308,7 +308,7 @@ export function getFormattedPluginData(pluginData: PluginDataRaw) {
 
   const hiscores = Object.entries(pluginData.hiscores).map(
     ([gameMode, data]) => ({
-      gameMode: gameMode as HiscoresGameMode,
+      gameMode: gameMode.toUpperCase() as HiscoresGameMode,
       activities: [
         ...data.skills.map((skill) => ({
           name: skill.name,

@@ -53,6 +53,7 @@ export const getProfilePaths = async ({
 export const revalidateProfile = async (params: FindAccountOptions) => {
   const paths = await getProfilePaths(params);
   for (const path of paths) {
+    console.log("Revalidating path", { path });
     revalidatePath(path);
   }
 };
