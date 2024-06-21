@@ -72,9 +72,6 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
   const tab = collectionLog.tabs[tabName];
   const page = tab.pages[pageName]!;
 
-  console.log("tab: ", tabName);
-  console.log("page: ", pageName);
-
   if (!page) return null;
 
   const pageItemsObtained = page.items.filter(
@@ -170,7 +167,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
             )
           )}
         </ToggleGroup.Root>
-        <div className="h-full overflow-y-clip">
+        <div className="h-full overflow-y-hidden">
           <div className="flex h-full flex-col sm:flex-row">
             <div className="h-full">
               <ToggleGroup.Root
