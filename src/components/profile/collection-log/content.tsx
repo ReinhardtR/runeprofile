@@ -47,8 +47,7 @@ export type CollectionLogContentProps = {
   collectionLog: CollectionLogFormatted;
 };
 
-const TAB_PARAM_KEY = "tab";
-const PAGE_PARAM_KEY = "page";
+const CLOG_PARAM_KEY = "clog";
 
 export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
   username,
@@ -58,19 +57,33 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
   const searchParams = useSearchParams();
   const { createPathString } = useSearchParamsUtils();
 
-  let tabName = searchParams.get(TAB_PARAM_KEY)?.toLowerCase() as TabName;
-  if (!tabName || !isValidTab(tabName)) {
-    tabName = "bosses";
-  }
+  const tabNames = Object.keys(collectionLog.tabs) as TabName[];
+  console.log({ tabNames });
+  const pageNames = Object.values(collectionLog.tabs)
+    .map((t) => t.pages)
+    .map((p) => Object.keys(p))
+    .flat();
 
-  const pageNames = Object.keys(collectionLog.tabs[tabName].pages);
-  let pageName = searchParams.get(PAGE_PARAM_KEY)?.toLowerCase();
+  console.log({ pageNames });
+  let pageName = searchParams.get(CLOG_PARAM_KEY)?.toLowerCase();
+  console.log({ pageName });
   if (!pageName || !pageNames.includes(pageName)) {
     pageName = pageNames[0]!;
   }
+  console.log({ pageName });
+
+  const tabName = (Object.entries(collectionLog.tabs).find(([_, tab]) =>
+    Object.keys(tab.pages).includes(pageName)
+  )?.[0] || tabNames[0]) as TabName;
+  console.log({ tabName });
 
   const tab = collectionLog.tabs[tabName];
+  console.log({ tab });
+
+  if (!tab) return null;
+
   const page = tab.pages[pageName]!;
+  console.log({ page });
 
   if (!page) return null;
 
@@ -83,8 +96,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
     const firstPageName = Object.keys(collectionLog.tabs[newTab].pages)[0]!;
     router.replace(
       createPathString({
-        [TAB_PARAM_KEY]: newTab,
-        [PAGE_PARAM_KEY]: firstPageName,
+        [CLOG_PARAM_KEY]: firstPageName,
       }),
       { scroll: false }
     );
@@ -95,8 +107,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
     const firstPageName = Object.keys(collectionLog.tabs[newTab].pages)[0]!;
     router.prefetch(
       createPathString({
-        [TAB_PARAM_KEY]: newTab,
-        [PAGE_PARAM_KEY]: firstPageName,
+        [CLOG_PARAM_KEY]: firstPageName,
       })
     );
   };
@@ -105,8 +116,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
     if (!newPage) return;
     router.replace(
       createPathString({
-        [TAB_PARAM_KEY]: tabName,
-        [PAGE_PARAM_KEY]: newPage,
+        [CLOG_PARAM_KEY]: newPage,
       }),
       { scroll: false }
     );
@@ -115,8 +125,7 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
   const prefetchPage = (newPage: string) => {
     router.prefetch(
       createPathString({
-        [TAB_PARAM_KEY]: tabName,
-        [PAGE_PARAM_KEY]: newPage,
+        [CLOG_PARAM_KEY]: newPage,
       })
     );
   };
