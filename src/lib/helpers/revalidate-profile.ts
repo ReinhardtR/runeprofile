@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
 
 import {
@@ -53,7 +53,7 @@ export const getProfilePaths = async ({
 export const revalidateProfile = async (params: FindAccountOptions) => {
   const paths = await getProfilePaths(params);
   for (const path of paths) {
-    console.log("Revalidating path", { path });
-    revalidatePath(path);
+    console.log("Revalidating tag", { path });
+    revalidateTag(path.toLowerCase());
   }
 };

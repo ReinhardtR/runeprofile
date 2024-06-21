@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -56,7 +56,7 @@ export async function PUT(request: Request) {
   }
 
   if (currentAccount.generatedUrlPath) {
-    revalidatePath(`/${currentAccount.generatedUrlPath}`);
+    revalidateTag(`/${currentAccount.generatedUrlPath.toLowerCase()}`);
   }
 
   try {
