@@ -25,7 +25,7 @@ import {
   ProfileFullWithHash,
 } from "~/lib/domain/profile-data-types";
 import { db } from "~/db";
-import { accounts } from "~/db/schema";
+import { accounts, clogItems } from "~/db/schema";
 
 type FindAccountParams =
   | {
@@ -146,6 +146,7 @@ export async function getProfileFullWithHash({
             columns: {
               id: true,
               name: true,
+              metaApproved: true,
             },
             with: {
               itemPages: {
@@ -307,6 +308,10 @@ export async function getProfileFullWithHash({
       const items: CollectionLogItem[] = [];
 
       data.clogItems.forEach((itemData) => {
+        if (!itemData.item.metaApproved) {
+          return;
+        }
+
         uniqueItemsTotal += 1;
         if (itemData.obtainedAt) {
           uniqueItemsObtained += 1;
