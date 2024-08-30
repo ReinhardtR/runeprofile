@@ -91,7 +91,6 @@ export const CollectionLog = async ({
     }
   }
 
-  console.log("COLLECTION LOG ROOT");
   return (
     <Suspense
       fallback={

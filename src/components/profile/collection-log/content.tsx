@@ -58,33 +58,24 @@ export const CollectionLogContent: React.FC<CollectionLogContentProps> = ({
   const { createPathString } = useSearchParamsUtils();
 
   const tabNames = Object.keys(collectionLog.tabs) as TabName[];
-  console.log({ tabNames });
   const pageNames = Object.values(collectionLog.tabs)
     .map((t) => t.pages)
     .map((p) => Object.keys(p))
     .flat();
 
-  console.log({ pageNames });
   let pageName = searchParams.get(CLOG_PARAM_KEY)?.toLowerCase();
-  console.log({ pageName });
   if (!pageName || !pageNames.includes(pageName)) {
     pageName = pageNames[0]!;
   }
-  console.log({ pageName });
 
   const tabName = (Object.entries(collectionLog.tabs).find(([_, tab]) =>
     Object.keys(tab.pages).includes(pageName)
   )?.[0] || tabNames[0]) as TabName;
-  console.log({ tabName });
 
   const tab = collectionLog.tabs[tabName];
-  console.log({ tab });
-
   if (!tab) return null;
 
   const page = tab.pages[pageName]!;
-  console.log({ page });
-
   if (!page) return null;
 
   const pageItemsObtained = page.items.filter(

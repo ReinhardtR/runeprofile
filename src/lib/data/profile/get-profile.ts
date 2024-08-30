@@ -1,5 +1,4 @@
-import { cache } from "react";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { QuestState, QuestType } from "~/lib/constants/quests";
 import {
@@ -146,6 +145,7 @@ export async function getProfileFullWithHash({
             columns: {
               id: true,
               name: true,
+              metaApproved: true,
             },
             with: {
               itemPages: {
@@ -307,6 +307,8 @@ export async function getProfileFullWithHash({
       const items: CollectionLogItem[] = [];
 
       data.clogItems.forEach((itemData) => {
+        if (!itemData.item.metaApproved) return;
+
         uniqueItemsTotal += 1;
         if (itemData.obtainedAt) {
           uniqueItemsObtained += 1;
@@ -357,6 +359,8 @@ export async function getProfileFullWithHash({
             });
           }
         });
+
+        console.log("typeof", typeof itemData.obtainedAt);
 
         // Add item
         items.push({

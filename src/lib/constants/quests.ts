@@ -196,6 +196,7 @@ export const QUEST_TYPE_MAP: QuestTypeMapType = {
   Watchtower: QuestType.P2P,
   "Waterfall Quest": QuestType.P2P,
   "What Lies Below": QuestType.P2P,
+  "While Guthix Sleeps": QuestType.P2P,
   "Witch's House": QuestType.P2P,
   "Zogre Flesh Eaters": QuestType.P2P,
 
