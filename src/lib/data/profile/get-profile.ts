@@ -360,8 +360,6 @@ export async function getProfileFullWithHash({
           }
         });
 
-        console.log("typeof", typeof itemData.obtainedAt);
-
         // Add item
         items.push({
           id: itemData.item.id,
