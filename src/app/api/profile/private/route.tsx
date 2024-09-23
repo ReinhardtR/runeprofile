@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -34,7 +34,7 @@ export async function PUT(request: Request) {
     return new Response("Account not found", { status: 404 });
   }
 
-  // this should work but for some reason it doesn't
+  // this doesn't work for some reason
   // if (currentAccount.isPrivate === isPrivate) {
   //   return new Response(`Account privacy is already set to ${isPrivate}`, {
   //     status: 400,
@@ -56,7 +56,7 @@ export async function PUT(request: Request) {
   }
 
   if (currentAccount.generatedUrlPath) {
-    revalidateTag(`/${currentAccount.generatedUrlPath.toLowerCase()}`);
+    revalidatePath(`/${currentAccount.generatedUrlPath}`);
   }
 
   try {

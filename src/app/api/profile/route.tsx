@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -93,7 +93,7 @@ export async function DELETE(request: Request) {
 
   try {
     for (const path of paths) {
-      revalidateTag(path.toLowerCase());
+      revalidatePath(path);
     }
   } catch (error) {
     return new Response("Failed to revalidate profile", { status: 500 });

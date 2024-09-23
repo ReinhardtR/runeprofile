@@ -1,6 +1,5 @@
 import { cache } from "react";
 import { Metadata } from "next";
-import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 
 import { AccountIsPrivateError } from "~/lib/data/errors";
@@ -9,22 +8,19 @@ import { ProfileFull } from "~/lib/domain/profile-data-types";
 import { Profile } from "~/components/profile";
 import { StatusLayout, StatusMessage, StatusTitle } from "~/components/status";
 
-const getProfilleFullCached = unstable_cache(
-  (param: string) => {
-    const decodedParam = decodeURIComponent(param);
-    return getProfileFull(
-      // usernames has a max length of 12 characters
-      decodedParam.length > 12
-        ? {
-            generatedUrlPath: decodedParam,
-          }
-        : {
-            username: decodedParam,
-          }
-    );
-  },
-  ["get-profile-full"]
-);
+const getProfilleFullCached = cache((param: string) => {
+  const decodedParam = decodeURIComponent(param).toLowerCase();
+  return getProfileFull(
+    // usernames has a max length of 12 characters
+    decodedParam.length > 12
+      ? {
+          generatedUrlPath: decodedParam,
+        }
+      : {
+          username: decodedParam,
+        }
+  );
+});
 
 // Prevent generating pages at build time
 export async function generateStaticParams() {
@@ -35,6 +31,7 @@ export async function generateMetadata(props: {
   params: { username: string };
 }) {
   let profile: ProfileFull | null = null;
+
   try {
     profile = await getProfilleFullCached(props.params.username);
   } catch (error) {
@@ -100,7 +97,7 @@ export default async function ProfilePage(props: {
   try {
     profile = await getProfilleFullCached(
       // transform to lowercase so it uses same cache key for all cases
-      props.params.username.toLocaleLowerCase()
+      props.params.username
     );
   } catch (error) {
     if (error instanceof AccountIsPrivateError) {
