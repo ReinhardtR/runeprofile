@@ -11,6 +11,7 @@ import { Hiscores } from "~/components/profile/hiscores";
 import { QuestList } from "~/components/profile/quest-list";
 import { Skills } from "~/components/profile/skills";
 import { DataBarItem } from "~/app/_components/data-bar-item";
+import { SearchCTA } from "~/app/_components/search-cta";
 import heroImage from "~/assets/hero-image.png";
 
 export default async function LandingPage() {
@@ -76,11 +77,12 @@ export default async function LandingPage() {
               />
             </div>
           </div>
+          <SearchCTA className="mb-4" />
           <a
             href="https://runelite.net/plugin-hub/show/runeprofile"
             target="_blank"
             rel="noreferrer"
-            className="flex transform items-center justify-center space-x-2 rounded-full border-2 border-secondary bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+            className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
           >
             <Image
               src="/assets/misc/runelite-logo.png"
