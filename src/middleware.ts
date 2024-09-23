@@ -36,12 +36,11 @@ export default async function middleware(
     return NextResponse.next();
   }
 
-  // redirect to lowercase pathname, to use same cached routes
-  // const lowerPathname = url.pathname.toLowerCase();
-  // if (url.pathname !== lowerPathname) {
-  //   url.pathname = lowerPathname;
-  //   return NextResponse.redirect(url);
-  // }
+  const lowerPathname = url.pathname.toLowerCase();
+  if (url.pathname !== lowerPathname) {
+    url.pathname = lowerPathname;
+    return NextResponse.redirect(url);
+  }
 
   return NextResponse.next();
 }
