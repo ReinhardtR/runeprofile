@@ -43,19 +43,23 @@ type FindAccountParams =
       username?: never;
     };
 
+type FindAccountOptions = {
+  includePrivate?: boolean;
+};
+
 export async function getProfileFull(
-  params: FindAccountParams
+  params: FindAccountParams,
+  options = { includePrivate: false } as FindAccountOptions
 ): Promise<ProfileFull> {
   const { accountHash: _accountHash, ...profile } =
-    await getProfileFullWithHash(params);
+    await getProfileFullWithHash(params, options);
   return profile;
 }
 
-export async function getProfileFullWithHash({
-  accountHash,
-  username,
-  generatedUrlPath,
-}: FindAccountParams): Promise<ProfileFullWithHash> {
+export async function getProfileFullWithHash(
+  { accountHash, username, generatedUrlPath }: FindAccountParams,
+  options = { includePrivate: false } as FindAccountOptions
+): Promise<ProfileFullWithHash> {
   const condition = accountHash
     ? eq(accounts.accountHash, accountHash!)
     : username
@@ -82,7 +86,7 @@ export async function getProfileFullWithHash({
     }
   }
 
-  if (username && accountCheck.isPrivate) {
+  if (username && accountCheck.isPrivate && !options.includePrivate) {
     throw new AccountIsPrivateError(username);
   }
 

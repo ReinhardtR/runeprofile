@@ -15,9 +15,14 @@ import { SearchCTA } from "~/app/_components/search-cta";
 import heroImage from "~/assets/hero-image.png";
 
 export default async function LandingPage() {
-  const profile = await getProfileFull({
-    username: "PGN",
-  });
+  const profile = await getProfileFull(
+    {
+      username: "PGN",
+    },
+    {
+      includePrivate: true,
+    }
+  );
 
   return (
     <div className="flex flex-col">
