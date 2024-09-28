@@ -38,7 +38,7 @@
     "@radix-ui/react-toggle-group": "^1.0.4",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@react-three/drei": "^9.85.2",
-    "@react-three/fiber": "^8.14.3",
+    "@react-three/fiber": "9.0.0-alpha.8",
     "@sentry/nextjs": "^7.109.0",
     "@t3-oss/env-nextjs": "^0.3.1",
     "@tailwindcss/nesting": "0.0.0-insiders.565cd3e",
@@ -56,9 +56,9 @@
     "jotai": "^1.13.1",
     "libsql-stateless-easy": "^1.5.4",
     "nanoid": "^4.0.2",
-    "next": "14.2.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "next": "15.0.0-rc.0",
+    "react": "19.0.0-rc-3edc000d-20240926",
+    "react-dom": "19.0.0-rc-3edc000d-20240926",
     "server-only": "^0.0.1",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
@@ -80,7 +80,7 @@
     "autoprefixer": "^10.4.16",
     "drizzle-kit": "^0.20.13",
     "eslint": "8.18.0",
-    "eslint-config-next": "13.2.3",
+    "eslint-config-next": "15.0.0-rc.0",
     "eslint-plugin-tailwindcss": "^3.15.1",
     "postcss": "^8.4.30",
     "prettier": "^3.2.5",
@@ -89,5 +89,9 @@
     "tsx": "^4.7.2",
     "typescript": "5.4.3",
     "vitest": "^0.29.8"
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc"
   }
 }
