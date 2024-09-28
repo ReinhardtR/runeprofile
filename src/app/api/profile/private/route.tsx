@@ -34,14 +34,14 @@ export async function PUT(request: Request) {
     return new Response("Account not found", { status: 404 });
   }
 
-  // this doesn't work for some reason
-  // if (currentAccount.isPrivate === isPrivate) {
-  //   return new Response(`Account privacy is already set to ${isPrivate}`, {
-  //     status: 400,
-  //   });
-  // }
-
   const newGeneratedPath = isPrivate ? generatePath() : null;
+
+  console.log({
+    accountHash,
+    isPrivate,
+    currentGeneratedPath: currentAccount.generatedUrlPath,
+    newGeneratedPath,
+  });
 
   try {
     await db
