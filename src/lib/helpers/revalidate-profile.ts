@@ -42,7 +42,7 @@ export const getProfilePaths = async ({
     }
   }
 
-  const paths = [`/${account.username.toLowerCase()}`];
+  const paths = [`/${encodeURIComponent(account.username.toLowerCase())}`];
   if (account.generatedUrlPath) {
     paths.push(`/${account.generatedUrlPath}`);
   }
