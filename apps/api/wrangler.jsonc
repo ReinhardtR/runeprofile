@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "api",
+  "name": "runeprofile-api",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-01",
 }

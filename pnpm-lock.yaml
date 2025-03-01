@@ -67,6 +67,9 @@ importers:
       vite:
         specifier: ^6.0.3
         version: 6.2.0(tsx@4.19.3)
+      wrangler:
+        specifier: ^3.109.2
+        version: 3.111.0(@cloudflare/workers-types@4.20250224.0)
 
 packages:
 
