@@ -3,11 +3,4 @@
   "name": "api",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-01",
-  "d1_databases": [
-    {
-      "binding": "MY_DB",
-      "database_name": "my-database",
-      "database_id": "",
-    },
-  ],
 }
