@@ -6,6 +6,14 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "./src/*",
+        // required for typescript to work with the imported types from @runeprofile/api
+        "../api/src/*"
+      ]
+    }
+  },
 }
