@@ -6,7 +6,7 @@ export function JoinDiscordButton() {
   return (
     <Button className="mt-4" size="lg" asChild>
       <a
-        href="https://discord.com/users/476302464493158400"
+        href="https://discord.gg/jwx7uqnP"
         target="_blank"
         rel="noreferrer"
         className="no-underline"
