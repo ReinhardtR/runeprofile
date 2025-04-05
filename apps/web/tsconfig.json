@@ -11,9 +11,10 @@
     "paths": {
       "~/*": [
         "./src/*",
-        // required for typescript to work with the imported types from @runeprofile/api
-        "../api/src/*"
       ]
     }
   },
+  "include": [
+    "./src/**/*"
+  ]
 }

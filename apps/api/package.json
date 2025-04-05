@@ -1,15 +1,32 @@
 {
   "name": "@runeprofile/api",
-  "types": "./src/index.ts",
+  "exports": {
+    "./client": {
+      "import": {
+        "default": "./dist/lib/api-client.js",
+        "types": "./dist/lib/api-client.d.ts"
+      }
+    }
+  },
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify"
+    "dev": "wrangler dev src/index.ts",
+    "dev:api-client": "tsc -p tsconfig.build.json --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "deploy": "wrangler deploy --minify",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply runeprofile-db",
+    "db:migrate:remote": "wrangler d1 migrations apply runeprofile-db --remote"
   },
   "dependencies": {
-    "hono": "^4.7.2"
+    "@hono/zod-validator": "^0.4.3",
+    "@runeprofile/runescape": "workspace:*",
+    "drizzle-orm": "^0.40.0",
+    "hono": "^4.7.2",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",
+    "drizzle-kit": "^0.30.5",
     "wrangler": "^3.109.2"
   }
 }

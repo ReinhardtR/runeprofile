@@ -1,41 +1,215 @@
+/* Tailwind Config */
 @import "tailwindcss";
 
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: dark;
+
+  --background: oklch(0.039 0 0);
+  --foreground: oklch(0.98 0 0);
+
+  --card: oklch(0.039 0 0);
+  --card-foreground: oklch(0.98 0 0);
+
+  --popover: oklch(0.039 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+
+  --primary: oklch(0.62 0.17 262.88);
+  --primary-foreground: oklch(0.98 0.02 210);
+
+  --secondary: oklch(0.8 0.15 40);
+  --secondary-foreground: oklch(0.18 0.13 221);
+
+  --muted: oklch(0.149 0 0);
+  --muted-foreground: oklch(0.639 0 0);
+
+  --accent: oklch(0.149 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+
+  --destructive: oklch(0.53 0.23 15.6);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.149 0 0);
+  --input: oklch(0.149 0 0);
+  --ring: oklch(0.8 0.15 40);
+
+  --radius: 0.625rem;
+
+  --osrs-yellow: oklch(0.97 0.18 100);
+  --osrs-orange: oklch(0.77 0.23 55);
+  --osrs-red: oklch(0.57 0.28 30);
+  --osrs-green: oklch(0.73 0.24 145);
+  --osrs-gray: oklch(0.53 0.01 85);
+  --osrs-white: oklch(0.9 0 0);
+  --osrs-tab: oklch(0.2 0 0);
+  --osrs-tab-selected: oklch(0.25 0 0);
+  --osrs-border: oklch(0.4 0 0);
+  --osrs-dark-border: oklch(0.3 0 0);
+  --osrs-diary-low: oklch(0.6 0.28 35);
+  --osrs-diary-med: oklch(0.66 0.27 50);
+  --osrs-diary-high: oklch(0.72 0.25 75);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-osrs-yellow: var(--osrs-yellow);
+  --color-osrs-orange: var(--osrs-orange);
+  --color-osrs-red: var(--osrs-red);
+  --color-osrs-green: var(--osrs-green);
+  --color-osrs-gray: var(--osrs-gray);
+  --color-osrs-white: var(--osrs-white);
+  --color-osrs-tab: var(--osrs-tab);
+  --color-osrs-tab-selected: var(--osrs-tab-selected);
+  --color-osrs-border: var(--osrs-border);
+  --color-osrs-dark-border: var(--osrs-dark-border);
+  --color-osrs-diary-low: var(--osrs-diary-low);
+  --color-osrs-diary-med: var(--osrs-diary-med);
+  --color-osrs-diary-high: var(--osrs-diary-high);
+
+  --drop-shadow-solid: 2px 2px 0 black;
+  --drop-shadow-solid-sm: 1px 1px 0 black;
+
+  --font-runescape: "RuneScape";
+}
+
 @layer base {
-  :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 235 46% 53%;
-    --primary-foreground: 210 20% 98%;
-
-    --secondary: 40, 64%, 73%;
-    --secondary-foreground: 220.9 39.3% 11%;
-
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-
-    /* --ring: 0 0% 83.1%; */
-    --ring: 40, 64%, 73%;
-
-    --radius: 0.5rem;
-  }
-
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
+}
+
+/* Custom Styles */
+
+@font-face {
+  font-family: "RuneScape";
+  src: url("~/assets/fonts/runescape.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "RuneScape";
+  src: url("~/assets/fonts/runescape-bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+}
+
+.solid-text-shadow {
+  text-shadow:
+    1px 1px black,
+    1.5px 1.5px black,
+    2px 2px black;
+}
+
+.runescape-stats-tile {
+  background-image: url("~/assets/skills/tile.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  /* Aspect Ratio of the real image */
+  aspect-ratio: 2;
+
+  width: 77px;
+}
+
+.runescape-panel {
+  background-image: url("~/assets/card/background.png");
+  background-size: cover;
+  background-clip: padding-box;
+
+  border: solid transparent;
+  border-image-slice: 10 10 10 10;
+  border-image-width: 16px 16px 16px 16px;
+  border-image-outset: 0px 0px 0px 0px;
+  border-image-repeat: repeat;
+  border-image-source: url("~/assets/card/square.png");
+}
+
+.runescape-corners-border {
+  border-style: solid;
+  border-width: 12px 12px 12px 12px;
+  -moz-border-image: url("~/assets/combat-achievements/border.png") 9 9 9 9
+    round round;
+  -webkit-border-image: url("/assets/combat-achievements/border.png") 9 9 9 9
+    round round;
+  -o-border-image: url("~/assets/combat-achievements/border.png") 9 9 9 9 round
+    round;
+  border-image: url("~/assets/combat-achievements/border.png") 9 9 9 9 round
+    round;
+}
+
+.runescape-scroll-track {
+  background-image: url("~/assets/scrollbar/track.png");
+  background-size: contain;
+  height: 22px;
+  width: 22px;
+}
+
+.runescape-scroll-thumb {
+  width: 22px;
+  border-style: solid;
+  border-image-source: url("~/assets/scrollbar/thumb.png");
+  border-image-slice: 7;
+  border-image-width: 16px;
+  border-image-repeat: stretch;
+}
+
+.runescape-scroll-up {
+  background-image: url("~/assets/scrollbar/arrow_up.png");
+  background-size: contain;
+  height: 22px;
+  width: 22px;
+}
+
+.runescape-scroll-down {
+  background-image: url("~/assets/scrollbar/arrow_down.png");
+  background-size: contain;
+  height: 22px;
+  width: 22px;
+}
+
+/* Hide default scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide default scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

@@ -1,15 +1,12 @@
 import { cors } from "hono/cors";
-import { hono } from "./hono";
-import { profilesRouter } from "./profiles";
 
-const app = hono();
+import { newRouter } from "~/lib/helpers";
+import { profilesRouter } from "~/routes/profiles";
 
-app.use(cors());
-
-const router = app
-  .get("/", (c) => c.json({ root: "route" }))
+export default newRouter()
+  .use(cors())
+  .use(async (c, next) => {
+    await next();
+    c.header("Date", new Date().toUTCString());
+  })
   .route("/profiles", profilesRouter);
-
-export default app;
-
-export type ApiType = typeof router;

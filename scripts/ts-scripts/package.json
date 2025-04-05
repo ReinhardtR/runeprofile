@@ -1,0 +1,14 @@
+{
+  "name": "ts-scripts",
+  "private": true,
+  "scripts": {
+    "generate-icons": "tsx generate-icons.ts",
+    "generate-items": "tsx generate-items.ts"
+  },
+  "devDependencies": {
+    "@runeprofile/runescape": "workspace:*",
+    "@types/node": "^22.13.9",
+    "node": "^20.19.0",
+    "tsx": "^4.19.3"
+  }
+}

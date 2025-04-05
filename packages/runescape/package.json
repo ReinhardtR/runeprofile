@@ -1,0 +1,6 @@
+{
+  "name": "@runeprofile/runescape",
+  "private": true,
+  "description": "RuneScape related helpers and constants",
+  "main": "src/index.ts"
+}

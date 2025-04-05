@@ -3,18 +3,35 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
+    "dev": "turbo run dev dev:api-client",
+    "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "clean": "rm -rf node_modules && pnpm -r exec rm -rf node_modules"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "prettier": "^3.5.2",
     "turbo": "^2.4.4",
     "typescript": "^5.8.2"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "singleQuote": false,
+    "semi": true,
+    "trailingComma": "all",
+    "importOrder": [
+      "^@runeprofile/(.*)$",
+      "~/(.*)$",
+      "^[./]"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "plugins": [
+      "@trivago/prettier-plugin-sort-imports"
+    ]
   }
 }
