@@ -30,3 +30,7 @@ export function formatDate(date: string | Date) {
 export function getSkillXp(skills: Profile["skills"], skill: string) {
   return skills.find((s) => s.name === skill)?.xp || 0;
 }
+
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

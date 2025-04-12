@@ -3,6 +3,10 @@
   "name": "runeprofile-api",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-01",
+  "route": {
+    "pattern": "api.runeprofile.com",
+    "custom_domain": true
+  },
   "d1_databases": [
     {
       "binding": "DB",

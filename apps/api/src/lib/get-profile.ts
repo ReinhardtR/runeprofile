@@ -19,7 +19,7 @@ export async function getProfile(db: Database, username: string) {
     with: {
       achievementDiaryTiers: {
         columns: {
-          id: true,
+          areaId: true,
           tier: true,
           completedCount: true,
         },
@@ -45,7 +45,7 @@ export async function getProfile(db: Database, username: string) {
       },
       skills: {
         columns: {
-          id: true,
+          name: true,
           xp: true,
         },
       },
@@ -61,10 +61,11 @@ export async function getProfile(db: Database, username: string) {
     AccountTypes[0];
 
   const skills = profile.skills.map((profileSkill) => {
-    const skill = SKILLS.find((skill) => skill.id === profileSkill.id);
+    const skillName = SKILLS.find(
+      (skillName) => skillName === profileSkill.name,
+    );
     return {
-      id: profileSkill.id,
-      name: skill?.name || "Unknown",
+      name: skillName || "Unknown",
       xp: profileSkill.xp,
     };
   });
@@ -72,15 +73,15 @@ export async function getProfile(db: Database, username: string) {
   const achievementDiaryTiers = profile.achievementDiaryTiers.map(
     (profileTier) => {
       const area = ACHIEVEMENT_DIARIES.find(
-        (tier) => profileTier.id === tier.id,
+        (tier) => profileTier.areaId === tier.id,
       );
-      const tierIndex = profileTier.tier - 1;
       return {
-        id: profileTier.id,
+        areaId: profileTier.areaId,
         area: area?.name || "Unknown",
-        tier: ACHIEVEMENT_DIARY_TIER_NAMES[tierIndex] || "Unknown",
+        tierIndex: profileTier.tier,
+        tierName: ACHIEVEMENT_DIARY_TIER_NAMES[profileTier.tier] || "Unknown",
         completedCount: profileTier.completedCount,
-        tasksCount: area?.tiers[tierIndex] || 0,
+        tasksCount: area?.tiers[profileTier.tier] || 0,
       };
     },
   );
@@ -110,12 +111,10 @@ export async function getProfile(db: Database, username: string) {
   });
 
   const items = profile.items.map((profileItem) => {
-    const item = COLLECTION_LOG_ITEMS.find(
-      (item) => item.id === profileItem.id,
-    );
+    const itemName = COLLECTION_LOG_ITEMS[profileItem.id];
     return {
       id: profileItem.id,
-      name: item?.name || "Unknown",
+      name: itemName || "Unknown",
       quantity: profileItem.quantity,
       createdAt: profileItem.createdAt,
     };

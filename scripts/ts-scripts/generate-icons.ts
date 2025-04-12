@@ -13,16 +13,14 @@ async function generateJson(ids: number[]): Promise<void> {
   await Promise.all(
     ids.map(async (id) => {
       imageData[id] = await fetchAndEncodeImage(id);
+      await new Promise((resolve) => setTimeout(resolve, 100)); // let the server breathe
     }),
   );
 
   const outputPath = path.join(__dirname, "out", "item-icons.json");
 
   try {
-    // Create the 'out' directory if it doesn't exist
     await fs.mkdir(path.join(__dirname, "out"), { recursive: true });
-
-    // Write the JSON data to the file
     await fs.writeFile(outputPath, JSON.stringify(imageData, null, 2), "utf-8");
     console.log(`Successfully wrote image data to: ${outputPath}`);
   } catch (error) {
@@ -31,7 +29,7 @@ async function generateJson(ids: number[]): Promise<void> {
 }
 
 async function fetchAndEncodeImage(itemId: number) {
-  const imageUrl = `https://chisel.weirdgloop.org/static/img/osrs-sprite/${itemId}.png`;
+  const imageUrl = `https://static.runelite.net/cache/item/icon/${itemId}.png`;
   const response = await fetch(imageUrl);
   const arrayBuffer = await response.arrayBuffer();
   const base64String = btoa(

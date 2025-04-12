@@ -2,8 +2,7 @@
   "name": "ts-scripts",
   "private": true,
   "scripts": {
-    "generate-icons": "tsx generate-icons.ts",
-    "generate-items": "tsx generate-items.ts"
+    "generate-icons": "tsx generate-icons.ts"
   },
   "devDependencies": {
     "@runeprofile/runescape": "workspace:*",

@@ -6,11 +6,11 @@ import {
 } from "@runeprofile/runescape";
 
 import QuestIcon from "~/assets/icons/quest.png";
-import RuneScapeScrollContainer from "~/components/profile/runescape-scroll-container";
+import RuneScapeScrollArea from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
 
-import { Card } from "../card";
+import { Card } from "./card";
 
 type MergedQuestData = {
   name: string;
@@ -62,14 +62,14 @@ export function QuestList({ data }: { data: Profile["quests"] }) {
           {completedCount}/{questsCount}
         </p>
       </div>
-      <RuneScapeScrollContainer
+      <RuneScapeScrollArea
         className="border-2 border-osrs-dark-border rounded-xs"
-        contentClassName="p-1.5"
+        contentClassName="p-1.5 flex flex-col gap-y-4"
       >
         <QuestsSection sectionName="Free Quests" quests={free} />
         <QuestsSection sectionName="Members' Quests" quests={members} />
         <QuestsSection sectionName="Miniquests" quests={mini} />
-      </RuneScapeScrollContainer>
+      </RuneScapeScrollArea>
     </Card>
   );
 }
@@ -88,8 +88,8 @@ export const QuestsSection: React.FC<QuestSectionProps> = ({
   }
 
   return (
-    <div>
-      <p className="h-[28px] text-[19px] font-bold text-osrs-orange">
+    <div className="flex flex-col gap-y-[7px]">
+      <p className="text-[21px] leading-4 font-bold text-osrs-orange mb-0.5">
         {sectionName}
       </p>
       {quests.map(({ name, state }) => {
@@ -102,7 +102,7 @@ export const QuestsSection: React.FC<QuestSectionProps> = ({
         }
 
         return (
-          <p key={name} className={cn("h-[25px] text-[17px]", progressColor)}>
+          <p key={name} className={cn("text-lg leading-4", progressColor)}>
             {name}
           </p>
         );

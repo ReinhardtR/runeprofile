@@ -1,4 +1,3 @@
-import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
@@ -7,19 +6,17 @@ import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 import { AccountType } from "@runeprofile/runescape";
 
-import CombatIcon from "~/assets/skills/combat.png";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipTrigger,
+// } from "~/components/ui/tooltip";
 import { formatDate } from "~/lib/utils";
 
-import { Card } from "../card";
+import { Card } from "./card";
 
 type PlayerDisplayProps = {
   username: string;
-  combatLevel: number;
   accountType: AccountType;
   modelUri: string | null;
   createdAt: Date;
@@ -31,14 +28,13 @@ const defaultModel =
 
 export function Character({
   username,
-  combatLevel,
   accountType,
   modelUri,
   createdAt,
   updatedAt,
 }: PlayerDisplayProps) {
   return (
-    <Card className="flex max-w-[260px] flex-col 1.5xl:min-h-[730px] 1.5xl:min-w-[400px]">
+    <Card className="flex max-w-[260px] flex-col 1.5xl:min-h-[730px] 1.5xl:min-w-[400px] relative">
       {/* Name and Combat Level banner */}
       <div className="absolute inset-x-0 z-20 mx-auto flex flex-wrap items-center justify-center space-x-4 p-2 font-runescape text-2xl font-bold leading-none solid-text-shadow">
         <div className="flex items-center space-x-2">
@@ -58,17 +54,6 @@ export function Character({
           )}
           <span className="text-xl text-osrs-white">{username}</span>
         </div>
-
-        <div className="flex items-center justify-center space-x-1 text-osrs-orange">
-          <img
-            src={CombatIcon}
-            alt="Combat Level"
-            width={20}
-            height={20}
-            className="drop-shadow-solid-sm"
-          />
-          <span className="text-xl">{combatLevel}</span>
-        </div>
       </div>
 
       {/* Model */}
@@ -76,11 +61,10 @@ export function Character({
         <PlayerModel modelUri={modelUri ?? defaultModel} />
       </div>
 
-      {/* Description Container */}
-      <div className="absolute bottom-4 left-0 w-full px-4">
+      {/* <div className="absolute bottom-5 right-3">
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoCircledIcon className="m-1 ml-auto h-6 w-6 text-osrs-orange drop-shadow-solid" />
+            <InfoCircledIcon className="h-6 w-6 text-osrs-orange drop-shadow-solid mr-2" />
           </TooltipTrigger>
           <TooltipContent className="flex w-[250px] flex-col space-y-1 font-runescape text-lg">
             <p>
@@ -93,7 +77,7 @@ export function Character({
             </p>
           </TooltipContent>
         </Tooltip>
-      </div>
+      </div> */}
     </Card>
   );
 }

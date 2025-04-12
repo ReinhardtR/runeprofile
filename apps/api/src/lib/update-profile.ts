@@ -25,7 +25,7 @@ type UpdateProfileInput = {
   accountType: number;
   achievementDiaryTiers: Array<{
     areaId: number;
-    tier: number;
+    tierIndex: number;
     completedCount: number;
   }>;
   // id -> completedCount
@@ -57,18 +57,19 @@ export async function updateProfile(db: Database, account: UpdateProfileInput) {
     InferInsertModel<typeof achievementDiaryTiers>
   > = [];
   for (const diary of ACHIEVEMENT_DIARIES) {
-    const playerDiary = account.achievementDiaryTiers.find(
-      (input) => input.areaId === diary.id,
-    );
-    if (!playerDiary) continue;
-    if (playerDiary.completedCount === 0) continue; // None completed
-    if (!diary.tiers[playerDiary.tier]) continue; // Invalid tier
-    achievementDiaryTiersValues.push({
-      accountId,
-      areaId: diary.id,
-      tier: playerDiary.tier,
-      completedCount: playerDiary.completedCount,
-    });
+    for (const [tierIndex] of diary.tiers.entries()) {
+      const playerDiaryTier = account.achievementDiaryTiers.find(
+        (input) => input.areaId === diary.id && input.tierIndex === tierIndex,
+      );
+      if (!playerDiaryTier) continue;
+      if (playerDiaryTier.completedCount === 0) continue; // None completed
+      achievementDiaryTiersValues.push({
+        accountId,
+        areaId: diary.id,
+        tier: tierIndex,
+        completedCount: playerDiaryTier.completedCount,
+      });
+    }
   }
 
   const combatAchievementTiersValues: Array<
@@ -110,7 +111,7 @@ export async function updateProfile(db: Database, account: UpdateProfileInput) {
   }
 
   const skillsValues: Array<InferInsertModel<typeof skills>> = [];
-  for (const skillName in SKILLS) {
+  for (const skillName of SKILLS) {
     const xp = account.skills[skillName];
     if (xp === undefined) continue;
     if (xp === 0) continue; // No xp
@@ -122,6 +123,13 @@ export async function updateProfile(db: Database, account: UpdateProfileInput) {
   }
 
   await Promise.all([
+    db
+      .update(accounts)
+      .set({
+        username: account.username,
+        accountType: account.accountType,
+      })
+      .where(eq(accounts.id, accountId)),
     ...autochunk({ items: achievementDiaryTiersValues }, (chunk) =>
       db
         .insert(achievementDiaryTiers)

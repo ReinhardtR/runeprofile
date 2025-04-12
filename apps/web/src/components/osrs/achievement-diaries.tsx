@@ -1,13 +1,14 @@
-import { ACHIEVEMENT_DIARIES } from "@runeprofile/runescape";
+import {
+  ACHIEVEMENT_DIARIES,
+  ACHIEVEMENT_DIARY_TIER_NAMES,
+} from "@runeprofile/runescape";
 
 import AchievementDiaryIcon from "~/assets/icons/achievement-diaries.png";
-import RuneScapeScrollContainer from "~/components/profile/runescape-scroll-container";
+import RuneScapeScrollArea from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
 
-import { Card } from "../card";
-
-const TIERS_NAMES = ["Easy", "Medium", "Hard", "Elite"];
+import { Card } from "./card";
 
 export function AchievementDiaries({
   data,
@@ -20,16 +21,18 @@ export function AchievementDiaries({
   }> = [];
 
   for (const area of ACHIEVEMENT_DIARIES) {
-    const tiers = area.tiers.map((tasksCount, i) => ({
-      name: TIERS_NAMES[i],
-      completedCount:
-        data.find(
-          (t) =>
-            t.id === area.id &&
-            t.tier?.toLowerCase() === TIERS_NAMES[i].toLowerCase(),
-        )?.completedCount ?? 0,
-      tasksCount,
-    }));
+    const tiers: (typeof areas)[number]["tiers"] = [];
+
+    for (const [tierIndex] of area.tiers.entries()) {
+      const completedCount =
+        data.find((t) => t.areaId === area.id && t.tierIndex === tierIndex)
+          ?.completedCount ?? 0;
+      tiers.push({
+        name: ACHIEVEMENT_DIARY_TIER_NAMES[tierIndex],
+        completedCount,
+        tasksCount: area.tiers[tierIndex],
+      });
+    }
 
     areas.push({
       name: area.name,
@@ -39,7 +42,7 @@ export function AchievementDiaries({
 
   return (
     <Card icon={AchievementDiaryIcon} className="shrink-0">
-      <RuneScapeScrollContainer
+      <RuneScapeScrollArea
         className="border-2 border-osrs-dark-border"
         contentClassName="text-yellow-osrs flex flex-col space-y-[2px] p-1 font-runescape text-lg leading-tight"
       >
@@ -120,7 +123,7 @@ export function AchievementDiaries({
             </div>
           );
         })}
-      </RuneScapeScrollContainer>
+      </RuneScapeScrollArea>
     </Card>
   );
 }

@@ -3,26 +3,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
-import {
-  COLLECTION_LOG_TABS,
-  getCombatLevel,
-  getLevelFromXP,
-} from "@runeprofile/runescape";
+import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
-import { AchievementDiaries } from "~/components/profile/achievement-diaries";
-import { Character } from "~/components/profile/character";
-import { CollectionLog } from "~/components/profile/collection-log";
-import { CombatAchievements } from "~/components/profile/combat-achievements";
-import { QuestList } from "~/components/profile/quest-list";
-import { Skills } from "~/components/profile/skills";
+import HiscoresIcon from "~/assets/icons/hiscores.png";
+import { Hiscores, hiscoresQueryOptions } from "~/components/hiscores";
+import { AchievementDiaries } from "~/components/osrs/achievement-diaries";
+import { Character } from "~/components/osrs/character";
+import { CollectionLog } from "~/components/osrs/collection-log";
+import { CombatAchievements } from "~/components/osrs/combat-achievements";
+import { QuestList } from "~/components/osrs/quest-list";
+import { Skills } from "~/components/osrs/skills";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { getProfile } from "~/lib/api";
-import { getSkillXp } from "~/lib/utils";
+import { HISCORE_ENDPOINTS, HiscoreEndpoint } from "~/lib/hiscores";
 
 function profileQueryOptions(username: string) {
   return queryOptions({
     queryKey: ["profile", { username }],
     queryFn: () => getProfile({ username }),
-    staleTime: Infinity,
   });
 }
 
@@ -35,7 +34,8 @@ const profileSearchSchema = z.object({
     .string()
     .transform((value) => value.toLowerCase())
     .refine((value) => COLLECTION_LOG_PAGES.includes(value))
-    .optional(),
+    .optional()
+    .catch(undefined),
 });
 
 export const Route = createFileRoute("/$username")({
@@ -43,10 +43,18 @@ export const Route = createFileRoute("/$username")({
   validateSearch: zodValidator(profileSearchSchema),
   loaderDeps: ({ search: { page } }) => ({ page }),
   loader: async ({ params, context }) => {
-    return Promise.all([
-      // todo: add prefetch for clog page
-      context.queryClient.prefetchQuery(profileQueryOptions(params.username)),
-    ]);
+    for (const hiscoreEndpoint of Object.keys(HISCORE_ENDPOINTS)) {
+      context.queryClient.prefetchQuery(
+        hiscoresQueryOptions({
+          username: params.username,
+          endpoint: hiscoreEndpoint as HiscoreEndpoint,
+        }),
+      );
+    }
+
+    return context.queryClient.prefetchQuery(
+      profileQueryOptions(params.username),
+    );
   },
 });
 
@@ -61,33 +69,32 @@ function RouteComponent() {
   const page = search.page || COLLECTION_LOG_PAGES[0];
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-8 items-center">
-        <div className="flex flex-row flex-wrap gap-8 p-8 flex-1">
-          <Character
-            username={profile.username}
-            accountType={profile.accountType}
-            combatLevel={getCombatLevel({
-              attack: getLevelFromXP(getSkillXp(profile.skills, "Attack")),
-              strength: getLevelFromXP(getSkillXp(profile.skills, "Strength")),
-              defence: getLevelFromXP(getSkillXp(profile.skills, "Defence")),
-              hitpoints: getLevelFromXP(
-                getSkillXp(profile.skills, "Hitpoints"),
-              ),
-              ranged: getLevelFromXP(getSkillXp(profile.skills, "Ranged")),
-              prayer: getLevelFromXP(getSkillXp(profile.skills, "Prayer")),
-              magic: getLevelFromXP(getSkillXp(profile.skills, "Magic")),
-            })}
-            createdAt={new Date(profile.createdAt)}
-            updatedAt={new Date(profile.updatedAt)}
-            modelUri={`http://localhost:8787/profiles/models/${profile.username}`}
-          />
-          <Skills data={profile.skills} />
-          <AchievementDiaries data={profile.achievementDiaryTiers} />
-          <QuestList data={profile.quests} />
-          <CombatAchievements data={profile.combatAchievementTiers} />
-        </div>
+    <div className="flex flex-row min-h-screen">
+      <div className="flex flex-row flex-wrap gap-4 p-8 items-center justify-center max-w-[1280px] mx-auto flex-1 mr-16">
+        <Character
+          username={profile.username}
+          accountType={profile.accountType}
+          createdAt={new Date(profile.createdAt)}
+          updatedAt={new Date(profile.updatedAt)}
+          modelUri={`http://localhost:8787/profiles/models/${profile.username}`}
+        />
+        <Skills data={profile.skills} />
+        <AchievementDiaries data={profile.achievementDiaryTiers} />
+        <QuestList data={profile.quests} />
+        <CombatAchievements data={profile.combatAchievementTiers} />
         <CollectionLog page={page} data={profile.items} />
+      </div>
+      <div className="flex flex-col w-16 bg-card border-l right-0 fixed h-screen z-[60]">
+        <Sheet modal={false}>
+          <SheetTrigger className="cursor-pointer hover:bg-accent/75 data-[state=open]:bg-accent z-[60]">
+            <img src={HiscoresIcon} className="w-full p-4" />
+          </SheetTrigger>
+          <SheetContent className="p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50">
+            <ScrollArea className="h-full shadow-2xl">
+              <Hiscores className="pr-2" />
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );

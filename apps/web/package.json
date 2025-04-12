@@ -10,33 +10,13 @@
     "serve": "vite preview",
     "start": "vite"
   },
-  "devDependencies": {
-    "@radix-ui/react-dialog": "^1.1.6",
-    "@radix-ui/react-icons": "^1.3.2",
-    "@radix-ui/react-label": "^2.1.2",
-    "@radix-ui/react-navigation-menu": "^1.2.5",
-    "@radix-ui/react-popover": "^1.1.6",
-    "@radix-ui/react-radio-group": "^1.2.3",
-    "@radix-ui/react-select": "^2.1.6",
-    "@radix-ui/react-separator": "^1.1.2",
-    "@radix-ui/react-slot": "^1.1.2",
-    "@radix-ui/react-tabs": "^1.1.3",
-    "@radix-ui/react-toggle": "^1.1.2",
-    "@radix-ui/react-toggle-group": "^1.1.2",
-    "@radix-ui/react-tooltip": "^1.1.8",
-    "@runeprofile/runescape": "workspace:*",
-    "@tanstack/router-plugin": "^1.112.0",
-    "@types/node": "^22.13.9",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "@types/three": "^0.174.0",
-    "@vitejs/plugin-react": "^4.3.2",
-    "vite": "^6.0.3",
-    "wrangler": "^3.109.2"
-  },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-scroll-area": "^1.2.3",
+    "@radix-ui/react-toggle-group": "^1.1.2",
     "@react-three/fiber": "^9.1.0",
     "@runeprofile/api": "workspace:*",
+    "@runeprofile/runescape": "workspace:*",
     "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-query": "^5.67.2",
     "@tanstack/react-router": "^1.112.0",
@@ -53,5 +33,15 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.174.0",
     "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@tanstack/router-plugin": "^1.112.0",
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@types/three": "^0.174.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^6.0.3",
+    "wrangler": "^3.109.2"
   }
 }

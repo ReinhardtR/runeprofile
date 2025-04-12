@@ -1,18 +1,22 @@
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import React from "react";
 
 import {
   COLLECTION_LOG_ITEMS,
+  COLLECTION_LOG_ITEM_IDS,
   COLLECTION_LOG_TABS,
 } from "@runeprofile/runescape";
 
 import CollectionLogIcon from "~/assets/icons/collection-log.png";
 import ITEM_ICONS from "~/assets/item-icons.json";
 import QuestionMarkImage from "~/assets/question-mark.png";
-import { Card } from "~/components/card";
-import RuneScapeScrollContainer from "~/components/profile/runescape-scroll-container";
+import { hiscoresQueryOptions } from "~/components/hiscores";
+import { Card } from "~/components/osrs/card";
+import RuneScapeScrollArea from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
-import { cn } from "~/lib/utils";
+import { cn, numberWithDelimiter } from "~/lib/utils";
 
 export function CollectionLog({
   page,
@@ -21,6 +25,13 @@ export function CollectionLog({
   page: string;
   data: Profile["items"];
 }) {
+  const hiscoresQuery = useQuery(
+    hiscoresQueryOptions({
+      username: "pgn",
+      endpoint: "Normal",
+    }),
+  );
+
   let currentTab = COLLECTION_LOG_TABS[0];
   let currentPage = currentTab.pages[0];
 
@@ -36,11 +47,12 @@ export function CollectionLog({
   }
 
   const items: { id: number; name: string; quantity: number }[] = [];
-  for (const item of COLLECTION_LOG_ITEMS) {
-    const itemData = data.find((i) => i.id === item.id);
+  for (const id of COLLECTION_LOG_ITEM_IDS) {
+    const itemData = data.find((i) => i.id === id);
+    const name = COLLECTION_LOG_ITEMS[id] ?? "Unknown";
     items.push({
-      id: item.id,
-      name: item.name,
+      id,
+      name,
       quantity: itemData?.quantity || 0,
     });
   }
@@ -51,8 +63,27 @@ export function CollectionLog({
   const obtainedCount = items.filter((item) => item.quantity > 0).length;
   const itemsCount = items.length;
 
+  const killCounts = React.useMemo(() => {
+    if (!currentPage.hiscore) return [];
+    return Object.entries(currentPage.hiscore).map(([hiscoreName, kcLabel]) => {
+      const hiscoreEntry = hiscoresQuery.data?.activities.find(
+        (activity) => activity.name === hiscoreName,
+      );
+
+      let killCount = 0;
+      if (hiscoreEntry && hiscoreEntry.score > 0) {
+        killCount = hiscoreEntry.score;
+      }
+
+      return {
+        label: kcLabel,
+        count: killCount,
+      };
+    });
+  }, [hiscoresQuery.data, currentPage.hiscore]);
+
   return (
-    <Card icon={CollectionLogIcon} className="w-[260px] sm:w-full md:w-[640px]">
+    <Card icon={CollectionLogIcon} className="w-[640px]">
       <div
         className={cn(
           "absolute inset-x-0 -top-[14px] left-[140px] mx-auto w-24 font-runescape text-lg font-bold solid-text-shadow",
@@ -101,7 +132,7 @@ export function CollectionLog({
                 className="flex min-h-[100px] w-full border-t-2 border-osrs-border sm:h-full sm:w-[260px]"
                 asChild
               >
-                <RuneScapeScrollContainer contentClassName="flex-col flex">
+                <RuneScapeScrollArea contentClassName="flex-col flex">
                   {currentTab.pages.map((page) => {
                     const pageObtainedCount = page.items.filter(
                       (itemId) =>
@@ -137,14 +168,14 @@ export function CollectionLog({
                       </ToggleGroup.Item>
                     );
                   })}
-                </RuneScapeScrollContainer>
+                </RuneScapeScrollArea>
               </ToggleGroup.Root>
             </div>
 
             <div className="flex-1">
               <div className="flex h-full flex-col">
                 <div className="relative w-full border-2 border-osrs-border p-1">
-                  <p className="text-2xl font-bold leading-none solid-text-shadow">
+                  <p className="text-[22px] font-bold leading-none solid-text-shadow">
                     {currentPage.name}
                   </p>
                   <p className="text-lg leading-none solid-text-shadow">
@@ -161,25 +192,19 @@ export function CollectionLog({
                       {currentPageObtainedCount}/{currentPage.items.length}
                     </span>
                   </p>
-                  {/* {page.kcs.map((kc) => (
+                  {killCounts.map((kc) => (
                     <p
                       key={kc.label}
                       className="text-lg leading-none solid-text-shadow"
                     >
                       {kc.label}:{" "}
-                      <span
-                        className={cn(
-                          kc.count === -1
-                            ? "text-osrs-gray"
-                            : "text-osrs-white",
-                        )}
-                      >
-                        {kc.count === -1 ? "?" : numberWithDelimiter(kc.count)}
+                      <span className="text-osrs-white">
+                        {numberWithDelimiter(kc.count)}
                       </span>
                     </p>
-                  ))} */}
+                  ))}
                 </div>
-                <RuneScapeScrollContainer
+                <RuneScapeScrollArea
                   className="h-[100px] sm:h-full"
                   contentClassName="flex flex-wrap content-start gap-1 p-1"
                 >
@@ -194,7 +219,7 @@ export function CollectionLog({
                       />
                     ) : null;
                   })}
-                </RuneScapeScrollContainer>
+                </RuneScapeScrollArea>
               </div>
             </div>
           </div>
@@ -236,7 +261,7 @@ function CollectionLogItem({
           src={iconSrc}
           alt={name}
           className={cn(
-            "z-10 drop-shadow-2xl brightness-[0.85] size-[50px] object-scale-down scale-150",
+            "z-10 drop-shadow-2xl brightness-[0.85] size-[50px] object-scale-down scale-[1.35]",
             !quantity && "opacity-30",
           )}
         />

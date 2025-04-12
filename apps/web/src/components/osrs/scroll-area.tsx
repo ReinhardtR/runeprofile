@@ -1,4 +1,3 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,7 +9,7 @@ interface CustomScrollbarProps {
   contentClassName?: string;
 }
 
-export default function RuneScapeScrollContainer({
+export default function RuneScapeScrollArea({
   children,
   className,
   contentClassName,

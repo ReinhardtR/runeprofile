@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AchievementDiaries } from "~/components/profile/achievement-diaries";
-import { CombatAchievements } from "~/components/profile/combat-achievements";
-import { QuestList } from "~/components/profile/quest-list";
-import { Skills } from "~/components/profile/skills";
+import { AchievementDiaries } from "~/components/osrs/achievement-diaries";
+import { CombatAchievements } from "~/components/osrs/combat-achievements";
+import { QuestList } from "~/components/osrs/quest-list";
+import { Skills } from "~/components/osrs/skills";
 import { getProfile } from "~/lib/api";
 
 export const Route = createFileRoute("/")({

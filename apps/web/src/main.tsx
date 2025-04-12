@@ -4,7 +4,16 @@ import ReactDOM from "react-dom/client";
 
 import { routeTree } from "./routeTree.gen";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    // let the user refresh the page if they want to
+    queries: {
+      staleTime: Infinity,
+      gcTime: Infinity,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Set up a Router instance
 const router = createRouter({

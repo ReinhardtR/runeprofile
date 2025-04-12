@@ -1,25 +1,25 @@
 import { eq } from "drizzle-orm";
+import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "~/db";
+import { getCollectionLogPage } from "~/lib/get-collection-log-page";
 import { getProfile } from "~/lib/get-profile";
 import { STATUS, newRouter } from "~/lib/helpers";
 import { updateProfile } from "~/lib/update-profile";
-import {
-  accountIdSchema,
-  accountTypeSchema,
-  usernameSchema,
-  validator,
-} from "~/lib/validation";
+import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
 
 export const profilesRouter = newRouter()
   .get(
     "/:username",
     validator("param", z.object({ username: usernameSchema })),
+    cache({ cacheName: "profile", cacheControl: "max-age=60" }),
     async (c) => {
       const db = drizzle(c.env.DB);
 
       const { username } = c.req.valid("param");
+
+      console.log("Fetching profile for: ", username);
 
       try {
         const profile = await getProfile(db, username);
@@ -27,6 +27,40 @@ export const profilesRouter = newRouter()
           return c.json({ error: "Profile not found" }, STATUS.NOT_FOUND);
         }
         return c.json(profile, STATUS.OK);
+      } catch (error) {
+        console.error(error);
+        return c.json(
+          { error: "Something went wrong" },
+          STATUS.INTERNAL_SERVER_ERROR,
+        );
+      }
+    },
+  )
+  .get(
+    "/:username/collection-log/:page",
+    validator(
+      "param",
+      z.object({
+        username: usernameSchema,
+        page: z.string(),
+      }),
+    ),
+    cache({ cacheName: "clog-page", cacheControl: "max-age=60" }),
+    async (c) => {
+      const db = drizzle(c.env.DB);
+
+      const { username, page } = c.req.valid("param");
+
+      console.log("Fetching collection log page for: ", username, page);
+
+      try {
+        const collectionLogPage = await getCollectionLogPage(
+          db,
+          username,
+          page,
+        );
+
+        return c.json(collectionLogPage, STATUS.OK);
       } catch (error) {
         console.error(error);
         return c.json(
@@ -47,7 +81,7 @@ export const profilesRouter = newRouter()
         achievementDiaryTiers: z.array(
           z.object({
             areaId: z.number(),
-            tier: z.number(),
+            tierIndex: z.number(),
             completedCount: z.number(),
           }),
         ),
@@ -64,7 +98,7 @@ export const profilesRouter = newRouter()
 
       try {
         await updateProfile(db, data);
-        return c.json({ message: "Profile created" }, STATUS.CREATED);
+        return c.json({ message: "Profile created" }, STATUS.OK);
       } catch (error) {
         console.error(error);
         return c.json(

@@ -4,7 +4,7 @@ import CombatAchievementsIcon from "~/assets/icons/combat-achievements.png";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
 
-import { Card } from "../card";
+import { Card } from "./card";
 
 export function CombatAchievements({
   data,

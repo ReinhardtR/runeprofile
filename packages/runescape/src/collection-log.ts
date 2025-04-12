@@ -3,6 +3,11 @@
 export type CollectionLogPage = {
   name: string;
   items: number[];
+  // currently the app shows kill counts based on the hiscore data
+  // so this object maps the hiscore entries to the kill count entries
+  // key = hiscore entry name, value = kill count label
+  hiscore?: Record<string, string>;
+  aliases?: string[];
 };
 export type CollectionLogTab = {
   name: string;
@@ -15,6 +20,8 @@ export const COLLECTION_LOG_TABS = [
       {
         name: "Abyssal Sire",
         items: [13262, 25624, 7979, 13274, 13275, 13276, 13277, 13265, 4151],
+        hiscore: { "Abyssal Sire": "Abyssal Sire kills" },
+        aliases: ["sire"],
       },
       {
         name: "Alchemical Hydra",
@@ -22,16 +29,20 @@ export const COLLECTION_LOG_TABS = [
           22746, 22966, 22988, 22983, 22971, 22973, 22969, 22804, 20849, 23064,
           23077,
         ],
+        hiscore: { "Alchemical Hydra": "Alchemical Hydra kills" },
+        aliases: ["hydra"],
       },
       {
         name: "Amoxliatl",
         items: [30154, 29889, 29892, 29895],
+        hiscore: { Amoxliatl: "Amoxliatl kills" },
       },
       {
         name: "Araxxor",
         items: [
           29836, 29784, 29782, 29799, 29790, 29792, 29794, 29788, 29786, 29781,
         ],
+        hiscore: { Araxxor: "Araxxor kills" },
       },
       {
         name: "Barrows Chests",
@@ -40,110 +51,180 @@ export const COLLECTION_LOG_TABS = [
           4757, 4738, 4714, 4722, 4730, 4751, 4759, 4734, 4710, 4718, 4726,
           4747, 4755, 4740,
         ],
+        hiscore: { "Barrows Chests": "Barrows Chests opended" },
+        aliases: ["barrows"],
       },
       {
         name: "Bryophyta",
         items: [22372],
+        hiscore: { Bryophyta: "Bryophyta kills" },
+        aliases: ["byro"],
       },
       {
         name: "Callisto and Artio",
         items: [13178, 12603, 11920, 7158, 27667, 27681],
+        hiscore: { Callisto: "Callisto kills", Artio: "Artio kills" },
+        aliases: ["artio", "art", "cal", "callisto"],
       },
       {
         name: "Cerberus",
         items: [13247, 13227, 13229, 13231, 13245, 13233, 13249],
+        hiscore: { Cerberus: "Cerberus kills" },
+        aliases: ["cerb"],
       },
       {
         name: "Chaos Elemental",
         items: [11995, 11920, 7158],
+        hiscore: { "Chaos Elemental": "Chaos Elemental kills" },
+        aliases: ["chaos ele"],
       },
       {
         name: "Chaos Fanatic",
         items: [11995, 11928, 11931],
+        hiscore: { "Chaos Fanatic": "Chaos Fanatic kills" },
       },
       {
         name: "Commander Zilyana",
         items: [12651, 11785, 11814, 11838, 13256, 11818, 11820, 11822],
+        hiscore: { "Commander Zilyana": "Commander Zilyana kills" },
+        aliases: ["sara", "saradomin", "zilyana", "zily"],
       },
       {
         name: "Corporeal Beast",
         items: [12816, 12819, 12823, 12827, 12833, 12829, 25521],
+        hiscore: { "Corporeal Beast": "Corporeal Beast kills" },
+        aliases: ["corp"],
       },
       {
         name: "Crazy Archaeologist",
         items: [11929, 11932, 11990],
+        hiscore: { "Crazy Archaeologist": "Crazy Archaeologist kills" },
+        aliases: ["crazy arch"],
       },
       {
         name: "Dagannoth Kings",
         items: [12644, 12643, 12645, 6737, 6733, 6731, 6735, 6739, 6724, 6562],
+        hiscore: {
+          "Dagannoth Rex": "Dagannoth Rex kills",
+          "Dagannoth Prime": "Dagannoth Prime kills",
+          "Dagannoth Supreme": "Dagannoth Supreme kills",
+        },
+        aliases: ["dks"],
       },
       {
         name: "Duke Sucellus",
         items: [
           28250, 28321, 26241, 26243, 26245, 28281, 28270, 28333, 28276, 28334,
         ],
+        hiscore: { "Duke Sucellus": "Duke Sucellus kills" },
+        aliases: [
+          "duke",
+          "succ",
+          "succelus",
+          "ugly",
+          "succellus",
+          "duke succellus",
+        ],
       },
       {
         name: "The Fight Caves",
         items: [13225, 6570],
+        hiscore: { "TzTok-Jad": "TzTok-Jad kills" },
+        aliases: ["jad", "fight caves", "fc"],
       },
       {
         name: "Fortis Colosseum",
         items: [28960, 28947, 28936, 28939, 28933, 28942, 28919, 28924],
+        hiscore: { "Sol Heredit": "Sol Heredit kills" },
       },
       {
         name: "The Gauntlet",
         items: [23757, 23956, 4207, 25859, 23859],
+        hiscore: {
+          "The Gauntlet": "Gauntlet completion count",
+          "The Corrupted Gauntlet": "Corrupted Gauntlet completion count",
+        },
+        aliases: [
+          "gaunt",
+          "gauntlet",
+          "cgaunt",
+          "cgauntlet",
+          "the corrupted gauntlet",
+          "cg",
+        ],
       },
       {
         name: "General Graardor",
         items: [12650, 11832, 11834, 11836, 11812, 11818, 11820, 11822],
+        hiscore: { "General Graardor": "General Graardor kills" },
+        aliases: ["bando", "bandos", "graardor"],
       },
       {
         name: "Giant Mole",
         items: [12646, 7418, 7416],
+        hiscore: { "Giant Mole": "Giant Mole kills" },
+        aliases: ["mole"],
       },
       {
         name: "Grotesque Guardians",
         items: [21748, 21730, 21736, 21739, 21742, 21745, 21726],
+        hiscore: { "Grotesque Guardians": "Grotesque Guardians kills" },
+        aliases: ["dusk", "dawn", "gargs", "ggs", "gg"],
       },
       {
         name: "Hespori",
         items: [22994, 22883, 22885, 22881],
+        hiscore: { Hespori: "Hespori kills" },
+        aliases: ["farming guild", "uim"],
       },
       {
         name: "The Hueycoatl",
         items: [30152, 30070, 30066, 30068, 30085, 30088],
+        hiscore: { "The Hueycoatl": "Hueycoatl kills" },
       },
       {
         name: "The Inferno",
         items: [21291, 21295],
+        hiscore: { "TzKal-Zuk": "TzKal-Zuk kills" },
+        aliases: ["zuk", "inferno"],
       },
       {
         name: "Kalphite Queen",
         items: [12647, 7981, 12885, 7158, 3140, 11920],
+        hiscore: { "Kalphite Queen": "Kalphite Queen kills" },
+        aliases: ["kq"],
       },
       {
         name: "King Black Dragon",
         items: [12653, 7980, 11920, 11286],
+        hiscore: { "King Black Dragon": "King Black Dragon kills" },
+        aliases: ["kbd"],
       },
       {
         name: "Kraken",
         items: [12655, 12004, 11905, 12007],
+        hiscore: { Kraken: "Kraken kills" },
+        aliases: ["cave kraken"],
       },
       {
         name: "Kree'arra",
         items: [12649, 11826, 11828, 11830, 11810, 11818, 11820, 11822],
+        hiscore: { "Kree'Arra": "Kree'arra kills" },
+        aliases: ["arma", "kree", "kreearra", "armadyl"],
       },
       {
         name: "K'ril Tsutsaroth",
         items: [12652, 11791, 11824, 11787, 11816, 11818, 11820, 11822],
+        hiscore: { "K'ril Tsutsaroth": "K'ril Tsutsaroth kills" },
+        aliases: ["zammy", "zamorak", "kril", "kril trutsaroth"],
       },
       {
         name: "The Leviathan",
         items: [
           28252, 28325, 26241, 26243, 26245, 28283, 28274, 28332, 28276, 28334,
         ],
+        hiscore: { "The Leviathan": "Leviathan kills" },
+        aliases: ["leviathan", "levi", "lev"],
       },
       {
         name: "Moons of Peril",
@@ -151,10 +232,12 @@ export const COLLECTION_LOG_TABS = [
           29004, 29007, 29010, 29000, 29013, 29016, 29019, 28988, 29022, 29025,
           29028, 28997, 28991,
         ],
+        hiscore: { "Lunar Chests": "Lunar Chests opened" },
       },
       {
         name: "Nex",
         items: [26348, 26370, 26372, 26235, 26376, 26378, 26380, 26231],
+        hiscore: { Nex: "Nex kills" },
       },
       {
         name: "The Nightmare",
@@ -162,30 +245,63 @@ export const COLLECTION_LOG_TABS = [
           24491, 24417, 24419, 24420, 24421, 24422, 24514, 24511, 24517, 24495,
           25837, 25838,
         ],
+        hiscore: {
+          "Phosani's Nightmare": "Phosani's Nightmare kills",
+          Nightmare: "Nightmare kills",
+        },
+        aliases: [
+          "nightmare",
+          "nm",
+          "tnm",
+          "nmare",
+          "pnm",
+          "phosani",
+          "phosanis",
+          "phosani nm",
+          "phosani nightmare",
+          "phosanis nightmare",
+        ],
       },
       {
         name: "Obor",
         items: [20756],
+        hiscore: { Obor: "Obor kills" },
+        aliases: ["hill giant"],
       },
       {
         name: "Phantom Muspah",
         items: [27590, 27614, 27627, 27643, 27622, 27616],
+        hiscore: { "Phantom Muspah": "Phantom Muspah kills" },
+        aliases: ["mus", "muspah", "pm", "the grumbler"],
+      },
+      {
+        name: "Royal Titans",
+        items: [30622, 30626, 30627, 30637, 30628, 30631, 30640],
+        hiscore: { "The Royal Titans": "Royal Titans kills" },
       },
       {
         name: "Sarachnis",
         items: [23495, 23525, 23517, 23528],
+        hiscore: { Sarachnis: "Sarachnis kills" },
+        aliases: ["saracha", "sarac", "saracnis"],
       },
       {
         name: "Scorpia",
         items: [13181, 11930, 11933],
+        hiscore: { Scorpia: "Scorpia kills" },
+        aliases: ["scorpa"],
       },
       {
         name: "Scurrius",
         items: [28801, 28798],
+        hiscore: { Scurrius: "Scurrius kills" },
+        aliases: ["scur", "scurius", "rat"],
       },
       {
         name: "Skotizo",
         items: [21273, 19701, 21275, 19685, 6571, 19677],
+        hiscore: { Skotizo: "Skotizo kills" },
+        aliases: ["skotizos", "totems", "totem"],
       },
       {
         name: "Tempoross",
@@ -193,50 +309,84 @@ export const COLLECTION_LOG_TABS = [
           25602, 25559, 25592, 25594, 25596, 25598, 25576, 25578, 25580, 25582,
           21028, 25588,
         ],
+        hiscore: { Tempoross: "Tempoross kills" },
+        aliases: ["tempoross", "temp"],
       },
       {
         name: "Thermonuclear Smoke Devil",
         items: [12648, 12002, 11998, 3140, 25524],
+        hiscore: {
+          "Thermonuclear Smoke Devil": "Thermonuclear Smoke Devil kills",
+        },
+        aliases: ["smoke devil", "smoke devils", "thermy", "thermey"],
       },
       {
         name: "Vardorvis",
         items: [
           28248, 28319, 26241, 26243, 26245, 28285, 28268, 28330, 28276, 28334,
         ],
+        hiscore: { Vardorvis: "Vardorvis kills" },
+        aliases: ["vard", "vardo"],
       },
       {
         name: "Venenatis and Spindel",
         items: [13177, 12605, 11920, 7158, 27670, 27687],
+        hiscore: { Venenatis: "Venenatis kills", Spindel: "Spindel kills" },
+        aliases: ["spin", "spindel", "vene", "venenatis"],
       },
       {
         name: "Vet'ion and Calvar'ion",
         items: [13179, 12601, 11920, 7158, 27673, 27684],
+        hiscore: {
+          "Vet'ion": "Vet'ion kills",
+          "Calvar'ion": "Calvar'ion kills",
+        },
+        aliases: [
+          "calv",
+          "calvarion",
+          "calvar ion",
+          "calvar'ion",
+          "vetion",
+          "vet ion",
+          "vet'ion",
+          "veti",
+        ],
       },
       {
         name: "Vorkath",
         items: [21992, 21907, 11286, 22006, 22106, 22111],
+        hiscore: { Vorkath: "Vorkath kills" },
+        aliases: ["vork", "vorki"],
       },
       {
         name: "The Whisperer",
         items: [
           28246, 28323, 26241, 26243, 26245, 28279, 28272, 28331, 28276, 28334,
         ],
+        hiscore: { "The Whisperer": "Whisperer kills" },
+        aliases: ["whisperer", "whisp", "wisp"],
       },
       {
         name: "Wintertodt",
         items: [
           20693, 20716, 20718, 20704, 20708, 20706, 20710, 20712, 20720, 6739,
         ],
+        hiscore: { Wintertodt: "Wintertodt kills" },
+        aliases: ["wt", "todt"],
       },
       {
         name: "Zalcano",
         items: [23760, 23953, 23908, 6571],
+        hiscore: { Zalcano: "Zalcano kills" },
+        aliases: ["zalc"],
       },
       {
         name: "Zulrah",
         items: [
           12921, 13200, 13201, 12936, 12932, 12927, 12922, 12938, 6571, 12934,
         ],
+        hiscore: { Zulrah: "Zulrah kills" },
+        aliases: ["zul", "profit snake", "bjs"],
       },
     ],
   },
@@ -250,12 +400,55 @@ export const COLLECTION_LOG_TABS = [
           21034, 21079, 21012, 21000, 21047, 21027, 6573, 24670, 22388, 22390,
           22392, 22394, 22396,
         ],
+        hiscore: {
+          "Chambers of Xeric": "Chambers of Xeric completions",
+          "Chambers of Xeric: Challenge Mode":
+            "Chambers of Xeric (CM) completions",
+        },
+        aliases: [
+          "cox",
+          "xeric",
+          "chambers",
+          "olm",
+          "raids",
+          "cox cm",
+          "xeric cm",
+          "chambers cm",
+          "olm cm",
+          "raids cm",
+          "chambers of xeric - challenge mode",
+        ],
       },
       {
         name: "Theatre of Blood",
         items: [
           22473, 22486, 22324, 22481, 22326, 22327, 22328, 22477, 22446, 22494,
           22496, 22498, 22500, 22502, 25746, 25742, 25744,
+        ],
+        hiscore: {
+          "Theatre of Blood": "Theatre of Blood completions",
+          "Theatre of Blood: Hard Mode": "Theatre of Blood (Hard) completions",
+        },
+        aliases: [
+          "tob",
+          "theatre",
+          "verzik",
+          "verzik vitur",
+          "raids 2",
+          "theatre of blood: story mode",
+          "tob sm",
+          "tob story mode",
+          "tob story",
+          "theatre of blood: entry mode",
+          "tob em",
+          "tob entry mode",
+          "tob entry",
+          "theatre of blood: hard mode",
+          "tob cm",
+          "tob hm",
+          "tob hard mode",
+          "tob hard",
+          "hmt",
         ],
       },
       {
@@ -265,6 +458,12 @@ export const COLLECTION_LOG_TABS = [
           27285, 27289, 27255, 27248, 27372, 27293, 27257, 27259, 27261, 27263,
           27265, 27377, 27378, 27379, 27380, 27381,
         ],
+        hiscore: {
+          "Tombs of Amascut": "Tombs of Amascut completions",
+          "Tombs of Amascut: Expert Mode":
+            "Tombs of Amascut (Expert) completions",
+        },
+        aliases: ["toa", "tomb", "tombs", "raids 3", "tomb of amascut"],
       },
     ],
   },
@@ -276,6 +475,20 @@ export const COLLECTION_LOG_TABS = [
         items: [
           23285, 23288, 23291, 23294, 23297, 23300, 23303, 23306, 23309, 23312,
           23315, 23318, 23321, 23324, 23327, 12297,
+        ],
+        hiscore: {
+          "Clue Scrolls (beginner)": "Beginner clues completed",
+        },
+        aliases: [
+          "begs",
+          "beg clues",
+          "beginners",
+          "beginner clues",
+          "beginner clue",
+          "clues beg",
+          "clues beginner",
+          "clue beg",
+          "clue beginner",
         ],
       },
       {
@@ -295,6 +508,16 @@ export const COLLECTION_LOG_TABS = [
           23363, 10404, 10424, 10406, 10426, 10412, 10432, 10414, 10434, 10408,
           10428, 10410, 10430, 10366, 23354, 12297, 23360, 23357, 10280,
         ],
+        hiscore: {
+          "Clue Scrolls (easy)": "Easy clues completed",
+        },
+        aliases: [
+          "easy clues",
+          "easy clue",
+          "easies",
+          "clues easy",
+          "clue easy",
+        ],
       },
       {
         name: "Medium Treasure Trails",
@@ -311,6 +534,20 @@ export const COLLECTION_LOG_TABS = [
           20246, 23407, 23410, 10416, 10436, 10418, 10438, 10400, 10420, 10402,
           10422, 12315, 12339, 12317, 12341, 12347, 12343, 12349, 12345, 20275,
           10364, 10282,
+        ],
+        hiscore: {
+          "Clue Scrolls (medium)": "Medium clues completed",
+        },
+        aliases: [
+          "meds",
+          "med",
+          "mediums",
+          "medium clues",
+          "medium clue",
+          "clues med",
+          "clues medium",
+          "clue med",
+          "clue medium",
         ],
       },
       {
@@ -331,6 +568,16 @@ export const COLLECTION_LOG_TABS = [
           12514, 23224, 12518, 12520, 12522, 12524, 19918, 23206, 12379, 10354,
           10284,
         ],
+        hiscore: {
+          "Clue Scrolls (hard)": "Hard clues completed",
+        },
+        aliases: [
+          "hards",
+          "hard clues",
+          "hard clue",
+          "clue hard",
+          "clues hard",
+        ],
       },
       {
         name: "Elite Treasure Trails",
@@ -342,6 +589,16 @@ export const COLLECTION_LOG_TABS = [
           12365, 12367, 12369, 23270, 23273, 12357, 12373, 12335, 19991, 19988,
           12540, 12430, 12355, 12432, 12353, 12337, 23246, 23252, 23255,
         ],
+        hiscore: {
+          "Clue Scrolls (elite)": "Elite clues completed",
+        },
+        aliases: [
+          "elites",
+          "elite clues",
+          "elite clue",
+          "clue elite",
+          "clues elite",
+        ],
       },
       {
         name: "Master Treasure Trails",
@@ -352,6 +609,16 @@ export const COLLECTION_LOG_TABS = [
           20086, 20089, 20083, 20125, 20116, 20113, 20122, 20119, 20020, 20023,
           20026, 20032, 20029, 19724, 20110, 20056, 20050, 20053, 20008,
         ],
+        hiscore: {
+          "Clue Scrolls (master)": "Master clues completed",
+        },
+        aliases: [
+          "masters",
+          "master clues",
+          "master clue",
+          "clue master",
+          "clues master",
+        ],
       },
       {
         name: "Hard Treasure Trails (Rare)",
@@ -359,6 +626,19 @@ export const COLLECTION_LOG_TABS = [
           10334, 10330, 10332, 10336, 10338, 10340, 10342, 10344, 23242, 10346,
           10348, 10350, 10352, 3481, 3483, 3485, 3486, 3488, 20146, 20149,
           20152, 20155, 20158, 20161,
+        ],
+        hiscore: {
+          "Clue Scrolls (hard)": "Hard clues completed",
+        },
+        aliases: [
+          "hards rare",
+          "hard clues rare",
+          "hard clue rare",
+          "hards rares",
+          "hard clues rares",
+          "hard clue rares",
+          "rare hards",
+          "rare hard",
         ],
       },
       {
@@ -368,6 +648,19 @@ export const COLLECTION_LOG_TABS = [
           10342, 10344, 23242, 10346, 10348, 10350, 10352, 12389, 12391, 3481,
           3483, 3485, 3486, 3488, 20146, 20149, 20152, 20155, 20158, 20161,
           23258, 23261, 23264, 23267, 23276, 23279, 23282, 20005, 12371,
+        ],
+        hiscore: {
+          "Clue Scrolls (elite)": "Elite clues completed",
+        },
+        aliases: [
+          "elites rare",
+          "elite clues rare",
+          "elite clue rare",
+          "elites rares",
+          "elite clues rares",
+          "elite clue rares",
+          "rare elite",
+          "rare elites",
         ],
       },
       {
@@ -379,6 +672,21 @@ export const COLLECTION_LOG_TABS = [
           20146, 20149, 20152, 20155, 20158, 20161, 23258, 23261, 23264, 23267,
           23276, 23279, 23282, 20059, 20017,
         ],
+        hiscore: {
+          "Clue Scrolls (master)": "Master clues completed",
+        },
+        aliases: [
+          "master treasure trails rare",
+          "masters rare",
+          "master clues rare",
+          "master clue rare",
+          "master treasure trails rares",
+          "masters rares",
+          "master clues rares",
+          "master clue rares",
+          "rare master",
+          "rare masters",
+        ],
       },
       {
         name: "Shared Treasure Trail Rewards",
@@ -389,6 +697,10 @@ export const COLLECTION_LOG_TABS = [
           12406, 12404, 12405, 12403, 12408, 12407, 12409, 12642, 12410, 21387,
           7329, 7330, 7331, 10326, 10327, 20238, 10476,
         ],
+        hiscore: {
+          "Clue Scrolls (all)": "Total clues completed",
+        },
+        aliases: ["shared rewards", "shared clue", "shared clues", "shared"],
       },
     ],
   },
@@ -401,10 +713,12 @@ export const COLLECTION_LOG_TABS = [
           12703, 10548, 10550, 10549, 10547, 10551, 10555, 10552, 10553, 10589,
           10564,
         ],
+        aliases: ["ba", "barb"],
       },
       {
         name: "Brimhaven Agility Arena",
         items: [2996, 2997, 21061, 21067, 21070, 21073, 21076, 21064],
+        aliases: ["brimhaven agility", "brimhaven", "brim agility", "brim"],
       },
       {
         name: "Castle Wars",
@@ -414,24 +728,36 @@ export const COLLECTION_LOG_TABS = [
           11895, 25171, 4513, 4514, 4515, 4516, 11891, 11892, 11898, 11896,
           11897, 11899, 11900, 11901, 12637, 12638, 12639,
         ],
+        aliases: ["cw", "cwars"],
       },
       {
         name: "Fishing Trawler",
         items: [13258, 13259, 13260, 13261],
+        aliases: ["trawler"],
       },
       {
         name: "Giants' Foundry",
         items: [27023, 27025, 27027, 27029, 27021, 27012, 27014, 27017, 27019],
+        aliases: ["giants foundry", "foundry", "gf"],
       },
       {
         name: "Gnome Restaurant",
         items: [9469, 9470, 9472, 9475],
+        aliases: ["gnome", "restaurant"],
       },
       {
         name: "Guardians of the Rift",
         items: [
           26901, 26792, 26798, 26813, 26807, 26809, 26811, 26850, 26852, 26854,
           26856, 26815, 26822, 26820, 26908, 26912, 26910,
+        ],
+        aliases: [
+          "guardian of the rift",
+          "gotr",
+          "grift",
+          "grifting",
+          "guardians",
+          "runetodt",
         ],
       },
       {
@@ -440,6 +766,7 @@ export const COLLECTION_LOG_TABS = [
           24711, 24719, 24721, 24723, 24725, 24727, 24731, 24729, 24733, 24740,
           24844, 24763, 24765, 24767, 24769, 24771,
         ],
+        aliases: ["hs", "sepc", "sepulchre"],
       },
       {
         name: "Last Man Standing",
@@ -449,30 +776,35 @@ export const COLLECTION_LOG_TABS = [
           12798, 21202, 12800, 12802, 12759, 12761, 12763, 12757, 12771, 12769,
           24217, 24219,
         ],
+        aliases: ["lms"],
       },
       {
         name: "Magic Training Arena",
         items: [
           6908, 6910, 6912, 6914, 6918, 6916, 6924, 6920, 6922, 6889, 6926,
         ],
+        aliases: ["mta", "magic arena"],
       },
       {
         name: "Mahogany Homes",
         items: [24884, 24872, 24874, 24876, 24878, 24880, 25629, 24885],
-      },
-      {
-        name: "Pest Control",
-        items: [
-          8841, 8839, 8840, 8842, 11663, 11665, 11664, 11666, 13072, 13073,
-        ],
+        aliases: ["mah homes", "mahogany home", "mh"],
       },
       {
         name: "Mastering Mixology",
         items: [29974, 29978, 29982, 29986, 29992, 29996, 30002],
       },
       {
+        name: "Pest Control",
+        items: [
+          8841, 8839, 8840, 8842, 11663, 11665, 11664, 11666, 13072, 13073,
+        ],
+        aliases: ["pc"],
+      },
+      {
         name: "Rogues' Den",
         items: [5554, 5553, 5555, 5557, 5556],
+        aliases: ["rogues den", "rogue den", "rogues", "rogue"],
       },
       {
         name: "Shades of Mort'ton",
@@ -480,18 +812,29 @@ export const COLLECTION_LOG_TABS = [
           12851, 25630, 3470, 25442, 25445, 25448, 25451, 25454, 25438, 25434,
           25436, 25440, 25474, 25476,
         ],
+        aliases: [
+          "shades of mortton",
+          "shade of mortton",
+          "shades",
+          "shade",
+          "mort ton",
+          "mortton",
+        ],
       },
       {
         name: "Soul Wars",
         items: [25348, 25346, 25340],
+        aliases: ["soul war", "sw"],
       },
       {
         name: "Temple Trekking",
         items: [10941, 10939, 10940, 10933],
+        aliases: ["trekking", "temple trek"],
       },
       {
         name: "Tithe Farm",
         items: [13646, 13642, 13640, 13644, 13639, 13353, 13226],
+        aliases: ["tithe"],
       },
       {
         name: "Trouble Brewing",
@@ -500,10 +843,12 @@ export const COLLECTION_LOG_TABS = [
           8994, 8956, 8963, 8995, 8957, 8964, 8996, 8958, 8965, 8997, 8966,
           8967, 8968, 8969, 8970, 8971, 8988, 8940, 8941,
         ],
+        aliases: ["brewing"],
       },
       {
         name: "Volcanic Mine",
-        items: [21697, 25615, 21541, 27695],
+        items: [21697, 25615, 21541, 27695, 12013, 12014, 12015, 12016],
+        aliases: ["vm", "volc mine"],
       },
     ],
   },
@@ -513,10 +858,7 @@ export const COLLECTION_LOG_TABS = [
       {
         name: "Aerial Fishing",
         items: [22840, 22846, 22844, 22842, 22838, 13258, 13259, 13260, 13261],
-      },
-      {
-        name: "Tormented Demons",
-        items: [29580, 29574, 29684],
+        aliases: ["aerial fish", "aerial"],
       },
       {
         name: "All Pets",
@@ -526,8 +868,10 @@ export const COLLECTION_LOG_TABS = [
           13181, 21273, 12648, 13177, 13179, 21992, 20693, 12921, 20851, 22473,
           19730, 12703, 13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665,
           21509, 13071, 23495, 23760, 23757, 24491, 25348, 25602, 26348, 26901,
-          27352, 27590, 28246, 28250, 28248, 28252, 28801, 28960, 28962,
+          27352, 27590, 28246, 28250, 28248, 28252, 28801, 28960, 28962, 29836,
+          30152, 30154, 30622,
         ],
+        aliases: ["all pets", "pets", "pet"],
       },
       {
         name: "Camdozaal",
@@ -540,10 +884,12 @@ export const COLLECTION_LOG_TABS = [
         items: [
           6798, 6799, 6800, 6801, 6802, 6803, 6804, 6805, 6806, 6807, 21439,
         ],
-      },
-      {
-        name: "Chaos Druids",
-        items: [20517, 20520, 20595],
+        aliases: [
+          "champions challenge",
+          "champion challenge",
+          "champion scrolls",
+          "champ scrolls",
+        ],
       },
       {
         name: "Chompy Bird Hunting",
@@ -551,6 +897,7 @@ export const COLLECTION_LOG_TABS = [
           13071, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985, 2986, 2987,
           2988, 2989, 2990, 2991, 2992, 2993, 2994, 2995,
         ],
+        aliases: ["chompy", "chompies", "bird hunting"],
       },
       {
         name: "Colossal Wyrm Agility",
@@ -559,10 +906,17 @@ export const COLLECTION_LOG_TABS = [
       {
         name: "Creature Creation",
         items: [25617, 25618, 25619, 25620, 25621, 25622, 25623],
+        aliases: ["tower of life"],
       },
       {
         name: "Cyclopes",
         items: [8844, 8845, 8846, 8847, 8848, 8849, 8850, 12954],
+        aliases: ["defenders", "defender"],
+      },
+      {
+        name: "Elder Chaos Druids",
+        items: [20517, 20520, 20595],
+        aliases: ["chaos druid", "elder druids", "elder druid", "elder"],
       },
       {
         name: "Forestry",
@@ -577,10 +931,20 @@ export const COLLECTION_LOG_TABS = [
         items: [
           21664, 21666, 21668, 21670, 21672, 21674, 21676, 21678, 21680, 21682,
         ],
+        aliases: ["fossil island note", "fossil island"],
       },
       {
         name: "Glough's Experiments",
         items: [19529, 19586, 19589, 19592, 19610, 19601],
+        aliases: [
+          "gloughs experiments",
+          "gloughs experiment",
+          "glough experiments",
+          "glough experiment",
+          "demonics",
+          "demonic gorilla",
+          "demonic gorillas",
+        ],
       },
       {
         name: "Hunter Guild",
@@ -589,18 +953,18 @@ export const COLLECTION_LOG_TABS = [
       {
         name: "Monkey Backpacks",
         items: [24862, 24866, 24864, 24867, 24865, 24863],
+        aliases: [
+          "monkey backpacks",
+          "monkey backpack",
+          "ape atoll",
+          "backpack",
+          "backpacks",
+        ],
       },
       {
         name: "Motherlode Mine",
         items: [25627, 25628, 12013, 12014, 12015, 12016],
-      },
-      {
-        name: "Random Events",
-        items: [
-          6654, 6655, 6656, 6180, 6181, 6182, 7592, 7593, 7594, 7595, 7596,
-          3057, 3058, 3059, 3060, 3061, 6183, 20590, 25129, 25131, 25133, 25135,
-          25137,
-        ],
+        aliases: ["motherlode mine", "motherlode", "mlm", "mm"],
       },
       {
         name: "My Notes",
@@ -609,6 +973,16 @@ export const COLLECTION_LOG_TABS = [
           11351, 11352, 11353, 11354, 11355, 11356, 11357, 11358, 11359, 11360,
           11361, 11362, 11363, 11364, 11365, 11366,
         ],
+        aliases: ["my notes", "notes", "note"],
+      },
+      {
+        name: "Random Events",
+        items: [
+          6654, 6655, 6656, 6180, 6181, 6182, 7592, 7593, 7594, 7595, 7596,
+          3057, 3058, 3059, 3060, 3061, 6183, 20590, 25129, 25131, 25133, 25135,
+          25137,
+        ],
+        aliases: ["random event", "random", "randoms"],
       },
       {
         name: "Revenants",
@@ -616,10 +990,12 @@ export const COLLECTION_LOG_TABS = [
           22542, 22547, 22552, 22557, 21817, 21804, 22305, 22302, 22299, 21813,
           21810, 21807, 21802, 21820,
         ],
+        aliases: ["revs"],
       },
       {
         name: "Rooftop Agility",
         items: [11849, 11850, 11852, 11854, 11856, 11858, 11860],
+        aliases: ["rooftop", "rooftops", "agility", "graceful"],
       },
       {
         name: "Shayzien Armour",
@@ -628,10 +1004,25 @@ export const COLLECTION_LOG_TABS = [
           13367, 13368, 13369, 13370, 13371, 13372, 13373, 13374, 13375, 13376,
           13377, 13378, 13379, 13380, 13381,
         ],
+        aliases: ["shayzien"],
       },
       {
         name: "Shooting Stars",
         items: [25539, 25547],
+        aliases: ["shooting star", "star mining", "ss", "stars"],
+      },
+      {
+        name: "Skilling Pets",
+        items: [13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665],
+        aliases: [
+          "skilling pet",
+          "skill pets",
+          "skill pet",
+          "pets skill",
+          "pet skill",
+          "pets skilling",
+          "pet skilling",
+        ],
       },
       {
         name: "Slayer",
@@ -643,12 +1034,18 @@ export const COLLECTION_LOG_TABS = [
           22960, 22957, 22988, 22971, 22973, 22969, 4109, 4111, 4113, 4115,
           4117, 4099, 4101, 4103, 4105, 4107, 23047, 23050, 23053, 23056, 23059,
           24268, 24288, 24291, 24294, 24777, 26225, 26221, 26223, 26227, 26229,
-          28583, 29084,
+          28583, 29084, 29455, 29806, 29889, 29892, 29895,
         ],
+        aliases: ["slay"],
       },
       {
-        name: "Skilling Pets",
-        items: [13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665],
+        name: "Tormented Demons",
+        items: [29580, 29574, 29684],
+      },
+      {
+        name: "TzHaar",
+        items: [6568, 6524, 6528, 6523, 6525, 6526, 6522, 21298, 21301, 21304],
+        aliases: ["tz haar", "tz", "tzh"],
       },
       {
         name: "Miscellaneous",
@@ -658,12 +1055,9 @@ export const COLLECTION_LOG_TABS = [
           19707, 21838, 20439, 20436, 20442, 20433, 21343, 21345, 21392, 9007,
           9008, 9010, 9011, 22374, 20754, 22875, 7536, 7538, 13392, 23522,
           23943, 24000, 23959, 24034, 24037, 24040, 24046, 24043, 6571, 21649,
-          25844, 25846, 28813,
+          25844, 25846, 28813, 30324,
         ],
-      },
-      {
-        name: "TzHaar",
-        items: [6568, 6524, 6528, 6523, 6525, 6526, 6522, 21298, 21301, 21304],
+        aliases: ["misc"],
       },
     ],
   },
@@ -2230,6 +2624,14 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   30088: "Huasca seed",
   30152: "Huberte",
   30154: "Moxi",
+  30324: "Broken zombie helmet",
+  30622: "Bran",
+  30626: "Deadeye prayer scroll",
+  30627: "Mystic vigour prayer scroll",
+  30628: "Ice element staff crown",
+  30631: "Fire element staff crown",
+  30637: "Giantsoul amulet (uncharged)",
+  30640: "Desiccated page",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
