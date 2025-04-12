@@ -9,6 +9,11 @@
       "custom_domain": true
     }
   ],
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  },
   "d1_databases": [
     {
       "binding": "DB",
