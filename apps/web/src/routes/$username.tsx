@@ -1,5 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
@@ -43,6 +43,10 @@ export const Route = createFileRoute("/$username")({
   validateSearch: zodValidator(profileSearchSchema),
   loaderDeps: ({ search: { page } }) => ({ page }),
   loader: async ({ params, context }) => {
+    if (params.username !== "pgn") {
+      return redirect({ to: "/" });
+    }
+
     for (const hiscoreEndpoint of Object.keys(HISCORE_ENDPOINTS)) {
       context.queryClient.prefetchQuery(
         hiscoresQueryOptions({
@@ -76,7 +80,7 @@ function RouteComponent() {
           accountType={profile.accountType}
           createdAt={new Date(profile.createdAt)}
           updatedAt={new Date(profile.updatedAt)}
-          modelUri={`http://localhost:8787/profiles/models/${profile.username}`}
+          modelUri={`http://api.runeprofile.com/profiles/models/${profile.username}`}
         />
         <Skills data={profile.skills} />
         <AchievementDiaries data={profile.achievementDiaryTiers} />

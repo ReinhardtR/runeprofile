@@ -1,25 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AchievementDiaries } from "~/components/osrs/achievement-diaries";
-import { CombatAchievements } from "~/components/osrs/combat-achievements";
-import { QuestList } from "~/components/osrs/quest-list";
-import { Skills } from "~/components/osrs/skills";
-import { getProfile } from "~/lib/api";
+import Logo from "~/assets/logo.png";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
-  loader: () => getProfile({ username: "pgn" }),
 });
 
 function RouteComponent() {
-  const profile = Route.useLoaderData();
-
   return (
     <div className="flex flex-row items-center justify-center gap-4 p-16">
-      <Skills data={profile.skills} />
-      <AchievementDiaries data={profile.achievementDiaryTiers} />
-      <QuestList data={profile.quests} />
-      <CombatAchievements data={profile.combatAchievementTiers} />
+      <div className="bg-card rounded-lg border p-16 flex items-center justify-center flex-col gap-y-4">
+        <img src={Logo} className="size-24" />
+        <h1 className="font-bold text-card-foreground text-2xl text-center">
+          RuneProfile is currently down <br /> due to maintenance.
+        </h1>
+        <p className="text-center text-muted-foreground">
+          Join the{" "}
+          <a
+            href="https://discord.com/invite/6XgBcePAfj"
+            className="text-primary font-bold hover:underline"
+          >
+            Discord
+          </a>{" "}
+          for more information and updates.
+        </p>
+      </div>
     </div>
   );
 }
