@@ -1,5 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "runeprofile-web",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  "main": ""
 }

@@ -9,6 +9,7 @@
     }
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "dev": "wrangler dev src/index.ts",
     "dev:api-client": "tsc -p tsconfig.build.json --watch",
     "build": "tsc -p tsconfig.build.json",

@@ -13,7 +13,7 @@ export type CollectionLogTab = {
   name: string;
   pages: CollectionLogPage[];
 };
-export const COLLECTION_LOG_TABS = [
+export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
   {
     name: "Bosses",
     pages: [
@@ -1061,7 +1061,7 @@ export const COLLECTION_LOG_TABS = [
       },
     ],
   },
-] satisfies CollectionLogTab[];
+];
 
 export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   1249: "Dragon spear",

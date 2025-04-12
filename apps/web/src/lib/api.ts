@@ -1,6 +1,9 @@
-import { apiClient } from "@runeprofile/api/client";
+import { hc } from "hono/client";
 
-const api = apiClient(import.meta.env.VITE_API_URL);
+import type { Client } from "@runeprofile/api/client";
+
+// @ts-expect-error
+const api: Client = hc(import.meta.env.VITE_API_URL);
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;
 
