@@ -27,12 +27,5 @@
       "binding": "BUCKET",
       "bucket_name": "runeprofile-player-models"
     }
-  ],
-  "vars": {
-    "CORS_ORIGIN": [
-      "https://runeprofile.com",
-      "https://www.runeprofile.com",
-      "runeprofile.pages.dev"
-    ],
-  },
+  ]
 }
