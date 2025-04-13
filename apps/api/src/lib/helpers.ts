@@ -3,6 +3,7 @@ import { Hono } from "hono";
 type Bindings = {
   DB: D1Database;
   BUCKET: R2Bucket;
+  CORS_ORIGIN: string;
 };
 
 export const newRouter = () => new Hono<{ Bindings: Bindings }>();
