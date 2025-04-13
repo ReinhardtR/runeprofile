@@ -6,6 +6,7 @@ import { profilesRouter } from "~/routes/profiles";
 
 export default newRouter()
   .use(
+    "*",
     cors({
       origin: [
         "https://runeprofile.com",
