@@ -60,7 +60,7 @@ export function Character({
       {/* Model */}
       <div className="h-full p-[1px]">
         <PlayerModel
-          modelUri={`${import.meta.env.VITE_API_URL}/profiles/models/${username}.ply`}
+          modelUri={`${import.meta.env.VITE_API_URL}/profiles/models/${username}`}
         />
       </div>
     </Card>
