@@ -7,10 +7,6 @@
     {
       "pattern": "api.runeprofile.com",
       "custom_domain": true
-    },
-    {
-      "pattern": "runeprofile-api.reinhardt.workers.dev",
-      "custom_domain": false
     }
   ],
   "observability": {
