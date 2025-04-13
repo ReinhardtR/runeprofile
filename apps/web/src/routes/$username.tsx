@@ -10,10 +10,7 @@ import { LoaderCircle, SearchIcon } from "lucide-react";
 import React from "react";
 import { z } from "zod";
 
-import {
-  COLLECTION_LOG_TABS,
-  HiscoreLeaderboardKey,
-} from "@runeprofile/runescape";
+import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
 import HiscoresIcon from "~/assets/icons/hiscores.png";
 import Logo from "~/assets/misc/logo.png";
@@ -29,7 +26,6 @@ import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button, ButtonProps } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
-import { Spinner } from "~/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -78,6 +74,14 @@ export const Route = createFileRoute("/$username")({
       profileQueryOptions(params.username),
     );
   },
+  errorComponent: () => (
+    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
+      <div className="text-2xl text-primary-foreground">
+        Failed to load profile
+      </div>
+      <Button onClick={() => window.location.reload()}>Try again</Button>
+    </div>
+  ),
 });
 
 function RouteComponent() {
