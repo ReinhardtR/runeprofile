@@ -1,0 +1,4490 @@
+{
+  "username": "pgn",
+  "accountType": { "id": 1, "key": "ironman", "name": "Ironman" },
+  "skills": [
+    { "name": "Agility", "xp": 13035109 },
+    { "name": "Attack", "xp": 20124815 },
+    { "name": "Construction", "xp": 13053370 },
+    { "name": "Cooking", "xp": 13208403 },
+    { "name": "Crafting", "xp": 13546901 },
+    { "name": "Defence", "xp": 19301390 },
+    { "name": "Farming", "xp": 14954720 },
+    { "name": "Firemaking", "xp": 25718533 },
+    { "name": "Fishing", "xp": 13045848 },
+    { "name": "Fletching", "xp": 13746381 },
+    { "name": "Herblore", "xp": 12480773 },
+    { "name": "Hitpoints", "xp": 49022382 },
+    { "name": "Hunter", "xp": 10704267 },
+    { "name": "Magic", "xp": 23647886 },
+    { "name": "Mining", "xp": 13136448 },
+    { "name": "Prayer", "xp": 6132684 },
+    { "name": "Ranged", "xp": 41018830 },
+    { "name": "Runecraft", "xp": 4083746 },
+    { "name": "Slayer", "xp": 15432997 },
+    { "name": "Smithing", "xp": 10174088 },
+    { "name": "Strength", "xp": 44150011 },
+    { "name": "Thieving", "xp": 21098908 },
+    { "name": "Woodcutting", "xp": 13488523 }
+  ],
+  "quests": [
+    { "id": 0, "name": "Animal Magnetism", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 1,
+      "name": "Another Slice of H.A.M.",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 3, "name": "The Ascent of Arceuus", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 4,
+      "name": "Alfred Grimhand's Barcrawl",
+      "state": 2,
+      "type": "MINI"
+    },
+    { "id": 5, "name": "Bear Your Soul", "state": 2, "type": "MINI" },
+    { "id": 6, "name": "Below Ice Mountain", "state": 2, "type": "FREE" },
+    { "id": 7, "name": "Between a Rock...", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 8,
+      "name": "Big Chompy Bird Hunting",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 9, "name": "Biohazard", "state": 2, "type": "MEMBERS" },
+    { "id": 10, "name": "Black Knights' Fortress", "state": 2, "type": "FREE" },
+    { "id": 11, "name": "Bone Voyage", "state": 2, "type": "MEMBERS" },
+    { "id": 12, "name": "Cabin Fever", "state": 2, "type": "MEMBERS" },
+    { "id": 13, "name": "Client of Kourend", "state": 2, "type": "MEMBERS" },
+    { "id": 14, "name": "Clock Tower", "state": 2, "type": "MEMBERS" },
+    { "id": 15, "name": "Cold War", "state": 2, "type": "MEMBERS" },
+    { "id": 16, "name": "Contact!", "state": 2, "type": "MEMBERS" },
+    { "id": 17, "name": "Cook's Assistant", "state": 2, "type": "FREE" },
+    { "id": 18, "name": "The Corsair Curse", "state": 2, "type": "FREE" },
+    {
+      "id": 19,
+      "name": "Creature of Fenkenstrain",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 20, "name": "Curse of the Empty Lord", "state": 2, "type": "MINI" },
+    { "id": 21, "name": "Daddy's Home", "state": 2, "type": "MINI" },
+    {
+      "id": 22,
+      "name": "Darkness of Hallowvale",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 23, "name": "Death Plateau", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 24,
+      "name": "Death to the Dorgeshuun",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 25, "name": "Demon Slayer", "state": 2, "type": "FREE" },
+    {
+      "id": 26,
+      "name": "The Depths of Despair",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 27, "name": "Desert Treasure I", "state": 2, "type": "MEMBERS" },
+    { "id": 28, "name": "Devious Minds", "state": 2, "type": "MEMBERS" },
+    { "id": 29, "name": "The Dig Site", "state": 2, "type": "MEMBERS" },
+    { "id": 30, "name": "Doric's Quest", "state": 2, "type": "FREE" },
+    { "id": 31, "name": "Dragon Slayer I", "state": 2, "type": "FREE" },
+    { "id": 32, "name": "Dragon Slayer II", "state": 2, "type": "MEMBERS" },
+    { "id": 33, "name": "Dream Mentor", "state": 2, "type": "MEMBERS" },
+    { "id": 34, "name": "Druidic Ritual", "state": 2, "type": "MEMBERS" },
+    { "id": 35, "name": "Dwarf Cannon", "state": 2, "type": "MEMBERS" },
+    { "id": 36, "name": "Eadgar's Ruse", "state": 2, "type": "MEMBERS" },
+    { "id": 37, "name": "Eagles' Peak", "state": 2, "type": "MEMBERS" },
+    { "id": 38, "name": "Elemental Workshop I", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 39,
+      "name": "Elemental Workshop II",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 40, "name": "Enakhra's Lament", "state": 2, "type": "MEMBERS" },
+    { "id": 41, "name": "The Enchanted Key", "state": 2, "type": "MINI" },
+    { "id": 42, "name": "Enlightened Journey", "state": 2, "type": "MEMBERS" },
+    { "id": 43, "name": "Enter the Abyss", "state": 2, "type": "MINI" },
+    { "id": 44, "name": "Ernest the Chicken", "state": 2, "type": "FREE" },
+    {
+      "id": 45,
+      "name": "The Eyes of Glouphrie",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    {
+      "id": 46,
+      "name": "Fairytale I - Growing Pains",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    {
+      "id": 47,
+      "name": "Fairytale II - Cure a Queen",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 48, "name": "Family Crest", "state": 2, "type": "MEMBERS" },
+    { "id": 49, "name": "Family Pest", "state": 2, "type": "MINI" },
+    { "id": 50, "name": "The Feud", "state": 2, "type": "MEMBERS" },
+    { "id": 51, "name": "Fight Arena", "state": 2, "type": "MEMBERS" },
+    { "id": 52, "name": "Fishing Contest", "state": 2, "type": "MEMBERS" },
+    { "id": 53, "name": "Forgettable Tale...", "state": 2, "type": "MEMBERS" },
+    { "id": 54, "name": "The Forsaken Tower", "state": 2, "type": "MEMBERS" },
+    { "id": 55, "name": "The Fremennik Exiles", "state": 2, "type": "MEMBERS" },
+    { "id": 56, "name": "The Fremennik Isles", "state": 2, "type": "MEMBERS" },
+    { "id": 57, "name": "The Fremennik Trials", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 58,
+      "name": "Garden of Tranquillity",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 59, "name": "The General's Shadow", "state": 2, "type": "MINI" },
+    { "id": 60, "name": "Gertrude's Cat", "state": 2, "type": "MEMBERS" },
+    { "id": 61, "name": "Getting Ahead", "state": 2, "type": "MEMBERS" },
+    { "id": 62, "name": "Ghosts Ahoy", "state": 2, "type": "MEMBERS" },
+    { "id": 63, "name": "The Giant Dwarf", "state": 2, "type": "MEMBERS" },
+    { "id": 64, "name": "Goblin Diplomacy", "state": 2, "type": "FREE" },
+    { "id": 65, "name": "The Golem", "state": 2, "type": "MEMBERS" },
+    { "id": 66, "name": "The Grand Tree", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 67,
+      "name": "The Great Brain Robbery",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 68, "name": "Grim Tales", "state": 2, "type": "MEMBERS" },
+    { "id": 69, "name": "The Hand in the Sand", "state": 2, "type": "MEMBERS" },
+    { "id": 70, "name": "Haunted Mine", "state": 2, "type": "MEMBERS" },
+    { "id": 71, "name": "Hazeel Cult", "state": 2, "type": "MEMBERS" },
+    { "id": 72, "name": "Heroes' Quest", "state": 2, "type": "MEMBERS" },
+    { "id": 73, "name": "Holy Grail", "state": 2, "type": "MEMBERS" },
+    { "id": 74, "name": "Horror from the Deep", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 75,
+      "name": "Icthlarin's Little Helper",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 76, "name": "Imp Catcher", "state": 2, "type": "FREE" },
+    {
+      "id": 77,
+      "name": "In Aid of the Myreque",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 78, "name": "In Search of Knowledge", "state": 2, "type": "MINI" },
+    {
+      "id": 79,
+      "name": "In Search of the Myreque",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 80, "name": "Jungle Potion", "state": 2, "type": "MEMBERS" },
+    { "id": 81, "name": "A Kingdom Divided", "state": 2, "type": "MEMBERS" },
+    { "id": 82, "name": "King's Ransom", "state": 2, "type": "MEMBERS" },
+    { "id": 83, "name": "The Knight's Sword", "state": 2, "type": "FREE" },
+    { "id": 84, "name": "Lair of Tarn Razorlor", "state": 2, "type": "MINI" },
+    { "id": 85, "name": "Legends' Quest", "state": 2, "type": "MEMBERS" },
+    { "id": 86, "name": "Lost City", "state": 2, "type": "MEMBERS" },
+    { "id": 87, "name": "The Lost Tribe", "state": 2, "type": "MEMBERS" },
+    { "id": 88, "name": "Lunar Diplomacy", "state": 2, "type": "MEMBERS" },
+    { "id": 89, "name": "Mage Arena I", "state": 2, "type": "MINI" },
+    { "id": 90, "name": "Mage Arena II", "state": 2, "type": "MINI" },
+    {
+      "id": 91,
+      "name": "Making Friends with My Arm",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 92, "name": "Making History", "state": 2, "type": "MEMBERS" },
+    { "id": 93, "name": "Merlin's Crystal", "state": 2, "type": "MEMBERS" },
+    { "id": 94, "name": "Misthalin Mystery", "state": 2, "type": "FREE" },
+    { "id": 95, "name": "Monkey Madness I", "state": 2, "type": "MEMBERS" },
+    { "id": 96, "name": "Monkey Madness II", "state": 2, "type": "MEMBERS" },
+    { "id": 97, "name": "Monk's Friend", "state": 2, "type": "MEMBERS" },
+    { "id": 98, "name": "Mountain Daughter", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 99,
+      "name": "Mourning's End Part I",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    {
+      "id": 100,
+      "name": "Mourning's End Part II",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 101, "name": "Murder Mystery", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 102,
+      "name": "My Arm's Big Adventure",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 103, "name": "Nature Spirit", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 104,
+      "name": "A Night at the Theatre",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 105, "name": "Observatory Quest", "state": 2, "type": "MEMBERS" },
+    { "id": 106, "name": "Olaf's Quest", "state": 2, "type": "MEMBERS" },
+    { "id": 107, "name": "One Small Favour", "state": 2, "type": "MEMBERS" },
+    { "id": 108, "name": "Pirate's Treasure", "state": 2, "type": "FREE" },
+    { "id": 109, "name": "Plague City", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 110,
+      "name": "A Porcine of Interest",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 111, "name": "Priest in Peril", "state": 2, "type": "MEMBERS" },
+    { "id": 112, "name": "Prince Ali Rescue", "state": 2, "type": "FREE" },
+    {
+      "id": 113,
+      "name": "The Queen of Thieves",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 114, "name": "Rag and Bone Man I", "state": 2, "type": "MEMBERS" },
+    { "id": 115, "name": "Rag and Bone Man II", "state": 2, "type": "MEMBERS" },
+    { "id": 116, "name": "Ratcatchers", "state": 2, "type": "MEMBERS" },
+    { "id": 117, "name": "Recipe for Disaster", "state": 2, "type": "MEMBERS" },
+    { "id": 118, "name": "Recruitment Drive", "state": 2, "type": "MEMBERS" },
+    { "id": 119, "name": "Regicide", "state": 2, "type": "MEMBERS" },
+    { "id": 120, "name": "The Restless Ghost", "state": 2, "type": "FREE" },
+    { "id": 121, "name": "Romeo & Juliet", "state": 2, "type": "FREE" },
+    { "id": 122, "name": "Roving Elves", "state": 2, "type": "MEMBERS" },
+    { "id": 123, "name": "Royal Trouble", "state": 2, "type": "MEMBERS" },
+    { "id": 124, "name": "Rum Deal", "state": 2, "type": "MEMBERS" },
+    { "id": 125, "name": "Rune Mysteries", "state": 2, "type": "FREE" },
+    { "id": 126, "name": "Scorpion Catcher", "state": 2, "type": "MEMBERS" },
+    { "id": 127, "name": "Sea Slug", "state": 2, "type": "MEMBERS" },
+    { "id": 128, "name": "Shades of Mort'ton", "state": 2, "type": "MEMBERS" },
+    { "id": 129, "name": "Shadow of the Storm", "state": 2, "type": "MEMBERS" },
+    { "id": 130, "name": "Sheep Herder", "state": 2, "type": "MEMBERS" },
+    { "id": 131, "name": "Sheep Shearer", "state": 2, "type": "FREE" },
+    { "id": 132, "name": "Shield of Arrav", "state": 2, "type": "FREE" },
+    { "id": 133, "name": "Shilo Village", "state": 2, "type": "MEMBERS" },
+    { "id": 134, "name": "Sins of the Father", "state": 2, "type": "MEMBERS" },
+    { "id": 135, "name": "Skippy and the Mogres", "state": 2, "type": "MINI" },
+    { "id": 136, "name": "The Slug Menace", "state": 2, "type": "MEMBERS" },
+    { "id": 137, "name": "Song of the Elves", "state": 2, "type": "MEMBERS" },
+    { "id": 138, "name": "A Soul's Bane", "state": 2, "type": "MEMBERS" },
+    { "id": 139, "name": "Spirits of the Elid", "state": 2, "type": "MEMBERS" },
+    { "id": 140, "name": "Swan Song", "state": 2, "type": "MEMBERS" },
+    { "id": 141, "name": "Tai Bwo Wannai Trio", "state": 2, "type": "MEMBERS" },
+    { "id": 142, "name": "A Tail of Two Cats", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 143,
+      "name": "Tale of the Righteous",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 144, "name": "A Taste of Hope", "state": 2, "type": "MEMBERS" },
+    { "id": 145, "name": "Tears of Guthix", "state": 2, "type": "MEMBERS" },
+    { "id": 146, "name": "Temple of Ikov", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 147,
+      "name": "Throne of Miscellania",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 148, "name": "The Tourist Trap", "state": 2, "type": "MEMBERS" },
+    { "id": 149, "name": "Tower of Life", "state": 2, "type": "MEMBERS" },
+    { "id": 150, "name": "Tree Gnome Village", "state": 2, "type": "MEMBERS" },
+    { "id": 151, "name": "Tribal Totem", "state": 2, "type": "MEMBERS" },
+    { "id": 152, "name": "Troll Romance", "state": 2, "type": "MEMBERS" },
+    { "id": 153, "name": "Troll Stronghold", "state": 2, "type": "MEMBERS" },
+    { "id": 154, "name": "Underground Pass", "state": 2, "type": "MEMBERS" },
+    { "id": 155, "name": "Vampyre Slayer", "state": 2, "type": "FREE" },
+    { "id": 156, "name": "Wanted!", "state": 2, "type": "MEMBERS" },
+    { "id": 157, "name": "Watchtower", "state": 2, "type": "MEMBERS" },
+    { "id": 158, "name": "Waterfall Quest", "state": 2, "type": "MEMBERS" },
+    { "id": 159, "name": "What Lies Below", "state": 2, "type": "MEMBERS" },
+    { "id": 160, "name": "Witch's House", "state": 2, "type": "MEMBERS" },
+    { "id": 161, "name": "Witch's Potion", "state": 2, "type": "FREE" },
+    { "id": 162, "name": "X Marks the Spot", "state": 2, "type": "FREE" },
+    { "id": 163, "name": "Zogre Flesh Eaters", "state": 2, "type": "MEMBERS" },
+    { "id": 164, "name": "The Frozen Door", "state": 2, "type": "MINI" },
+    { "id": 165, "name": "Land of the Goblins", "state": 2, "type": "MEMBERS" },
+    { "id": 166, "name": "Hopespear's Will", "state": 2, "type": "MINI" },
+    { "id": 167, "name": "Temple of the Eye", "state": 2, "type": "MEMBERS" },
+    {
+      "id": 168,
+      "name": "Beneath Cursed Sands",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 169, "name": "Sleeping Giants", "state": 2, "type": "MEMBERS" },
+    { "id": 180, "name": "The Garden of Death", "state": 2, "type": "MEMBERS" },
+    { "id": 2306, "name": "Into the Tombs", "state": 2, "type": "MINI" },
+    {
+      "id": 2338,
+      "name": "Secrets of the North",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    {
+      "id": 2343,
+      "name": "Desert Treasure II - The Fallen Empire",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 3250, "name": "His Faithful Servants", "state": 2, "type": "MINI" },
+    {
+      "id": 3425,
+      "name": "The Path of Glouphrie",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 3451, "name": "Barbarian Training", "state": 1, "type": "MINI" },
+    {
+      "id": 3466,
+      "name": "Defender of Varrock",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    {
+      "id": 3467,
+      "name": "While Guthix Sleeps",
+      "state": 2,
+      "type": "MEMBERS"
+    },
+    { "id": 3512, "name": "Twilight's Promise", "state": 2, "type": "MEMBERS" },
+    { "id": 3514, "name": "Perilous Moons", "state": 2, "type": "MEMBERS" }
+  ],
+  "items": [
+    {
+      "id": 1249,
+      "name": "Dragon spear",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2366,
+      "name": "Shield left half",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2577,
+      "name": "Ranger boots",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2579,
+      "name": "Wizard boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2599,
+      "name": "Adamant platebody (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2601,
+      "name": "Adamant platelegs (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2603,
+      "name": "Adamant kiteshield (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2611,
+      "name": "Adamant kiteshield (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2613,
+      "name": "Adamant full helm (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2615,
+      "name": "Rune platebody (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2617,
+      "name": "Rune platelegs (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2621,
+      "name": "Rune kiteshield (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2627,
+      "name": "Rune full helm (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2645,
+      "name": "Red headband",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2649,
+      "name": "Brown headband",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2653,
+      "name": "Zamorak platebody",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2659,
+      "name": "Zamorak kiteshield",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2665,
+      "name": "Saradomin full helm",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2671,
+      "name": "Guthix platelegs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2673,
+      "name": "Guthix full helm",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2978,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2979,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2980,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2981,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2982,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2983,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2984,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2985,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2986,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2987,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2988,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2989,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2990,
+      "name": "Chompy bird hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 2996,
+      "name": "Agility arena ticket",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3140,
+      "name": "Dragon chainbody",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3475,
+      "name": "Adamant plateskirt (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3478,
+      "name": "Zamorak plateskirt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3827,
+      "name": "Saradomin page 1",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3828,
+      "name": "Saradomin page 2",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3829,
+      "name": "Saradomin page 3",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3830,
+      "name": "Saradomin page 4",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3831,
+      "name": "Zamorak page 1",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3832,
+      "name": "Zamorak page 2",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3834,
+      "name": "Zamorak page 4",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3835,
+      "name": "Guthix page 1",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3836,
+      "name": "Guthix page 2",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 3838,
+      "name": "Guthix page 4",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4101,
+      "name": "Mystic robe top (dark)",
+      "quantity": 8,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4103,
+      "name": "Mystic robe bottom (dark)",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4105,
+      "name": "Mystic gloves (dark)",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4111,
+      "name": "Mystic robe top (light)",
+      "quantity": 29,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4113,
+      "name": "Mystic robe bottom (light)",
+      "quantity": 28,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4115,
+      "name": "Mystic gloves (light)",
+      "quantity": 10,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4119,
+      "name": "Bronze boots",
+      "quantity": 16,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4121,
+      "name": "Iron boots",
+      "quantity": 10,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4125,
+      "name": "Black boots",
+      "quantity": 26,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4127,
+      "name": "Mithril boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4129,
+      "name": "Adamant boots",
+      "quantity": 25,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4131,
+      "name": "Rune boots",
+      "quantity": 60,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4151,
+      "name": "Abyssal whip",
+      "quantity": 13,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4153,
+      "name": "Granite maul",
+      "quantity": 11,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4207,
+      "name": "Crystal weapon seed",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4708,
+      "name": "Ahrim's hood",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4710,
+      "name": "Ahrim's staff",
+      "quantity": 7,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4712,
+      "name": "Ahrim's robetop",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4714,
+      "name": "Ahrim's robeskirt",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4716,
+      "name": "Dharok's helm",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4718,
+      "name": "Dharok's greataxe",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4720,
+      "name": "Dharok's platebody",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4722,
+      "name": "Dharok's platelegs",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4724,
+      "name": "Guthan's helm",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4726,
+      "name": "Guthan's warspear",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4728,
+      "name": "Guthan's platebody",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4730,
+      "name": "Guthan's chainskirt",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4732,
+      "name": "Karil's coif",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4734,
+      "name": "Karil's crossbow",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4736,
+      "name": "Karil's leathertop",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4738,
+      "name": "Karil's leatherskirt",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4740,
+      "name": "Bolt rack",
+      "quantity": 666,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4745,
+      "name": "Torag's helm",
+      "quantity": 7,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4747,
+      "name": "Torag's hammers",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4749,
+      "name": "Torag's platebody",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4751,
+      "name": "Torag's platelegs",
+      "quantity": 9,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4753,
+      "name": "Verac's helm",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4755,
+      "name": "Verac's flail",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4757,
+      "name": "Verac's brassard",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 4759,
+      "name": "Verac's plateskirt",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 5553,
+      "name": "Rogue top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 5554,
+      "name": "Rogue mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 5555,
+      "name": "Rogue trousers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 5556,
+      "name": "Rogue gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 5557,
+      "name": "Rogue boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6180,
+      "name": "Lederhosen top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6181,
+      "name": "Lederhosen shorts",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6182,
+      "name": "Lederhosen hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6183,
+      "name": "Frog token",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6562,
+      "name": "Mud battlestaff",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6570,
+      "name": "Fire cape",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6571,
+      "name": "Uncut onyx",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6573,
+      "name": "Onyx",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6654,
+      "name": "Camo top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6655,
+      "name": "Camo bottoms",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6656,
+      "name": "Camo helmet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6665,
+      "name": "Mudskipper hat",
+      "quantity": 9,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6666,
+      "name": "Flippers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6731,
+      "name": "Seers ring",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6733,
+      "name": "Archers ring",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6735,
+      "name": "Warrior ring",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6737,
+      "name": "Berserker ring",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6739,
+      "name": "Dragon axe",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6800,
+      "name": "Giant champion scroll",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6801,
+      "name": "Goblin champion scroll",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6806,
+      "name": "Skeleton champion scroll",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6807,
+      "name": "Zombie champion scroll",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6809,
+      "name": "Granite legs",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6908,
+      "name": "Beginner wand",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6910,
+      "name": "Apprentice wand",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6912,
+      "name": "Teacher wand",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6914,
+      "name": "Master wand",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6920,
+      "name": "Infinity boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 6926,
+      "name": "Bones to peaches",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7158,
+      "name": "Dragon 2h sword",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7319,
+      "name": "Red boater",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7321,
+      "name": "Orange boater",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7323,
+      "name": "Green boater",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7327,
+      "name": "Black boater",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7329,
+      "name": "Red firelighter",
+      "quantity": 214,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7330,
+      "name": "Green firelighter",
+      "quantity": 72,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7331,
+      "name": "Blue firelighter",
+      "quantity": 103,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7336,
+      "name": "Rune shield (h1)",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7340,
+      "name": "Adamant shield (h2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7342,
+      "name": "Rune shield (h2)",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7346,
+      "name": "Adamant shield (h3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7354,
+      "name": "Rune shield (h4)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7374,
+      "name": "Blue d'hide body (g)",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7382,
+      "name": "Blue d'hide chaps (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7384,
+      "name": "Blue d'hide chaps (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7398,
+      "name": "Enchanted robe",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7399,
+      "name": "Enchanted top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7416,
+      "name": "Mole claw",
+      "quantity": 50,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7418,
+      "name": "Mole skin",
+      "quantity": 100,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7592,
+      "name": "Zombie shirt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7593,
+      "name": "Zombie trousers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7594,
+      "name": "Zombie mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7595,
+      "name": "Zombie gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7596,
+      "name": "Zombie boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7975,
+      "name": "Crawling hand",
+      "quantity": 9,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 7981,
+      "name": "Kq head",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8839,
+      "name": "Void knight top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8840,
+      "name": "Void knight robe",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8842,
+      "name": "Void knight gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8844,
+      "name": "Bronze defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8845,
+      "name": "Iron defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8846,
+      "name": "Steel defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8847,
+      "name": "Black defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8848,
+      "name": "Mithril defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8849,
+      "name": "Adamant defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8850,
+      "name": "Rune defender",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 8901,
+      "name": "Black mask (10)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 9007,
+      "name": "Right skull half",
+      "quantity": 24,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 9008,
+      "name": "Left skull half",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 9010,
+      "name": "Top of sceptre",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 9011,
+      "name": "Bottom of sceptre",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10284,
+      "name": "Magic comp bow",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10294,
+      "name": "Rune helm (h5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10296,
+      "name": "Adamant helm (h1)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10300,
+      "name": "Adamant helm (h3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10304,
+      "name": "Adamant helm (h5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10326,
+      "name": "Purple firelighter",
+      "quantity": 134,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10327,
+      "name": "White firelighter",
+      "quantity": 78,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10364,
+      "name": "Strength amulet (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10370,
+      "name": "Zamorak d'hide body",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10372,
+      "name": "Zamorak chaps",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10376,
+      "name": "Guthix bracers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10382,
+      "name": "Guthix coif",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10386,
+      "name": "Saradomin d'hide body",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10400,
+      "name": "Black elegant shirt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10438,
+      "name": "Purple elegant skirt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10444,
+      "name": "Zamorak crozier",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10454,
+      "name": "Guthix mitre",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10456,
+      "name": "Zamorak mitre",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10462,
+      "name": "Guthix robe top",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10472,
+      "name": "Guthix stole",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10474,
+      "name": "Zamorak stole",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10476,
+      "name": "Purple sweets",
+      "quantity": 796,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10551,
+      "name": "Fighter torso",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10564,
+      "name": "Granite body",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10933,
+      "name": "Lumberjack boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10939,
+      "name": "Lumberjack top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10940,
+      "name": "Lumberjack legs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10941,
+      "name": "Lumberjack hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10976,
+      "name": "Long bone",
+      "quantity": 38,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 10977,
+      "name": "Curved bone",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11338,
+      "name": "Chewed bones",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11342,
+      "name": "Ancient page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11346,
+      "name": "Ancient page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11348,
+      "name": "Ancient page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11354,
+      "name": "Ancient page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11361,
+      "name": "Ancient page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11663,
+      "name": "Void mage helm",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11664,
+      "name": "Void ranger helm",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11665,
+      "name": "Void melee helm",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11785,
+      "name": "Armadyl crossbow",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11812,
+      "name": "Bandos hilt",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11814,
+      "name": "Saradomin hilt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11816,
+      "name": "Zamorak hilt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11818,
+      "name": "Godsword shard 1",
+      "quantity": 8,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11820,
+      "name": "Godsword shard 2",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11822,
+      "name": "Godsword shard 3",
+      "quantity": 9,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11824,
+      "name": "Zamorakian spear",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11830,
+      "name": "Armadyl chainskirt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11832,
+      "name": "Bandos chestplate",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11834,
+      "name": "Bandos tassets",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11836,
+      "name": "Bandos boots",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11838,
+      "name": "Saradomin sword",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11840,
+      "name": "Dragon boots",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11849,
+      "name": "Mark of grace",
+      "quantity": 3441,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11850,
+      "name": "Graceful hood",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11852,
+      "name": "Graceful cape",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11854,
+      "name": "Graceful top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11856,
+      "name": "Graceful legs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11858,
+      "name": "Graceful gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11860,
+      "name": "Graceful boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11902,
+      "name": "Leaf-bladed sword",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11905,
+      "name": "Trident of the seas (full)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11908,
+      "name": "Uncharged trident",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11920,
+      "name": "Dragon pickaxe",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11942,
+      "name": "Ecumenical key",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11995,
+      "name": "Pet chaos elemental",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 11998,
+      "name": "Smoke battlestaff",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12002,
+      "name": "Occult necklace",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12004,
+      "name": "Kraken tentacle",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12013,
+      "name": "Prospector helmet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12014,
+      "name": "Prospector jacket",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12015,
+      "name": "Prospector legs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12016,
+      "name": "Prospector boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12259,
+      "name": "Armadyl mitre",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12263,
+      "name": "Armadyl crozier",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12277,
+      "name": "Mithril platebody (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12281,
+      "name": "Mithril kiteshield (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12287,
+      "name": "Mithril platebody (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12291,
+      "name": "Mithril kiteshield (t)",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12293,
+      "name": "Mithril full helm (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12297,
+      "name": "Black pickaxe",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12301,
+      "name": "Blue headband",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12311,
+      "name": "Purple boater",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12313,
+      "name": "White boater",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12319,
+      "name": "Crier hat",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12321,
+      "name": "White cavalier",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12323,
+      "name": "Red cavalier",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12325,
+      "name": "Navy cavalier",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12327,
+      "name": "Red d'hide body (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12329,
+      "name": "Red d'hide chaps (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12333,
+      "name": "Red d'hide chaps (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12353,
+      "name": "Monocle",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12361,
+      "name": "Cat mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12365,
+      "name": "Iron dragon mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12377,
+      "name": "Adamant cane",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12379,
+      "name": "Rune cane",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12383,
+      "name": "Black d'hide chaps (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12402,
+      "name": "Nardah teleport",
+      "quantity": 66,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12403,
+      "name": "Digsite teleport",
+      "quantity": 47,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12404,
+      "name": "Feldip hills teleport",
+      "quantity": 83,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12405,
+      "name": "Lunar isle teleport",
+      "quantity": 81,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12406,
+      "name": "Mort'ton teleport",
+      "quantity": 51,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12407,
+      "name": "Pest control teleport",
+      "quantity": 42,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12408,
+      "name": "Piscatoris teleport",
+      "quantity": 34,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12409,
+      "name": "Tai bwo wannai teleport",
+      "quantity": 28,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12410,
+      "name": "Iorwerth camp teleport",
+      "quantity": 82,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12411,
+      "name": "Mos le'harmless teleport",
+      "quantity": 10,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12445,
+      "name": "Black skirt (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12449,
+      "name": "Black wizard robe (g)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12462,
+      "name": "Ancient platelegs",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12478,
+      "name": "Armadyl kiteshield",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12482,
+      "name": "Bandos platelegs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12488,
+      "name": "Bandos kiteshield",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12490,
+      "name": "Ancient bracers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12492,
+      "name": "Ancient d'hide body",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12500,
+      "name": "Bandos d'hide body",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12506,
+      "name": "Armadyl bracers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12508,
+      "name": "Armadyl d'hide body",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12512,
+      "name": "Armadyl coif",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12514,
+      "name": "Explorer backpack",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12534,
+      "name": "Dragon chainbody ornament kit",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12598,
+      "name": "Holy sandals",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12601,
+      "name": "Ring of the gods",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12603,
+      "name": "Tyrannical ring",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12605,
+      "name": "Treasonous ring",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12613,
+      "name": "Bandos page 1",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12614,
+      "name": "Bandos page 2",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12615,
+      "name": "Bandos page 3",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12616,
+      "name": "Bandos page 4",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12617,
+      "name": "Armadyl page 1",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12618,
+      "name": "Armadyl page 2",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12619,
+      "name": "Armadyl page 3",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12620,
+      "name": "Armadyl page 4",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12621,
+      "name": "Ancient page 1",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12622,
+      "name": "Ancient page 2",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12624,
+      "name": "Ancient page 4",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12642,
+      "name": "Lumberyard teleport",
+      "quantity": 27,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12655,
+      "name": "Pet kraken",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12827,
+      "name": "Arcane sigil",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12829,
+      "name": "Spirit shield",
+      "quantity": 17,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12922,
+      "name": "Tanzanite fang",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12927,
+      "name": "Serpentine visage",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12932,
+      "name": "Magic fang",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12934,
+      "name": "Zulrah's scales",
+      "quantity": 65535,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12938,
+      "name": "Zul-andra teleport",
+      "quantity": 556,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 12954,
+      "name": "Dragon defender",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13072,
+      "name": "Elite void top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13073,
+      "name": "Elite void robe",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13178,
+      "name": "Callisto cub",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13226,
+      "name": "Herb sack",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13227,
+      "name": "Eternal crystal",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13229,
+      "name": "Pegasian crystal",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13231,
+      "name": "Primordial crystal",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13233,
+      "name": "Smouldering stone",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13245,
+      "name": "Jar of souls",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13249,
+      "name": "Key master teleport",
+      "quantity": 51,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13258,
+      "name": "Angler hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13259,
+      "name": "Angler top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13260,
+      "name": "Angler waders",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13261,
+      "name": "Angler boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13321,
+      "name": "Rock golem",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13324,
+      "name": "Baby chinchompa",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13357,
+      "name": "Shayzien gloves (1)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13358,
+      "name": "Shayzien boots (1)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13359,
+      "name": "Shayzien helm (1)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13360,
+      "name": "Shayzien greaves (1)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13361,
+      "name": "Shayzien platebody (1)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13362,
+      "name": "Shayzien gloves (2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13363,
+      "name": "Shayzien boots (2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13364,
+      "name": "Shayzien helm (2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13365,
+      "name": "Shayzien greaves (2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13366,
+      "name": "Shayzien platebody (2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13367,
+      "name": "Shayzien gloves (3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13368,
+      "name": "Shayzien boots (3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13369,
+      "name": "Shayzien helm (3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13370,
+      "name": "Shayzien greaves (3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13371,
+      "name": "Shayzien platebody (3)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13372,
+      "name": "Shayzien gloves (4)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13373,
+      "name": "Shayzien boots (4)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13374,
+      "name": "Shayzien helm (4)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13375,
+      "name": "Shayzien greaves (4)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13376,
+      "name": "Shayzien platebody (4)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13377,
+      "name": "Shayzien gloves (5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13378,
+      "name": "Shayzien boots (5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13379,
+      "name": "Shayzien helm (5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13380,
+      "name": "Shayzien greaves (5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13381,
+      "name": "Shayzien body (5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13392,
+      "name": "Xeric's talisman (inert)",
+      "quantity": 7,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13576,
+      "name": "Dragon warhammer",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13639,
+      "name": "Seed box",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 13652,
+      "name": "Dragon claws",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19529,
+      "name": "Zenyte shard",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19586,
+      "name": "Light frame",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19589,
+      "name": "Heavy frame",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19592,
+      "name": "Ballista limbs",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19601,
+      "name": "Ballista spring",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19677,
+      "name": "Ancient shard",
+      "quantity": 164,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19679,
+      "name": "Dark totem base",
+      "quantity": 48,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19681,
+      "name": "Dark totem middle",
+      "quantity": 47,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19683,
+      "name": "Dark totem top",
+      "quantity": 47,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19685,
+      "name": "Dark totem",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19915,
+      "name": "Cyclops head",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19921,
+      "name": "Ancient d'hide boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19924,
+      "name": "Bandos d'hide boots",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19927,
+      "name": "Guthix d'hide boots",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19930,
+      "name": "Armadyl d'hide boots",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19936,
+      "name": "Zamorak d'hide boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19952,
+      "name": "Piscarilius scarf",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19994,
+      "name": "Ranger gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 19997,
+      "name": "Holy wraps",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20029,
+      "name": "Old demon mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20032,
+      "name": "Jungle demon mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20113,
+      "name": "Arceuus hood",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20140,
+      "name": "Boots of darkness",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20187,
+      "name": "Steel platelegs (t)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20220,
+      "name": "Holy blessing",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20223,
+      "name": "Unholy blessing",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20226,
+      "name": "Peaceful blessing",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20229,
+      "name": "Honourable blessing",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20232,
+      "name": "War blessing",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20235,
+      "name": "Ancient blessing",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20238,
+      "name": "Charge dragonstone jewellery scroll",
+      "quantity": 41,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20243,
+      "name": "Crier bell",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20251,
+      "name": "Arceuus banner",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20257,
+      "name": "Lovakengj banner",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20263,
+      "name": "Shayzien banner",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20659,
+      "name": "Giant squirrel",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20661,
+      "name": "Tangleroot",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20663,
+      "name": "Rocky",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20704,
+      "name": "Pyromancer garb",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20706,
+      "name": "Pyromancer robe",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20708,
+      "name": "Pyromancer hood",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20710,
+      "name": "Pyromancer boots",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20712,
+      "name": "Warm gloves",
+      "quantity": 11,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20716,
+      "name": "Tome of fire (empty)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20718,
+      "name": "Burnt page",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20720,
+      "name": "Bruma torch",
+      "quantity": 11,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20724,
+      "name": "Imbued heart",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20727,
+      "name": "Leaf-bladed battleaxe",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20730,
+      "name": "Mist battlestaff",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20736,
+      "name": "Dust battlestaff",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20754,
+      "name": "Giant key",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20849,
+      "name": "Dragon thrownaxe",
+      "quantity": 122,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 20997,
+      "name": "Twisted bow",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21000,
+      "name": "Twisted buckler",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21009,
+      "name": "Dragon sword",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21012,
+      "name": "Dragon hunter crossbow",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21015,
+      "name": "Dinh's bulwark",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21018,
+      "name": "Ancestral hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21024,
+      "name": "Ancestral robe bottom",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21027,
+      "name": "Dark relic",
+      "quantity": 18,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21028,
+      "name": "Dragon harpoon",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21034,
+      "name": "Dexterous prayer scroll",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21043,
+      "name": "Kodai insignia",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21047,
+      "name": "Torn prayer scroll",
+      "quantity": 25,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21079,
+      "name": "Arcane prayer scroll",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21270,
+      "name": "Eternal gem",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21273,
+      "name": "Skotos",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21275,
+      "name": "Dark claw",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21295,
+      "name": "Infernal cape",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21343,
+      "name": "Mining gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21345,
+      "name": "Superior mining gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21387,
+      "name": "Master scroll book (empty)",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21392,
+      "name": "Expert mining gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21646,
+      "name": "Granite longsword",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21664,
+      "name": "Scribbled note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21666,
+      "name": "Partial note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21668,
+      "name": "Ancient note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21670,
+      "name": "Ancient writings",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21672,
+      "name": "Experimental note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21674,
+      "name": "Paragraph of text",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21676,
+      "name": "Musty smelling note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21678,
+      "name": "Hastily scrawled note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21680,
+      "name": "Old writing",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21682,
+      "name": "Short note",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21726,
+      "name": "Granite dust",
+      "quantity": 3844,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21739,
+      "name": "Granite ring",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21802,
+      "name": "Revenant cave teleport",
+      "quantity": 1430,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21804,
+      "name": "Ancient crystal",
+      "quantity": 7,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21807,
+      "name": "Ancient emblem",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21810,
+      "name": "Ancient totem",
+      "quantity": 7,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21813,
+      "name": "Ancient statuette",
+      "quantity": 11,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21817,
+      "name": "Bracelet of ethereum (uncharged)",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21820,
+      "name": "Revenant ether",
+      "quantity": 65535,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 21907,
+      "name": "Vorkath's head",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22299,
+      "name": "Ancient medallion",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22302,
+      "name": "Ancient effigy",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22305,
+      "name": "Ancient relic",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22374,
+      "name": "Mossy key",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22542,
+      "name": "Viggora's chainmace (u)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22547,
+      "name": "Craw's bow (u)",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22557,
+      "name": "Amulet of avarice",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22746,
+      "name": "Ikkle hydra",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22804,
+      "name": "Dragon knife",
+      "quantity": 150,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22875,
+      "name": "Hespori seed",
+      "quantity": 222,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22881,
+      "name": "Attas seed",
+      "quantity": 25,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22883,
+      "name": "Iasor seed",
+      "quantity": 36,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22885,
+      "name": "Kronos seed",
+      "quantity": 22,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22957,
+      "name": "Drake's claw",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22960,
+      "name": "Drake's tooth",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22963,
+      "name": "Broken dragon hasta",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22966,
+      "name": "Hydra's claw",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22969,
+      "name": "Hydra's heart",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22971,
+      "name": "Hydra's fang",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22973,
+      "name": "Hydra's eye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22983,
+      "name": "Hydra leather",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22988,
+      "name": "Hydra tail",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 22994,
+      "name": "Bottomless compost bucket",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23047,
+      "name": "Mystic hat (dusk)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23064,
+      "name": "Jar of chemicals",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23077,
+      "name": "Alchemical hydra heads",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23252,
+      "name": "Giant boot",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23255,
+      "name": "Uri's hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23297,
+      "name": "Jester cape",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23321,
+      "name": "Rune scimitar ornament kit (guthix)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23389,
+      "name": "Spiked manacles",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23395,
+      "name": "Adamant platebody (h2)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23404,
+      "name": "Adamant platebody (h5)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23517,
+      "name": "Giant egg sac(full)",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23522,
+      "name": "Mask of ranul",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23859,
+      "name": "Gauntlet cape",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23908,
+      "name": "Zalcano shard",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23943,
+      "name": "Elven signet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23953,
+      "name": "Crystal tool seed",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23956,
+      "name": "Crystal armour seed",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 23959,
+      "name": "Enhanced crystal teleport seed",
+      "quantity": 12,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24000,
+      "name": "Crystal grail",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24268,
+      "name": "Basilisk jaw",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24288,
+      "name": "Dagon'hai hat",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24711,
+      "name": "Hallowed mark",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24719,
+      "name": "Hallowed token",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24721,
+      "name": "Hallowed grapple",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24723,
+      "name": "Hallowed focus",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24725,
+      "name": "Hallowed symbol",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24727,
+      "name": "Hallowed hammer",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24729,
+      "name": "Dark dye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24731,
+      "name": "Hallowed ring",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24733,
+      "name": "Dark acorn",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24740,
+      "name": "Strange old lockpick (full)",
+      "quantity": 13,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24763,
+      "name": "Mysterious page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24765,
+      "name": "Mysterious page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24767,
+      "name": "Mysterious page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24769,
+      "name": "Mysterious page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24771,
+      "name": "Mysterious page",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24777,
+      "name": "Blood shard",
+      "quantity": 9,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24844,
+      "name": "Ring of endurance (uncharged)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24872,
+      "name": "Carpenter's helmet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24874,
+      "name": "Carpenter's shirt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24876,
+      "name": "Carpenter's trousers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 24878,
+      "name": "Carpenter's boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25129,
+      "name": "Beekeeper's hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25131,
+      "name": "Beekeeper's top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25133,
+      "name": "Beekeeper's legs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25135,
+      "name": "Beekeeper's gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25137,
+      "name": "Beekeeper's boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25521,
+      "name": "Jar of spirits",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25539,
+      "name": "Celestial ring (uncharged)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25547,
+      "name": "Star fragment",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25578,
+      "name": "Soaked page",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25580,
+      "name": "Tackle box",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25582,
+      "name": "Fish barrel",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25588,
+      "name": "Spirit flakes",
+      "quantity": 11690,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25592,
+      "name": "Spirit angler headband",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25594,
+      "name": "Spirit angler top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25596,
+      "name": "Spirit angler waders",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25598,
+      "name": "Spirit angler boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25617,
+      "name": "Tea flask",
+      "quantity": 33,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25619,
+      "name": "Green satchel",
+      "quantity": 9,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25620,
+      "name": "Red satchel",
+      "quantity": 52,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25627,
+      "name": "Coal bag",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25628,
+      "name": "Gem bag",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25629,
+      "name": "Plank sack",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25644,
+      "name": "Imcando hammer",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25692,
+      "name": "Ancient treatise",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 25859,
+      "name": "Enhanced crystal weapon seed",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26219,
+      "name": "Osmumten's fang",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26241,
+      "name": "Virtus mask",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26792,
+      "name": "Abyssal pearls",
+      "quantity": 1461,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26798,
+      "name": "Catalytic talisman",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26807,
+      "name": "Abyssal green dye",
+      "quantity": 3,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26811,
+      "name": "Abyssal red dye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26813,
+      "name": "Abyssal needle",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26822,
+      "name": "Abyssal lantern",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26850,
+      "name": "Hat of the eye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26852,
+      "name": "Robe top of the eye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26854,
+      "name": "Robe bottoms of the eye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26856,
+      "name": "Boots of the eye",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26908,
+      "name": "Intricate pouch",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26910,
+      "name": "Tarnished locket",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 26945,
+      "name": "Pharaoh's sceptre (uncharged)",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27012,
+      "name": "Double ammo mould",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27014,
+      "name": "Kovac's grog",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27017,
+      "name": "Smithing catalyst",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27019,
+      "name": "Ore pack",
+      "quantity": 36,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27021,
+      "name": "Colossal blade",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27023,
+      "name": "Smiths tunic",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27025,
+      "name": "Smiths trousers",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27027,
+      "name": "Smiths boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27029,
+      "name": "Smiths gloves",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27232,
+      "name": "Masori chaps",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27279,
+      "name": "Thread of elidinis",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27289,
+      "name": "Jewel of the sun",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27293,
+      "name": "Cache of runes",
+      "quantity": 12,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27372,
+      "name": "Masori crafting kit",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27590,
+      "name": "Muphin",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27614,
+      "name": "Venator shard",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27616,
+      "name": "Ancient essence",
+      "quantity": 65535,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27622,
+      "name": "Frozen cache",
+      "quantity": 5,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27627,
+      "name": "Ancient icon",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27643,
+      "name": "Charged ice",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27667,
+      "name": "Claws of callisto",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27670,
+      "name": "Fangs of venenatis",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27681,
+      "name": "Voidwaker hilt",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27684,
+      "name": "Voidwaker blade",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 27687,
+      "name": "Voidwaker gem",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28138,
+      "name": "Funky shaped log",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28140,
+      "name": "Log basket",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28146,
+      "name": "Log brace",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28166,
+      "name": "Clothes pouch blueprint",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28169,
+      "name": "Forestry top",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28171,
+      "name": "Forestry legs",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28173,
+      "name": "Forestry hat",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28175,
+      "name": "Forestry boots",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28248,
+      "name": "Butch",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28250,
+      "name": "Baron",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28268,
+      "name": "Blood quartz",
+      "quantity": 8,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28270,
+      "name": "Ice quartz",
+      "quantity": 6,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28274,
+      "name": "Smoke quartz",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28276,
+      "name": "Chromium ingot",
+      "quantity": 10,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28281,
+      "name": "Magus vestige",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28285,
+      "name": "Ultor vestige",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28319,
+      "name": "Executioner's axe head",
+      "quantity": 4,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28325,
+      "name": "Leviathan's lure",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28330,
+      "name": "Strangled tablet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28332,
+      "name": "Scarred tablet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28333,
+      "name": "Frozen tablet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28334,
+      "name": "Awakener's orb",
+      "quantity": 25,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28813,
+      "name": "Broken zombie axe",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28924,
+      "name": "Sunfire splinters",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28991,
+      "name": "Atlatl dart",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 28997,
+      "name": "Dual macuahuitl",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29010,
+      "name": "Eclipse moon helm",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29574,
+      "name": "Bone claw",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29580,
+      "name": "Tormented synapse",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29684,
+      "name": "Guthixian temple teleport",
+      "quantity": 160,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29781,
+      "name": "Coagulated venom",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29782,
+      "name": "Spider cave teleport",
+      "quantity": 117,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29784,
+      "name": "Araxyte venom sack",
+      "quantity": 207,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29788,
+      "name": "Araxyte head",
+      "quantity": 2,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29790,
+      "name": "Noxious point",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29792,
+      "name": "Noxious blade",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29794,
+      "name": "Noxious pommel",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29799,
+      "name": "Araxyte fang",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29974,
+      "name": "Prescription goggles",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 29992,
+      "name": "Alchemist's amulet",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 30066,
+      "name": "Tome of earth (empty)",
+      "quantity": 1,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 30068,
+      "name": "Soiled page",
+      "quantity": 250,
+      "createdAt": "2025-04-12 23:48:12"
+    },
+    {
+      "id": 30088,
+      "name": "Huasca seed",
+      "quantity": 10,
+      "createdAt": "2025-04-12 23:48:12"
+    }
+  ],
+  "achievementDiaryTiers": [
+    {
+      "areaId": 0,
+      "area": "Karamja",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 0,
+      "area": "Karamja",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 19,
+      "tasksCount": 19
+    },
+    {
+      "areaId": 0,
+      "area": "Karamja",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 0,
+      "area": "Karamja",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 5,
+      "tasksCount": 5
+    },
+    {
+      "areaId": 1,
+      "area": "Ardougne",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 1,
+      "area": "Ardougne",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 1,
+      "area": "Ardougne",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 1,
+      "area": "Ardougne",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 8,
+      "tasksCount": 8
+    },
+    {
+      "areaId": 2,
+      "area": "Falador",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 2,
+      "area": "Falador",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 14,
+      "tasksCount": 14
+    },
+    {
+      "areaId": 2,
+      "area": "Falador",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 2,
+      "area": "Falador",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 6,
+      "tasksCount": 6
+    },
+    {
+      "areaId": 3,
+      "area": "Fremennik",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 3,
+      "area": "Fremennik",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 9,
+      "tasksCount": 9
+    },
+    {
+      "areaId": 3,
+      "area": "Fremennik",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 9,
+      "tasksCount": 9
+    },
+    {
+      "areaId": 3,
+      "area": "Fremennik",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 6,
+      "tasksCount": 6
+    },
+    {
+      "areaId": 4,
+      "area": "Kandarin",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 4,
+      "area": "Kandarin",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 14,
+      "tasksCount": 14
+    },
+    {
+      "areaId": 4,
+      "area": "Kandarin",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 4,
+      "area": "Kandarin",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 7,
+      "tasksCount": 7
+    },
+    {
+      "areaId": 5,
+      "area": "Desert",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 5,
+      "area": "Desert",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 5,
+      "area": "Desert",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 5,
+      "area": "Desert",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 6,
+      "tasksCount": 6
+    },
+    {
+      "areaId": 6,
+      "area": "Lumbridge & Draynor",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 6,
+      "area": "Lumbridge & Draynor",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 6,
+      "area": "Lumbridge & Draynor",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 6,
+      "area": "Lumbridge & Draynor",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 6,
+      "tasksCount": 6
+    },
+    {
+      "areaId": 7,
+      "area": "Morytania",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 7,
+      "area": "Morytania",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 7,
+      "area": "Morytania",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 7,
+      "area": "Morytania",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 6,
+      "tasksCount": 6
+    },
+    {
+      "areaId": 8,
+      "area": "Varrock",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 14,
+      "tasksCount": 14
+    },
+    {
+      "areaId": 8,
+      "area": "Varrock",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 13,
+      "tasksCount": 13
+    },
+    {
+      "areaId": 8,
+      "area": "Varrock",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 8,
+      "area": "Varrock",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 5,
+      "tasksCount": 5
+    },
+    {
+      "areaId": 9,
+      "area": "Wilderness",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 9,
+      "area": "Wilderness",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 9,
+      "area": "Wilderness",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 9,
+      "area": "Wilderness",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 7,
+      "tasksCount": 7
+    },
+    {
+      "areaId": 10,
+      "area": "Western Provinces",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 11,
+      "tasksCount": 11
+    },
+    {
+      "areaId": 10,
+      "area": "Western Provinces",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 13,
+      "tasksCount": 13
+    },
+    {
+      "areaId": 10,
+      "area": "Western Provinces",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 13,
+      "tasksCount": 13
+    },
+    {
+      "areaId": 10,
+      "area": "Western Provinces",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 7,
+      "tasksCount": 7
+    },
+    {
+      "areaId": 11,
+      "area": "Kourend & Kebos",
+      "tierIndex": 0,
+      "tierName": "Easy",
+      "completedCount": 12,
+      "tasksCount": 12
+    },
+    {
+      "areaId": 11,
+      "area": "Kourend & Kebos",
+      "tierIndex": 1,
+      "tierName": "Medium",
+      "completedCount": 13,
+      "tasksCount": 13
+    },
+    {
+      "areaId": 11,
+      "area": "Kourend & Kebos",
+      "tierIndex": 2,
+      "tierName": "Hard",
+      "completedCount": 10,
+      "tasksCount": 10
+    },
+    {
+      "areaId": 11,
+      "area": "Kourend & Kebos",
+      "tierIndex": 3,
+      "tierName": "Elite",
+      "completedCount": 8,
+      "tasksCount": 8
+    }
+  ],
+  "combatAchievementTiers": [
+    { "id": 1, "name": "Easy", "completedCount": 33, "tasksCount": 38 },
+    { "id": 2, "name": "Medium", "completedCount": 47, "tasksCount": 55 },
+    { "id": 3, "name": "Hard", "completedCount": 69, "tasksCount": 82 },
+    { "id": 4, "name": "Elite", "completedCount": 116, "tasksCount": 155 },
+    { "id": 5, "name": "Master", "completedCount": 71, "tasksCount": 158 },
+    { "id": 6, "name": "Grandmaster", "completedCount": 13, "tasksCount": 111 }
+  ],
+  "createdAt": "2025-04-12 23:48:12",
+  "updatedAt": "2025-04-12 23:48:12"
+}

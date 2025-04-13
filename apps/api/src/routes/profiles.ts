@@ -6,10 +6,25 @@ import { accounts, drizzle } from "~/db";
 import { getCollectionLogPage } from "~/lib/get-collection-log-page";
 import { getProfile } from "~/lib/get-profile";
 import { STATUS, newRouter } from "~/lib/helpers";
+import { searchProfiles } from "~/lib/search-profiles";
 import { updateProfile } from "~/lib/update-profile";
 import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
 
 export const profilesRouter = newRouter()
+  .get("/", validator("query", z.object({ q: z.string() })), async (c) => {
+    const db = drizzle(c.env.DB);
+    const { q } = c.req.valid("query");
+    try {
+      const profiles = await searchProfiles(db, q);
+      return c.json(profiles, STATUS.OK);
+    } catch (error) {
+      console.error(error);
+      return c.json(
+        { error: "Something went wrong" },
+        STATUS.INTERNAL_SERVER_ERROR,
+      );
+    }
+  })
   .get(
     "/:username",
     validator("param", z.object({ username: usernameSchema })),
@@ -36,6 +51,7 @@ export const profilesRouter = newRouter()
       }
     },
   )
+
   .get(
     "/:username/collection-log/:page",
     validator(

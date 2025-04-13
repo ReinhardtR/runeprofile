@@ -3,7 +3,6 @@
   "exports": {
     "./client": {
       "import": {
-        "default": "./dist/lib/api-client.js",
         "types": "./dist/lib/api-client.d.ts"
       }
     }
@@ -12,9 +11,11 @@
     "typecheck": "tsc --noEmit",
     "dev": "wrangler dev src/index.ts",
     "dev:api-client": "tsc -p tsconfig.build.json --watch",
+    "dev:setup": "pnpm run db:migrate && pnpm run db:seed",
     "build": "tsc -p tsconfig.build.json",
     "deploy": "wrangler deploy --minify",
     "db:generate": "drizzle-kit generate",
+    "db:seed": "wrangler d1 execute runeprofile-db --file=seed.sql",
     "db:migrate": "wrangler d1 migrations apply runeprofile-db",
     "db:migrate:remote": "wrangler d1 migrations apply runeprofile-db --remote"
   },
@@ -28,6 +29,6 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",
     "drizzle-kit": "^0.30.5",
-    "wrangler": "^3.109.2"
+    "wrangler": "^4.10.0"
   }
 }

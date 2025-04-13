@@ -11,18 +11,20 @@ import {
 
 import CollectionLogIcon from "~/assets/icons/collection-log.png";
 import ITEM_ICONS from "~/assets/item-icons.json";
-import QuestionMarkImage from "~/assets/question-mark.png";
+import QuestionMarkImage from "~/assets/misc/question-mark.png";
 import { hiscoresQueryOptions } from "~/components/hiscores";
 import { Card } from "~/components/osrs/card";
 import RuneScapeScrollArea from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
-import { cn, numberWithDelimiter } from "~/lib/utils";
+import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 
 export function CollectionLog({
   page,
+  onPageChange,
   data,
 }: {
   page: string;
+  onPageChange: (page: string) => void;
   data: Profile["items"];
 }) {
   const hiscoresQuery = useQuery(
@@ -101,6 +103,12 @@ export function CollectionLog({
         <ToggleGroup.Root
           type="single"
           defaultValue={currentTab.name}
+          onValueChange={(tabName) => {
+            const tab = COLLECTION_LOG_TABS.find((t) => t.name === tabName);
+            if (tab) {
+              onPageChange(tab.pages[0].name);
+            }
+          }}
           className="flex md:space-x-1"
         >
           {COLLECTION_LOG_TABS.map((t) => (
@@ -108,18 +116,11 @@ export function CollectionLog({
               key={t.name}
               value={t.name}
               className={cn(
-                "box-border max-w-[25%] flex-1 truncate rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-center text-xl outline-0 solid-text-shadow",
+                "box-border max-w-[25%] flex-1 truncate rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-center text-xl outline-0 solid-text-shadow cursor-pointer hover:bg-osrs-tab-selected/10",
                 currentTab.name === t.name && "bg-osrs-tab-selected",
               )}
-              asChild
             >
-              <Link
-                to="."
-                search={{ page: t.pages[0].name.toLowerCase() }}
-                resetScroll={false}
-              >
-                {t.name}
-              </Link>
+              {t.name}
             </ToggleGroup.Item>
           ))}
         </ToggleGroup.Root>
@@ -129,8 +130,8 @@ export function CollectionLog({
               <ToggleGroup.Root
                 type="single"
                 value={page.toLowerCase()}
+                onValueChange={onPageChange}
                 className="flex min-h-[100px] w-full border-t-2 border-osrs-border sm:h-full sm:w-[260px]"
-                asChild
               >
                 <RuneScapeScrollArea contentClassName="flex-col flex">
                   {currentTab.pages.map((page) => {
@@ -156,15 +157,8 @@ export function CollectionLog({
                             ? "bg-white/15"
                             : "odd:bg-white/5",
                         )}
-                        asChild
                       >
-                        <Link
-                          to="."
-                          search={{ page: page.name.toLowerCase() }}
-                          resetScroll={false}
-                        >
-                          {page.name}
-                        </Link>
+                        {page.name}
                       </ToggleGroup.Item>
                     );
                   })}
@@ -241,9 +235,7 @@ function CollectionLogItem({
   const wikiUrlName = name.replaceAll(" ", "_");
 
   const itemIcon = ITEM_ICONS[id as unknown as keyof typeof ITEM_ICONS];
-  const iconSrc = itemIcon
-    ? `data:image/png;base64,${itemIcon}`
-    : QuestionMarkImage;
+  const iconSrc = itemIcon ? base64ImgSrc(itemIcon) : QuestionMarkImage;
 
   return (
     <div className="relative w-[50px] h-[44px]">

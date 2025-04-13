@@ -19,6 +19,20 @@ export async function getProfile(params: { username: string }) {
   }
 
   const data = await response.json();
+  return data;
+}
 
-  return { fetched: new Date(), ...data };
+export async function searchProfiles(params: { query: string }) {
+  const repsonse = await api.profiles.$get({
+    query: {
+      q: params.query,
+    },
+  });
+
+  if (!repsonse.ok) {
+    throw new Error("Failed to fetch profiles");
+  }
+
+  const data = await repsonse.json();
+  return data;
 }

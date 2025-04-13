@@ -1,7 +1,8 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
+import ClueScrollIcons from "~/assets/clue-scroll-icons.json";
 import HiscoreIcons from "~/assets/hiscore-icons.json";
-import QuestionMarkImage from "~/assets/question-mark.png";
+import QuestionMarkImage from "~/assets/misc/question-mark.png";
 import {
   Table,
   TableBody,
@@ -11,7 +12,12 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { HiscoreEndpoint, getHiscoresData } from "~/lib/hiscores";
-import { cn, numberWithAbbreviation, numberWithDelimiter } from "~/lib/utils";
+import {
+  base64ImgSrc,
+  cn,
+  numberWithAbbreviation,
+  numberWithDelimiter,
+} from "~/lib/utils";
 
 export function hiscoresQueryOptions(params: {
   username: string;
@@ -97,7 +103,7 @@ export function Hiscores({ className }: { className?: string }) {
             <TableRow key={boss.id} className="border-b">
               <TableCell className="flex items-center gap-x-3">
                 <img
-                  src={hiscoreIconSrc(boss.name)}
+                  src={clueScrollIconSrc(boss.name)}
                   className={cn("object-contain", iconSize)}
                 />
                 {boss.name}
@@ -176,8 +182,17 @@ export function Hiscores({ className }: { className?: string }) {
   );
 }
 
+function clueScrollIconSrc(name: string) {
+  const tier = name.match(/\((.*?)\)/);
+  if (!tier || tier.length < 2) return QuestionMarkImage;
+  const tierName = tier[1].toLowerCase();
+  const icon = ClueScrollIcons[tierName as keyof typeof ClueScrollIcons];
+  const src = icon ? base64ImgSrc(icon) : QuestionMarkImage;
+  return src;
+}
+
 function hiscoreIconSrc(name: string) {
   const icon = HiscoreIcons[name as keyof typeof HiscoreIcons];
-  const src = icon ? `data:image/png;base64,${icon}` : QuestionMarkImage;
+  const src = icon ? base64ImgSrc(icon) : QuestionMarkImage;
   return src;
 }

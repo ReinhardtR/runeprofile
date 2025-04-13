@@ -13,6 +13,10 @@
       "persistent": false,
       "cache": false
     },
+    "dev:setup": {
+      "persistent": false,
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false

@@ -34,3 +34,7 @@ export function getSkillXp(skills: Profile["skills"], skill: string) {
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function base64ImgSrc(image: string) {
+  return `data:image/png;base64,${image}`;
+}

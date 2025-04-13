@@ -1,53 +1,54 @@
 import { Canvas, useFrame } from "@react-three/fiber";
+import { SheetIcon, SidebarCloseIcon, SidebarOpenIcon } from "lucide-react";
 import { useRef, useState } from "react";
+import React from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
 // @ts-ignore
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 import { AccountType } from "@runeprofile/runescape";
 
+import AccountTypeIcons from "~/assets/account-type-icons.json";
+import HiscoresIcon from "~/assets/icons/hiscores.png";
+import { Button } from "~/components/ui/button";
 // import {
 //   Tooltip,
 //   TooltipContent,
 //   TooltipTrigger,
 // } from "~/components/ui/tooltip";
-import { formatDate } from "~/lib/utils";
+import { base64ImgSrc, formatDate } from "~/lib/utils";
 
 import { Card } from "./card";
 
 type PlayerDisplayProps = {
   username: string;
   accountType: AccountType;
-  modelUri: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
 const defaultModel =
-  "https://storage.googleapis.com/runeprofile-models/models/_default.ply";
+  "https://runeprofile-api.reinhardt.workers.dev/profiles/models/_default";
 
 export function Character({
   username,
   accountType,
-  modelUri,
   createdAt,
   updatedAt,
 }: PlayerDisplayProps) {
+  const accountTypeIcon =
+    AccountTypeIcons[accountType.key as keyof typeof AccountTypeIcons];
+
   return (
     <Card className="flex max-w-[260px] flex-col 1.5xl:min-h-[730px] 1.5xl:min-w-[400px] relative">
       {/* Name and Combat Level banner */}
-      <div className="absolute inset-x-0 z-20 mx-auto flex flex-wrap items-center justify-center space-x-4 p-2 font-runescape text-2xl font-bold leading-none solid-text-shadow">
+      <div className="absolute inset-x-0 z-20 mx-auto flex flex-wrap items-center justify-center space-x-4 p-3 font-runescape text-2xl font-bold leading-none solid-text-shadow">
         <div className="flex items-center space-x-2">
-          {accountType.key !== "normal" && (
+          {accountTypeIcon && (
             <img
-              src={
-                new URL(
-                  `../../assets/account-types/${accountType.name.toLowerCase()}.png`,
-                  import.meta.url,
-                ).href
-              }
+              src={base64ImgSrc(accountTypeIcon)}
               alt={accountType.name}
-              width={16}
+              width={20}
               height={20}
               className="drop-shadow-solid text-xs"
             />
@@ -58,26 +59,10 @@ export function Character({
 
       {/* Model */}
       <div className="h-full p-[1px]">
-        <PlayerModel modelUri={modelUri ?? defaultModel} />
+        <PlayerModel
+          modelUri={`${import.meta.env.VITE_API_URL}/profiles/models/${username}.ply`}
+        />
       </div>
-
-      {/* <div className="absolute bottom-5 right-3">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <InfoCircledIcon className="h-6 w-6 text-osrs-orange drop-shadow-solid mr-2" />
-          </TooltipTrigger>
-          <TooltipContent className="flex w-[250px] flex-col space-y-1 font-runescape text-lg">
-            <p>
-              <span className="font-bold text-osrs-orange">CREATED AT </span>
-              <span className="text-light-gray">{formatDate(createdAt)}</span>
-            </p>
-            <p>
-              <span className="font-bold text-osrs-orange">UPDATED AT </span>
-              <span className="text-light-gray">{formatDate(updatedAt)}</span>
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </div> */}
     </Card>
   );
 }
@@ -90,29 +75,33 @@ export function PlayerModel({ modelUri }: { modelUri: string }) {
   );
 }
 
-function Model({ modelUri }: { modelUri: string }) {
+const Model = React.memo(({ modelUri }: { modelUri: string }) => {
   const mesh = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
   const [object, setObject] =
     useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
-  const [oldUrl, setOldUrl] = useState<string>();
 
-  if (object == null || oldUrl !== modelUri) {
-    // @ts-ignore
-    new PLYLoader().load(modelUri, (geometry) => {
-      geometry.computeVertexNormals();
+  React.useEffect(() => {
+    loadPLYWithFallback(
+      modelUri,
+      defaultModel,
+      (geometry: BufferGeometry) => {
+        geometry.computeVertexNormals();
 
-      const material = new MeshStandardMaterial({
-        vertexColors: true,
-      });
+        const material = new MeshStandardMaterial({
+          vertexColors: true,
+        });
 
-      const m = new Mesh(geometry, material);
-      m.rotateX(-1.55);
-      m.rotateZ(0.1);
+        const m = new Mesh(geometry, material);
+        m.rotateX(-1.55);
+        m.rotateZ(0.1);
 
-      setObject(m);
-      setOldUrl(modelUri);
-    });
-  }
+        setObject(m);
+      },
+      (error: Error) => {
+        console.error("Failed to load PLY model:", error);
+      },
+    );
+  }, [modelUri]);
 
   useFrame(({ clock }) => {
     if (!mesh.current) return;
@@ -131,4 +120,25 @@ function Model({ modelUri }: { modelUri: string }) {
       )}
     </>
   );
+});
+
+function loadPLYWithFallback(
+  primaryURI: string,
+  backupURI: string,
+  onLoadCallback: (geometry: BufferGeometry) => void,
+  onErrorCallback: (error: Error) => void,
+) {
+  const loader = new PLYLoader();
+
+  const attemptLoad = (uri: string) => {
+    return new Promise<BufferGeometry>((resolve, reject) => {
+      loader.load(uri, resolve, null, reject);
+    });
+  };
+
+  attemptLoad(primaryURI)
+    .then(onLoadCallback)
+    .catch(() => {
+      attemptLoad(backupURI).then(onLoadCallback).catch(onErrorCallback);
+    });
 }

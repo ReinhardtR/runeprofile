@@ -1,5 +1,3 @@
-import { capitalize } from "~/lib/utils";
-
 const HISCORE_URL = (type?: string) =>
   `https://services.runescape.com/m=hiscore_oldschool${type ? `_${type}` : ""}/index_lite.json`;
 
@@ -38,11 +36,10 @@ export async function getHiscoresData(params: {
   username: string;
   endpoint: HiscoreEndpoint;
 }): Promise<HiscoreData> {
-  await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
-
-  const result = TEMP_DATA; // Use temporary data for testing
-
-  return result;
+  if (import.meta.env.DEV) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return DEV_TEST_DATA;
+  }
 
   const url = `${HISCORE_ENDPOINTS[params.endpoint]}?player=${params.username}`;
   const response = await fetch(url);
@@ -53,7 +50,7 @@ export async function getHiscoresData(params: {
   return data;
 }
 
-const TEMP_DATA = {
+const DEV_TEST_DATA = {
   skills: [
     {
       id: 0,
@@ -265,37 +262,37 @@ const TEMP_DATA = {
       id: 6,
       name: "Clue Scrolls (all)",
       rank: 699812,
-      score: 49,
+      score: 207,
     },
     {
       id: 7,
       name: "Clue Scrolls (beginner)",
-      rank: -1,
-      score: -1,
+      rank: 90579,
+      score: 29,
     },
     {
       id: 8,
       name: "Clue Scrolls (easy)",
-      rank: -1,
-      score: -1,
+      rank: 84335,
+      score: 16,
     },
     {
       id: 9,
       name: "Clue Scrolls (medium)",
-      rank: -1,
-      score: -1,
+      rank: 57820,
+      score: 27,
     },
     {
       id: 10,
       name: "Clue Scrolls (hard)",
-      rank: -1,
-      score: -1,
+      rank: 45370,
+      score: 35,
     },
     {
       id: 11,
       name: "Clue Scrolls (elite)",
-      rank: -1,
-      score: -1,
+      rank: 68120,
+      score: 51,
     },
     {
       id: 12,
