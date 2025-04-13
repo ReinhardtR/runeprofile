@@ -1,6 +1,7 @@
 import { cors } from "hono/cors";
 
 import { newRouter } from "~/lib/helpers";
+import { hiscoresRouter } from "~/routes/hiscores";
 import { profilesRouter } from "~/routes/profiles";
 
 export default newRouter()
@@ -9,4 +10,5 @@ export default newRouter()
     await next();
     c.header("Date", new Date().toUTCString());
   })
-  .route("/profiles", profilesRouter);
+  .route("/profiles", profilesRouter)
+  .route("/hiscores", hiscoresRouter);

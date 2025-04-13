@@ -1,6 +1,5 @@
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import React from "react";
 
 import {
@@ -30,7 +29,7 @@ export function CollectionLog({
   const hiscoresQuery = useQuery(
     hiscoresQueryOptions({
       username: "pgn",
-      endpoint: "Normal",
+      leaderboard: "normal",
     }),
   );
 
@@ -72,9 +71,11 @@ export function CollectionLog({
         (activity) => activity.name === hiscoreName,
       );
 
-      let killCount = 0;
-      if (hiscoreEntry && hiscoreEntry.score > 0) {
-        killCount = hiscoreEntry.score;
+      let killCount;
+      if (hiscoreEntry) {
+        killCount = hiscoreEntry.score < 1 ? 0 : hiscoreEntry.score;
+      } else {
+        killCount = -1;
       }
 
       return {
@@ -192,8 +193,12 @@ export function CollectionLog({
                       className="text-lg leading-none solid-text-shadow"
                     >
                       {kc.label}:{" "}
-                      <span className="text-osrs-white">
-                        {numberWithDelimiter(kc.count)}
+                      <span
+                        className={cn(
+                          kc.count < 0 ? "text-osrs-gray" : "text-osrs-white",
+                        )}
+                      >
+                        {kc.count < 0 ? "?" : numberWithDelimiter(kc.count)}
                       </span>
                     </p>
                   ))}

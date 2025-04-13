@@ -1,6 +1,7 @@
 import { hc } from "hono/client";
 
 import type { Client } from "@runeprofile/api/client";
+import { HiscoreLeaderboardKey } from "@runeprofile/runescape";
 
 // @ts-expect-error
 const api: Client = hc(import.meta.env.VITE_API_URL);
@@ -16,6 +17,25 @@ export async function getProfile(params: { username: string }) {
 
   if (!response.ok) {
     throw new Error("Failed to fetch profile");
+  }
+
+  const data = await response.json();
+  return data;
+}
+
+export async function getHiscoresData(params: {
+  username: string;
+  leaderboard: HiscoreLeaderboardKey;
+}) {
+  const response = await api.hiscores[":leaderboard"][":username"].$get({
+    param: {
+      leaderboard: params.leaderboard,
+      username: params.username,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch hiscore data");
   }
 
   const data = await response.json();

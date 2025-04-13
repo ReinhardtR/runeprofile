@@ -1,12 +1,19 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useAtom } from "jotai";
-import { SearchIcon } from "lucide-react";
+import { LoaderCircle, SearchIcon } from "lucide-react";
 import React from "react";
 import { z } from "zod";
 
-import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
+import {
+  COLLECTION_LOG_TABS,
+  HiscoreLeaderboardKey,
+} from "@runeprofile/runescape";
 
 import HiscoresIcon from "~/assets/icons/hiscores.png";
 import Logo from "~/assets/misc/logo.png";
@@ -21,14 +28,14 @@ import { Skills } from "~/components/osrs/skills";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button, ButtonProps } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { Sheet, SheetContent } from "~/components/ui/sheet";
+import { Spinner } from "~/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { getProfile } from "~/lib/api";
-import { HISCORE_ENDPOINTS, HiscoreEndpoint } from "~/lib/hiscores";
 import { cn } from "~/lib/utils";
 
 function profileQueryOptions(username: string) {
@@ -60,14 +67,12 @@ export const Route = createFileRoute("/$username")({
       return redirect({ to: "/" });
     }
 
-    for (const hiscoreEndpoint of Object.keys(HISCORE_ENDPOINTS)) {
-      context.queryClient.prefetchQuery(
-        hiscoresQueryOptions({
-          username: params.username,
-          endpoint: hiscoreEndpoint as HiscoreEndpoint,
-        }),
-      );
-    }
+    context.queryClient.prefetchQuery(
+      hiscoresQueryOptions({
+        username: params.username,
+        leaderboard: "normal",
+      }),
+    );
 
     return context.queryClient.prefetchQuery(
       profileQueryOptions(params.username),
@@ -109,18 +114,26 @@ function RouteComponent() {
           />
         </div>
 
-        <SidePanel />
+        <SidePanel username={profile.username} />
       </div>
       <Footer />
     </>
   );
 }
 
-function SidePanel() {
+function SidePanel({ username }: { username: string }) {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useAtom(
     isSearchDialogOpenAtom,
   );
   const [isHiscoresOpen, setIsHiscoresOpen] = React.useState(false);
+
+  const hiscoresQuery = useQuery(
+    hiscoresQueryOptions({
+      username: "pgn",
+      leaderboard: "normal",
+    }),
+  );
+  const isHiscoresLoading = hiscoresQuery.isPending;
 
   return (
     <>
@@ -133,14 +146,15 @@ function SidePanel() {
 
         <SidePanelButton
           tooltip="Search for a player"
-          active={isSearchDialogOpen}
+          isActive={isSearchDialogOpen}
           onClick={() => setIsSearchDialogOpen(true)}
         >
           <SearchIcon className="stroke-secondary-foreground" />
         </SidePanelButton>
         <SidePanelButton
           onClick={() => setIsHiscoresOpen((v) => !v)}
-          active={isHiscoresOpen}
+          isActive={isHiscoresOpen}
+          isLoading={isHiscoresLoading}
           tooltip={
             isHiscoresOpen ? "Close Hiscores panel" : "Open Hiscores panel"
           }
@@ -163,21 +177,32 @@ function SidePanel() {
 function SidePanelButton({
   className,
   tooltip,
-  active,
+  isActive,
+  isLoading,
+  children,
   ...props
 }: ButtonProps & {
-  active?: boolean;
+  isActive?: boolean;
+  isLoading?: boolean;
   tooltip?: React.ReactNode;
 }) {
   const RenderedButton = (
     <Button
       className={cn(
-        "size-14 bg-accent hover:bg-secondary",
-        active && "bg-secondary",
+        "relative size-14 bg-accent hover:bg-secondary",
+        isActive && "bg-secondary",
         className,
       )}
+      disabled={isLoading}
       {...props}
-    />
+    >
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/75 rounded-md">
+          <LoaderCircle className="animate-spin size-8" />
+        </div>
+      )}
+      {children}
+    </Button>
   );
 
   if (!!tooltip) {

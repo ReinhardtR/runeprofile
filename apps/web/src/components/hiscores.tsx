@@ -1,5 +1,7 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
+import { HiscoreLeaderboardKey } from "@runeprofile/runescape";
+
 import ClueScrollIcons from "~/assets/clue-scroll-icons.json";
 import HiscoreIcons from "~/assets/hiscore-icons.json";
 import QuestionMarkImage from "~/assets/misc/question-mark.png";
@@ -11,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { HiscoreEndpoint, getHiscoresData } from "~/lib/hiscores";
+import { getHiscoresData } from "~/lib/api";
 import {
   base64ImgSrc,
   cn,
@@ -20,8 +22,8 @@ import {
 } from "~/lib/utils";
 
 export function hiscoresQueryOptions(params: {
+  leaderboard: HiscoreLeaderboardKey;
   username: string;
-  endpoint: HiscoreEndpoint;
 }) {
   return queryOptions({
     queryKey: ["hiscores", params],
@@ -33,7 +35,7 @@ export function Hiscores({ className }: { className?: string }) {
   const hiscoresQuery = useSuspenseQuery(
     hiscoresQueryOptions({
       username: "pgn",
-      endpoint: "Normal",
+      leaderboard: "normal",
     }),
   );
 
