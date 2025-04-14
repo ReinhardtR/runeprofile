@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
               to="/$username"
               params={{ username: "pgn" }}
               target="_blank"
-              className="group text-primary-foreground/30 hover:text-secondary-foreground"
+              className="group text-muted-foreground hover:text-secondary-foreground"
             >
               <p>
                 Developed{" "}

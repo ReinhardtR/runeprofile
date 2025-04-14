@@ -91,7 +91,7 @@ function RouteComponent() {
               <span>RuneLite Plugin</span>
             </a>
           </div>
-          <div className="absolute z-20 bg-primary/85">
+          <div className="absolute z-20 bg-primary">
             <img
               src={HeroImage}
               className="min-h-screen w-full object-cover mix-blend-multiply"
