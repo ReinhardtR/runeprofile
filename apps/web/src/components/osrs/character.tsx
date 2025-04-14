@@ -1,22 +1,19 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { SheetIcon, SidebarCloseIcon, SidebarOpenIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import React from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
-// @ts-ignore
+// @ts-expect-error
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 import { AccountType } from "@runeprofile/runescape";
 
 import AccountTypeIcons from "~/assets/account-type-icons.json";
-import HiscoresIcon from "~/assets/icons/hiscores.png";
-import { Button } from "~/components/ui/button";
 // import {
 //   Tooltip,
 //   TooltipContent,
 //   TooltipTrigger,
 // } from "~/components/ui/tooltip";
-import { base64ImgSrc, formatDate } from "~/lib/utils";
+import { base64ImgSrc } from "~/lib/utils";
 
 import { Card } from "./card";
 
@@ -27,8 +24,7 @@ type PlayerDisplayProps = {
   updatedAt: Date;
 };
 
-const defaultModel =
-  "https://runeprofile-api.reinhardt.workers.dev/profiles/models/_default";
+const defaultModel = "https://api.runeprofile.com/profiles/models/_default";
 
 export function Character({
   username,
