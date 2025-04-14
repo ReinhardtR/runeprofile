@@ -42,7 +42,12 @@ const CommandInput = React.forwardRef<
   const Icon = isLoading ? LoaderCircle : Search;
   return (
     <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-      <Icon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+      <Icon
+        className={cn(
+          "mr-2 h-4 w-4 shrink-0 opacity-50",
+          isLoading && "animate-spin",
+        )}
+      />
       <CommandPrimitive.Input
         ref={ref}
         className={cn(
