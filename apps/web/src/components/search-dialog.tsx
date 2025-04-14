@@ -1,20 +1,18 @@
-import { useDebouncedValue } from "@tanstack/react-pacer";
+import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { CommandGroup } from "cmdk";
 import { atom, useAtom } from "jotai";
 import React from "react";
 
-import AccountTypeIcons from "~/assets/account-type-icons.json";
 import {
   CommandDialog,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
 import { searchProfiles } from "~/lib/api";
-import { base64ImgSrc } from "~/lib/utils";
 
 export const isSearchDialogOpenAtom = atom(false);
 
@@ -24,14 +22,28 @@ export const SearchDialog: React.FC = () => {
   const [isOpen, setIsOpen] = useAtom(isSearchDialogOpenAtom);
 
   const [search, setSearch] = React.useState("");
-  const [debouncedSearch] = useDebouncedValue(search, { wait: 300 });
+  const setSearchDebounced = useDebouncedCallback(setSearch, {
+    wait: 300,
+  });
+
+  // Force re-render when data changes
+  const [, forceUpdate] = React.useState({});
 
   const searchQuery = useQuery({
-    queryKey: ["search", debouncedSearch],
-    queryFn: () => searchProfiles({ query: debouncedSearch }),
-    enabled: !!debouncedSearch.length,
+    queryKey: ["search", search],
+    queryFn: () => searchProfiles({ query: search }),
+    enabled: !!search.length,
     staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    placeholderData: keepPreviousData,
   });
+
+  // Force a re-render when data changes
+  React.useEffect(() => {
+    if (searchQuery.data) {
+      forceUpdate({});
+    }
+  }, [searchQuery.data]);
 
   const runCommand = React.useCallback((command: () => unknown) => {
     setIsOpen(false);
@@ -57,46 +69,41 @@ export const SearchDialog: React.FC = () => {
   );
 
   return (
-    <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
+    <CommandDialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setSearch("");
+        }
+      }}
+    >
       <CommandInput
-        value={search}
-        onValueChange={(value) => {
-          setSearch(value);
-        }}
+        onValueChange={setSearchDebounced}
         isLoading={searchQuery.isFetching}
         placeholder="Search by username..."
       />
       <CommandList>
+        <CommandEmpty>
+          {searchQuery.isFetching ? "Searching" : "No results found."}
+        </CommandEmpty>
         <CommandGroup>
-          {searchQuery.data?.map((profile) => {
-            const accountTypeIcon =
-              AccountTypeIcons[
-                profile.accountType.key as keyof typeof AccountTypeIcons
-              ];
-            return (
+          {!!search.length &&
+            searchQuery.data?.map((profile) => (
               <CommandItem
-                className="m-2.5"
                 key={profile.username}
-                onSelect={() => {
-                  runCommand(() => {
+                onSelect={() =>
+                  runCommand(() =>
                     router.navigate({
                       to: "/$username",
                       params: { username: profile.username },
-                    });
-                  });
-                }}
+                    }),
+                  )
+                }
               >
-                {accountTypeIcon && (
-                  <img
-                    src={base64ImgSrc(accountTypeIcon)}
-                    width={20}
-                    height={20}
-                  />
-                )}
                 {profile.username}
               </CommandItem>
-            );
-          })}
+            ))}
         </CommandGroup>
       </CommandList>
     </CommandDialog>

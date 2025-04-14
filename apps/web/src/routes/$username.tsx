@@ -3,7 +3,7 @@ import {
   useQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useAtom } from "jotai";
 import { LoaderCircle, SearchIcon } from "lucide-react";
