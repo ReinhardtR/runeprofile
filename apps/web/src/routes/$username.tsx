@@ -16,6 +16,7 @@ import HiscoresIcon from "~/assets/icons/hiscores.png";
 import Logo from "~/assets/misc/logo.png";
 import { Footer } from "~/components/footer";
 import { Hiscores, hiscoresQueryOptions } from "~/components/hiscores";
+import { DiscordIcon } from "~/components/icons";
 import { AchievementDiaries } from "~/components/osrs/achievement-diaries";
 import { Character } from "~/components/osrs/character";
 import { CollectionLog } from "~/components/osrs/collection-log";
@@ -161,6 +162,13 @@ export function SidePanel({ username }: { username: string }) {
           }
         >
           <img src={HiscoresIcon} width={25} height={25} />
+        </SidePanelButton>
+
+        <SidePanelButton
+          className="bg-primary mt-auto group"
+          tooltip="Join the Discord"
+        >
+          <DiscordIcon className="size-12 group-hover:text-secondary-foreground" />
         </SidePanelButton>
       </div>
 
