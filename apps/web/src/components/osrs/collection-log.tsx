@@ -13,7 +13,7 @@ import ITEM_ICONS from "~/assets/item-icons.json";
 import QuestionMarkImage from "~/assets/misc/question-mark.png";
 import { hiscoresQueryOptions } from "~/components/hiscores";
 import { Card } from "~/components/osrs/card";
-import RuneScapeScrollArea from "~/components/osrs/scroll-area";
+import { RuneScapeScrollArea } from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
 import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 
@@ -136,7 +136,10 @@ export function CollectionLog({
                 onValueChange={onPageChange}
                 className="flex min-h-[100px] w-full border-t-2 border-osrs-border sm:h-full sm:w-[260px]"
               >
-                <RuneScapeScrollArea contentClassName="flex-col flex">
+                <RuneScapeScrollArea
+                  key={currentTab.name} // update on tab change
+                  contentClassName="flex flex-col"
+                >
                   {currentTab.pages.map((page) => {
                     const pageObtainedCount = page.items.filter(
                       (itemId) =>
@@ -206,6 +209,7 @@ export function CollectionLog({
                   ))}
                 </div>
                 <RuneScapeScrollArea
+                  key={currentPage.name} // update on page change
                   className="h-[100px] sm:h-full"
                   contentClassName="flex flex-wrap content-start gap-1 p-1"
                 >

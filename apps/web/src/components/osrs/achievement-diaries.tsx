@@ -4,7 +4,7 @@ import {
 } from "@runeprofile/runescape";
 
 import AchievementDiaryIcon from "~/assets/icons/achievement-diaries.png";
-import RuneScapeScrollArea from "~/components/osrs/scroll-area";
+import { RuneScapeScrollArea } from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
 

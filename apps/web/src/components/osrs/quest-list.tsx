@@ -6,7 +6,7 @@ import {
 } from "@runeprofile/runescape";
 
 import QuestIcon from "~/assets/icons/quest.png";
-import RuneScapeScrollArea from "~/components/osrs/scroll-area";
+import { RuneScapeScrollArea } from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
 
