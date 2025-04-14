@@ -59,10 +59,6 @@ export const Route = createFileRoute("/$username")({
   validateSearch: zodValidator(profileSearchSchema),
   loaderDeps: ({ search: { page } }) => ({ page }),
   loader: async ({ params, context }) => {
-    if (params.username !== "pgn") {
-      return redirect({ to: "/" });
-    }
-
     context.queryClient.prefetchQuery(
       hiscoresQueryOptions({
         username: params.username,
