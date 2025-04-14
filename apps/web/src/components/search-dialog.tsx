@@ -1,6 +1,7 @@
 import { useDebouncedValue } from "@tanstack/react-pacer";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import { CommandGroup } from "cmdk";
 import { atom, useAtom } from "jotai";
 import React from "react";
 
@@ -29,6 +30,7 @@ export const SearchDialog: React.FC = () => {
     queryKey: ["search", debouncedSearch],
     queryFn: () => searchProfiles({ query: debouncedSearch }),
     enabled: !!debouncedSearch.length,
+    staleTime: 1000 * 60 * 5,
   });
 
   const runCommand = React.useCallback((command: () => unknown) => {
@@ -47,24 +49,26 @@ export const SearchDialog: React.FC = () => {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  console.log(
+    "Search query data:",
+    searchQuery.data,
+    "Search status:",
+    searchQuery.status,
+  );
+
   return (
     <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
       <CommandInput
         value={search}
         onValueChange={(value) => {
-          setSearch(value.trim());
+          setSearch(value);
         }}
         isLoading={searchQuery.isFetching}
+        placeholder="Search by username..."
       />
       <CommandList>
-        <CommandEmpty className="py-6 text-center text-sm">
-          {debouncedSearch.length > 0 && searchQuery.data?.length === 0
-            ? "No results found."
-            : "Type a username to search."}
-        </CommandEmpty>
-
-        {!!searchQuery.data &&
-          searchQuery.data.map((profile) => {
+        <CommandGroup>
+          {searchQuery.data?.map((profile) => {
             const accountTypeIcon =
               AccountTypeIcons[
                 profile.accountType.key as keyof typeof AccountTypeIcons
@@ -93,6 +97,7 @@ export const SearchDialog: React.FC = () => {
               </CommandItem>
             );
           })}
+        </CommandGroup>
       </CommandList>
     </CommandDialog>
   );

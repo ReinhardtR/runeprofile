@@ -13,7 +13,6 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as UsernameImport } from './routes/$username'
 import { Route as IndexImport } from './routes/index'
-import { Route as MaintenanceIndexImport } from './routes/maintenance/index'
 
 // Create/Update Routes
 
@@ -26,12 +25,6 @@ const UsernameRoute = UsernameImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const MaintenanceIndexRoute = MaintenanceIndexImport.update({
-  id: '/maintenance/',
-  path: '/maintenance/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,13 +46,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsernameImport
       parentRoute: typeof rootRoute
     }
-    '/maintenance/': {
-      id: '/maintenance/'
-      path: '/maintenance'
-      fullPath: '/maintenance'
-      preLoaderRoute: typeof MaintenanceIndexImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -68,41 +54,36 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
-  '/maintenance': typeof MaintenanceIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
-  '/maintenance': typeof MaintenanceIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
-  '/maintenance/': typeof MaintenanceIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$username' | '/maintenance'
+  fullPaths: '/' | '/$username'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$username' | '/maintenance'
-  id: '__root__' | '/' | '/$username' | '/maintenance/'
+  to: '/' | '/$username'
+  id: '__root__' | '/' | '/$username'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRoute: typeof UsernameRoute
-  MaintenanceIndexRoute: typeof MaintenanceIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRoute: UsernameRoute,
-  MaintenanceIndexRoute: MaintenanceIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -116,8 +97,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/$username",
-        "/maintenance/"
+        "/$username"
       ]
     },
     "/": {
@@ -125,9 +105,6 @@ export const routeTree = rootRoute
     },
     "/$username": {
       "filePath": "$username.tsx"
-    },
-    "/maintenance/": {
-      "filePath": "maintenance/index.tsx"
     }
   }
 }
