@@ -14,6 +14,7 @@ export default newRouter()
         "https://runeprofile.pages.dev",
         "http://localhost:3001",
       ],
+      allowMethods: ["POST", "GET", "OPTIONS"],
     }),
   )
   .use(async (c, next) => {
