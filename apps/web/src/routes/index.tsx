@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import { Search } from "lucide-react";
 import React from "react";
@@ -81,15 +81,13 @@ function RouteComponent() {
               <Search className="mr-1 h-5 w-5" />
               <span className="inline-flex">Search profiles</span>
             </Button>
-            <a
-              href="https://runelite.net/plugin-hub/show/runeprofile"
-              target="_blank"
-              rel="noreferrer"
-              className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+            <Link
+              to="/info/guide"
+              className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
             >
               <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
-              <span>RuneLite Plugin</span>
-            </a>
+              <span>Plugin Guide</span>
+            </Link>
           </div>
           <div className="absolute z-20 bg-primary">
             <img

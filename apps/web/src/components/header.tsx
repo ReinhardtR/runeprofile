@@ -57,7 +57,7 @@ export const Header: React.FC = () => {
             />
             <p className="hidden flex-col text-lg font-black leading-none tracking-wide drop-shadow sm:flex">
               <span className="text-primary">RUNE</span>
-              <span className="text-secondary">PROFILE</span>
+              <span className="text-secondary-foreground">PROFILE</span>
             </p>
           </Link>
         </div>
