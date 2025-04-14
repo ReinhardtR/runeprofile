@@ -18,17 +18,19 @@ import { Profile } from "~/lib/api";
 import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 
 export function CollectionLog({
+  username,
   page,
   onPageChange,
   data,
 }: {
+  username: string;
   page: string;
   onPageChange: (page: string) => void;
   data: Profile["items"];
 }) {
   const hiscoresQuery = useQuery(
     hiscoresQueryOptions({
-      username: "pgn",
+      username,
       leaderboard: "normal",
     }),
   );

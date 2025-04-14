@@ -31,10 +31,16 @@ export function hiscoresQueryOptions(params: {
   });
 }
 
-export function Hiscores({ className }: { className?: string }) {
+export function Hiscores({
+  username,
+  className,
+}: {
+  username: string;
+  className?: string;
+}) {
   const hiscoresQuery = useSuspenseQuery(
     hiscoresQueryOptions({
-      username: "pgn",
+      username,
       leaderboard: "normal",
     }),
   );

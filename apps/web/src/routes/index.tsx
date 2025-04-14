@@ -25,6 +25,7 @@ import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
+import { SidePanel } from "~/routes/$username";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -49,7 +50,7 @@ function RouteComponent() {
           <div className="z-30 flex flex-1 flex-col items-center pt-[20vh]">
             <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
               <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
-                <span className="text-secondary-foreground/80 solid-text-shadow">
+                <span className="text-secondary-foreground/90 solid-text-shadow">
                   RUNE
                 </span>
                 <span className="text-primary solid-text-shadow">PROFILE</span>
@@ -89,14 +90,8 @@ function RouteComponent() {
               <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
               <span>RuneLite Plugin</span>
             </a>
-            <a
-              href="#profile-example"
-              className="absolute bottom-12 mx-auto transform font-medium text-primary-foreground opacity-75 transition-all hover:-translate-y-1 hover:opacity-100"
-            >
-              Scroll to Profile Example
-            </a>
           </div>
-          <div className="absolute z-20 bg-primary">
+          <div className="absolute z-20 bg-primary/85">
             <img
               src={HeroImage}
               className="min-h-screen w-full object-cover mix-blend-multiply"
@@ -117,21 +112,27 @@ function ProfilePreview() {
   const [page, setPage] = React.useState(COLLECTION_LOG_TABS[0].pages[0].name);
 
   return (
-    <div
-      id="profile-example"
-      className="py-8 my-8 max-w-[1280px] mx-auto flex flex-wrap justify-center gap-4"
-    >
-      <Character
-        username={profile.username}
-        accountType={profile.accountType}
-        createdAt={new Date(profile.createdAt)}
-        updatedAt={new Date(profile.updatedAt)}
-      />
-      <Skills data={profile.skills} />
-      <AchievementDiaries data={profile.achievementDiaryTiers} />
-      <QuestList data={profile.quests} />
-      <CombatAchievements data={profile.combatAchievementTiers} />
-      <CollectionLog page={page} onPageChange={setPage} data={profile.items} />
+    <div className="flex flex-row items-stretch min-h-screen relative overflow-x-hidden">
+      <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto flex-1">
+        <Character
+          username={profile.username}
+          accountType={profile.accountType}
+          createdAt={new Date(profile.createdAt)}
+          updatedAt={new Date(profile.updatedAt)}
+        />
+        <Skills data={profile.skills} />
+        <AchievementDiaries data={profile.achievementDiaryTiers} />
+        <QuestList data={profile.quests} />
+        <CombatAchievements data={profile.combatAchievementTiers} />
+        <CollectionLog
+          username={profile.username}
+          page={page}
+          onPageChange={setPage}
+          data={profile.items}
+        />
+      </div>
+
+      <SidePanel username={profile.username} />
     </div>
   );
 }

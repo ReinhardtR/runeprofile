@@ -93,7 +93,7 @@ function RouteComponent() {
 
   return (
     <>
-      <div className="flex flex-row items-stretch min-h-screen">
+      <div className="flex flex-row items-stretch min-h-screen overflow-x-hidden relative">
         <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto flex-1">
           <Character
             username={profile.username}
@@ -106,6 +106,7 @@ function RouteComponent() {
           <QuestList data={profile.quests} />
           <CombatAchievements data={profile.combatAchievementTiers} />
           <CollectionLog
+            username={profile.username}
             page={page}
             onPageChange={(newPage) =>
               navigate({ search: { page: newPage }, resetScroll: false })
@@ -121,7 +122,7 @@ function RouteComponent() {
   );
 }
 
-function SidePanel({ username }: { username: string }) {
+export function SidePanel({ username }: { username: string }) {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useAtom(
     isSearchDialogOpenAtom,
   );
@@ -129,7 +130,7 @@ function SidePanel({ username }: { username: string }) {
 
   const hiscoresQuery = useQuery(
     hiscoresQueryOptions({
-      username: "pgn",
+      username,
       leaderboard: "normal",
     }),
   );
@@ -164,9 +165,9 @@ function SidePanel({ username }: { username: string }) {
       </div>
 
       <Sheet modal={false} open={isHiscoresOpen}>
-        <SheetContent className="absolute overflow-hidden p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
+        <SheetContent className="absolute p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
           <ScrollArea className="h-full shadow-2xl">
-            <Hiscores className="pr-2" />
+            <Hiscores username={username} className="pr-2" />
           </ScrollArea>
         </SheetContent>
       </Sheet>
