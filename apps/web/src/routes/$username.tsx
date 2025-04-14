@@ -33,6 +33,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { getProfile } from "~/lib/api";
+import { DISCORD_INVITE_INK } from "~/lib/constants";
 import { cn } from "~/lib/utils";
 
 function profileQueryOptions(username: string) {
@@ -167,6 +168,8 @@ export function SidePanel({ username }: { username: string }) {
         <SidePanelButton
           className="bg-primary mt-auto group"
           tooltip="Join the Discord"
+          onClick={() => window.open(DISCORD_INVITE_INK, "_blank")}
+          role="link"
         >
           <DiscordIcon className="size-12 group-hover:text-secondary-foreground" />
         </SidePanelButton>
