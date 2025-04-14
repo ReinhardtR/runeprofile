@@ -134,6 +134,18 @@
 /* Custom Styles */
 
 @font-face {
+  font-family: "ui-sans-serif";
+  src: url("~/assets/fonts/inter.ttf") format("truetype");
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "ui-sans-serif";
+  src: url("~/assets/fonts/inter-italic.ttf") format("truetype");
+  font-style: italic;
+}
+
+@font-face {
   font-family: "RuneScape";
   src: url("~/assets/fonts/runescape.woff2") format("woff2");
   font-weight: normal;

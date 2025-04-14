@@ -92,7 +92,7 @@ function RouteComponent() {
           <div className="absolute z-20 bg-primary">
             <img
               src={HeroImage}
-              className="min-h-screen w-full object-cover mix-blend-multiply"
+              className="h-screen w-screen object-cover mix-blend-multiply"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@ function ProfilePreview() {
 
   return (
     <div className="flex flex-row items-stretch min-h-screen relative overflow-x-hidden">
-      <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto flex-1">
+      <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto">
         <Character
           username={profile.username}
           accountType={profile.accountType}

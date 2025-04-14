@@ -140,8 +140,8 @@ export function SidePanel({ username }: { username: string }) {
 
   return (
     <>
-      <div className="w-16 bg-card flex flex-col items-center py-2 z-50 gap-y-2">
-        <Link to="/">
+      <div className="w-16 bg-card flex flex-col items-center py-2 px-1 z-50 gap-y-2">
+        <Link to="/" className="size-14">
           <SidePanelButton className="p-0" tooltip="Home page">
             <img src={Logo} className="w-full h-full" />
           </SidePanelButton>
