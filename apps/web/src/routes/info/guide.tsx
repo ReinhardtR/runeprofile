@@ -175,7 +175,6 @@ function RouteComponent() {
               <li>Navigate to the Plugin Hub.</li>
               <li>Search for "RuneProfile".</li>
               <li>Click the "Install" button.</li>
-              <li>If you're logged in, re-log.</li>
             </ol>
             <GuideImage
               src={InstallPluginImage}
