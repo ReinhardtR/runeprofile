@@ -35,6 +35,7 @@ export const Footer: React.FC = () => {
 
           <JoinDiscordButton />
         </div>
+        <div className="col-span-1 flex flex-col items-start space-y-2"></div>
 
         <div className="col-span-1 flex flex-col items-start space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Information</h3>

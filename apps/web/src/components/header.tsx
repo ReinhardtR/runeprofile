@@ -45,7 +45,7 @@ export const Header: React.FC = () => {
           : "border-primary bg-background bg-opacity-80 backdrop-blur",
       )}
     >
-      <div className="flex h-16 max-w-screen-2xl items-center">
+      <div className="flex h-16 max-w-screen-2xl items-center mx-auto">
         <div className="mr-4 flex">
           <Link to="/" className="mr-6 flex items-center space-x-2">
             <img
