@@ -35,7 +35,8 @@ export const Footer: React.FC = () => {
 
           <JoinDiscordButton />
         </div>
-        <div className="col-span-1 flex flex-col items-start space-y-2"></div>
+
+        <div className="hidden col-span-1 lg:flex flex-col items-start space-y-2"></div>
 
         <div className="col-span-1 flex flex-col items-start space-y-2">
           <h3 className="mb-1 text-xs font-bold uppercase">Information</h3>
@@ -90,24 +91,27 @@ export const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="col-span-6 mb-16 flex items-center space-x-1 px-8 text-sm lg:justify-center">
+      <p className="col-span-6 mb-16 px-8 text-sm text-center">
         <FooterLink>
           <a
             href="https://oldschool.runescape.com/"
             target="_blank"
             rel="noreferrer"
+            className="inline"
           >
-            <p className="underline underline-offset-4">Old School RuneScape</p>
+            <span className="underline underline-offset-4">
+              Old School RuneScape
+            </span>
           </a>
         </FooterLink>
 
-        <p>is a trademark of</p>
-        <FooterLink>
+        <span> is a trademark of </span>
+        <FooterLink className="inline">
           <a href="https://www.jagex.com/" target="_blank" rel="noreferrer">
-            <p className="underline underline-offset-4">Jagex Ltd.</p>
+            <span className="underline underline-offset-4">Jagex Ltd.</span>
           </a>
         </FooterLink>
-      </div>
+      </p>
     </footer>
   );
 };
