@@ -3,7 +3,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
 import { Database, accounts } from "~/db";
-import { lower } from "~/db/helpers";
+import { autochunk, lower } from "~/db/helpers";
 
 export async function getCollectionLogPage(
   db: Database,
@@ -34,14 +34,20 @@ export async function getCollectionLogPage(
     throw new Error("Account not found");
   }
 
-  const itemsObtained = await db.query.items.findMany({
-    where: (items) =>
-      and(eq(items.accountId, account.id), inArray(items.id, page.items)),
-    columns: {
-      id: true,
-      quantity: true,
-    },
-  });
+  const itemsObtainedChunks = await Promise.all(
+    autochunk({ items: page.items, otherParametersCount: 1 }, (chunk) =>
+      db.query.items.findMany({
+        where: (items) =>
+          and(eq(items.accountId, account.id), inArray(items.id, chunk)),
+        columns: {
+          id: true,
+          quantity: true,
+        },
+      }),
+    ),
+  );
+
+  const itemsObtained = itemsObtainedChunks.flat();
 
   return {
     name: page.name,
