@@ -43,21 +43,21 @@ export const buildConflictUpdateColumns = <
 // Cloudflare D1 supports max 100 parameters in a query
 const D1_MAX_PARAMETERS = 100;
 export const autochunk = <
-  T extends Record<string, unknown> | string | number,
-  U,
+  TParams extends Record<string, unknown> | string | number,
+  TResult,
 >(
   {
     items,
     otherParametersCount = 0,
   }: {
-    items: T[];
+    items: TParams[];
     otherParametersCount?: number;
   },
-  cb: (chunk: T[]) => RunnableQuery<U, "sqlite">,
-): [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]] => {
-  const chunks: T[][] = [];
+  cb: (chunk: TParams[]) => RunnableQuery<TResult, "sqlite">,
+): [TResult, ...TResult[]] => {
+  const chunks: TParams[][] = [];
 
-  let chunk: T[] = [];
+  let chunk: TParams[] = [];
   let chunkParameters = 0;
 
   if (otherParametersCount > D1_MAX_PARAMETERS) {
@@ -94,7 +94,7 @@ export const autochunk = <
   }
 
   // @ts-expect-error
-  const results: [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]] = [];
+  const results: [U, ...U[]] = [];
 
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
