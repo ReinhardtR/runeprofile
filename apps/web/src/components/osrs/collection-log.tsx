@@ -150,7 +150,10 @@ export function CollectionLog({
               <ToggleGroup.Root
                 type="single"
                 value={page.toLowerCase()}
-                onValueChange={onPageChange}
+                onValueChange={(value) => {
+                  if (!value) return;
+                  onPageChange(value);
+                }}
                 className="flex min-h-[100px] w-full border-t-2 border-osrs-border sm:h-full sm:w-[260px]"
               >
                 <RuneScapeScrollArea
@@ -243,6 +246,7 @@ export function CollectionLog({
                         key={page.name}
                         value={page.name.toLowerCase()}
                         onSelect={(value) => {
+                          if (!value) return;
                           onPageChange(value);
                           setIsPageSelectOpen(false);
                         }}
