@@ -136,6 +136,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Fortis Colosseum",
         items: [28960, 28947, 28936, 28939, 28933, 28942, 28919, 28924],
         hiscore: { "Sol Heredit": "Sol Heredit kills" },
+        aliases: ["colo", "sol"],
       },
       {
         name: "The Gauntlet",
