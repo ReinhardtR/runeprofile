@@ -15,3 +15,14 @@ export const STATUS = {
   BAD_REQUEST: 400,
   INTERNAL_SERVER_ERROR: 500,
 } as const;
+
+export async function r2FileToBase64(file: R2ObjectBody) {
+  const arrayBuffer = await file.arrayBuffer();
+  const base64String = btoa(
+    new Uint8Array(arrayBuffer).reduce(
+      (data, byte) => data + String.fromCharCode(byte),
+      "",
+    ),
+  );
+  return base64String;
+}

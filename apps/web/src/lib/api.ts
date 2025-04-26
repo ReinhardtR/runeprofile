@@ -23,6 +23,21 @@ export async function getProfile(params: { username: string }) {
   return data;
 }
 
+export async function getProfileModels(params: { username: string }) {
+  const response = await api.profiles.models[":username"].$get({
+    param: {
+      username: params.username,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch profile models");
+  }
+
+  const data = await response.json();
+  return data;
+}
+
 export async function getHiscoresData(params: {
   username: string;
   leaderboard: HiscoreLeaderboardKey;

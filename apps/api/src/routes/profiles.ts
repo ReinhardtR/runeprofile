@@ -5,7 +5,7 @@ import { z } from "zod";
 import { accounts, drizzle } from "~/db";
 import { getCollectionLogPage } from "~/lib/get-collection-log-page";
 import { getProfile } from "~/lib/get-profile";
-import { STATUS, newRouter } from "~/lib/helpers";
+import { STATUS, newRouter, r2FileToBase64 } from "~/lib/helpers";
 import { searchProfiles } from "~/lib/search-profiles";
 import { updateProfile } from "~/lib/update-profile";
 import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
@@ -202,33 +202,23 @@ export const profilesRouter = newRouter()
     async (c) => {
       const { username } = c.req.valid("param");
 
-      const file = await c.env.BUCKET.get(username);
+      const [playerFile, petFile] = await Promise.all([
+        c.env.BUCKET.get(username),
+        c.env.BUCKET.get(`${username}-pet`),
+      ]);
 
-      if (!file) {
-        return c.json({ error: "Model not found" }, STATUS.NOT_FOUND);
+      if (!playerFile) {
+        return c.json({ error: "Player model not found" }, STATUS.NOT_FOUND);
       }
 
-      c.header("Content-Type", "model/ply");
-      c.header("Content-Length", String(file.size));
-      c.header("ETag", file.httpEtag);
-      return c.newResponse(file.body);
-    },
-  )
-  .get(
-    "/pet-models/:username",
-    validator("param", z.object({ username: usernameSchema })),
-    async (c) => {
-      const { username } = c.req.valid("param");
+      const [playerBase64, petBase64] = await Promise.all([
+        r2FileToBase64(playerFile),
+        petFile ? r2FileToBase64(petFile) : Promise.resolve(null),
+      ]);
 
-      const file = await c.env.BUCKET.get(`${username}-pet`);
-
-      if (!file) {
-        return c.json({ error: "Pet model not found" }, STATUS.NOT_FOUND);
-      }
-
-      c.header("Content-Type", "model/ply");
-      c.header("Content-Length", String(file.size));
-      c.header("ETag", file.httpEtag);
-      return c.newResponse(file.body);
+      return c.json({
+        playerModelBase64: playerBase64,
+        petModelBase64: petBase64,
+      });
     },
   );
