@@ -137,12 +137,20 @@ export const profilesRouter = newRouter()
             "Invalid file size",
           )
           .refine((file) => file.name.endsWith(".ply"), "Invalid file type"),
+        petModel: z
+          .instanceof(File)
+          .refine(
+            (file) => file.size > 0 && file.size < 1024 * 1024,
+            "Invalid file size",
+          )
+          .refine((file) => file.name.endsWith(".ply"), "Invalid file type")
+          .optional(),
       }),
     ),
     async (c) => {
       const db = drizzle(c.env.DB);
 
-      const { accountId, model } = c.req.valid("form");
+      const { accountId, model, petModel } = c.req.valid("form");
 
       const account = await db.query.accounts.findFirst({
         where: eq(accounts.id, accountId),
@@ -153,18 +161,36 @@ export const profilesRouter = newRouter()
         return c.json({ error: "Account not found" }, STATUS.NOT_FOUND);
       }
 
-      const { username } = account;
-
-      console.log("Size: ", model.size);
-
       try {
-        await c.env.BUCKET.put(username, model.stream());
+        await c.env.BUCKET.put(account.username, model.stream());
       } catch (error) {
         console.error(error);
         return c.json(
           { error: "Failed to upload model file to R2." },
           STATUS.INTERNAL_SERVER_ERROR,
         );
+      }
+
+      if (petModel) {
+        try {
+          await c.env.BUCKET.put(`${account.username}-pet`, petModel.stream());
+        } catch (error) {
+          console.error(error);
+          return c.json(
+            { error: "Failed to upload pet model file to R2." },
+            STATUS.INTERNAL_SERVER_ERROR,
+          );
+        }
+      } else {
+        try {
+          await c.env.BUCKET.delete(`${account.username}-pet`);
+        } catch (error) {
+          console.error(error);
+          return c.json(
+            { error: "Failed to delete pet model file from R2." },
+            STATUS.INTERNAL_SERVER_ERROR,
+          );
+        }
       }
 
       return c.json({ message: "Model updated successfully" });
@@ -180,6 +206,24 @@ export const profilesRouter = newRouter()
 
       if (!file) {
         return c.json({ error: "Model not found" }, STATUS.NOT_FOUND);
+      }
+
+      c.header("Content-Type", "model/ply");
+      c.header("Content-Length", String(file.size));
+      c.header("ETag", file.httpEtag);
+      return c.newResponse(file.body);
+    },
+  )
+  .get(
+    "/pet-models/:username",
+    validator("param", z.object({ username: usernameSchema })),
+    async (c) => {
+      const { username } = c.req.valid("param");
+
+      const file = await c.env.BUCKET.get(`${username}-pet`);
+
+      if (!file) {
+        return c.json({ error: "Pet model not found" }, STATUS.NOT_FOUND);
       }
 
       c.header("Content-Type", "model/ply");
