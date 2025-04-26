@@ -61,13 +61,6 @@ export const SearchDialog: React.FC = () => {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  console.log(
-    "Search query data:",
-    searchQuery.data,
-    "Search status:",
-    searchQuery.status,
-  );
-
   return (
     <CommandDialog
       open={isOpen}
