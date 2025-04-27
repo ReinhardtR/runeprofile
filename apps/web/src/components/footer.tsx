@@ -43,6 +43,9 @@ export const Footer: React.FC = () => {
           <FooterLink>
             <Link to="/info/guide">Guide</Link>
           </FooterLink>
+          <FooterLink>
+            <Link to="/info/alias">Aliases</Link>
+          </FooterLink>
         </div>
 
         <div className="col-span-1 flex flex-col items-start space-y-2">

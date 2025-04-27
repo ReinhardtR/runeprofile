@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as UsernameImport } from './routes/$username'
 import { Route as IndexImport } from './routes/index'
 import { Route as InfoGuideImport } from './routes/info/guide'
+import { Route as InfoAliasImport } from './routes/info/alias'
 
 // Create/Update Routes
 
@@ -35,6 +36,12 @@ const InfoGuideRoute = InfoGuideImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const InfoAliasRoute = InfoAliasImport.update({
+  id: '/info/alias',
+  path: '/info/alias',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -53,6 +60,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsernameImport
       parentRoute: typeof rootRoute
     }
+    '/info/alias': {
+      id: '/info/alias'
+      path: '/info/alias'
+      fullPath: '/info/alias'
+      preLoaderRoute: typeof InfoAliasImport
+      parentRoute: typeof rootRoute
+    }
     '/info/guide': {
       id: '/info/guide'
       path: '/info/guide'
@@ -68,12 +82,14 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/info/alias': typeof InfoAliasRoute
   '/info/guide': typeof InfoGuideRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/info/alias': typeof InfoAliasRoute
   '/info/guide': typeof InfoGuideRoute
 }
 
@@ -81,27 +97,30 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/info/alias': typeof InfoAliasRoute
   '/info/guide': typeof InfoGuideRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$username' | '/info/guide'
+  fullPaths: '/' | '/$username' | '/info/alias' | '/info/guide'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$username' | '/info/guide'
-  id: '__root__' | '/' | '/$username' | '/info/guide'
+  to: '/' | '/$username' | '/info/alias' | '/info/guide'
+  id: '__root__' | '/' | '/$username' | '/info/alias' | '/info/guide'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRoute: typeof UsernameRoute
+  InfoAliasRoute: typeof InfoAliasRoute
   InfoGuideRoute: typeof InfoGuideRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRoute: UsernameRoute,
+  InfoAliasRoute: InfoAliasRoute,
   InfoGuideRoute: InfoGuideRoute,
 }
 
@@ -117,6 +136,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/$username",
+        "/info/alias",
         "/info/guide"
       ]
     },
@@ -125,6 +145,9 @@ export const routeTree = rootRoute
     },
     "/$username": {
       "filePath": "$username.tsx"
+    },
+    "/info/alias": {
+      "filePath": "info/alias.tsx"
     },
     "/info/guide": {
       "filePath": "info/guide.tsx"
