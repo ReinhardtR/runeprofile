@@ -12,6 +12,7 @@ import {
 
 import { Database, accounts } from "~/db";
 import { lower } from "~/db/helpers";
+import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
 export async function getProfile(db: Database, username: string) {
   const profile = await db.query.accounts.findFirst({
@@ -53,7 +54,7 @@ export async function getProfile(db: Database, username: string) {
   });
 
   if (!profile) {
-    return undefined;
+    throw RuneProfileAccountNotFoundError;
   }
 
   const accountType =

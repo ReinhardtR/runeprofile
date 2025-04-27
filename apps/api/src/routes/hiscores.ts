@@ -7,7 +7,9 @@ import {
   HiscoreLeaderboardKey,
 } from "@runeprofile/runescape";
 
-import { STATUS, newRouter } from "~/lib/helpers";
+import { RuneProfileHiscoresError } from "~/lib/errors";
+import { newRouter } from "~/lib/helpers";
+import { STATUS } from "~/lib/status";
 import { usernameSchema, validator } from "~/lib/validation";
 
 export const hiscoresRouter = newRouter().get(
@@ -33,10 +35,7 @@ export const hiscoresRouter = newRouter().get(
     const response = await fetch(url);
 
     if (!response.ok) {
-      return c.json(
-        { error: "Failed to fetch hiscore data" },
-        STATUS.INTERNAL_SERVER_ERROR,
-      );
+      throw RuneProfileHiscoresError;
     }
 
     const data = (await response.json()) as HiscoreData;

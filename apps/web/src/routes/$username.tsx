@@ -3,7 +3,12 @@ import {
   useQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import {
+  ErrorComponentProps,
+  Link,
+  createFileRoute,
+  useNavigate,
+} from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useAtom } from "jotai";
 import { LoaderCircle, SearchIcon } from "lucide-react";
@@ -32,7 +37,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { getProfile } from "~/lib/api";
+import { RuneProfileApiError, getProfile } from "~/lib/api";
 import { DISCORD_INVITE_INK } from "~/lib/constants";
 import { cn } from "~/lib/utils";
 
@@ -58,6 +63,7 @@ const profileSearchSchema = z.object({
 
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
+  errorComponent: ErrorComponent,
   validateSearch: zodValidator(profileSearchSchema),
   loaderDeps: ({ search: { page } }) => ({ page }),
   loader: async ({ params, context }) => {
@@ -72,14 +78,6 @@ export const Route = createFileRoute("/$username")({
       profileQueryOptions(params.username),
     );
   },
-  errorComponent: () => (
-    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
-      <div className="text-2xl text-primary-foreground">
-        Failed to load profile
-      </div>
-      <Button onClick={() => window.location.reload()}>Try again</Button>
-    </div>
-  ),
 });
 
 function RouteComponent() {
@@ -121,6 +119,34 @@ function RouteComponent() {
       </div>
       <Footer />
     </>
+  );
+}
+
+function ErrorComponent(props: ErrorComponentProps) {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
+      <p className="text-2xl text-primary-foreground">{props.error.message}</p>
+      {props.error instanceof RuneProfileApiError &&
+        props.error.code === "AccountNotFound" && (
+          <p className="text-muted-foreground text-center">
+            Make sure you have updated your profile using the plugin.
+            <br />
+            If needed you can follow the guide{" "}
+            <Link
+              to="/info/guide"
+              className="text-secondary-foreground underline"
+            >
+              here
+            </Link>
+            .
+          </p>
+        )}
+      <Button onClick={() => navigate({ to: "/" })}>Home Teleport</Button>
+      <Button variant="ghost" onClick={() => window.location.reload()}>
+        Try again
+      </Button>
+    </div>
   );
 }
 

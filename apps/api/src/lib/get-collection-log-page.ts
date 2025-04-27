@@ -4,6 +4,11 @@ import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
 import { Database, accounts } from "~/db";
 import { autochunk, lower } from "~/db/helpers";
+import {
+  RuneProfileAccountNotFoundError,
+  RuneProfileClogPageNotFoundError,
+  RuneProfileError,
+} from "~/lib/errors";
 
 export async function getCollectionLogPage(
   db: Database,
@@ -22,7 +27,7 @@ export async function getCollectionLogPage(
     });
 
   if (!page) {
-    throw new Error("Page not found");
+    throw RuneProfileClogPageNotFoundError;
   }
 
   const account = await db.query.accounts.findFirst({
@@ -31,7 +36,12 @@ export async function getCollectionLogPage(
   });
 
   if (!account) {
-    throw new Error("Account not found");
+    throw new RuneProfileError(
+      RuneProfileAccountNotFoundError.status,
+      RuneProfileAccountNotFoundError.code,
+      RuneProfileAccountNotFoundError.message +
+        " A guide can be found on the website.",
+    );
   }
 
   const itemsObtainedChunks = await Promise.all(

@@ -1,10 +1,11 @@
 import { cors } from "hono/cors";
 
-import { newRouter } from "~/lib/helpers";
+import { dateHeaderMiddleware, errorHandler, newRouter } from "~/lib/helpers";
 import { hiscoresRouter } from "~/routes/hiscores";
 import { profilesRouter } from "~/routes/profiles";
 
 export default newRouter()
+  .onError(errorHandler)
   .use(
     "*",
     cors({
@@ -17,9 +18,6 @@ export default newRouter()
       allowMethods: ["POST", "GET", "OPTIONS"],
     }),
   )
-  .use(async (c, next) => {
-    await next();
-    c.header("Date", new Date().toUTCString());
-  })
+  .use(dateHeaderMiddleware) // TODO: remove when runelite updates plugin to v2.0.3
   .route("/profiles", profilesRouter)
   .route("/hiscores", hiscoresRouter);

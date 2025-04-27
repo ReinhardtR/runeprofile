@@ -3,10 +3,17 @@ import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "~/db";
+import {
+  RuneProfileAccountNotFoundError,
+  RuneProfileFailedToDeleteFileError,
+  RuneProfileFailedToUploadFileError,
+  RuneProfileFileNotFoundError,
+} from "~/lib/errors";
 import { getCollectionLogPage } from "~/lib/get-collection-log-page";
 import { getProfile } from "~/lib/get-profile";
-import { STATUS, newRouter, r2FileToBase64 } from "~/lib/helpers";
+import { newRouter, r2FileToBase64 } from "~/lib/helpers";
 import { searchProfiles } from "~/lib/search-profiles";
+import { STATUS } from "~/lib/status";
 import { updateProfile } from "~/lib/update-profile";
 import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
 
@@ -14,16 +21,10 @@ export const profilesRouter = newRouter()
   .get("/", validator("query", z.object({ q: z.string() })), async (c) => {
     const db = drizzle(c.env.DB);
     const { q } = c.req.valid("query");
-    try {
-      const profiles = await searchProfiles(db, q);
-      return c.json(profiles, STATUS.OK);
-    } catch (error) {
-      console.error(error);
-      return c.json(
-        { error: "Something went wrong" },
-        STATUS.INTERNAL_SERVER_ERROR,
-      );
-    }
+
+    const profiles = await searchProfiles(db, q);
+
+    return c.json(profiles, STATUS.OK);
   })
   .get(
     "/:username",
@@ -31,24 +32,11 @@ export const profilesRouter = newRouter()
     cache({ cacheName: "profile", cacheControl: "max-age=60" }),
     async (c) => {
       const db = drizzle(c.env.DB);
-
       const { username } = c.req.valid("param");
 
-      console.log("Fetching profile for: ", username);
+      const profile = await getProfile(db, username);
 
-      try {
-        const profile = await getProfile(db, username);
-        if (!profile) {
-          return c.json({ error: "Profile not found" }, STATUS.NOT_FOUND);
-        }
-        return c.json(profile, STATUS.OK);
-      } catch (error) {
-        console.error(error);
-        return c.json(
-          { error: "Something went wrong" },
-          STATUS.INTERNAL_SERVER_ERROR,
-        );
-      }
+      return c.json(profile, STATUS.OK);
     },
   )
 
@@ -64,26 +52,12 @@ export const profilesRouter = newRouter()
     cache({ cacheName: "clog-page", cacheControl: "max-age=60" }),
     async (c) => {
       const db = drizzle(c.env.DB);
-
       const { username, page } = c.req.valid("param");
 
       console.log("Fetching collection log page for: ", username, page);
+      const collectionLogPage = await getCollectionLogPage(db, username, page);
 
-      try {
-        const collectionLogPage = await getCollectionLogPage(
-          db,
-          username,
-          page,
-        );
-
-        return c.json(collectionLogPage, STATUS.OK);
-      } catch (error) {
-        console.error(error);
-        return c.json(
-          { error: "Something went wrong" },
-          STATUS.INTERNAL_SERVER_ERROR,
-        );
-      }
+      return c.json(collectionLogPage, STATUS.OK);
     },
   )
   .post(
@@ -109,19 +83,11 @@ export const profilesRouter = newRouter()
     ),
     async (c) => {
       const db = drizzle(c.env.DB);
-
       const data = c.req.valid("json");
 
-      try {
-        await updateProfile(db, data);
-        return c.json({ message: "Profile created" }, STATUS.OK);
-      } catch (error) {
-        console.error(error);
-        return c.json(
-          { error: "Something went wrong" },
-          STATUS.INTERNAL_SERVER_ERROR,
-        );
-      }
+      await updateProfile(db, data);
+
+      return c.json({ message: "Profile created" }, STATUS.OK);
     },
   )
   .post(
@@ -158,38 +124,26 @@ export const profilesRouter = newRouter()
       });
 
       if (!account) {
-        return c.json({ error: "Account not found" }, STATUS.NOT_FOUND);
+        throw RuneProfileAccountNotFoundError;
       }
 
       try {
         await c.env.BUCKET.put(account.username, model.stream());
       } catch (error) {
-        console.error(error);
-        return c.json(
-          { error: "Failed to upload model file to R2." },
-          STATUS.INTERNAL_SERVER_ERROR,
-        );
+        throw RuneProfileFailedToUploadFileError;
       }
 
       if (petModel) {
         try {
           await c.env.BUCKET.put(`${account.username}-pet`, petModel.stream());
         } catch (error) {
-          console.error(error);
-          return c.json(
-            { error: "Failed to upload pet model file to R2." },
-            STATUS.INTERNAL_SERVER_ERROR,
-          );
+          throw RuneProfileFailedToUploadFileError;
         }
       } else {
         try {
           await c.env.BUCKET.delete(`${account.username}-pet`);
         } catch (error) {
-          console.error(error);
-          return c.json(
-            { error: "Failed to delete pet model file from R2." },
-            STATUS.INTERNAL_SERVER_ERROR,
-          );
+          throw RuneProfileFailedToDeleteFileError;
         }
       }
 
@@ -208,7 +162,7 @@ export const profilesRouter = newRouter()
       ]);
 
       if (!playerFile) {
-        return c.json({ error: "Player model not found" }, STATUS.NOT_FOUND);
+        throw RuneProfileFileNotFoundError;
       }
 
       const [playerBase64, petBase64] = await Promise.all([
