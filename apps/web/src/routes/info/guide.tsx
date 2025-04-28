@@ -69,6 +69,24 @@ function RouteComponent() {
               <li>Search for "RuneProfile".</li>
               <li>Click the "Install" button.</li>
             </ol>
+            <GuideParagraph className="italic">
+              <span className="text-secondary-foreground">
+                "This plugin submits your player data and IP address to a server
+                not controlled or verified by the RuneLite developers."
+              </span>
+              <br />
+              It's required by RuneLite that this warning is shown when
+              installing the plugin, since it connects to the RuneProfile
+              server. The server is only given the data needed to make your
+              profile, and all the code for the server is open source{" "}
+              <a
+                href="https://github.com/ReinhardtR/runeprofile"
+                target="_blank"
+                className="text-secondary-foreground underline"
+              >
+                here.
+              </a>
+            </GuideParagraph>
             <GuideImage
               src={InstallPluginImage}
               alt="Plugin Hub Installation Screenshot"
