@@ -98,6 +98,8 @@ const Model = React.memo(({ username }: { username: string }) => {
           loadModelFromBase64(models.petModelBase64).then((geometry) =>
             setPetObject(createMesh(geometry)),
           );
+        } else {
+          setPetObject(undefined);
         }
       })
       .catch((error) => {
