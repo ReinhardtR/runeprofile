@@ -234,6 +234,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           29028, 28997, 28991,
         ],
         hiscore: { "Lunar Chests": "Lunar Chests opened" },
+        aliases: ["moons"],
       },
       {
         name: "Nex",
