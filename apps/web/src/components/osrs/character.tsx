@@ -89,7 +89,9 @@ const Model = React.memo(({ username }: { username: string }) => {
     };
 
     getProfileModels({ username })
-      .then((models) => {
+      .then(async (models) => {
+        setPetObject(undefined);
+
         loadModelFromBase64(models.playerModelBase64).then((geometry) =>
           setPlayerObject(createMesh(geometry)),
         );
@@ -98,8 +100,6 @@ const Model = React.memo(({ username }: { username: string }) => {
           loadModelFromBase64(models.petModelBase64).then((geometry) =>
             setPetObject(createMesh(geometry)),
           );
-        } else {
-          setPetObject(undefined);
         }
       })
       .catch((error) => {
@@ -107,6 +107,7 @@ const Model = React.memo(({ username }: { username: string }) => {
           "Error loading models - falling back to default model.",
           error,
         );
+
         loadModelFromBase64(defaultPlayerModel.base64).then((geometry) =>
           setPlayerObject(createMesh(geometry)),
         );
