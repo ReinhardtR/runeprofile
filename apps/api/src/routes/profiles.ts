@@ -11,6 +11,7 @@ import {
 } from "~/lib/errors";
 import { getCollectionLogPage } from "~/lib/get-collection-log-page";
 import { getProfile } from "~/lib/get-profile";
+import { getProfileUpdates } from "~/lib/get-profile-updates";
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
 import { searchProfiles } from "~/lib/search-profiles";
 import { STATUS } from "~/lib/status";
@@ -87,7 +88,7 @@ export const profilesRouter = newRouter()
 
       await updateProfile(db, data);
 
-      return c.json({ message: "Profile created" }, STATUS.OK);
+      return c.json({ message: "Profile updated" }, STATUS.OK);
     },
   )
   .post(

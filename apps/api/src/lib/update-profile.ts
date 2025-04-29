@@ -1,14 +1,6 @@
 import { InferInsertModel, eq } from "drizzle-orm";
 
 import {
-  ACHIEVEMENT_DIARIES,
-  COLLECTION_LOG_ITEM_IDS,
-  COMBAT_ACHIEVEMENT_TIERS,
-  QUESTS,
-  SKILLS,
-} from "@runeprofile/runescape";
-
-import {
   Database,
   accounts,
   achievementDiaryTiers,
@@ -18,28 +10,18 @@ import {
   skills,
 } from "~/db";
 import { autochunk, buildConflictUpdateColumns } from "~/db/helpers";
+import {
+  UpdateProfileInput,
+  getProfileUpdates,
+} from "~/lib/get-profile-updates";
 
-type UpdateProfileInput = {
-  id: string;
-  username: string;
-  accountType: number;
-  achievementDiaryTiers: Array<{
-    areaId: number;
-    tierIndex: number;
-    completedCount: number;
-  }>;
-  // id -> completedCount
-  combatAchievementTiers: Record<number, number>;
-  // id -> quantity
-  items: Record<number, number>;
-  // id -> state
-  quests: Record<number, number>;
-  // name -> xp
-  skills: Record<string, number>;
-};
+export async function updateProfile(db: Database, input: UpdateProfileInput) {
+  const updates = await getProfileUpdates(db, input);
 
-export async function updateProfile(db: Database, account: UpdateProfileInput) {
-  const accountId = account.id;
+  console.log("Updating profile for: ", input.username);
+  console.log(updates);
+
+  const accountId = input.id;
 
   const existingAccount = await db.query.accounts.findFirst({
     where: eq(accounts.id, accountId),
@@ -47,87 +29,61 @@ export async function updateProfile(db: Database, account: UpdateProfileInput) {
 
   if (!existingAccount) {
     await db.insert(accounts).values({
-      id: account.id,
-      username: account.username,
-      accountType: account.accountType,
+      id: updates.id,
+      username: updates.username,
+      accountType: updates.accountType,
     });
   }
 
   const achievementDiaryTiersValues: Array<
     InferInsertModel<typeof achievementDiaryTiers>
-  > = [];
-  for (const diary of ACHIEVEMENT_DIARIES) {
-    for (const [tierIndex] of diary.tiers.entries()) {
-      const playerDiaryTier = account.achievementDiaryTiers.find(
-        (input) => input.areaId === diary.id && input.tierIndex === tierIndex,
-      );
-      if (!playerDiaryTier) continue;
-      if (playerDiaryTier.completedCount === 0) continue; // None completed
-      achievementDiaryTiersValues.push({
-        accountId,
-        areaId: diary.id,
-        tier: tierIndex,
-        completedCount: playerDiaryTier.completedCount,
-      });
-    }
-  }
+  > = updates.achievementDiaryTiers.map((diary) => ({
+    accountId,
+    areaId: diary.areaId,
+    tier: diary.tierIndex,
+    completedCount: diary.completedCount,
+  }));
 
   const combatAchievementTiersValues: Array<
     InferInsertModel<typeof combatAchievementTiers>
-  > = [];
-  for (const tier of COMBAT_ACHIEVEMENT_TIERS) {
-    const completedCount = account.combatAchievementTiers[tier.id];
-    if (completedCount === undefined) continue;
-    if (completedCount === 0) continue; // None completed
-    combatAchievementTiersValues.push({
+  > = Object.entries(updates.combatAchievementTiers).map(
+    ([id, completedCount]) => ({
       accountId,
-      id: tier.id,
+      id: Number(id),
       completedCount,
-    });
-  }
+    }),
+  );
 
-  const itemsValues: Array<InferInsertModel<typeof items>> = [];
-  for (const itemId of COLLECTION_LOG_ITEM_IDS) {
-    const quantity = account.items[itemId];
-    if (quantity === undefined) continue;
-    if (quantity === 0) continue; // Not obtained
-    itemsValues.push({
-      accountId,
-      id: itemId,
-      quantity,
-    });
-  }
+  const itemsValues: Array<InferInsertModel<typeof items>> = Object.entries(
+    updates.items,
+  ).map(([id, quantity]) => ({
+    accountId,
+    id: Number(id),
+    quantity,
+  }));
 
-  const questsValues: Array<InferInsertModel<typeof quests>> = [];
-  for (const quest of QUESTS) {
-    const state = account.quests[quest.id];
-    if (state === undefined) continue;
-    if (state === 0) continue; // Not started
-    questsValues.push({
-      accountId,
-      id: quest.id,
-      state,
-    });
-  }
+  const questsValues: Array<InferInsertModel<typeof quests>> = Object.entries(
+    updates.quests,
+  ).map(([id, state]) => ({
+    accountId,
+    id: Number(id),
+    state,
+  }));
 
-  const skillsValues: Array<InferInsertModel<typeof skills>> = [];
-  for (const skillName of SKILLS) {
-    const xp = account.skills[skillName];
-    if (xp === undefined) continue;
-    if (xp === 0) continue; // No xp
-    skillsValues.push({
-      accountId,
-      name: skillName,
-      xp,
-    });
-  }
+  const skillsValues: Array<InferInsertModel<typeof skills>> = Object.entries(
+    updates.skills,
+  ).map(([name, xp]) => ({
+    accountId,
+    name,
+    xp,
+  }));
 
   await Promise.all([
     db
       .update(accounts)
       .set({
-        username: account.username,
-        accountType: account.accountType,
+        username: updates.username,
+        accountType: updates.accountType,
       })
       .where(eq(accounts.id, accountId)),
     ...autochunk({ items: achievementDiaryTiersValues }, (chunk) =>
