@@ -117,8 +117,11 @@ function RouteComponent() {
             </GuideHeading>
             <ol className="ml-6 list-decimal space-y-2 text-muted-foreground">
               <li>Open the RuneProfile plugin panel.</li>
-              <li>Click the "Update Model"-button.</li>
+              <li>Click the "Update Player Model"-button.</li>
             </ol>
+            <GuideParagraph>
+              If a pet is following you, it will be shown on your profile.
+            </GuideParagraph>
             <GuideImage
               src={UpdateModelImage}
               alt="Updating Player Model Screenshot"
