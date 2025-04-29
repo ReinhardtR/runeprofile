@@ -88,10 +88,12 @@ const Model = React.memo(({ username }: { username: string }) => {
       return m;
     };
 
-    getProfileModels({ username })
-      .then(async (models) => {
-        setPetObject(undefined);
+    // Clear previous models
+    setPlayerObject(undefined);
+    setPetObject(undefined);
 
+    getProfileModels({ username })
+      .then((models) => {
         loadModelFromBase64(models.playerModelBase64).then((geometry) =>
           setPlayerObject(createMesh(geometry)),
         );
