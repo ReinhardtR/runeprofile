@@ -34,6 +34,8 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
+  const profilePreviewRef = React.useRef<HTMLDivElement>(null);
+
   const dataTypeList = [
     { name: "Skills", icon: SkillsIcon },
     { name: "Quests", icon: QuestIcon },
@@ -42,6 +44,10 @@ function RouteComponent() {
     { name: "Collection Log", icon: CollectionLogIcon },
     { name: "Hiscores", icon: HiscoresIcon },
   ];
+
+  const scrollToProfilePreview = () => {
+    profilePreviewRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <>
@@ -95,22 +101,38 @@ function RouteComponent() {
               className="h-screen w-screen object-cover mix-blend-multiply"
             />
           </div>
+          <Button
+            className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 text-foreground animate-in fade-in-10 duration-[2000ms]"
+            onClick={scrollToProfilePreview}
+            variant="link"
+          >
+            Scroll to Profile Example
+          </Button>
         </div>
 
-        <ProfilePreview />
+        <ProfileExample ref={profilePreviewRef} />
       </div>
       <Footer />
     </>
   );
 }
 
-function ProfilePreview() {
+function ProfileExample({
+  className,
+  ...props
+}: React.HTMLProps<HTMLDivElement>) {
   const profile = PgnProfileSnapshot as Profile;
 
   const [page, setPage] = React.useState(COLLECTION_LOG_TABS[0].pages[0].name);
 
   return (
-    <div className="flex flex-row items-stretch min-h-screen relative overflow-x-hidden">
+    <div
+      className={cn(
+        "flex flex-row items-stretch min-h-screen relative overflow-x-hidden",
+        className,
+      )}
+      {...props}
+    >
       <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto">
         <Character
           username={profile.username}
