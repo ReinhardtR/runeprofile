@@ -125,14 +125,14 @@ export function Skill({ name, level, xp, combatLevel }: SkillProps) {
           <>
             <Separator className="my-1" />
             <SkillTooltipRow
-              label="Xp to next level"
+              label="XP to next Level"
               value={numberWithDelimiter(getXPUntilNextLevel(xp))}
             />
             {virtualLevel >= MAX_SKILL_LEVEL && (
               <>
                 <Separator className="my-1" />
                 <SkillTooltipRow
-                  label="Virtual level"
+                  label="Virtual Level"
                   value={getVirtualLevelFromXP(xp)}
                 />
               </>
