@@ -31,7 +31,7 @@ to create a familiar user experience.
 
 The plugin is needed to upload your account data to RuneProfile, which will be displayed on the RuneProfile.com website.
 
-You can read more about how to use RuneProfile here: [runeprofile.com/info/guide](https://runeprofile.com).
+You can read more about how to use RuneProfile here: [runeprofile.com/info/guide](https://runeprofile.com/info/guide).
 
 ## Project Structure
 
