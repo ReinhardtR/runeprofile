@@ -88,6 +88,10 @@ const Model = React.memo(({ username }: { username: string }) => {
       return m;
     };
 
+    // Clear previous models
+    setPlayerObject(undefined);
+    setPetObject(undefined);
+
     getProfileModels({ username })
       .then((models) => {
         loadModelFromBase64(models.playerModelBase64).then((geometry) =>
@@ -105,6 +109,7 @@ const Model = React.memo(({ username }: { username: string }) => {
           "Error loading models - falling back to default model.",
           error,
         );
+
         loadModelFromBase64(defaultPlayerModel.base64).then((geometry) =>
           setPlayerObject(createMesh(geometry)),
         );

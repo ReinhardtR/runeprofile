@@ -1,4 +1,5 @@
-import { hc } from "hono/client";
+import { ClientResponse, hc } from "hono/client";
+import { z } from "zod";
 
 import type { Client } from "@runeprofile/api/client";
 import { HiscoreLeaderboardKey } from "@runeprofile/runescape";
@@ -7,16 +8,6 @@ import { HiscoreLeaderboardKey } from "@runeprofile/runescape";
 const api: Client = hc(import.meta.env.VITE_API_URL);
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;
-
-export class RuneProfileApiError extends Error {
-  code: string;
-
-  constructor(code: string, message: string) {
-    super(message);
-    this.name = "RuneProfileApiError";
-    this.code = code;
-  }
-}
 
 export async function getProfile(params: { username: string }) {
   const response = await api.profiles[":username"].$get({
@@ -58,9 +49,24 @@ export async function searchProfiles(params: { query: string }) {
   return await getResponseData(response);
 }
 
-async function getResponseData<TResponse extends Response>(
-  response: TResponse,
-) {
+export class RuneProfileApiError extends Error {
+  code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "RuneProfileApiError";
+    this.code = code;
+  }
+}
+
+const RuneProfileApiErrorSchema = z.object({
+  code: z.string(),
+  message: z.string(),
+});
+
+async function getResponseData<TData>(
+  response: ClientResponse<TData>,
+): Promise<TData> {
   const unexpectedError = new RuneProfileApiError(
     "UnexpectedError",
     "Something unexpected went wrong",
@@ -70,9 +76,11 @@ async function getResponseData<TResponse extends Response>(
     throw unexpectedError;
   });
 
-  if (response.ok) return data;
+  if (response.ok) return data as TData;
 
-  throw data.message
-    ? new RuneProfileApiError(data.code, data.message)
+  const parsedError = RuneProfileApiErrorSchema.safeParse(data);
+
+  throw parsedError.success
+    ? new RuneProfileApiError(parsedError.data.code, parsedError.data.message)
     : unexpectedError;
 }
