@@ -8,7 +8,7 @@ import {
 
 import { Database } from "~/db";
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
-import { getProfile } from "~/lib/get-profile";
+import { Profile, getProfileById } from "~/lib/get-profile";
 
 export type UpdateProfileInput = {
   id: string;
@@ -29,14 +29,16 @@ export type UpdateProfileInput = {
   skills: Record<string, number>;
 };
 
-type Profile = Awaited<ReturnType<typeof getProfile>>;
-
 export async function getProfileUpdates(
   db: Database,
   input: UpdateProfileInput,
-): Promise<UpdateProfileInput> {
+): Promise<
+  UpdateProfileInput & {
+    newAccount: boolean;
+  }
+> {
   try {
-    const profile = await getProfile(db, input.username);
+    const profile = await getProfileById(db, input.id);
     return {
       id: input.id,
       username: input.username,
@@ -52,18 +54,22 @@ export async function getProfileUpdates(
       items: getItemUpdates(input.items, profile.items),
       quests: getQuestUpdates(input.quests, profile.quests),
       skills: getSkillUpdates(input.skills, profile.skills),
+      newAccount: false,
     };
   } catch (error) {
     // No data to compare against
     if (error === RuneProfileAccountNotFoundError) {
-      return input;
+      return {
+        ...input,
+        newAccount: true,
+      };
     }
 
     throw error;
   }
 }
 
-function getAchievementDiaryTierUpdates(
+export function getAchievementDiaryTierUpdates(
   newData: UpdateProfileInput["achievementDiaryTiers"],
   oldData: Profile["achievementDiaryTiers"],
 ) {
@@ -95,7 +101,7 @@ function getAchievementDiaryTierUpdates(
   return updates;
 }
 
-function getCombatAchievementTierUpdates(
+export function getCombatAchievementTierUpdates(
   newData: UpdateProfileInput["combatAchievementTiers"],
   oldData: Profile["combatAchievementTiers"],
 ) {
@@ -118,7 +124,7 @@ function getCombatAchievementTierUpdates(
   return updates;
 }
 
-function getItemUpdates(
+export function getItemUpdates(
   newData: UpdateProfileInput["items"],
   oldData: Profile["items"],
 ) {
@@ -141,7 +147,7 @@ function getItemUpdates(
   return updates;
 }
 
-function getQuestUpdates(
+export function getQuestUpdates(
   newData: UpdateProfileInput["quests"],
   oldData: Profile["quests"],
 ) {
@@ -158,17 +164,13 @@ function getQuestUpdates(
       continue;
     }
 
-    console.log(
-      `Quest ${quest.name} (${quest.id}) updated from ${oldQuest?.state} to ${newState}`,
-    );
-
     updates[quest.id] = newState;
   }
 
   return updates;
 }
 
-function getSkillUpdates(
+export function getSkillUpdates(
   newData: UpdateProfileInput["skills"],
   oldData: Profile["skills"],
 ) {

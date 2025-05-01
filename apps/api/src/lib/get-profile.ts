@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { SQL, eq } from "drizzle-orm";
 
 import {
   ACHIEVEMENT_DIARIES,
@@ -14,9 +14,19 @@ import { Database, accounts } from "~/db";
 import { lower } from "~/db/helpers";
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
-export async function getProfile(db: Database, username: string) {
+export type Profile = Awaited<ReturnType<typeof getProfile>>;
+
+export async function getProfileByUsername(db: Database, username: string) {
+  return getProfile(db, eq(lower(accounts.username), username.toLowerCase()));
+}
+
+export function getProfileById(db: Database, id: string) {
+  return getProfile(db, eq(accounts.id, id));
+}
+
+async function getProfile(db: Database, condition: SQL) {
   const profile = await db.query.accounts.findFirst({
-    where: eq(lower(accounts.username), username.toLowerCase()),
+    where: condition,
     with: {
       achievementDiaryTiers: {
         columns: {

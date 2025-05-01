@@ -10,8 +10,7 @@ import {
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
 import { getCollectionLogPage } from "~/lib/get-collection-log-page";
-import { getProfile } from "~/lib/get-profile";
-import { getProfileUpdates } from "~/lib/get-profile-updates";
+import { getProfileByUsername } from "~/lib/get-profile";
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
 import { searchProfiles } from "~/lib/search-profiles";
 import { STATUS } from "~/lib/status";
@@ -35,7 +34,7 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.DB);
       const { username } = c.req.valid("param");
 
-      const profile = await getProfile(db, username);
+      const profile = await getProfileByUsername(db, username);
 
       return c.json(profile, STATUS.OK);
     },

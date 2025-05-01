@@ -18,16 +18,9 @@ import {
 export async function updateProfile(db: Database, input: UpdateProfileInput) {
   const updates = await getProfileUpdates(db, input);
 
-  console.log("Updating profile for: ", input.username);
-  console.log(updates);
+  const accountId = updates.id;
 
-  const accountId = input.id;
-
-  const existingAccount = await db.query.accounts.findFirst({
-    where: eq(accounts.id, accountId),
-  });
-
-  if (!existingAccount) {
+  if (updates.newAccount) {
     await db.insert(accounts).values({
       id: updates.id,
       username: updates.username,

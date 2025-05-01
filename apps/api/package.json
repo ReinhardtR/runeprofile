@@ -14,7 +14,7 @@
     "dev:setup": "pnpm run db:migrate && pnpm run db:seed",
     "build": "tsc -p tsconfig.build.json",
     "deploy": "wrangler deploy --minify",
-    "test": "vitest",
+    "test": "vitest --ui --watch",
     "db:generate": "drizzle-kit generate",
     "db:seed": "wrangler d1 execute runeprofile-db --file=seed.sql",
     "db:migrate": "wrangler d1 migrations apply runeprofile-db",
@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",
+    "@vitest/ui": "3.1.2",
     "drizzle-kit": "^0.30.5",
     "vitest": "^3.1.2",
     "wrangler": "^4.10.0"
