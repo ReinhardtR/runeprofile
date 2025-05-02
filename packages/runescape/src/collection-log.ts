@@ -52,7 +52,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           4747, 4755, 4740,
         ],
         hiscore: { "Barrows Chests": "Barrows Chests opended" },
-        aliases: ["barrows", "brothers"],
+        aliases: ["barrows"],
       },
       {
         name: "Bryophyta",
@@ -76,7 +76,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Chaos Elemental",
         items: [11995, 11920, 7158],
         hiscore: { "Chaos Elemental": "Chaos Elemental kills" },
-        aliases: ["chaos ele", "elemental"],
+        aliases: ["chaos ele"],
       },
       {
         name: "Chaos Fanatic",
@@ -171,19 +171,19 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Grotesque Guardians",
         items: [21748, 21730, 21736, 21739, 21742, 21745, 21726],
         hiscore: { "Grotesque Guardians": "Grotesque Guardians kills" },
-        aliases: ["dusk", "dawn", "gargs", "ggs", "gg", "guardians"],
+        aliases: ["dusk", "dawn", "gargs", "ggs", "gg"],
       },
       {
         name: "Hespori",
         items: [22994, 22883, 22885, 22881],
         hiscore: { Hespori: "Hespori kills" },
-        aliases: ["farming guild", "uim", "hesp"],
+        aliases: ["hesp"],
       },
       {
         name: "The Hueycoatl",
         items: [30152, 30070, 30066, 30068, 30085, 30088],
         hiscore: { "The Hueycoatl": "Hueycoatl kills" },
-        aliases: ["heuycoatl", "heuy"],
+        aliases: ["hueycoatl", "huey"],
       },
       {
         name: "The Inferno",
@@ -282,7 +282,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Royal Titans",
         items: [30622, 30626, 30627, 30637, 30628, 30631, 30640],
         hiscore: { "The Royal Titans": "Royal Titans kills" },
-        aliases: ["titans", "royal"],
+        aliases: ["titans"],
       },
       {
         name: "Sarachnis",
@@ -294,7 +294,6 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Scorpia",
         items: [13181, 11930, 11933],
         hiscore: { Scorpia: "Scorpia kills" },
-        aliases: ["scorpa", "scorp"],
       },
       {
         name: "Scurrius",
