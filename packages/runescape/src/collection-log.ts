@@ -52,13 +52,13 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           4747, 4755, 4740,
         ],
         hiscore: { "Barrows Chests": "Barrows Chests opended" },
-        aliases: ["barrows"],
+        aliases: ["barrows", "brothers"],
       },
       {
         name: "Bryophyta",
         items: [22372],
         hiscore: { Bryophyta: "Bryophyta kills" },
-        aliases: ["byro"],
+        aliases: ["bryo"],
       },
       {
         name: "Callisto and Artio",
@@ -76,12 +76,13 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Chaos Elemental",
         items: [11995, 11920, 7158],
         hiscore: { "Chaos Elemental": "Chaos Elemental kills" },
-        aliases: ["chaos ele"],
+        aliases: ["chaos ele", "elemental"],
       },
       {
         name: "Chaos Fanatic",
         items: [11995, 11928, 11931],
         hiscore: { "Chaos Fanatic": "Chaos Fanatic kills" },
+        aliases: ["fanatic"],
       },
       {
         name: "Commander Zilyana",
@@ -93,7 +94,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Corporeal Beast",
         items: [12816, 12819, 12823, 12827, 12833, 12829, 25521],
         hiscore: { "Corporeal Beast": "Corporeal Beast kills" },
-        aliases: ["corp"],
+        aliases: ["corp", "corp beast"],
       },
       {
         name: "Crazy Archaeologist",
@@ -136,7 +137,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Fortis Colosseum",
         items: [28960, 28947, 28936, 28939, 28933, 28942, 28919, 28924],
         hiscore: { "Sol Heredit": "Sol Heredit kills" },
-        aliases: ["colo", "sol"],
+        aliases: ["colo", "sol", "colosseum"],
       },
       {
         name: "The Gauntlet",
@@ -170,24 +171,25 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Grotesque Guardians",
         items: [21748, 21730, 21736, 21739, 21742, 21745, 21726],
         hiscore: { "Grotesque Guardians": "Grotesque Guardians kills" },
-        aliases: ["dusk", "dawn", "gargs", "ggs", "gg"],
+        aliases: ["dusk", "dawn", "gargs", "ggs", "gg", "guardians"],
       },
       {
         name: "Hespori",
         items: [22994, 22883, 22885, 22881],
         hiscore: { Hespori: "Hespori kills" },
-        aliases: ["farming guild", "uim"],
+        aliases: ["farming guild", "uim", "hesp"],
       },
       {
         name: "The Hueycoatl",
         items: [30152, 30070, 30066, 30068, 30085, 30088],
         hiscore: { "The Hueycoatl": "Hueycoatl kills" },
+        aliases: ["heuycoatl", "heuy"],
       },
       {
         name: "The Inferno",
         items: [21291, 21295],
         hiscore: { "TzKal-Zuk": "TzKal-Zuk kills" },
-        aliases: ["zuk", "inferno"],
+        aliases: ["zuk", "inferno", "tzkal-zuk"],
       },
       {
         name: "Kalphite Queen",
@@ -234,7 +236,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           29028, 28997, 28991,
         ],
         hiscore: { "Lunar Chests": "Lunar Chests opened" },
-        aliases: ["moons"],
+        aliases: ["moons", "blood moon", "lunar moon", "eclipse moon"],
       },
       {
         name: "Nex",
@@ -280,6 +282,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Royal Titans",
         items: [30622, 30626, 30627, 30637, 30628, 30631, 30640],
         hiscore: { "The Royal Titans": "Royal Titans kills" },
+        aliases: ["titans", "royal"],
       },
       {
         name: "Sarachnis",
@@ -291,7 +294,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Scorpia",
         items: [13181, 11930, 11933],
         hiscore: { Scorpia: "Scorpia kills" },
-        aliases: ["scorpa"],
+        aliases: ["scorpa", "scorp"],
       },
       {
         name: "Scurrius",
@@ -795,6 +798,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Mastering Mixology",
         items: [29974, 29978, 29982, 29986, 29992, 29996, 30002],
+        aliases: ["mixology", "mastering mix"],
       },
       {
         name: "Pest Control",
@@ -904,6 +908,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Colossal Wyrm Agility",
         items: [30040, 30042, 30045, 30051, 30054, 30057, 30060, 30048],
+        aliases: ["wyrm agility", "colossal agility"],
       },
       {
         name: "Creature Creation",
@@ -961,6 +966,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           "ape atoll",
           "backpack",
           "backpacks",
+          "ape atoll agility",
         ],
       },
       {
@@ -1043,6 +1049,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Tormented Demons",
         items: [29580, 29574, 29684],
+        aliases: ["td", "tds"],
       },
       {
         name: "TzHaar",
