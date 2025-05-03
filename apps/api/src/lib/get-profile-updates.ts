@@ -14,6 +14,12 @@ export type UpdateProfileInput = {
   id: string;
   username: string;
   accountType: number;
+  clan?: {
+    name: string;
+    rank: number;
+    icon: number;
+    title: string;
+  };
   achievementDiaryTiers: Array<{
     areaId: number;
     tierIndex: number;
@@ -43,6 +49,7 @@ export async function getProfileUpdates(
       id: input.id,
       username: input.username,
       accountType: input.accountType,
+      clan: input.clan,
       achievementDiaryTiers: getAchievementDiaryTierUpdates(
         input.achievementDiaryTiers,
         profile.achievementDiaryTiers,

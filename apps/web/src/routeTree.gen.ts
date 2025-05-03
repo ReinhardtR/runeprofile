@@ -15,6 +15,7 @@ import { Route as UsernameImport } from './routes/$username'
 import { Route as IndexImport } from './routes/index'
 import { Route as InfoGuideImport } from './routes/info/guide'
 import { Route as InfoAliasImport } from './routes/info/alias'
+import { Route as ClanNameImport } from './routes/clan/$name'
 
 // Create/Update Routes
 
@@ -42,6 +43,12 @@ const InfoAliasRoute = InfoAliasImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ClanNameRoute = ClanNameImport.update({
+  id: '/clan/$name',
+  path: '/clan/$name',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -58,6 +65,13 @@ declare module '@tanstack/react-router' {
       path: '/$username'
       fullPath: '/$username'
       preLoaderRoute: typeof UsernameImport
+      parentRoute: typeof rootRoute
+    }
+    '/clan/$name': {
+      id: '/clan/$name'
+      path: '/clan/$name'
+      fullPath: '/clan/$name'
+      preLoaderRoute: typeof ClanNameImport
       parentRoute: typeof rootRoute
     }
     '/info/alias': {
@@ -82,6 +96,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/clan/$name': typeof ClanNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/guide': typeof InfoGuideRoute
 }
@@ -89,6 +104,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/clan/$name': typeof ClanNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/guide': typeof InfoGuideRoute
 }
@@ -97,22 +113,30 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/clan/$name': typeof ClanNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/guide': typeof InfoGuideRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$username' | '/info/alias' | '/info/guide'
+  fullPaths: '/' | '/$username' | '/clan/$name' | '/info/alias' | '/info/guide'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$username' | '/info/alias' | '/info/guide'
-  id: '__root__' | '/' | '/$username' | '/info/alias' | '/info/guide'
+  to: '/' | '/$username' | '/clan/$name' | '/info/alias' | '/info/guide'
+  id:
+    | '__root__'
+    | '/'
+    | '/$username'
+    | '/clan/$name'
+    | '/info/alias'
+    | '/info/guide'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRoute: typeof UsernameRoute
+  ClanNameRoute: typeof ClanNameRoute
   InfoAliasRoute: typeof InfoAliasRoute
   InfoGuideRoute: typeof InfoGuideRoute
 }
@@ -120,6 +144,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRoute: UsernameRoute,
+  ClanNameRoute: ClanNameRoute,
   InfoAliasRoute: InfoAliasRoute,
   InfoGuideRoute: InfoGuideRoute,
 }
@@ -136,6 +161,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/$username",
+        "/clan/$name",
         "/info/alias",
         "/info/guide"
       ]
@@ -145,6 +171,9 @@ export const routeTree = rootRoute
     },
     "/$username": {
       "filePath": "$username.tsx"
+    },
+    "/clan/$name": {
+      "filePath": "clan/$name.tsx"
     },
     "/info/alias": {
       "filePath": "info/alias.tsx"

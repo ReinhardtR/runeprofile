@@ -77,6 +77,10 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
       .set({
         username: updates.username,
         accountType: updates.accountType,
+        clanName: updates.clan?.name,
+        clanRank: updates.clan?.rank,
+        clanIcon: updates.clan?.icon,
+        clanTitle: updates.clan?.title,
       })
       .where(eq(accounts.id, accountId)),
     ...autochunk({ items: achievementDiaryTiersValues }, (chunk) =>

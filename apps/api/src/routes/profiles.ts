@@ -68,6 +68,14 @@ export const profilesRouter = newRouter()
         id: accountIdSchema,
         username: usernameSchema,
         accountType: z.number(),
+        clan: z
+          .object({
+            name: z.string(),
+            rank: z.number(),
+            icon: z.number(),
+            title: z.string(),
+          })
+          .optional(),
         achievementDiaryTiers: z.array(
           z.object({
             areaId: z.number(),

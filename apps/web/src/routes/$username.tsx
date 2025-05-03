@@ -98,6 +98,7 @@ function RouteComponent() {
           <Character
             username={profile.username}
             accountType={profile.accountType}
+            clan={profile.clan}
             createdAt={new Date(profile.createdAt)}
             updatedAt={new Date(profile.updatedAt)}
           />

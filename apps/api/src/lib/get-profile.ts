@@ -131,9 +131,25 @@ async function getProfile(db: Database, condition: SQL) {
     };
   });
 
+  const isClanFilled =
+    !!profile.clanName &&
+    profile.clanRank !== null &&
+    profile.clanIcon !== null &&
+    !!profile.clanTitle;
+
+  const clan = isClanFilled
+    ? {
+        name: profile.clanName!,
+        rank: profile.clanRank!,
+        icon: profile.clanIcon!,
+        title: profile.clanTitle!,
+      }
+    : null;
+
   return {
     username: profile.username,
     accountType,
+    clan,
     skills,
     quests,
     items,

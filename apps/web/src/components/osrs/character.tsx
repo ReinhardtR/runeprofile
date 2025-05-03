@@ -1,4 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
+import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import React from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
@@ -9,8 +10,14 @@ import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 import { AccountType } from "@runeprofile/runescape";
 
 import AccountTypeIcons from "~/assets/account-type-icons.json";
+import ClanRankIcons from "~/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/assets/default-player-model.json";
-import { getProfileModels } from "~/lib/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import { Profile, getProfileModels } from "~/lib/api";
 import { base64ImgSrc } from "~/lib/utils";
 
 import { Card } from "./card";
@@ -18,6 +25,7 @@ import { Card } from "./card";
 type PlayerDisplayProps = {
   username: string;
   accountType: AccountType;
+  clan: Profile["clan"];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -25,6 +33,7 @@ type PlayerDisplayProps = {
 export function Character({
   username,
   accountType,
+  clan,
   createdAt,
   updatedAt,
 }: PlayerDisplayProps) {
@@ -36,18 +45,47 @@ export function Character({
       {/* Name and Combat Level banner */}
       <div className="absolute inset-x-0 z-20 mx-auto flex flex-wrap items-center justify-center space-x-4 p-3 font-runescape text-2xl font-bold leading-none solid-text-shadow">
         <div className="flex items-center space-x-2">
-          {accountTypeIcon && (
+          {!!accountTypeIcon && (
             <img
               src={base64ImgSrc(accountTypeIcon)}
               alt={accountType.name}
-              width={20}
-              height={20}
+              width={18}
+              height={18}
               className="drop-shadow-solid text-xs"
             />
           )}
-          <span className="text-xl text-osrs-white">{username}</span>
+          <p className="text-xl text-osrs-white">{username}</p>
         </div>
       </div>
+
+      {!!clan && (
+        <div className="absolute bottom-4 inset-x-0 z-20 flex flex-row items-center justify-end px-6 gap-x-2 font-runescape font-bold">
+          <Tooltip>
+            <TooltipTrigger>
+              <img
+                src={base64ImgSrc(
+                  ClanRankIcons[
+                    String(clan.icon) as keyof typeof ClanRankIcons
+                  ],
+                )}
+                width={16}
+                height={16}
+                className="drop-shadow-solid-sm"
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{clan.title}</p>
+            </TooltipContent>
+          </Tooltip>
+          <Link
+            to="/clan/$name"
+            params={{ name: clan.name }}
+            className="text-md text-osrs-orange solid-text-shadow"
+          >
+            {clan.name}
+          </Link>
+        </div>
+      )}
 
       {/* Model */}
       <div className="h-full p-[1px]">
