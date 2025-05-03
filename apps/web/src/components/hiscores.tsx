@@ -47,24 +47,30 @@ export function Hiscores({
 
   const skills = hiscoresQuery.data.skills;
 
-  const activities = hiscoresQuery.data.activities.filter(
-    (activity) => activity.score > 0 && !activity.name.includes("legacy"),
-  );
+  const showActivityFilter = (
+    activity: (typeof hiscoresQuery.data.activities)[number],
+  ) => {
+    return activity.score > 0 && !activity.name.includes("legacy");
+  };
+
+  const activities = hiscoresQuery.data.activities;
 
   const bossesStartIndex = activities.findIndex(
     (a) => a.name === "Abyssal Sire",
   );
-  const bosses = activities.slice(bossesStartIndex, activities.length);
+  const bosses = activities
+    .slice(bossesStartIndex, activities.length)
+    .filter(showActivityFilter);
 
   const nonBossActivities = activities.slice(0, bossesStartIndex);
 
-  const clues = nonBossActivities.filter((activity) =>
-    activity.name.startsWith("Clue Scrolls"),
-  );
+  const clues = nonBossActivities
+    .filter((activity) => activity.name.startsWith("Clue Scrolls"))
+    .filter(showActivityFilter);
 
-  const misc = nonBossActivities.filter(
-    (activity) => !activity.name.startsWith("Clue Scrolls"),
-  );
+  const misc = nonBossActivities
+    .filter((activity) => !activity.name.startsWith("Clue Scrolls"))
+    .filter(showActivityFilter);
 
   const iconSize = "size-[22px]";
 
