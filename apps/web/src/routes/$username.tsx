@@ -74,10 +74,15 @@ export const Route = createFileRoute("/$username")({
       }),
     );
 
-    return context.queryClient.prefetchQuery(
-      profileQueryOptions(params.username),
-    );
+    return context.queryClient.fetchQuery(profileQueryOptions(params.username));
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: `${loaderData.username} | RuneProfile`,
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {

@@ -31,8 +31,15 @@ export const Route = createFileRoute("/clan/$name")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
   loader: async ({ params, context }) => {
-    return context.queryClient.prefetchQuery(clanQueryOptions(params));
+    return context.queryClient.fetchQuery(clanQueryOptions(params));
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: `${loaderData.name} | RuneProfile`,
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {
