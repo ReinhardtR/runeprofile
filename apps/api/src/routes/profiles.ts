@@ -161,6 +161,7 @@ export const profilesRouter = newRouter()
   .get(
     "/models/:username",
     validator("param", z.object({ username: usernameSchema })),
+    cache({ cacheName: "profile-model", cacheControl: "max-age=60" }),
     async (c) => {
       const { username } = c.req.valid("param");
 
