@@ -49,7 +49,7 @@ export const profilesRouter = newRouter()
         page: z.string(),
       }),
     ),
-    cache({ cacheName: "clog-page", cacheControl: "max-age=60" }),
+    cache({ cacheName: "clog-page", cacheControl: "max-age=10" }),
     async (c) => {
       const db = drizzle(c.env.DB);
       const { username, page } = c.req.valid("param");

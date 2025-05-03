@@ -14,7 +14,6 @@ import ClanRankIcons from "~/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/assets/default-player-model.json";
 import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
-import { PlayerModel } from "~/components/osrs/character";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
@@ -44,7 +43,7 @@ function RouteComponent() {
   return (
     <>
       <Header />
-      <div className="container max-w-3xl mx-auto py-8 px-4 relative">
+      <div className="container max-w-3xl mx-auto py-8 px-4 relative min-h-screen">
         <div className="flex flex-row">
           <h1 className="text-4xl font-bold text-secondary-foreground flex-1">
             {clan.name}
@@ -66,9 +65,9 @@ function RouteComponent() {
                 to="/$username"
                 params={{ username: member.username }}
                 key={member.username}
-                className="pt-8 overflow-hidden flex flex-row relative transform transition-transform hover:scale-105"
+                className="pt-8 overflow-hidden flex flex-row relative group"
               >
-                <div className="bg-card border rounded-md p-4 flex flex-row items-center gap-x-2 flex-1">
+                <div className="bg-card border rounded-md p-4 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
                   <img
                     src={base64ImgSrc(
                       ClanRankIcons[
