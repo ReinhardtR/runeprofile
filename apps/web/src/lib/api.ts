@@ -18,10 +18,16 @@ export async function getProfile(params: { username: string }) {
   return await getResponseData(response);
 }
 
-export async function getProfileModels(params: { username: string }) {
+export async function getProfileModels(params: {
+  username: string;
+  includePet: boolean;
+}) {
   const response = await api.profiles.models[":username"].$get({
     param: {
       username: params.username,
+    },
+    query: {
+      pet: String(params.includePet),
     },
   });
   return await getResponseData(response);
@@ -44,6 +50,15 @@ export async function searchProfiles(params: { query: string }) {
   const response = await api.profiles.$get({
     query: {
       q: params.query,
+    },
+  });
+  return await getResponseData(response);
+}
+
+export async function getClanMembers(params: { name: string }) {
+  const response = await api.clans[":name"].$get({
+    param: {
+      name: params.name,
     },
   });
   return await getResponseData(response);

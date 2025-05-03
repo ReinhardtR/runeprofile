@@ -4,8 +4,6 @@ import { useRef, useState } from "react";
 import React from "react";
 import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
 import { CanvasTexture } from "three";
-// @ts-expect-error
-import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 import { AccountType } from "@runeprofile/runescape";
 
@@ -18,7 +16,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile, getProfileModels } from "~/lib/api";
-import { base64ImgSrc } from "~/lib/utils";
+import { base64ImgSrc, loadModelFromBase64 } from "~/lib/utils";
 
 import { Card } from "./card";
 
@@ -28,6 +26,7 @@ type PlayerDisplayProps = {
   clan: Profile["clan"];
   createdAt: Date;
   updatedAt: Date;
+  showPet?: boolean;
 };
 
 export function Character({
@@ -97,7 +96,7 @@ export function Character({
 
 export function PlayerModel({ username }: { username: string }) {
   return (
-    <Canvas shadows>
+    <Canvas>
       <ambientLight intensity={3.8} />
       <Model username={username} />
     </Canvas>
@@ -130,7 +129,7 @@ const Model = React.memo(({ username }: { username: string }) => {
     setPlayerObject(undefined);
     setPetObject(undefined);
 
-    getProfileModels({ username })
+    getProfileModels({ username, includePet: true })
       .then((models) => {
         loadModelFromBase64(models.playerModelBase64).then((geometry) =>
           setPlayerObject(createMesh(geometry)),
@@ -234,33 +233,4 @@ function createRadialTexture() {
   const texture = new CanvasTexture(canvas);
   texture.needsUpdate = true;
   return texture;
-}
-
-function loadModelFromBase64(base64: string): Promise<BufferGeometry> {
-  const loader = new PLYLoader();
-
-  const tryLoad = (base64: string) => {
-    const arrayBuffer = base64ToArrayBuffer(base64);
-    return loader.parse(arrayBuffer);
-  };
-
-  return new Promise((resolve, reject) => {
-    try {
-      const geometry = tryLoad(base64);
-      resolve(geometry);
-    } catch (error) {
-      console.error("Error loading model:", error);
-      reject(error);
-    }
-  });
-}
-
-function base64ToArrayBuffer(base64: string) {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
 }

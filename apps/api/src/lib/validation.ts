@@ -7,6 +7,7 @@ import { AccountTypes, COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 export const accountIdSchema = z.string().trim().length(28);
 
 export const usernameSchema = z.string().trim().min(1).max(12);
+export const clanNameSchema = z.string().trim().min(1).max(12);
 
 export const accountTypeSchema = z.string().transform((val, ctx) => {
   const accountTypeId = Object.values(AccountTypes).find(

@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  index,
   integer,
   primaryKey,
   sqliteTable,
@@ -23,7 +24,15 @@ export const accounts = sqliteTable(
     updatedAt,
     createdAt,
   },
-  (table) => [uniqueIndex("username_unique_index").on(lower(table.username))],
+  (table) => [
+    uniqueIndex("username_unique_index").on(lower(table.username)),
+    index("clan_name_index").on(lower(table.clanName)),
+    index("clan_members_sorted_index").on(
+      lower(table.clanName),
+      table.clanRank,
+      lower(table.username),
+    ),
+  ],
 );
 export const accountsRelations = relations(accounts, ({ many }) => ({
   achievementDiaryTiers: many(achievementDiaryTiers),

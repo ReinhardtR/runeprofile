@@ -161,13 +161,17 @@ export const profilesRouter = newRouter()
   .get(
     "/models/:username",
     validator("param", z.object({ username: usernameSchema })),
+    validator("query", z.object({ pet: z.coerce.boolean() })),
     cache({ cacheName: "profile-model", cacheControl: "max-age=60" }),
     async (c) => {
       const { username } = c.req.valid("param");
+      const { pet: includePet } = c.req.valid("query");
 
       const [playerFile, petFile] = await Promise.all([
         c.env.BUCKET.get(username),
-        c.env.BUCKET.get(`${username}-pet`),
+        includePet
+          ? c.env.BUCKET.get(`${username}-pet`)
+          : Promise.resolve(null),
       ]);
 
       if (!playerFile) {
