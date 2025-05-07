@@ -1,5 +1,9 @@
 import { Canvas } from "@react-three/fiber";
-import { debounce } from "@tanstack/react-pacer";
+import {
+  debounce,
+  useDebouncedState,
+  useDebouncedValue,
+} from "@tanstack/react-pacer";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ErrorComponentProps,
@@ -79,30 +83,33 @@ function RouteComponent() {
     }),
   );
 
+  const [query, setQuery] = React.useState(search.q || "");
+  const [debouncedQuery] = useDebouncedValue(query, { wait: 300 });
+
   const previousPage = clan.page ? clan.page - 1 : undefined;
   const nextPage = (clan.page ?? 1) + 1;
   const pageCount = Math.ceil(clan.total / clan.pageSize);
   const isFirstPage = clan.page === 1;
   const isLastPage = clan.page === pageCount;
 
-  const handleSearch = debounce(
-    (input: string) => {
-      if (input.length > 0) {
-        navigate({
-          to: "/clan/$name",
-          params: { name: params.name },
-          search: { q: input, page: 1 },
-        });
-      } else {
-        navigate({
-          to: "/clan/$name",
-          params: { name: params.name },
-          search: { page: 1 },
-        });
-      }
-    },
-    { wait: 300 },
-  );
+  const showPagination = pageCount > 1 || search.page !== undefined;
+  const showSearch = pageCount > 1 || !!query;
+
+  React.useEffect(() => {
+    console.log("debouncedQuery", debouncedQuery);
+    if (debouncedQuery.length > 0) {
+      navigate({
+        to: "/clan/$name",
+        params: { name: params.name },
+        search: { q: debouncedQuery },
+      });
+    } else {
+      navigate({
+        to: "/clan/$name",
+        params: { name: params.name },
+      });
+    }
+  }, [debouncedQuery]);
 
   return (
     <>
@@ -116,7 +123,8 @@ function RouteComponent() {
             <Input
               placeholder={`Search ${clan.total} ${clan.total !== 1 ? "members" : "member"}...`}
               className="flex-1 max-w-[300px] ml-auto"
-              onChange={(e) => handleSearch(e.target.value)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
           )}
         </div>
