@@ -55,10 +55,18 @@ export async function searchProfiles(params: { query: string }) {
   return await getResponseData(response);
 }
 
-export async function getClanMembers(params: { name: string }) {
+export async function getClanMembers(params: {
+  name: string;
+  page?: number;
+  query?: string;
+}) {
   const response = await api.clans[":name"].$get({
     param: {
       name: params.name,
+    },
+    query: {
+      page: String(params.page),
+      query: params.query,
     },
   });
   return await getResponseData(response);

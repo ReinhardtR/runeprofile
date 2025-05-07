@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { debounce } from "@tanstack/react-pacer";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ErrorComponentProps,
@@ -6,32 +7,55 @@ import {
   createFileRoute,
   useNavigate,
 } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-adapter";
 import React from "react";
 import { BufferGeometry, Mesh, MeshStandardMaterial } from "three";
+import { z } from "zod";
 
 import AccountTypeIcons from "~/assets/account-type-icons.json";
 import ClanRankIcons from "~/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/assets/default-player-model.json";
 import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "~/components/ui/pagination";
 import { Separator } from "~/components/ui/separator";
 import { getClanMembers, getProfileModels } from "~/lib/api";
 import { base64ImgSrc, loadModelFromBase64 } from "~/lib/utils";
 
-function clanQueryOptions(params: { name: string }) {
+function clanQueryOptions(params: Parameters<typeof getClanMembers>[0]) {
   return {
     queryKey: ["clan", params],
     queryFn: () => getClanMembers(params),
   };
 }
 
+const clanSearchSchema = z.object({
+  page: z.coerce.number().gt(0).optional().catch(undefined),
+  q: z.string().optional().catch(undefined),
+});
+
 export const Route = createFileRoute("/clan/$name")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
-  loader: async ({ params, context }) => {
-    return context.queryClient.fetchQuery(clanQueryOptions(params));
+  validateSearch: zodValidator(clanSearchSchema),
+  loaderDeps: ({ search: { page, q } }) => ({ page, q }),
+  loader: ({ params, context, deps }) => {
+    return context.queryClient.fetchQuery(
+      clanQueryOptions({
+        name: params.name,
+        page: deps.page,
+        query: deps.q,
+      }),
+    );
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -44,20 +68,49 @@ export const Route = createFileRoute("/clan/$name")({
 
 function RouteComponent() {
   const params = Route.useParams();
+  const navigate = Route.useNavigate();
 
   const { data: clan } = useSuspenseQuery(clanQueryOptions(params));
+
+  const previousPage = clan.page ? clan.page - 1 : undefined;
+  const nextPage = (clan.page ?? 1) + 1;
+  const pageCount = Math.ceil(clan.total / clan.pageSize);
+  const isFirstPage = clan.page === 1;
+  const isLastPage = clan.page === pageCount;
+
+  const handleSearch = debounce(
+    (input: string) => {
+      if (input.length > 0) {
+        navigate({
+          to: "/clan/$name",
+          params: { name: params.name },
+          search: { q: input, page: 1 },
+        });
+      } else {
+        navigate({
+          to: "/clan/$name",
+          params: { name: params.name },
+        });
+      }
+    },
+    { wait: 300 },
+  );
 
   return (
     <>
       <Header />
-      <div className="container max-w-3xl mx-auto py-8 px-4 relative min-h-screen">
-        <div className="flex flex-row">
-          <h1 className="text-4xl font-bold text-secondary-foreground flex-1">
+      <div className="container max-w-3xl mx-auto py-8 px-4 relative min-h-screen flex flex-col">
+        <div className="flex flex-row items-end gap-x-8">
+          <h1 className="text-4xl font-bold text-secondary-foreground">
             {clan.name}
           </h1>
-          <Badge variant="outline" className="text-muted-foreground">
-            {clan.members.length} members
-          </Badge>
+          {pageCount > 1 && (
+            <Input
+              placeholder={`Search ${clan.total} ${clan.total !== 1 ? "members" : "member"}...`}
+              className="flex-1 max-w-[300px] ml-auto"
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          )}
         </div>
         <Separator className="my-4" />
         <div>
@@ -105,11 +158,54 @@ function RouteComponent() {
             );
           })}
         </div>
+
+        {pageCount > 1 && (
+          <Pagination className="justify-end mt-6">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  to="/clan/$name"
+                  params={{ name: params.name }}
+                  search={{ page: previousPage }}
+                  disabled={isFirstPage}
+                />
+              </PaginationItem>
+
+              {[...Array(pageCount)].map((_, i) => {
+                const page = i + 1;
+                return (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      to="/clan/$name"
+                      params={{ name: params.name }}
+                      search={{ page }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+
+              <PaginationItem>
+                <PaginationNext
+                  to="/clan/$name"
+                  params={{ name: params.name }}
+                  search={{ page: nextPage }}
+                  disabled={isLastPage}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
       <Footer />
     </>
   );
 }
+
+const material = new MeshStandardMaterial({
+  vertexColors: true,
+});
 
 const PlayerModelHead = React.memo(({ username }: { username: string }) => {
   const [playerObject, setPlayerObject] =
@@ -118,9 +214,6 @@ const PlayerModelHead = React.memo(({ username }: { username: string }) => {
   React.useEffect(() => {
     const createMesh = (geometry: BufferGeometry) => {
       geometry.computeVertexNormals();
-      const material = new MeshStandardMaterial({
-        vertexColors: true,
-      });
       const m = new Mesh(geometry, material);
       m.rotateX(-1.45);
       m.rotateZ(-0.4);

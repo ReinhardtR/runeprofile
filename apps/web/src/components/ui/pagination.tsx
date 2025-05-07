@@ -1,3 +1,4 @@
+import { LinkComponent, createLink } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
@@ -39,7 +40,7 @@ type PaginationLinkProps = {
 } & Pick<ButtonProps, "size"> &
   React.ComponentProps<"a">;
 
-const PaginationLink = ({
+const BasicPaginationLink = ({
   className,
   isActive,
   size = "icon",
@@ -57,12 +58,14 @@ const PaginationLink = ({
     {...props}
   />
 );
-PaginationLink.displayName = "PaginationLink";
+BasicPaginationLink.displayName = "PaginationLink";
 
-const PaginationPrevious = ({
+const PaginationLink = createLink(BasicPaginationLink);
+
+const PaginationPrevious: LinkComponent<typeof PaginationLink> = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}) => (
   <PaginationLink
     aria-label="Go to previous page"
     size="default"
@@ -73,12 +76,11 @@ const PaginationPrevious = ({
     <span>Previous</span>
   </PaginationLink>
 );
-PaginationPrevious.displayName = "PaginationPrevious";
 
-const PaginationNext = ({
+const PaginationNext: LinkComponent<typeof PaginationLink> = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}) => (
   <PaginationLink
     aria-label="Go to next page"
     size="default"
@@ -89,7 +91,6 @@ const PaginationNext = ({
     <ChevronRight className="h-4 w-4" />
   </PaginationLink>
 );
-PaginationNext.displayName = "PaginationNext";
 
 const PaginationEllipsis = ({
   className,

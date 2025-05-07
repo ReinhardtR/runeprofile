@@ -65,7 +65,6 @@ export const Route = createFileRoute("/$username")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
   validateSearch: zodValidator(profileSearchSchema),
-  loaderDeps: ({ search: { page } }) => ({ page }),
   loader: async ({ params, context }) => {
     context.queryClient.prefetchQuery(
       hiscoresQueryOptions({
