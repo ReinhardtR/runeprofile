@@ -119,9 +119,9 @@ function RouteComponent() {
           <h1 className="text-4xl font-bold text-secondary-foreground">
             {clan.name}
           </h1>
-          {true && (
+          {showSearch && (
             <Input
-              placeholder={`Search ${clan.total} ${clan.total !== 1 ? "members" : "member"}...`}
+              placeholder={`Search ${clan.memberCount} ${clan.memberCount !== 1 ? "members" : "member"}...`}
               className="flex-1 max-w-[300px] ml-auto"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -175,7 +175,7 @@ function RouteComponent() {
           })}
         </div>
 
-        {pageCount > 1 && (
+        {showPagination && (
           <Pagination className="justify-end mt-6">
             <PaginationContent>
               <PaginationItem>
@@ -192,6 +192,7 @@ function RouteComponent() {
                 return (
                   <PaginationItem key={page}>
                     <PaginationLink
+                      isActive={page === clan.page}
                       to="/clan/$name"
                       params={{ name: params.name }}
                       search={{ page }}

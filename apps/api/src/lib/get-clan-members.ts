@@ -21,13 +21,13 @@ export async function getClanMembersWithPagination(
   const pageSize = pagination?.pageSize || defaultPageSize;
   const offset = (page - 1) * pageSize;
 
-  const clanFilter = eq(lower(accounts.clanName), clanName.toLowerCase());
-  const condition = !!pagination?.query
-    ? and(clanFilter, like(lower(accounts.username), `${pagination.query}%`))
-    : clanFilter;
+  const clanCondition = eq(lower(accounts.clanName), clanName.toLowerCase());
+  const filteredCondition = !!pagination?.query
+    ? and(clanCondition, like(lower(accounts.username), `${pagination.query}%`))
+    : clanCondition;
 
-  const membersQuery = db.query.accounts.findMany({
-    where: condition,
+  const filteredMembersQuery = db.query.accounts.findMany({
+    where: filteredCondition,
     columns: {
       accountType: true,
       username: true,
@@ -44,19 +44,28 @@ export async function getClanMembersWithPagination(
     offset,
   });
 
+  const totalFilteredMembersQuery = db
+    .select({
+      count: count(accounts.username),
+    })
+    .from(accounts)
+    .where(filteredCondition);
+
   const totalMembersQuery = db
     .select({
       count: count(accounts.username),
     })
     .from(accounts)
-    .where(condition);
+    .where(clanCondition);
 
-  const [members, totalMembers] = await Promise.all([
-    membersQuery,
-    totalMembersQuery,
-  ]);
+  const [filteredMembers, totalFilteredMembers, totalMembers] =
+    await Promise.all([
+      filteredMembersQuery,
+      totalFilteredMembersQuery,
+      totalMembersQuery,
+    ]);
 
-  const formattedMembers = members
+  const formattedMembers = filteredMembers
     .filter(
       (member) =>
         !!member.clanName &&
@@ -86,5 +95,6 @@ export async function getClanMembersWithPagination(
     pageSize,
     total: totalMembers[0]?.count || 0,
     members: formattedMembers,
+    memberCount: totalFilteredMembers[0]?.count || 0,
   };
 }
