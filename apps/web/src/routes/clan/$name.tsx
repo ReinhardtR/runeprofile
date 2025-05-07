@@ -90,6 +90,7 @@ function RouteComponent() {
         navigate({
           to: "/clan/$name",
           params: { name: params.name },
+          search: { page: 1 },
         });
       }
     },
@@ -151,9 +152,9 @@ function RouteComponent() {
                     {member.username}
                   </span>
                 </div>
-                <div className="absolute right-4 -top-4 w-24 flex flex-row items-center">
+                {/* <div className="absolute right-4 -top-4 w-24 flex flex-row items-center">
                   <PlayerModelHead username={member.username} />
-                </div>
+                </div> */}
               </Link>
             );
           })}
