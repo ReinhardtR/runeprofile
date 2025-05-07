@@ -68,9 +68,16 @@ export const Route = createFileRoute("/clan/$name")({
 
 function RouteComponent() {
   const params = Route.useParams();
+  const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data: clan } = useSuspenseQuery(clanQueryOptions(params));
+  const { data: clan } = useSuspenseQuery(
+    clanQueryOptions({
+      name: params.name,
+      page: search.page,
+      query: search.q,
+    }),
+  );
 
   const previousPage = clan.page ? clan.page - 1 : undefined;
   const nextPage = (clan.page ?? 1) + 1;
@@ -105,7 +112,7 @@ function RouteComponent() {
           <h1 className="text-4xl font-bold text-secondary-foreground">
             {clan.name}
           </h1>
-          {pageCount > 1 && (
+          {true && (
             <Input
               placeholder={`Search ${clan.total} ${clan.total !== 1 ? "members" : "member"}...`}
               className="flex-1 max-w-[300px] ml-auto"
