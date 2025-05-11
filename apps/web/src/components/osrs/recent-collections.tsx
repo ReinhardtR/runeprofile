@@ -8,6 +8,11 @@ import {
 import ITEM_ICONS from "~/assets/item-icons.json";
 import QuestionMarkImage from "~/assets/misc/question-mark.png";
 import { Card } from "~/components/osrs/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
 import { base64ImgSrc, cn } from "~/lib/utils";
 
@@ -31,7 +36,7 @@ export function RecentCollections({
       <p className="font-runescape text-osrs-orange text-lg absolute -top-4 text-center inset-x-0 font-bold solid-text-shadow">
         Latest Collections
       </p>
-      {events.map((event) => {
+      {events.map((event, idx) => {
         const itemIcon =
           ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
         const iconSrc = itemIcon ? base64ImgSrc(itemIcon) : QuestionMarkImage;
@@ -39,13 +44,20 @@ export function RecentCollections({
         const itemName = COLLECTION_LOG_ITEMS[event.data.itemId] ?? "Unknown";
 
         return (
-          <img
-            src={iconSrc}
-            alt={itemName}
-            className={cn(
-              "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain mx-auto",
-            )}
-          />
+          <Tooltip key={idx}>
+            <TooltipTrigger>
+              <img
+                src={iconSrc}
+                alt={itemName}
+                className={cn(
+                  "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain mx-auto",
+                )}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-semibold text-sm">{itemName}</p>
+            </TooltipContent>
+          </Tooltip>
         );
       })}
       {events.length === 0 && (

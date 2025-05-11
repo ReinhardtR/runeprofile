@@ -28,6 +28,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
 import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 
@@ -306,32 +311,39 @@ function CollectionLogItem({
   const iconSrc = itemIcon ? base64ImgSrc(itemIcon) : QuestionMarkImage;
 
   return (
-    <div
-      className={cn(
-        "relative flex flex-row items-center justify-center",
-        className,
-      )}
-    >
-      {quantity > 1 && (
-        <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow">
-          {quantity}
-        </p>
-      )}
-      <a
-        href={`https://oldschool.runescape.wiki/w/${wikiUrlName}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        <img
-          src={iconSrc}
-          alt={name}
+    <Tooltip>
+      <TooltipTrigger>
+        <div
           className={cn(
-            "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
-            !quantity && "opacity-30",
+            "relative flex flex-row items-center justify-center",
+            className,
           )}
-        />
-      </a>
-    </div>
+        >
+          {quantity > 1 && (
+            <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow">
+              {quantity}
+            </p>
+          )}
+          <a
+            href={`https://oldschool.runescape.wiki/w/${wikiUrlName}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              src={iconSrc}
+              alt={name}
+              className={cn(
+                "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
+                !quantity && "opacity-30",
+              )}
+            />
+          </a>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="font-semibold text-sm">{name}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
