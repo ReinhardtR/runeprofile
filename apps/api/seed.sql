@@ -1,4 +1,4 @@
-INSERT INTO accounts VALUES('testing-account-id-123456789','test123',1,0,'2025-04-12 23:48:12','2025-04-12 23:48:12');
+INSERT INTO accounts VALUES('testing-account-id-123456789','test123',1,0,'My Clan',10,230,'Clan Leader','2025-04-12 23:48:12','2025-04-12 23:48:12');
 INSERT INTO achievement_diary_tiers VALUES('testing-account-id-123456789',1,0,10);
 INSERT INTO achievement_diary_tiers VALUES('testing-account-id-123456789',1,1,12);
 INSERT INTO achievement_diary_tiers VALUES('testing-account-id-123456789',1,2,12);

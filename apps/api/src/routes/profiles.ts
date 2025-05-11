@@ -3,18 +3,18 @@ import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "~/db";
+import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
   RuneProfileFailedToDeleteFileError,
   RuneProfileFailedToUploadFileError,
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
-import { getCollectionLogPage } from "~/lib/get-collection-log-page";
-import { getProfileByUsername } from "~/lib/get-profile";
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
-import { searchProfiles } from "~/lib/search-profiles";
+import { getProfileByUsername } from "~/lib/profiles/get-profile";
+import { searchProfiles } from "~/lib/profiles/search-profiles";
+import { updateProfile } from "~/lib/profiles/update-profile";
 import { STATUS } from "~/lib/status";
-import { updateProfile } from "~/lib/update-profile";
 import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
 
 export const profilesRouter = newRouter()

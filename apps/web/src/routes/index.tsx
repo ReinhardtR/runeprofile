@@ -15,17 +15,11 @@ import HeroImage from "~/assets/misc/hero-image.png";
 import RuneLiteLogo from "~/assets/misc/runelite-logo.png";
 import PgnProfileSnapshot from "~/assets/pgn-profile-snapshot.json";
 import { Footer } from "~/components/footer";
-import { AchievementDiaries } from "~/components/osrs/achievement-diaries";
-import { Character } from "~/components/osrs/character";
-import { CollectionLog } from "~/components/osrs/collection-log";
-import { CombatAchievements } from "~/components/osrs/combat-achievements";
-import { QuestList } from "~/components/osrs/quest-list";
-import { Skills } from "~/components/osrs/skills";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
-import { SidePanel } from "~/routes/$username";
+import { ProfileContent, SidePanel } from "~/routes/$username";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -133,25 +127,7 @@ function ProfileExample({
       )}
       {...props}
     >
-      <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto">
-        <Character
-          username={profile.username}
-          accountType={profile.accountType}
-          createdAt={new Date(profile.createdAt)}
-          updatedAt={new Date(profile.updatedAt)}
-        />
-        <Skills data={profile.skills} />
-        <AchievementDiaries data={profile.achievementDiaryTiers} />
-        <QuestList data={profile.quests} />
-        <CombatAchievements data={profile.combatAchievementTiers} />
-        <CollectionLog
-          username={profile.username}
-          page={page}
-          onPageChange={setPage}
-          data={profile.items}
-        />
-      </div>
-
+      <ProfileContent profile={profile} page={page} onPageChange={setPage} />
       <SidePanel username={profile.username} />
     </div>
   );

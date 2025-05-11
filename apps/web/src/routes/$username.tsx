@@ -22,12 +22,11 @@ import Logo from "~/assets/misc/logo.png";
 import { Footer } from "~/components/footer";
 import { Hiscores, hiscoresQueryOptions } from "~/components/hiscores";
 import { DiscordIcon } from "~/components/icons";
-import { AchievementDiaries } from "~/components/osrs/achievement-diaries";
 import { Character } from "~/components/osrs/character";
 import { CollectionLog } from "~/components/osrs/collection-log";
-import { CombatAchievements } from "~/components/osrs/combat-achievements";
-import { QuestList } from "~/components/osrs/quest-list";
-import { Skills } from "~/components/osrs/skills";
+import { DataTabsCard } from "~/components/osrs/data-tabs/tabs-card";
+import { RecentActivities } from "~/components/osrs/recent-activities";
+import { RecentCollections } from "~/components/osrs/recent-collections";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button, ButtonProps } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -37,7 +36,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { RuneProfileApiError, getProfile } from "~/lib/api";
+import { Profile, RuneProfileApiError, getProfile } from "~/lib/api";
 import { DISCORD_INVITE_INK } from "~/lib/constants";
 import { cn } from "~/lib/utils";
 
@@ -98,32 +97,59 @@ function RouteComponent() {
   return (
     <>
       <div className="flex flex-row items-stretch min-h-screen overflow-x-hidden relative">
-        <div className="flex flex-row flex-wrap gap-4 px-6 py-12 items-center justify-center max-w-[1280px] mx-auto flex-1">
-          <Character
-            username={profile.username}
-            accountType={profile.accountType}
-            clan={profile.clan}
-            createdAt={new Date(profile.createdAt)}
-            updatedAt={new Date(profile.updatedAt)}
-          />
-          <Skills data={profile.skills} />
-          <AchievementDiaries data={profile.achievementDiaryTiers} />
-          <QuestList data={profile.quests} />
-          <CombatAchievements data={profile.combatAchievementTiers} />
-          <CollectionLog
-            username={profile.username}
-            page={page}
-            onPageChange={(newPage) =>
-              navigate({ search: { page: newPage }, resetScroll: false })
-            }
-            data={profile.items}
-          />
-        </div>
+        <ProfileContent
+          profile={profile}
+          page={page}
+          onPageChange={(newPage) =>
+            navigate({ search: { page: newPage }, resetScroll: false })
+          }
+        />
 
         <SidePanel username={profile.username} />
       </div>
       <Footer />
     </>
+  );
+}
+
+export function ProfileContent({
+  profile,
+  page,
+  onPageChange,
+}: {
+  profile: Profile;
+  page: string;
+  onPageChange: (page: string) => void;
+}) {
+  return (
+    <div className="flex flex-col justify-center items-center w-full gap-8 xl:gap-4 xl:flex-row max-h-full py-16">
+      <div className="flex flex-row flex-wrap justify-center xl:flex-nowrap xl:flex-col gap-4">
+        <Character
+          username={profile.username}
+          accountType={profile.accountType}
+          clan={profile.clan}
+          createdAt={new Date(profile.createdAt)}
+          updatedAt={new Date(profile.updatedAt)}
+        />
+        <DataTabsCard
+          skills={profile.skills}
+          quests={profile.quests}
+          achievementDiaries={profile.achievementDiaryTiers}
+          combatAchievements={profile.combatAchievementTiers}
+        />
+      </div>
+
+      <div className="flex flex-row items-center justify-center flex-wrap xl:flex-nowrap xl:flex-col gap-6 lg:w-[680px]">
+        <CollectionLog
+          username={profile.username}
+          page={page}
+          onPageChange={onPageChange}
+          data={profile.items}
+        />
+        <RecentCollections events={profile.recentItems} />
+        <RecentActivities events={profile.recentActivities} />
+      </div>
+    </div>
   );
 }
 

@@ -4,16 +4,18 @@ import {
   Database,
   accounts,
   achievementDiaryTiers,
+  activities,
   combatAchievementTiers,
   items,
   quests,
   skills,
 } from "~/db";
 import { autochunk, buildConflictUpdateColumns } from "~/db/helpers";
+import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import {
   UpdateProfileInput,
   getProfileUpdates,
-} from "~/lib/get-profile-updates";
+} from "~/lib/profiles/get-profile-updates";
 
 export async function updateProfile(db: Database, input: UpdateProfileInput) {
   const updates = await getProfileUpdates(db, input);
@@ -33,43 +35,47 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
   > = updates.achievementDiaryTiers.map((diary) => ({
     accountId,
     areaId: diary.areaId,
-    tier: diary.tierIndex,
+    tier: diary.tier,
     completedCount: diary.completedCount,
   }));
 
-  const combatAchievementTiersValues: Array<
-    InferInsertModel<typeof combatAchievementTiers>
-  > = Object.entries(updates.combatAchievementTiers).map(
-    ([id, completedCount]) => ({
+  const combatAchievementTiersValues = updates.combatAchievementTiers.map(
+    (tier) => ({
       accountId,
-      id: Number(id),
-      completedCount,
+      id: tier.id,
+      completedCount: tier.completedCount,
     }),
   );
 
-  const itemsValues: Array<InferInsertModel<typeof items>> = Object.entries(
-    updates.items,
-  ).map(([id, quantity]) => ({
-    accountId,
-    id: Number(id),
-    quantity,
-  }));
+  const itemsValues: Array<InferInsertModel<typeof items>> = updates.items.map(
+    (item) => ({
+      accountId,
+      id: item.id,
+      quantity: item.quantity,
+    }),
+  );
 
-  const questsValues: Array<InferInsertModel<typeof quests>> = Object.entries(
-    updates.quests,
-  ).map(([id, state]) => ({
-    accountId,
-    id: Number(id),
-    state,
-  }));
+  const questsValues: Array<InferInsertModel<typeof quests>> =
+    updates.quests.map((quest) => ({
+      accountId,
+      id: quest.id,
+      state: quest.state,
+    }));
 
-  const skillsValues: Array<InferInsertModel<typeof skills>> = Object.entries(
-    updates.skills,
-  ).map(([name, xp]) => ({
-    accountId,
-    name,
-    xp,
-  }));
+  const skillsValues: Array<InferInsertModel<typeof skills>> =
+    updates.skills.map((skill) => ({
+      accountId,
+      name: skill.name,
+      xp: skill.xp,
+    }));
+
+  const activityEvents = checkActivityEvents(updates);
+  const activitiesValues: Array<InferInsertModel<typeof activities>> =
+    activityEvents.map((activity) => ({
+      accountId,
+      type: activity.type,
+      data: activity.data,
+    }));
 
   await Promise.all([
     db
@@ -135,6 +141,9 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
           target: [skills.accountId, skills.name],
           set: buildConflictUpdateColumns(skills, ["xp"]),
         }),
+    ),
+    ...autochunk({ items: activitiesValues }, (chunk) =>
+      db.insert(activities).values(chunk),
     ),
   ]);
 }

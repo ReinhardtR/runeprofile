@@ -1,18 +1,14 @@
-import { profile } from "console";
-
 import {
   MAX_SKILL_LEVEL,
   MAX_TOTAL_LEVEL,
   SKILLS,
-  getCombatLevel,
   getCombatLevelFromSkills,
   getLevelFromXP,
   getVirtualLevelFromXP,
   getXPUntilNextLevel,
 } from "@runeprofile/runescape";
 
-import SkillsIcon from "~/assets/icons/skills.png";
-import { Card } from "~/components/osrs/card";
+import SkillIcons from "~/assets/skills-icons.json";
 import { Separator } from "~/components/ui/separator";
 import {
   Tooltip,
@@ -21,7 +17,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { cn, numberWithDelimiter } from "~/lib/utils";
+import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 
 const OVERALL_NAME = "Overall";
 
@@ -49,25 +45,23 @@ export function Skills({ data }: { data: Profile["skills"] }) {
 
   return (
     <TooltipProvider delayDuration={100} skipDelayDuration={0}>
-      <Card icon={SkillsIcon} className="shrink-0">
-        <div className="grid-rows-8 mt-2 grid grid-cols-3 p-1 gap-y-[1px]">
-          {skills.map((skill) => (
-            <Skill
-              key={skill.name}
-              name={skill.name}
-              level={skill.level}
-              xp={skill.xp}
-            />
-          ))}
+      <div className="grid-rows-8 mt-2 grid grid-cols-3 p-1 gap-y-[1px]">
+        {skills.map((skill) => (
           <Skill
-            key={OVERALL_NAME}
-            name={OVERALL_NAME}
-            level={overallLevel}
-            xp={overallXP}
-            combatLevel={combatLevel}
+            key={skill.name}
+            name={skill.name}
+            level={skill.level}
+            xp={skill.xp}
           />
-        </div>
-      </Card>
+        ))}
+        <Skill
+          key={OVERALL_NAME}
+          name={OVERALL_NAME}
+          level={overallLevel}
+          xp={overallXP}
+          combatLevel={combatLevel}
+        />
+      </div>
     </TooltipProvider>
   );
 }
@@ -79,21 +73,19 @@ type SkillProps = {
   combatLevel?: number;
 };
 
-export function Skill({ name, level, xp, combatLevel }: SkillProps) {
+function Skill({ name, level, xp, combatLevel }: SkillProps) {
   const isOverall = name == OVERALL_NAME;
   const virtualLevel = getVirtualLevelFromXP(xp);
+
+  const skillIcon = SkillIcons[name.toLowerCase() as keyof typeof SkillIcons];
+
   return (
     <Tooltip key={name}>
       <TooltipTrigger asChild>
         <div className="runescape-stats-tile flex items-center justify-between px-3">
           {!isOverall && (
             <img
-              src={
-                new URL(
-                  `../../assets/skills/${name.toLowerCase()}.png`,
-                  import.meta.url,
-                ).href
-              }
+              src={base64ImgSrc(skillIcon)}
               alt={name}
               className="flex-1 object-contain drop-shadow"
               width={24}

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { drizzle } from "~/db";
-import { getClanMembersWithPagination } from "~/lib/get-clan-members";
+import { getClanMembersWithPagination } from "~/lib/clan/get-clan-members";
 import { newRouter } from "~/lib/helpers";
 import { clanNameSchema, validator } from "~/lib/validation";
 

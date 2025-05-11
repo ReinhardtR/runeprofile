@@ -23,3 +23,22 @@ export const ACHIEVEMENT_DIARIES = [
 export const ACHIEVEMENT_DIARY_TIER_NAMES = ["Easy", "Medium", "Hard", "Elite"];
 export type AchievementDiaryTierName =
   (typeof ACHIEVEMENT_DIARY_TIER_NAMES)[number];
+
+export function getAchievementDiaryById(id: number) {
+  return ACHIEVEMENT_DIARIES.find((diary) => diary.id === id);
+}
+
+export function getAchievementDiaryTierTaskCount(
+  areaId: number,
+  tierIndex: number,
+): number | undefined {
+  return getAchievementDiaryById(areaId)?.tiers[tierIndex];
+}
+
+export function getAchievementDiaryAreaName(areaId: number) {
+  return getAchievementDiaryById(areaId)?.name;
+}
+
+export function getAchievementDiaryTierName(tierIndex: number) {
+  return ACHIEVEMENT_DIARY_TIER_NAMES[tierIndex];
+}

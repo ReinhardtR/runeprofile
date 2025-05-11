@@ -8,6 +8,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
+import { ActivityEvent } from "@runeprofile/runescape";
+
 import { createdAt, lower, updatedAt } from "~/db/helpers";
 
 export const accounts = sqliteTable(
@@ -25,9 +27,9 @@ export const accounts = sqliteTable(
     createdAt,
   },
   (table) => [
-    uniqueIndex("username_unique_index").on(lower(table.username)),
-    index("clan_name_index").on(lower(table.clanName)),
-    index("clan_members_sorted_index").on(
+    uniqueIndex("accounts_username_unique_index").on(lower(table.username)),
+    index("accounts_clan_name_index").on(lower(table.clanName)),
+    index("accounts_clan_members_sorted_index").on(
       lower(table.clanName),
       table.clanRank,
       lower(table.username),
@@ -40,6 +42,7 @@ export const accountsRelations = relations(accounts, ({ many }) => ({
   items: many(items),
   quests: many(quests),
   skills: many(skills),
+  activities: many(activities),
 }));
 
 const account = () => accounts.id;
@@ -54,6 +57,7 @@ export const achievementDiaryTiers = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.accountId, table.areaId, table.tier] }),
+    index("achievement_diary_tiers_account_id_index").on(table.accountId),
   ],
 );
 export const achievementDiariesRelations = relations(
@@ -73,7 +77,10 @@ export const combatAchievementTiers = sqliteTable(
     id: integer().notNull(),
     completedCount: integer().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.accountId, table.id] })],
+  (table) => [
+    primaryKey({ columns: [table.accountId, table.id] }),
+    index("combat_achievement_tiers_account_id_index").on(table.accountId),
+  ],
 );
 export const combatAchievementTiersRelations = relations(
   combatAchievementTiers,
@@ -93,7 +100,10 @@ export const items = sqliteTable(
     quantity: integer().notNull(),
     createdAt,
   },
-  (table) => [primaryKey({ columns: [table.accountId, table.id] })],
+  (table) => [
+    primaryKey({ columns: [table.accountId, table.id] }),
+    index("items_account_id_index").on(table.accountId),
+  ],
 );
 export const itemsRelations = relations(items, ({ one }) => ({
   account: one(accounts, {
@@ -109,7 +119,10 @@ export const quests = sqliteTable(
     id: integer().notNull(),
     state: integer().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.accountId, table.id] })],
+  (table) => [
+    primaryKey({ columns: [table.accountId, table.id] }),
+    index("quests_account_id_index").on(table.accountId),
+  ],
 );
 export const questsRelations = relations(quests, ({ one }) => ({
   account: one(accounts, {
@@ -125,11 +138,46 @@ export const skills = sqliteTable(
     name: text().notNull(),
     xp: integer().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.accountId, table.name] })],
+  (table) => [
+    primaryKey({ columns: [table.accountId, table.name] }),
+    index("skills_account_id_index").on(table.accountId),
+  ],
 );
 export const skillsRelations = relations(skills, ({ one }) => ({
   account: one(accounts, {
     fields: [skills.accountId],
+    references: [accounts.id],
+  }),
+}));
+
+export const activities = sqliteTable(
+  "activities",
+  {
+    id: text()
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    accountId: text().notNull().references(account),
+    type: text().notNull().$type<ActivityEvent["type"]>(),
+    data: text({ mode: "json" }).notNull().$type<ActivityEvent["data"]>(),
+    createdAt,
+  },
+  (table) => [
+    index("activities_account_id_index").on(table.accountId),
+    index("activities_account_id_created_at_index").on(
+      table.accountId,
+      table.createdAt,
+    ),
+    index("activities_account_id_type_created_at_index").on(
+      table.accountId,
+      table.type,
+      table.createdAt,
+    ),
+  ],
+);
+export const activitiesRelations = relations(activities, ({ one }) => ({
+  account: one(accounts, {
+    fields: [activities.accountId],
     references: [accounts.id],
   }),
 }));

@@ -104,7 +104,7 @@ export function CollectionLog({
   }, [hiscoresQuery.data, currentPage.hiscore]);
 
   return (
-    <Card icon={CollectionLogIcon} className="md:w-[640px]">
+    <Card icon={CollectionLogIcon} className="lg:w-full lg:h-[480px]">
       <div
         className={cn(
           "absolute inset-x-0 -top-[14px] left-[140px] mx-auto w-24 font-runescape text-lg font-bold solid-text-shadow",
@@ -119,7 +119,7 @@ export function CollectionLog({
       </div>
 
       {/* desktop */}
-      <div className="hidden md:flex h-full w-full flex-col px-0.5 pt-0.5 font-runescape text-osrs-orange">
+      <div className="hidden lg:flex h-full w-full flex-col px-0.5 pt-0.5 font-runescape text-osrs-orange">
         <ToggleGroup.Root
           type="single"
           defaultValue={currentTab.name}
@@ -136,7 +136,7 @@ export function CollectionLog({
               key={t.name}
               value={t.name}
               className={cn(
-                "box-border max-w-[25%] flex-1 truncate rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-center text-xl outline-0 solid-text-shadow cursor-pointer hover:bg-osrs-tab-selected/10",
+                "box-border max-w-[25%] flex-1 truncate rounded-t-md border-x border-b-0 border-t-2 border-osrs-border bg-osrs-tab px-2 text-center text-[20px] outline-0 solid-text-shadow cursor-pointer hover:bg-osrs-tab-selected/10",
                 currentTab.name === t.name && "bg-osrs-tab-selected",
               )}
             >
@@ -174,7 +174,7 @@ export function CollectionLog({
                         key={page.name}
                         value={page.name.toLowerCase()}
                         className={cn(
-                          "px-1 text-start text-xl solid-text-shadow hover:bg-white/20 cursor-pointer",
+                          "px-1 text-start text-[20px] solid-text-shadow hover:bg-white/20 cursor-pointer",
                           {
                             "text-osrs-green": isCompleted,
                             "text-osrs-red": isNothingObtained,
@@ -195,7 +195,7 @@ export function CollectionLog({
             <div className="flex-1">
               <div className="flex h-full flex-col">
                 <div className="relative w-full border-2 border-osrs-border p-1">
-                  <p className="text-[22px] font-bold leading-none solid-text-shadow">
+                  <p className="text-2xl font-bold leading-none solid-text-shadow">
                     {currentPage.name}
                   </p>
                   <CollectionLogPageKillCounts killCounts={killCounts} />
@@ -207,7 +207,7 @@ export function CollectionLog({
                 <RuneScapeScrollArea
                   key={currentPage.name} // update on page change
                   className="h-[100px] sm:h-full"
-                  contentClassName="flex flex-wrap content-start gap-1 p-1"
+                  contentClassName="grid grid-cols-6 justify-items-center items-start content-start p-1"
                 >
                   {currentPage.items.map((id) => {
                     const item = items.find((i) => i.id === id);
@@ -228,7 +228,7 @@ export function CollectionLog({
       </div>
 
       {/* mobile */}
-      <div className="flex md:hidden flex-col font-runescape text-osrs-orange px-1.5 pt-2 pb-1 h-full">
+      <div className="flex lg:hidden flex-col font-runescape text-osrs-orange px-1.5 pt-2 pb-1 h-full">
         <Popover open={isPageSelectOpen} onOpenChange={setIsPageSelectOpen}>
           <PopoverTrigger className="runescape-corners-border font-bold bg-white/5 flex flex-row items-center justify-center text-lg">
             <span className="truncate">{currentPage.name}</span>
@@ -270,7 +270,7 @@ export function CollectionLog({
         <RuneScapeScrollArea
           key={currentPage.name} // update on page change
           className="border-2 border-osrs-dark-border border-t-1"
-          contentClassName="flex flex-wrap gap-4 p-1 pr-2 pl-3"
+          contentClassName="grid grid-cols-3"
         >
           {currentPage.items.map((id) => {
             const item = items.find((i) => i.id === id);
@@ -306,9 +306,14 @@ function CollectionLogItem({
   const iconSrc = itemIcon ? base64ImgSrc(itemIcon) : QuestionMarkImage;
 
   return (
-    <div className={cn("relative w-[50px] h-[44px]", className)}>
+    <div
+      className={cn(
+        "relative flex flex-row items-center justify-center",
+        className,
+      )}
+    >
       {quantity > 1 && (
-        <p className="absolute top-[-5px] z-20 text-osrs-yellow solid-text-shadow">
+        <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow">
           {quantity}
         </p>
       )}
@@ -321,7 +326,7 @@ function CollectionLogItem({
           src={iconSrc}
           alt={name}
           className={cn(
-            "z-10 drop-shadow-2xl brightness-[0.85] size-[50px] object-scale-down scale-[1.35]",
+            "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
             !quantity && "opacity-30",
           )}
         />
@@ -335,7 +340,7 @@ function CollectionLogPageObtainedCount(props: {
   totalCount: number;
 }) {
   return (
-    <p className="text-lg leading-none solid-text-shadow">
+    <p className="text-xl leading-none solid-text-shadow">
       Obtained:{" "}
       <span
         className={cn({
@@ -354,7 +359,7 @@ function CollectionLogPageKillCounts(props: {
   killCounts: { label: string; count: number }[];
 }) {
   return props.killCounts.map((kc) => (
-    <p key={kc.label} className="text-lg leading-none solid-text-shadow">
+    <p key={kc.label} className="text-xl leading-none solid-text-shadow">
       {kc.label}:{" "}
       <span className={cn(kc.count < 0 ? "text-osrs-gray" : "text-osrs-white")}>
         {kc.count < 0 ? "?" : numberWithDelimiter(kc.count)}

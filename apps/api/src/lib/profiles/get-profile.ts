@@ -1,16 +1,18 @@
-import { SQL, eq } from "drizzle-orm";
+import { SQL, and, desc, eq, not } from "drizzle-orm";
 
 import {
   ACHIEVEMENT_DIARIES,
   ACHIEVEMENT_DIARY_TIER_NAMES,
   AccountTypes,
+  ActivityEvent,
+  ActivityEventType,
   COLLECTION_LOG_ITEMS,
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
   SKILLS,
 } from "@runeprofile/runescape";
 
-import { Database, accounts } from "~/db";
+import { Database, accounts, activities } from "~/db";
 import { lower } from "~/db/helpers";
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
@@ -67,6 +69,35 @@ async function getProfile(db: Database, condition: SQL) {
     throw RuneProfileAccountNotFoundError;
   }
 
+  const [recentItems, recentActivities] = await Promise.all([
+    db.query.activities.findMany({
+      where: (table) =>
+        and(
+          eq(table.accountId, profile.id),
+          eq(table.type, "new_item_obtained"),
+        ),
+      orderBy: (table) => [desc(table.createdAt)],
+      limit: 12,
+      columns: {
+        type: true,
+        data: true,
+      },
+    }),
+    db.query.activities.findMany({
+      where: (table) =>
+        and(
+          eq(table.accountId, profile.id),
+          not(eq(table.type, "new_item_obtained")),
+        ),
+      orderBy: (table) => [desc(table.createdAt)],
+      limit: 12,
+      columns: {
+        type: true,
+        data: true,
+      },
+    }),
+  ]);
+
   const accountType =
     AccountTypes.find((type) => type.id === profile.accountType) ||
     AccountTypes[0];
@@ -117,7 +148,7 @@ async function getProfile(db: Database, condition: SQL) {
       id: profileQuest.id,
       name: quest?.name || "Unknown",
       state: profileQuest.state,
-      type: quest?.type || "Unknown",
+      type: quest?.type || -1,
     };
   });
 
@@ -150,11 +181,26 @@ async function getProfile(db: Database, condition: SQL) {
     username: profile.username,
     accountType,
     clan,
+
+    recentItems: recentItems as Array<
+      Extract<
+        ActivityEvent,
+        { type: typeof ActivityEventType.NEW_ITEM_OBTAINED }
+      >
+    >,
+    recentActivities: recentActivities as Array<
+      Exclude<
+        ActivityEvent,
+        { type: typeof ActivityEventType.NEW_ITEM_OBTAINED }
+      >
+    >,
+
     skills,
     quests,
     items,
     achievementDiaryTiers,
     combatAchievementTiers,
+
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
   };

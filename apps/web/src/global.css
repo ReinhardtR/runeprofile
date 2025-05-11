@@ -167,7 +167,7 @@
 }
 
 .runescape-stats-tile {
-  background-image: url("~/assets/skills/tile.png");
+  background-image: url("~/assets/skill-tile.png");
   background-repeat: no-repeat;
   background-size: cover;
 
@@ -193,14 +193,11 @@
 .runescape-corners-border {
   border-style: solid;
   border-width: 12px 12px 12px 12px;
-  -moz-border-image: url("~/assets/combat-achievements/border.png") 9 9 9 9
-    round round;
-  -webkit-border-image: url("/assets/combat-achievements/border.png") 9 9 9 9
-    round round;
-  -o-border-image: url("~/assets/combat-achievements/border.png") 9 9 9 9 round
+  -moz-border-image: url("~/assets/osrs-border-corners.png") 9 9 9 9 round round;
+  -webkit-border-image: url("~/assets/osrs-border-corners.png") 9 9 9 9 round
     round;
-  border-image: url("~/assets/combat-achievements/border.png") 9 9 9 9 round
-    round;
+  -o-border-image: url("~/assets/osrs-border-corners.png") 9 9 9 9 round round;
+  border-image: url("~/assets/osrs-border-corners.png") 9 9 9 9 round round;
 }
 
 .runescape-scroll-track {

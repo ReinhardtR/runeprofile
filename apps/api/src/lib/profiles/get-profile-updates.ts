@@ -7,8 +7,7 @@ import {
 } from "@runeprofile/runescape";
 
 import { Database } from "~/db";
-import { RuneProfileAccountNotFoundError } from "~/lib/errors";
-import { Profile, getProfileById } from "~/lib/get-profile";
+import { Profile, getProfileById } from "~/lib/profiles/get-profile";
 
 export type UpdateProfileInput = {
   id: string;
@@ -35,52 +34,79 @@ export type UpdateProfileInput = {
   skills: Record<string, number>;
 };
 
+export type ProfileUpdates = {
+  id: string;
+  newAccount: boolean;
+  username: string;
+  accountType: number;
+  clan?: {
+    name: string;
+    rank: number;
+    icon: number;
+    title: string;
+  };
+  achievementDiaryTiers: Array<{
+    areaId: number;
+    tier: number;
+    completedCount: number;
+    oldCompletedCount: number;
+  }>;
+  combatAchievementTiers: Array<{
+    id: number;
+    completedCount: number;
+    oldCompletedCount: number;
+  }>;
+  items: Array<{
+    id: number;
+    quantity: number;
+    oldQuantity: number;
+  }>;
+  quests: Array<{
+    id: number;
+    state: number;
+    oldState: number;
+  }>;
+  skills: Array<{
+    name: string;
+    xp: number;
+    oldXp: number;
+  }>;
+};
+
 export async function getProfileUpdates(
   db: Database,
   input: UpdateProfileInput,
-): Promise<
-  UpdateProfileInput & {
-    newAccount: boolean;
-  }
-> {
+): Promise<ProfileUpdates> {
+  let profile: Profile | null = null;
   try {
-    const profile = await getProfileById(db, input.id);
-    return {
-      id: input.id,
-      username: input.username,
-      accountType: input.accountType,
-      clan: input.clan,
-      achievementDiaryTiers: getAchievementDiaryTierUpdates(
-        input.achievementDiaryTiers,
-        profile.achievementDiaryTiers,
-      ),
-      combatAchievementTiers: getCombatAchievementTierUpdates(
-        input.combatAchievementTiers,
-        profile.combatAchievementTiers,
-      ),
-      items: getItemUpdates(input.items, profile.items),
-      quests: getQuestUpdates(input.quests, profile.quests),
-      skills: getSkillUpdates(input.skills, profile.skills),
-      newAccount: false,
-    };
-  } catch (error) {
-    // No data to compare against
-    if (error === RuneProfileAccountNotFoundError) {
-      return {
-        ...input,
-        newAccount: true,
-      };
-    }
+    profile = await getProfileById(db, input.id);
+  } catch {}
 
-    throw error;
-  }
+  return {
+    id: input.id,
+    username: input.username,
+    accountType: input.accountType,
+    clan: input.clan,
+    achievementDiaryTiers: getAchievementDiaryTierUpdates(
+      input.achievementDiaryTiers,
+      profile?.achievementDiaryTiers || [],
+    ),
+    combatAchievementTiers: getCombatAchievementTierUpdates(
+      input.combatAchievementTiers,
+      profile?.combatAchievementTiers || [],
+    ),
+    items: getItemUpdates(input.items, profile?.items || []),
+    quests: getQuestUpdates(input.quests, profile?.quests || []),
+    skills: getSkillUpdates(input.skills, profile?.skills || []),
+    newAccount: !profile,
+  };
 }
 
 export function getAchievementDiaryTierUpdates(
   newData: UpdateProfileInput["achievementDiaryTiers"],
   oldData: Profile["achievementDiaryTiers"],
-) {
-  const updates: UpdateProfileInput["achievementDiaryTiers"] = [];
+): ProfileUpdates["achievementDiaryTiers"] {
+  const updates: ProfileUpdates["achievementDiaryTiers"] = [];
 
   for (const diary of ACHIEVEMENT_DIARIES) {
     for (const [tierIndex] of diary.tiers.entries()) {
@@ -99,8 +125,9 @@ export function getAchievementDiaryTierUpdates(
 
       updates.push({
         areaId: diary.id,
-        tierIndex: tierIndex,
+        tier: tierIndex,
         completedCount: newTier.completedCount,
+        oldCompletedCount: oldTier?.completedCount || 0,
       });
     }
   }
@@ -111,8 +138,8 @@ export function getAchievementDiaryTierUpdates(
 export function getCombatAchievementTierUpdates(
   newData: UpdateProfileInput["combatAchievementTiers"],
   oldData: Profile["combatAchievementTiers"],
-) {
-  const updates: UpdateProfileInput["combatAchievementTiers"] = {};
+): ProfileUpdates["combatAchievementTiers"] {
+  const updates: ProfileUpdates["combatAchievementTiers"] = [];
 
   for (const tier of COMBAT_ACHIEVEMENT_TIERS) {
     const newCompletedCount = newData[tier.id];
@@ -125,7 +152,11 @@ export function getCombatAchievementTierUpdates(
       continue;
     }
 
-    updates[tier.id] = newCompletedCount;
+    updates.push({
+      id: tier.id,
+      completedCount: newCompletedCount,
+      oldCompletedCount: oldTier?.completedCount || 0,
+    });
   }
 
   return updates;
@@ -134,8 +165,8 @@ export function getCombatAchievementTierUpdates(
 export function getItemUpdates(
   newData: UpdateProfileInput["items"],
   oldData: Profile["items"],
-) {
-  const updates: UpdateProfileInput["items"] = {};
+): ProfileUpdates["items"] {
+  const updates: ProfileUpdates["items"] = [];
 
   for (const itemId of COLLECTION_LOG_ITEM_IDS) {
     const newQuantity = newData[itemId];
@@ -148,7 +179,11 @@ export function getItemUpdates(
       continue;
     }
 
-    updates[itemId] = newQuantity;
+    updates.push({
+      id: itemId,
+      quantity: newQuantity,
+      oldQuantity: oldItem?.quantity || 0,
+    });
   }
 
   return updates;
@@ -157,8 +192,8 @@ export function getItemUpdates(
 export function getQuestUpdates(
   newData: UpdateProfileInput["quests"],
   oldData: Profile["quests"],
-) {
-  const updates: UpdateProfileInput["quests"] = {};
+): ProfileUpdates["quests"] {
+  const updates: ProfileUpdates["quests"] = [];
 
   for (const quest of QUESTS) {
     const newState = newData[quest.id];
@@ -171,7 +206,11 @@ export function getQuestUpdates(
       continue;
     }
 
-    updates[quest.id] = newState;
+    updates.push({
+      id: quest.id,
+      state: newState,
+      oldState: oldQuest?.state || 0,
+    });
   }
 
   return updates;
@@ -180,8 +219,8 @@ export function getQuestUpdates(
 export function getSkillUpdates(
   newData: UpdateProfileInput["skills"],
   oldData: Profile["skills"],
-) {
-  const updates: UpdateProfileInput["skills"] = {};
+): ProfileUpdates["skills"] {
+  const updates: ProfileUpdates["skills"] = [];
 
   for (const skillName of SKILLS) {
     const newXp = newData[skillName];
@@ -194,7 +233,11 @@ export function getSkillUpdates(
       continue;
     }
 
-    updates[skillName] = newXp;
+    updates.push({
+      name: skillName,
+      xp: newXp,
+      oldXp: oldSkill?.xp || 0,
+    });
   }
 
   return updates;

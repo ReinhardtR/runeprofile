@@ -1,12 +1,14 @@
 import { describe, expect, test } from "vitest";
 
+import { QuestType } from "@runeprofile/runescape";
+
 import {
   getAchievementDiaryTierUpdates,
   getCombatAchievementTierUpdates,
   getItemUpdates,
   getQuestUpdates,
   getSkillUpdates,
-} from "~/lib/get-profile-updates";
+} from "~/lib/profiles/get-profile-updates";
 
 describe("ACHIEVEMENT DIARY TIERS", () => {
   test("no changes", () => {
@@ -77,8 +79,9 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
     ).toEqual([
       {
         areaId: 1,
-        tierIndex: 1,
+        tier: 1,
         completedCount: 2,
+        oldCompletedCount: 1,
       },
     ]);
   });
@@ -113,8 +116,9 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
     ).toEqual([
       {
         areaId: 2,
-        tierIndex: 2,
+        tier: 2,
         completedCount: 1,
+        oldCompletedCount: 0,
       },
     ]);
   });
@@ -245,11 +249,11 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
       getCombatAchievementTierUpdates({ 1: 1 }, [
         { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getCombatAchievementTierUpdates({ 1: 0 }, [])).toEqual({});
+    expect(getCombatAchievementTierUpdates({ 1: 0 }, [])).toEqual([]);
   });
 
   test("progress", () => {
@@ -258,7 +262,13 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
         { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
         { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
       ]),
-    ).toEqual({ 2: 2 });
+    ).toEqual([
+      {
+        id: 2,
+        completedCount: 2,
+        oldCompletedCount: 1,
+      },
+    ]);
   });
 
   test("new tier", () => {
@@ -267,7 +277,13 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
         { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
         { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
       ]),
-    ).toEqual({ 3: 1 });
+    ).toEqual([
+      {
+        id: 3,
+        completedCount: 1,
+        oldCompletedCount: 0,
+      },
+    ]);
   });
 
   test("unknown tier", () => {
@@ -276,7 +292,7 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
         { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
         { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("missing tier", () => {
@@ -286,7 +302,7 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
         { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
         { id: 3, name: "Hard", completedCount: 1, tasksCount: 1 },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 });
 
@@ -296,11 +312,11 @@ describe("ITEMS", () => {
       getItemUpdates({ 1249: 1 }, [
         { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getItemUpdates({ 1249: 0 }, [])).toEqual({});
+    expect(getItemUpdates({ 1249: 0 }, [])).toEqual([]);
   });
 
   test("progress", () => {
@@ -309,7 +325,13 @@ describe("ITEMS", () => {
         { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
         { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
       ]),
-    ).toEqual({ 2366: 2 });
+    ).toEqual([
+      {
+        id: 2366,
+        quantity: 2,
+        oldQuantity: 1,
+      },
+    ]);
   });
 
   test("new item", () => {
@@ -318,7 +340,13 @@ describe("ITEMS", () => {
         { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
         { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
       ]),
-    ).toEqual({ 2577: 1 });
+    ).toEqual([
+      {
+        id: 2577,
+        quantity: 1,
+        oldQuantity: 0,
+      },
+    ]);
   });
 
   test("unknown item", () => {
@@ -327,7 +355,7 @@ describe("ITEMS", () => {
         { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
         { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("missing item", () => {
@@ -337,7 +365,7 @@ describe("ITEMS", () => {
         { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
         { id: 2577, name: "Test Item 3", quantity: 1, createdAt: "" },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 });
 
@@ -349,14 +377,14 @@ describe("QUESTS", () => {
           id: 0,
           name: "Test Quest",
           state: 1,
-          type: "FREE",
+          type: QuestType.FREE,
         },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getQuestUpdates({ 0: 0 }, [])).toEqual({});
+    expect(getQuestUpdates({ 0: 0 }, [])).toEqual([]);
   });
 
   test("progress", () => {
@@ -371,19 +399,23 @@ describe("QUESTS", () => {
             id: 0,
             name: "Test Quest",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
           {
             id: 1,
             name: "Test Quest 2",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
         ],
       ),
-    ).toEqual({
-      1: 2,
-    });
+    ).toEqual([
+      {
+        id: 1,
+        state: 2,
+        oldState: 1,
+      },
+    ]);
   });
 
   test("new quest", () => {
@@ -399,19 +431,23 @@ describe("QUESTS", () => {
             id: 0,
             name: "Test Quest",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
           {
             id: 1,
             name: "Test Quest 2",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
         ],
       ),
-    ).toEqual({
-      3: 1,
-    });
+    ).toEqual([
+      {
+        id: 3,
+        state: 1,
+        oldState: 0,
+      },
+    ]);
   });
 
   test("unknown quest", () => {
@@ -427,23 +463,23 @@ describe("QUESTS", () => {
             id: 0,
             name: "Test Quest",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
           {
             id: 1,
             name: "Test Quest 2",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
           {
             id: 3,
             name: "Test Quest 3",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
         ],
       ),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("missing quest", () => {
@@ -458,23 +494,23 @@ describe("QUESTS", () => {
             id: 0,
             name: "Test Quest",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
           {
             id: 1,
             name: "Test Quest 2",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
           {
             id: 3,
             name: "Test Quest 3",
             state: 1,
-            type: "FREE",
+            type: QuestType.FREE,
           },
         ],
       ),
-    ).toEqual({});
+    ).toEqual([]);
   });
 });
 
@@ -485,11 +521,11 @@ describe("SKILLS", () => {
         { name: "Attack", xp: 1 },
         { name: "Strength", xp: 1 },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getSkillUpdates({ Attack: 0 }, [])).toEqual({});
+    expect(getSkillUpdates({ Attack: 0 }, [])).toEqual([]);
   });
 
   test("progress", () => {
@@ -499,9 +535,13 @@ describe("SKILLS", () => {
         { name: "Strength", xp: 1 },
         { name: "Defence", xp: 1 },
       ]),
-    ).toEqual({
-      Strength: 2,
-    });
+    ).toEqual([
+      {
+        name: "Strength",
+        xp: 2,
+        oldXp: 1,
+      },
+    ]);
   });
 
   test("new skill", () => {
@@ -510,9 +550,13 @@ describe("SKILLS", () => {
         { name: "Attack", xp: 1 },
         { name: "Strength", xp: 1 },
       ]),
-    ).toEqual({
-      Defence: 1,
-    });
+    ).toEqual([
+      {
+        name: "Defence",
+        xp: 1,
+        oldXp: 0,
+      },
+    ]);
   });
 
   test("unknown skill", () => {
@@ -522,7 +566,7 @@ describe("SKILLS", () => {
         { name: "Strength", xp: 1 },
         { name: "TestSkill", xp: 1 },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 
   test("missing skill", () => {
@@ -532,6 +576,6 @@ describe("SKILLS", () => {
         { name: "Strength", xp: 1 },
         { name: "Defence", xp: 1 },
       ]),
-    ).toEqual({});
+    ).toEqual([]);
   });
 });

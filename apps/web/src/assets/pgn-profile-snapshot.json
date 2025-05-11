@@ -1,6 +1,142 @@
 {
   "username": "pgn",
   "accountType": { "id": 1, "key": "ironman", "name": "Ironman" },
+  "clan": {
+    "title": "Recruit",
+    "name": "The Pax",
+    "rank": 32,
+    "icon": 24
+  },
+  "recentItems": [
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 12934
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 22486
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 27293
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 27289
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 27277
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 20997
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 20693
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 21021
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 20014
+      }
+    },
+    {
+      "type": "new_item_obtained",
+      "data": {
+        "itemId": 13576
+      }
+    }
+  ],
+  "recentActivities": [
+    {
+      "type": "level_up",
+      "data": {
+        "name": "Attack",
+        "level": 80
+      }
+    },
+    {
+      "type": "level_up",
+      "data": {
+        "name": "Crafting",
+        "level": 99
+      }
+    },
+    {
+      "type": "achievement_diary_tier_completed",
+      "data": {
+        "areaId": 1,
+        "tier": 1
+      }
+    },
+    {
+      "type": "achievement_diary_tier_completed",
+      "data": {
+        "areaId": 2,
+        "tier": 3
+      }
+    },
+    {
+      "type": "quest_completed",
+      "data": {
+        "questId": 31
+      }
+    },
+    {
+      "type": "level_up",
+      "data": {
+        "name": "Runecraft",
+        "level": 80
+      }
+    },
+    {
+      "type": "level_up",
+      "data": {
+        "name": "Farming",
+        "level": 99
+      }
+    },
+    {
+      "type": "combat_achievement_tier_completed",
+      "data": {
+        "tierId": 6
+      }
+    },
+    {
+      "type": "combat_achievement_tier_completed",
+      "data": {
+        "tierId": 5
+      }
+    },
+    {
+      "type": "quest_completed",
+      "data": {
+        "questId": 2343
+      }
+    }
+  ],
   "skills": [
     { "name": "Agility", "xp": 13035109 },
     { "name": "Attack", "xp": 20124815 },
@@ -27,341 +163,341 @@
     { "name": "Woodcutting", "xp": 13488523 }
   ],
   "quests": [
-    { "id": 0, "name": "Animal Magnetism", "state": 2, "type": "MEMBERS" },
+    { "id": 0, "name": "Animal Magnetism", "state": 2, "type": 1 },
     {
       "id": 1,
       "name": "Another Slice of H.A.M.",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 3, "name": "The Ascent of Arceuus", "state": 2, "type": "MEMBERS" },
+    { "id": 3, "name": "The Ascent of Arceuus", "state": 2, "type": 1 },
     {
       "id": 4,
       "name": "Alfred Grimhand's Barcrawl",
       "state": 2,
-      "type": "MINI"
+      "type": 2
     },
-    { "id": 5, "name": "Bear Your Soul", "state": 2, "type": "MINI" },
-    { "id": 6, "name": "Below Ice Mountain", "state": 2, "type": "FREE" },
-    { "id": 7, "name": "Between a Rock...", "state": 2, "type": "MEMBERS" },
+    { "id": 5, "name": "Bear Your Soul", "state": 2, "type": 2 },
+    { "id": 6, "name": "Below Ice Mountain", "state": 2, "type": 0 },
+    { "id": 7, "name": "Between a Rock...", "state": 2, "type": 1 },
     {
       "id": 8,
       "name": "Big Chompy Bird Hunting",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 9, "name": "Biohazard", "state": 2, "type": "MEMBERS" },
-    { "id": 10, "name": "Black Knights' Fortress", "state": 2, "type": "FREE" },
-    { "id": 11, "name": "Bone Voyage", "state": 2, "type": "MEMBERS" },
-    { "id": 12, "name": "Cabin Fever", "state": 2, "type": "MEMBERS" },
-    { "id": 13, "name": "Client of Kourend", "state": 2, "type": "MEMBERS" },
-    { "id": 14, "name": "Clock Tower", "state": 2, "type": "MEMBERS" },
-    { "id": 15, "name": "Cold War", "state": 2, "type": "MEMBERS" },
-    { "id": 16, "name": "Contact!", "state": 2, "type": "MEMBERS" },
-    { "id": 17, "name": "Cook's Assistant", "state": 2, "type": "FREE" },
-    { "id": 18, "name": "The Corsair Curse", "state": 2, "type": "FREE" },
+    { "id": 9, "name": "Biohazard", "state": 2, "type": 1 },
+    { "id": 10, "name": "Black Knights' Fortress", "state": 2, "type": 0 },
+    { "id": 11, "name": "Bone Voyage", "state": 2, "type": 1 },
+    { "id": 12, "name": "Cabin Fever", "state": 2, "type": 1 },
+    { "id": 13, "name": "Client of Kourend", "state": 2, "type": 1 },
+    { "id": 14, "name": "Clock Tower", "state": 2, "type": 1 },
+    { "id": 15, "name": "Cold War", "state": 2, "type": 1 },
+    { "id": 16, "name": "Contact!", "state": 2, "type": 1 },
+    { "id": 17, "name": "Cook's Assistant", "state": 2, "type": 0 },
+    { "id": 18, "name": "The Corsair Curse", "state": 2, "type": 0 },
     {
       "id": 19,
       "name": "Creature of Fenkenstrain",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 20, "name": "Curse of the Empty Lord", "state": 2, "type": "MINI" },
-    { "id": 21, "name": "Daddy's Home", "state": 2, "type": "MINI" },
+    { "id": 20, "name": "Curse of the Empty Lord", "state": 2, "type": 2 },
+    { "id": 21, "name": "Daddy's Home", "state": 2, "type": 2 },
     {
       "id": 22,
       "name": "Darkness of Hallowvale",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 23, "name": "Death Plateau", "state": 2, "type": "MEMBERS" },
+    { "id": 23, "name": "Death Plateau", "state": 2, "type": 1 },
     {
       "id": 24,
       "name": "Death to the Dorgeshuun",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 25, "name": "Demon Slayer", "state": 2, "type": "FREE" },
+    { "id": 25, "name": "Demon Slayer", "state": 2, "type": 0 },
     {
       "id": 26,
       "name": "The Depths of Despair",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 27, "name": "Desert Treasure I", "state": 2, "type": "MEMBERS" },
-    { "id": 28, "name": "Devious Minds", "state": 2, "type": "MEMBERS" },
-    { "id": 29, "name": "The Dig Site", "state": 2, "type": "MEMBERS" },
-    { "id": 30, "name": "Doric's Quest", "state": 2, "type": "FREE" },
-    { "id": 31, "name": "Dragon Slayer I", "state": 2, "type": "FREE" },
-    { "id": 32, "name": "Dragon Slayer II", "state": 2, "type": "MEMBERS" },
-    { "id": 33, "name": "Dream Mentor", "state": 2, "type": "MEMBERS" },
-    { "id": 34, "name": "Druidic Ritual", "state": 2, "type": "MEMBERS" },
-    { "id": 35, "name": "Dwarf Cannon", "state": 2, "type": "MEMBERS" },
-    { "id": 36, "name": "Eadgar's Ruse", "state": 2, "type": "MEMBERS" },
-    { "id": 37, "name": "Eagles' Peak", "state": 2, "type": "MEMBERS" },
-    { "id": 38, "name": "Elemental Workshop I", "state": 2, "type": "MEMBERS" },
+    { "id": 27, "name": "Desert Treasure I", "state": 2, "type": 1 },
+    { "id": 28, "name": "Devious Minds", "state": 2, "type": 1 },
+    { "id": 29, "name": "The Dig Site", "state": 2, "type": 1 },
+    { "id": 30, "name": "Doric's Quest", "state": 2, "type": 0 },
+    { "id": 31, "name": "Dragon Slayer I", "state": 2, "type": 0 },
+    { "id": 32, "name": "Dragon Slayer II", "state": 2, "type": 1 },
+    { "id": 33, "name": "Dream Mentor", "state": 2, "type": 1 },
+    { "id": 34, "name": "Druidic Ritual", "state": 2, "type": 1 },
+    { "id": 35, "name": "Dwarf Cannon", "state": 2, "type": 1 },
+    { "id": 36, "name": "Eadgar's Ruse", "state": 2, "type": 1 },
+    { "id": 37, "name": "Eagles' Peak", "state": 2, "type": 1 },
+    { "id": 38, "name": "Elemental Workshop I", "state": 2, "type": 1 },
     {
       "id": 39,
       "name": "Elemental Workshop II",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 40, "name": "Enakhra's Lament", "state": 2, "type": "MEMBERS" },
-    { "id": 41, "name": "The Enchanted Key", "state": 2, "type": "MINI" },
-    { "id": 42, "name": "Enlightened Journey", "state": 2, "type": "MEMBERS" },
-    { "id": 43, "name": "Enter the Abyss", "state": 2, "type": "MINI" },
-    { "id": 44, "name": "Ernest the Chicken", "state": 2, "type": "FREE" },
+    { "id": 40, "name": "Enakhra's Lament", "state": 2, "type": 1 },
+    { "id": 41, "name": "The Enchanted Key", "state": 2, "type": 2 },
+    { "id": 42, "name": "Enlightened Journey", "state": 2, "type": 1 },
+    { "id": 43, "name": "Enter the Abyss", "state": 2, "type": 2 },
+    { "id": 44, "name": "Ernest the Chicken", "state": 2, "type": 0 },
     {
       "id": 45,
       "name": "The Eyes of Glouphrie",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
     {
       "id": 46,
       "name": "Fairytale I - Growing Pains",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
     {
       "id": 47,
       "name": "Fairytale II - Cure a Queen",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 48, "name": "Family Crest", "state": 2, "type": "MEMBERS" },
-    { "id": 49, "name": "Family Pest", "state": 2, "type": "MINI" },
-    { "id": 50, "name": "The Feud", "state": 2, "type": "MEMBERS" },
-    { "id": 51, "name": "Fight Arena", "state": 2, "type": "MEMBERS" },
-    { "id": 52, "name": "Fishing Contest", "state": 2, "type": "MEMBERS" },
-    { "id": 53, "name": "Forgettable Tale...", "state": 2, "type": "MEMBERS" },
-    { "id": 54, "name": "The Forsaken Tower", "state": 2, "type": "MEMBERS" },
-    { "id": 55, "name": "The Fremennik Exiles", "state": 2, "type": "MEMBERS" },
-    { "id": 56, "name": "The Fremennik Isles", "state": 2, "type": "MEMBERS" },
-    { "id": 57, "name": "The Fremennik Trials", "state": 2, "type": "MEMBERS" },
+    { "id": 48, "name": "Family Crest", "state": 2, "type": 1 },
+    { "id": 49, "name": "Family Pest", "state": 2, "type": 2 },
+    { "id": 50, "name": "The Feud", "state": 2, "type": 1 },
+    { "id": 51, "name": "Fight Arena", "state": 2, "type": 1 },
+    { "id": 52, "name": "Fishing Contest", "state": 2, "type": 1 },
+    { "id": 53, "name": "Forgettable Tale...", "state": 2, "type": 1 },
+    { "id": 54, "name": "The Forsaken Tower", "state": 2, "type": 1 },
+    { "id": 55, "name": "The Fremennik Exiles", "state": 2, "type": 1 },
+    { "id": 56, "name": "The Fremennik Isles", "state": 2, "type": 1 },
+    { "id": 57, "name": "The Fremennik Trials", "state": 2, "type": 1 },
     {
       "id": 58,
       "name": "Garden of Tranquillity",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 59, "name": "The General's Shadow", "state": 2, "type": "MINI" },
-    { "id": 60, "name": "Gertrude's Cat", "state": 2, "type": "MEMBERS" },
-    { "id": 61, "name": "Getting Ahead", "state": 2, "type": "MEMBERS" },
-    { "id": 62, "name": "Ghosts Ahoy", "state": 2, "type": "MEMBERS" },
-    { "id": 63, "name": "The Giant Dwarf", "state": 2, "type": "MEMBERS" },
-    { "id": 64, "name": "Goblin Diplomacy", "state": 2, "type": "FREE" },
-    { "id": 65, "name": "The Golem", "state": 2, "type": "MEMBERS" },
-    { "id": 66, "name": "The Grand Tree", "state": 2, "type": "MEMBERS" },
+    { "id": 59, "name": "The General's Shadow", "state": 2, "type": 2 },
+    { "id": 60, "name": "Gertrude's Cat", "state": 2, "type": 1 },
+    { "id": 61, "name": "Getting Ahead", "state": 2, "type": 1 },
+    { "id": 62, "name": "Ghosts Ahoy", "state": 2, "type": 1 },
+    { "id": 63, "name": "The Giant Dwarf", "state": 2, "type": 1 },
+    { "id": 64, "name": "Goblin Diplomacy", "state": 2, "type": 0 },
+    { "id": 65, "name": "The Golem", "state": 2, "type": 1 },
+    { "id": 66, "name": "The Grand Tree", "state": 2, "type": 1 },
     {
       "id": 67,
       "name": "The Great Brain Robbery",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 68, "name": "Grim Tales", "state": 2, "type": "MEMBERS" },
-    { "id": 69, "name": "The Hand in the Sand", "state": 2, "type": "MEMBERS" },
-    { "id": 70, "name": "Haunted Mine", "state": 2, "type": "MEMBERS" },
-    { "id": 71, "name": "Hazeel Cult", "state": 2, "type": "MEMBERS" },
-    { "id": 72, "name": "Heroes' Quest", "state": 2, "type": "MEMBERS" },
-    { "id": 73, "name": "Holy Grail", "state": 2, "type": "MEMBERS" },
-    { "id": 74, "name": "Horror from the Deep", "state": 2, "type": "MEMBERS" },
+    { "id": 68, "name": "Grim Tales", "state": 2, "type": 1 },
+    { "id": 69, "name": "The Hand in the Sand", "state": 2, "type": 1 },
+    { "id": 70, "name": "Haunted Mine", "state": 2, "type": 1 },
+    { "id": 71, "name": "Hazeel Cult", "state": 2, "type": 1 },
+    { "id": 72, "name": "Heroes' Quest", "state": 2, "type": 1 },
+    { "id": 73, "name": "Holy Grail", "state": 2, "type": 1 },
+    { "id": 74, "name": "Horror from the Deep", "state": 2, "type": 1 },
     {
       "id": 75,
       "name": "Icthlarin's Little Helper",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 76, "name": "Imp Catcher", "state": 2, "type": "FREE" },
+    { "id": 76, "name": "Imp Catcher", "state": 2, "type": 0 },
     {
       "id": 77,
       "name": "In Aid of the Myreque",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 78, "name": "In Search of Knowledge", "state": 2, "type": "MINI" },
+    { "id": 78, "name": "In Search of Knowledge", "state": 2, "type": 2 },
     {
       "id": 79,
       "name": "In Search of the Myreque",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 80, "name": "Jungle Potion", "state": 2, "type": "MEMBERS" },
-    { "id": 81, "name": "A Kingdom Divided", "state": 2, "type": "MEMBERS" },
-    { "id": 82, "name": "King's Ransom", "state": 2, "type": "MEMBERS" },
-    { "id": 83, "name": "The Knight's Sword", "state": 2, "type": "FREE" },
-    { "id": 84, "name": "Lair of Tarn Razorlor", "state": 2, "type": "MINI" },
-    { "id": 85, "name": "Legends' Quest", "state": 2, "type": "MEMBERS" },
-    { "id": 86, "name": "Lost City", "state": 2, "type": "MEMBERS" },
-    { "id": 87, "name": "The Lost Tribe", "state": 2, "type": "MEMBERS" },
-    { "id": 88, "name": "Lunar Diplomacy", "state": 2, "type": "MEMBERS" },
-    { "id": 89, "name": "Mage Arena I", "state": 2, "type": "MINI" },
-    { "id": 90, "name": "Mage Arena II", "state": 2, "type": "MINI" },
+    { "id": 80, "name": "Jungle Potion", "state": 2, "type": 1 },
+    { "id": 81, "name": "A Kingdom Divided", "state": 2, "type": 1 },
+    { "id": 82, "name": "King's Ransom", "state": 2, "type": 1 },
+    { "id": 83, "name": "The Knight's Sword", "state": 2, "type": 0 },
+    { "id": 84, "name": "Lair of Tarn Razorlor", "state": 2, "type": 2 },
+    { "id": 85, "name": "Legends' Quest", "state": 2, "type": 1 },
+    { "id": 86, "name": "Lost City", "state": 2, "type": 1 },
+    { "id": 87, "name": "The Lost Tribe", "state": 2, "type": 1 },
+    { "id": 88, "name": "Lunar Diplomacy", "state": 2, "type": 1 },
+    { "id": 89, "name": "Mage Arena I", "state": 2, "type": 2 },
+    { "id": 90, "name": "Mage Arena II", "state": 2, "type": 2 },
     {
       "id": 91,
       "name": "Making Friends with My Arm",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 92, "name": "Making History", "state": 2, "type": "MEMBERS" },
-    { "id": 93, "name": "Merlin's Crystal", "state": 2, "type": "MEMBERS" },
-    { "id": 94, "name": "Misthalin Mystery", "state": 2, "type": "FREE" },
-    { "id": 95, "name": "Monkey Madness I", "state": 2, "type": "MEMBERS" },
-    { "id": 96, "name": "Monkey Madness II", "state": 2, "type": "MEMBERS" },
-    { "id": 97, "name": "Monk's Friend", "state": 2, "type": "MEMBERS" },
-    { "id": 98, "name": "Mountain Daughter", "state": 2, "type": "MEMBERS" },
+    { "id": 92, "name": "Making History", "state": 2, "type": 1 },
+    { "id": 93, "name": "Merlin's Crystal", "state": 2, "type": 1 },
+    { "id": 94, "name": "Misthalin Mystery", "state": 2, "type": 0 },
+    { "id": 95, "name": "Monkey Madness I", "state": 2, "type": 1 },
+    { "id": 96, "name": "Monkey Madness II", "state": 2, "type": 1 },
+    { "id": 97, "name": "Monk's Friend", "state": 2, "type": 1 },
+    { "id": 98, "name": "Mountain Daughter", "state": 2, "type": 1 },
     {
       "id": 99,
       "name": "Mourning's End Part I",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
     {
       "id": 100,
       "name": "Mourning's End Part II",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 101, "name": "Murder Mystery", "state": 2, "type": "MEMBERS" },
+    { "id": 101, "name": "Murder Mystery", "state": 2, "type": 1 },
     {
       "id": 102,
       "name": "My Arm's Big Adventure",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 103, "name": "Nature Spirit", "state": 2, "type": "MEMBERS" },
+    { "id": 103, "name": "Nature Spirit", "state": 2, "type": 1 },
     {
       "id": 104,
       "name": "A Night at the Theatre",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 105, "name": "Observatory Quest", "state": 2, "type": "MEMBERS" },
-    { "id": 106, "name": "Olaf's Quest", "state": 2, "type": "MEMBERS" },
-    { "id": 107, "name": "One Small Favour", "state": 2, "type": "MEMBERS" },
-    { "id": 108, "name": "Pirate's Treasure", "state": 2, "type": "FREE" },
-    { "id": 109, "name": "Plague City", "state": 2, "type": "MEMBERS" },
+    { "id": 105, "name": "Observatory Quest", "state": 2, "type": 1 },
+    { "id": 106, "name": "Olaf's Quest", "state": 2, "type": 1 },
+    { "id": 107, "name": "One Small Favour", "state": 2, "type": 1 },
+    { "id": 108, "name": "Pirate's Treasure", "state": 2, "type": 0 },
+    { "id": 109, "name": "Plague City", "state": 2, "type": 1 },
     {
       "id": 110,
       "name": "A Porcine of Interest",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 111, "name": "Priest in Peril", "state": 2, "type": "MEMBERS" },
-    { "id": 112, "name": "Prince Ali Rescue", "state": 2, "type": "FREE" },
+    { "id": 111, "name": "Priest in Peril", "state": 2, "type": 1 },
+    { "id": 112, "name": "Prince Ali Rescue", "state": 2, "type": 0 },
     {
       "id": 113,
       "name": "The Queen of Thieves",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 114, "name": "Rag and Bone Man I", "state": 2, "type": "MEMBERS" },
-    { "id": 115, "name": "Rag and Bone Man II", "state": 2, "type": "MEMBERS" },
-    { "id": 116, "name": "Ratcatchers", "state": 2, "type": "MEMBERS" },
-    { "id": 117, "name": "Recipe for Disaster", "state": 2, "type": "MEMBERS" },
-    { "id": 118, "name": "Recruitment Drive", "state": 2, "type": "MEMBERS" },
-    { "id": 119, "name": "Regicide", "state": 2, "type": "MEMBERS" },
-    { "id": 120, "name": "The Restless Ghost", "state": 2, "type": "FREE" },
-    { "id": 121, "name": "Romeo & Juliet", "state": 2, "type": "FREE" },
-    { "id": 122, "name": "Roving Elves", "state": 2, "type": "MEMBERS" },
-    { "id": 123, "name": "Royal Trouble", "state": 2, "type": "MEMBERS" },
-    { "id": 124, "name": "Rum Deal", "state": 2, "type": "MEMBERS" },
-    { "id": 125, "name": "Rune Mysteries", "state": 2, "type": "FREE" },
-    { "id": 126, "name": "Scorpion Catcher", "state": 2, "type": "MEMBERS" },
-    { "id": 127, "name": "Sea Slug", "state": 2, "type": "MEMBERS" },
-    { "id": 128, "name": "Shades of Mort'ton", "state": 2, "type": "MEMBERS" },
-    { "id": 129, "name": "Shadow of the Storm", "state": 2, "type": "MEMBERS" },
-    { "id": 130, "name": "Sheep Herder", "state": 2, "type": "MEMBERS" },
-    { "id": 131, "name": "Sheep Shearer", "state": 2, "type": "FREE" },
-    { "id": 132, "name": "Shield of Arrav", "state": 2, "type": "FREE" },
-    { "id": 133, "name": "Shilo Village", "state": 2, "type": "MEMBERS" },
-    { "id": 134, "name": "Sins of the Father", "state": 2, "type": "MEMBERS" },
-    { "id": 135, "name": "Skippy and the Mogres", "state": 2, "type": "MINI" },
-    { "id": 136, "name": "The Slug Menace", "state": 2, "type": "MEMBERS" },
-    { "id": 137, "name": "Song of the Elves", "state": 2, "type": "MEMBERS" },
-    { "id": 138, "name": "A Soul's Bane", "state": 2, "type": "MEMBERS" },
-    { "id": 139, "name": "Spirits of the Elid", "state": 2, "type": "MEMBERS" },
-    { "id": 140, "name": "Swan Song", "state": 2, "type": "MEMBERS" },
-    { "id": 141, "name": "Tai Bwo Wannai Trio", "state": 2, "type": "MEMBERS" },
-    { "id": 142, "name": "A Tail of Two Cats", "state": 2, "type": "MEMBERS" },
+    { "id": 114, "name": "Rag and Bone Man I", "state": 2, "type": 1 },
+    { "id": 115, "name": "Rag and Bone Man II", "state": 2, "type": 1 },
+    { "id": 116, "name": "Ratcatchers", "state": 2, "type": 1 },
+    { "id": 117, "name": "Recipe for Disaster", "state": 2, "type": 1 },
+    { "id": 118, "name": "Recruitment Drive", "state": 2, "type": 1 },
+    { "id": 119, "name": "Regicide", "state": 2, "type": 1 },
+    { "id": 120, "name": "The Restless Ghost", "state": 2, "type": 0 },
+    { "id": 121, "name": "Romeo & Juliet", "state": 2, "type": 0 },
+    { "id": 122, "name": "Roving Elves", "state": 2, "type": 1 },
+    { "id": 123, "name": "Royal Trouble", "state": 2, "type": 1 },
+    { "id": 124, "name": "Rum Deal", "state": 2, "type": 1 },
+    { "id": 125, "name": "Rune Mysteries", "state": 2, "type": 0 },
+    { "id": 126, "name": "Scorpion Catcher", "state": 2, "type": 1 },
+    { "id": 127, "name": "Sea Slug", "state": 2, "type": 1 },
+    { "id": 128, "name": "Shades of Mort'ton", "state": 2, "type": 1 },
+    { "id": 129, "name": "Shadow of the Storm", "state": 2, "type": 1 },
+    { "id": 130, "name": "Sheep Herder", "state": 2, "type": 1 },
+    { "id": 131, "name": "Sheep Shearer", "state": 2, "type": 0 },
+    { "id": 132, "name": "Shield of Arrav", "state": 2, "type": 0 },
+    { "id": 133, "name": "Shilo Village", "state": 2, "type": 1 },
+    { "id": 134, "name": "Sins of the Father", "state": 2, "type": 1 },
+    { "id": 135, "name": "Skippy and the Mogres", "state": 2, "type": 2 },
+    { "id": 136, "name": "The Slug Menace", "state": 2, "type": 1 },
+    { "id": 137, "name": "Song of the Elves", "state": 2, "type": 1 },
+    { "id": 138, "name": "A Soul's Bane", "state": 2, "type": 1 },
+    { "id": 139, "name": "Spirits of the Elid", "state": 2, "type": 1 },
+    { "id": 140, "name": "Swan Song", "state": 2, "type": 1 },
+    { "id": 141, "name": "Tai Bwo Wannai Trio", "state": 2, "type": 1 },
+    { "id": 142, "name": "A Tail of Two Cats", "state": 2, "type": 1 },
     {
       "id": 143,
       "name": "Tale of the Righteous",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 144, "name": "A Taste of Hope", "state": 2, "type": "MEMBERS" },
-    { "id": 145, "name": "Tears of Guthix", "state": 2, "type": "MEMBERS" },
-    { "id": 146, "name": "Temple of Ikov", "state": 2, "type": "MEMBERS" },
+    { "id": 144, "name": "A Taste of Hope", "state": 2, "type": 1 },
+    { "id": 145, "name": "Tears of Guthix", "state": 2, "type": 1 },
+    { "id": 146, "name": "Temple of Ikov", "state": 2, "type": 1 },
     {
       "id": 147,
       "name": "Throne of Miscellania",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 148, "name": "The Tourist Trap", "state": 2, "type": "MEMBERS" },
-    { "id": 149, "name": "Tower of Life", "state": 2, "type": "MEMBERS" },
-    { "id": 150, "name": "Tree Gnome Village", "state": 2, "type": "MEMBERS" },
-    { "id": 151, "name": "Tribal Totem", "state": 2, "type": "MEMBERS" },
-    { "id": 152, "name": "Troll Romance", "state": 2, "type": "MEMBERS" },
-    { "id": 153, "name": "Troll Stronghold", "state": 2, "type": "MEMBERS" },
-    { "id": 154, "name": "Underground Pass", "state": 2, "type": "MEMBERS" },
-    { "id": 155, "name": "Vampyre Slayer", "state": 2, "type": "FREE" },
-    { "id": 156, "name": "Wanted!", "state": 2, "type": "MEMBERS" },
-    { "id": 157, "name": "Watchtower", "state": 2, "type": "MEMBERS" },
-    { "id": 158, "name": "Waterfall Quest", "state": 2, "type": "MEMBERS" },
-    { "id": 159, "name": "What Lies Below", "state": 2, "type": "MEMBERS" },
-    { "id": 160, "name": "Witch's House", "state": 2, "type": "MEMBERS" },
-    { "id": 161, "name": "Witch's Potion", "state": 2, "type": "FREE" },
-    { "id": 162, "name": "X Marks the Spot", "state": 2, "type": "FREE" },
-    { "id": 163, "name": "Zogre Flesh Eaters", "state": 2, "type": "MEMBERS" },
-    { "id": 164, "name": "The Frozen Door", "state": 2, "type": "MINI" },
-    { "id": 165, "name": "Land of the Goblins", "state": 2, "type": "MEMBERS" },
-    { "id": 166, "name": "Hopespear's Will", "state": 2, "type": "MINI" },
-    { "id": 167, "name": "Temple of the Eye", "state": 2, "type": "MEMBERS" },
+    { "id": 148, "name": "The Tourist Trap", "state": 2, "type": 1 },
+    { "id": 149, "name": "Tower of Life", "state": 2, "type": 1 },
+    { "id": 150, "name": "Tree Gnome Village", "state": 2, "type": 1 },
+    { "id": 151, "name": "Tribal Totem", "state": 2, "type": 1 },
+    { "id": 152, "name": "Troll Romance", "state": 2, "type": 1 },
+    { "id": 153, "name": "Troll Stronghold", "state": 2, "type": 1 },
+    { "id": 154, "name": "Underground Pass", "state": 2, "type": 1 },
+    { "id": 155, "name": "Vampyre Slayer", "state": 2, "type": 0 },
+    { "id": 156, "name": "Wanted!", "state": 2, "type": 1 },
+    { "id": 157, "name": "Watchtower", "state": 2, "type": 1 },
+    { "id": 158, "name": "Waterfall Quest", "state": 2, "type": 1 },
+    { "id": 159, "name": "What Lies Below", "state": 2, "type": 1 },
+    { "id": 160, "name": "Witch's House", "state": 2, "type": 1 },
+    { "id": 161, "name": "Witch's Potion", "state": 2, "type": 0 },
+    { "id": 162, "name": "X Marks the Spot", "state": 2, "type": 0 },
+    { "id": 163, "name": "Zogre Flesh Eaters", "state": 2, "type": 1 },
+    { "id": 164, "name": "The Frozen Door", "state": 2, "type": 2 },
+    { "id": 165, "name": "Land of the Goblins", "state": 2, "type": 1 },
+    { "id": 166, "name": "Hopespear's Will", "state": 2, "type": 2 },
+    { "id": 167, "name": "Temple of the Eye", "state": 2, "type": 1 },
     {
       "id": 168,
       "name": "Beneath Cursed Sands",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 169, "name": "Sleeping Giants", "state": 2, "type": "MEMBERS" },
-    { "id": 180, "name": "The Garden of Death", "state": 2, "type": "MEMBERS" },
-    { "id": 2306, "name": "Into the Tombs", "state": 2, "type": "MINI" },
+    { "id": 169, "name": "Sleeping Giants", "state": 2, "type": 1 },
+    { "id": 180, "name": "The Garden of Death", "state": 2, "type": 1 },
+    { "id": 2306, "name": "Into the Tombs", "state": 2, "type": 2 },
     {
       "id": 2338,
       "name": "Secrets of the North",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
     {
       "id": 2343,
       "name": "Desert Treasure II - The Fallen Empire",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 3250, "name": "His Faithful Servants", "state": 2, "type": "MINI" },
+    { "id": 3250, "name": "His Faithful Servants", "state": 2, "type": 2 },
     {
       "id": 3425,
       "name": "The Path of Glouphrie",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 3451, "name": "Barbarian Training", "state": 1, "type": "MINI" },
+    { "id": 3451, "name": "Barbarian Training", "state": 1, "type": 2 },
     {
       "id": 3466,
       "name": "Defender of Varrock",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
     {
       "id": 3467,
       "name": "While Guthix Sleeps",
       "state": 2,
-      "type": "MEMBERS"
+      "type": 1
     },
-    { "id": 3512, "name": "Twilight's Promise", "state": 2, "type": "MEMBERS" },
-    { "id": 3514, "name": "Perilous Moons", "state": 2, "type": "MEMBERS" }
+    { "id": 3512, "name": "Twilight's Promise", "state": 2, "type": 1 },
+    { "id": 3514, "name": "Perilous Moons", "state": 2, "type": 1 }
   ],
   "items": [
     {

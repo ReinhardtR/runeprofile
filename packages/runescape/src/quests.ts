@@ -1,9 +1,33 @@
-export const QUEST_STATES = ["NOT_STARTED", "IN_PROGRESS", "FINISHED"] as const;
-export type QuestState = (typeof QUEST_STATES)[number];
+export const QuestState = {
+  NOT_STARTED: 0,
+  IN_PROGRESS: 1,
+  FINISHED: 2,
+} as const;
+export type QuestState = (typeof QuestState)[keyof typeof QuestState];
 
-const QuestType = { FREE: "FREE", MEMBERS: "MEMBERS", MINI: "MINI" } as const;
-export const QUEST_TYPES = [QuestType.FREE, QuestType.MEMBERS, QuestType.MINI];
-export type QuestType = (typeof QUEST_TYPES)[number];
+export function getQuestStateFromIndex(index?: number) {
+  switch (index) {
+    case 0:
+      return QuestState.NOT_STARTED;
+    case 1:
+      return QuestState.IN_PROGRESS;
+    case 2:
+      return QuestState.FINISHED;
+    default:
+      return QuestState.NOT_STARTED;
+  }
+}
+
+export function getQuestById(id: number) {
+  return QUESTS.find((quest) => quest.id === id);
+}
+
+export const QuestType = {
+  FREE: 0,
+  MEMBERS: 1,
+  MINI: 2,
+} as const;
+export type QuestType = (typeof QuestType)[keyof typeof QuestType];
 
 export type Quest = {
   id: number;

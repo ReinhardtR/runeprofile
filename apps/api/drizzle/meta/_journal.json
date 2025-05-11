@@ -22,6 +22,41 @@
       "when": 1746289563246,
       "tag": "0002_hot_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1746903590995,
+      "tag": "0003_graceful_mongoose",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1746915323783,
+      "tag": "0004_friendly_morlocks",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1746915567223,
+      "tag": "0005_woozy_changeling",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1746915948807,
+      "tag": "0006_milky_leopardon",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1746916091271,
+      "tag": "0007_lean_living_tribunal",
+      "breakpoints": true
     }
   ]
 }

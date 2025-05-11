@@ -12,3 +12,11 @@ export const COMBAT_ACHIEVEMENT_TIERS = [
   { id: 5, name: "Master", tasksCount: 158 },
   { id: 6, name: "Grandmaster", tasksCount: 111 },
 ] as const satisfies CombatAchievementTier[];
+
+export function getCombatAchievementTierTaskCount(id: number) {
+  return COMBAT_ACHIEVEMENT_TIERS.find((tier) => tier.id === id)?.tasksCount;
+}
+
+export function getCombatAchievementTierName(id: number) {
+  return COMBAT_ACHIEVEMENT_TIERS.find((tier) => tier.id === id)?.name;
+}

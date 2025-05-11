@@ -1,16 +1,13 @@
 import {
   QUESTS,
-  QUEST_STATES,
   QuestState,
   QuestType,
+  getQuestStateFromIndex,
 } from "@runeprofile/runescape";
 
-import QuestIcon from "~/assets/icons/quest.png";
 import { RuneScapeScrollArea } from "~/components/osrs/scroll-area";
 import { Profile } from "~/lib/api";
 import { cn } from "~/lib/utils";
-
-import { Card } from "./card";
 
 type MergedQuestData = {
   name: string;
@@ -24,31 +21,26 @@ export function QuestList({ data }: { data: Profile["quests"] }) {
 
   for (const quest of QUESTS) {
     const questData = data.find((q) => q.id === quest.id);
-    const state = questData?.state
-      ? QUEST_STATES[questData.state]
-      : "NOT_STARTED";
+    const state = getQuestStateFromIndex(questData?.state);
     quests.push({
       name: quest.name,
-      state: state ?? "NOT_STARTED",
       type: quest.type,
       points: quest.points,
+      state,
     });
   }
 
-  const completedQuests = quests.filter((q) => q.state === "FINISHED");
+  const completedQuests = quests.filter((q) => q.state === QuestState.FINISHED);
   const completedCount = completedQuests.length;
   const questsCount = quests.length;
   const points = completedQuests.reduce((acc, q) => acc + q.points, 0);
 
-  const free = quests.filter((q) => q.type === "FREE");
-  const members = quests.filter((q) => q.type === "MEMBERS");
-  const mini = quests.filter((q) => q.type === "MINI");
+  const free = quests.filter((q) => q.type === QuestType.FREE);
+  const members = quests.filter((q) => q.type === QuestType.MEMBERS);
+  const mini = quests.filter((q) => q.type === QuestType.MINI);
 
   return (
-    <Card
-      icon={QuestIcon}
-      className="flex flex-col p-4 font-runescape solid-text-shadow shrink-0"
-    >
+    <div className="flex flex-col p-2 font-runescape solid-text-shadow max-h-full">
       <div
         className={cn(
           "flex items-center justify-between text-xl",
@@ -70,7 +62,7 @@ export function QuestList({ data }: { data: Profile["quests"] }) {
         <QuestsSection sectionName="Members' Quests" quests={members} />
         <QuestsSection sectionName="Miniquests" quests={mini} />
       </RuneScapeScrollArea>
-    </Card>
+    </div>
   );
 }
 
@@ -95,9 +87,9 @@ export const QuestsSection: React.FC<QuestSectionProps> = ({
       {quests.map(({ name, state }) => {
         let progressColor = "text-osrs-yellow";
 
-        if (state == "FINISHED") {
+        if (state == QuestState.FINISHED) {
           progressColor = "text-osrs-green";
-        } else if (state == "NOT_STARTED") {
+        } else if (state == QuestState.NOT_STARTED) {
           progressColor = "text-osrs-red";
         }
 
