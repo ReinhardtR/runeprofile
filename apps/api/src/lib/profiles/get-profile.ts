@@ -77,7 +77,7 @@ async function getProfile(db: Database, condition: SQL) {
           eq(table.type, "new_item_obtained"),
         ),
       orderBy: (table) => [desc(table.createdAt)],
-      limit: 12,
+      limit: 10,
       columns: {
         type: true,
         data: true,
@@ -90,7 +90,7 @@ async function getProfile(db: Database, condition: SQL) {
           not(eq(table.type, "new_item_obtained")),
         ),
       orderBy: (table) => [desc(table.createdAt)],
-      limit: 12,
+      limit: 10,
       columns: {
         type: true,
         data: true,
