@@ -1,24 +1,26 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import { Search } from "lucide-react";
 import React from "react";
 
-import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
+import {
+  COLLECTION_LOG_ITEMS,
+  COLLECTION_LOG_TABS,
+} from "@runeprofile/runescape";
 
-import AchievementDiariesIcon from "~/assets/icons/achievement-diaries.png";
-import CollectionLogIcon from "~/assets/icons/collection-log.png";
-import CombatAchievementsIcon from "~/assets/icons/combat-achievements.png";
-import HiscoresIcon from "~/assets/icons/hiscores.png";
-import QuestIcon from "~/assets/icons/quest.png";
-import SkillsIcon from "~/assets/icons/skills.png";
-import HeroImage from "~/assets/misc/hero-image.png";
+import ITEM_ICONS from "~/assets/item-icons.json";
+import Logo from "~/assets/misc/logo.png";
+import QuestionMarkImage from "~/assets/misc/question-mark.png";
 import RuneLiteLogo from "~/assets/misc/runelite-logo.png";
 import PgnProfileSnapshot from "~/assets/pgn-profile-snapshot.json";
+// import HeroImage from "~/assets/misc/hero-image.png";
+import YamaImage from "~/assets/yama.jpeg";
 import { Footer } from "~/components/footer";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
-import { Profile } from "~/lib/api";
-import { cn } from "~/lib/utils";
+import { Profile, getYamaLeaderboard } from "~/lib/api";
+import { base64ImgSrc, cn } from "~/lib/utils";
 import { ProfileContent, SidePanel } from "~/routes/$username";
 
 export const Route = createFileRoute("/")({
@@ -28,53 +30,36 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
-  const profilePreviewRef = React.useRef<HTMLDivElement>(null);
-
-  const dataTypeList = [
-    { name: "Skills", icon: SkillsIcon },
-    { name: "Quests", icon: QuestIcon },
-    { name: "Achievement Diaries", icon: AchievementDiariesIcon },
-    { name: "Combat Achievements", icon: CombatAchievementsIcon },
-    { name: "Collection Log", icon: CollectionLogIcon },
-    { name: "Hiscores", icon: HiscoresIcon },
-  ];
-
-  const scrollToProfilePreview = () => {
-    profilePreviewRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const yamaLeaderboardQuery = useQuery({
+    queryKey: ["yama-leaderboard"],
+    queryFn: getYamaLeaderboard,
+  });
 
   return (
     <>
       <div className="flex flex-col">
         <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
-          <div className="z-30 flex flex-1 flex-col items-center pt-[20vh]">
-            <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
-              <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
-                <span className="text-secondary-foreground/90 solid-text-shadow">
-                  RUNE
-                </span>
-                <span className="text-primary solid-text-shadow">PROFILE</span>
-              </h1>
-              <p className="text-md text-light-gray font-medium drop-shadow-solid-sm md:text-lg lg:text-xl">
-                Share your Old School RuneScape achievements
+          <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute top-4 left-4 bg-background/80 p-4 rounded-3xl">
+            <Link to="/" className="mr-6 flex items-center space-x-2">
+              <img
+                src={Logo}
+                alt="Logo"
+                width={50}
+                height={50}
+                className="drop-shadow"
+              />
+              <p className="flex-col text-2xl font-black leading-none tracking-wide drop-shadow flex">
+                <span className="text-primary">RUNE</span>
+                <span className="text-secondary-foreground">PROFILE</span>
               </p>
-              <div className="mb-6 flex items-center justify-center space-x-4 rounded-full bg-black/75 px-5 py-3  shadow">
-                {dataTypeList.map((type) => (
-                  <img
-                    src={type.icon}
-                    alt={type.name}
-                    key={type.name}
-                    width={32}
-                    height={32}
-                    className="drop-shadow-solid-sm"
-                  />
-                ))}
-              </div>
-            </div>
+            </Link>
+          </div>
+
+          <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute bottom-4 left-4 bg-background/80 p-4 rounded-3xl">
             <Button
               variant="outline"
               className={cn(
-                "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75 mb-4",
+                "flex h-12 transform items-center justify-center gap-x-2 rounded-2xl border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:bg-black/75",
               )}
               onClick={() => setIsSearchDialogOpen(true)}
             >
@@ -83,28 +68,86 @@ function RouteComponent() {
             </Button>
             <Link
               to="/info/guide"
-              className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+              className="flex transform items-center justify-center space-x-2 rounded-2xl border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all h-12"
             >
               <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
               <span>Plugin Guide</span>
             </Link>
           </div>
-          <div className="absolute z-20 bg-primary">
-            <img
-              src={HeroImage}
-              className="h-screen w-screen object-cover mix-blend-multiply"
-            />
+
+          <div className="lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30 bg-background/80 p-2 rounded-2xl gap-y-1 flex flex-col max-h-full overflow-y-auto">
+            <p className="text-lg text-center font-bold text-secondary-foreground">
+              Yama Oathplate Leaderboard
+            </p>
+            {yamaLeaderboardQuery.data?.map((player, index) => (
+              <Link
+                to="/$username"
+                params={{
+                  username: player.username,
+                }}
+                className="bg-background/80 rounded-lg shadow flex flex-row items-center gap-x-4 px-4 py-2"
+              >
+                <p
+                  className={cn(
+                    "text-xl font-bold font-runescape",
+                    index === 0 && "text-[#FFD700]",
+                    index === 1 && "text-[#C0C0C0]",
+                    index === 2 && "text-[#CD7F32]",
+                  )}
+                >
+                  {index + 1}.
+                </p>
+                <p
+                  className={cn(
+                    "font-runescape font-bold text-2xl solid-text-shadow",
+                    index === 0 && "text-[#FFD700]",
+                    index === 1 && "text-[#C0C0C0]",
+                    index === 2 && "text-[#CD7F32]",
+                  )}
+                >
+                  {player.username}
+                </p>
+                <div className="ml-auto flex flex-row items-center gap-x-2">
+                  {player.items.map((item) => {
+                    const itemIcon =
+                      ITEM_ICONS[item.id as unknown as keyof typeof ITEM_ICONS];
+                    const iconSrc = itemIcon
+                      ? base64ImgSrc(itemIcon)
+                      : QuestionMarkImage;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "relative flex flex-row items-center justify-center",
+                        )}
+                      >
+                        {item.quantity > 1 && (
+                          <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow">
+                            {item.quantity}
+                          </p>
+                        )}
+                        <img
+                          src={iconSrc}
+                          className={cn(
+                            "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
+                            !item.quantity && "opacity-30",
+                          )}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </Link>
+            ))}
           </div>
-          <Button
-            className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 text-foreground animate-in fade-in-10 duration-[2000ms]"
-            onClick={scrollToProfilePreview}
-            variant="link"
-          >
-            Scroll to Profile Example
-          </Button>
+
+          <div className="absolute z-20">
+            <img src={YamaImage} className="h-screen w-screen object-cover" />
+          </div>
         </div>
 
-        <ProfileExample ref={profilePreviewRef} />
+        <ProfileExample />
       </div>
       <Footer />
     </>
@@ -127,6 +170,9 @@ function ProfileExample({
       )}
       {...props}
     >
+      <p className="absolute left-0 right-0 top-4 text-muted-foreground flex-1 text-center font-medium">
+        Profile Example
+      </p>
       <ProfileContent profile={profile} page={page} onPageChange={setPage} />
       <SidePanel username={profile.username} />
     </div>

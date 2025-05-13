@@ -72,6 +72,11 @@ export async function getClanMembers(params: {
   return await getResponseData(response);
 }
 
+export async function getYamaLeaderboard() {
+  const response = await api.yama.leaderboard.$get();
+  return await getResponseData(response);
+}
+
 export class RuneProfileApiError extends Error {
   code: string;
 

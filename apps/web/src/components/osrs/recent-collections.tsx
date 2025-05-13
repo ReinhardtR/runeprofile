@@ -1,5 +1,3 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import {
   ActivityEventType,
   COLLECTION_LOG_ITEMS,
