@@ -123,7 +123,7 @@ function RouteComponent() {
                         )}
                       >
                         {item.quantity > 1 && (
-                          <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow">
+                          <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow font-runescape">
                             {item.quantity}
                           </p>
                         )}
