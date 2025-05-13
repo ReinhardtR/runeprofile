@@ -30,10 +30,10 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
-  const yamaLeaderboardQuery = useQuery({
-    queryKey: ["yama-leaderboard"],
-    queryFn: getYamaLeaderboard,
-  });
+  // const yamaLeaderboardQuery = useQuery({
+  //   queryKey: ["yama-leaderboard"],
+  //   queryFn: getYamaLeaderboard,
+  // });
 
   return (
     <>
@@ -79,7 +79,10 @@ function RouteComponent() {
             <p className="text-lg text-center font-bold text-secondary-foreground">
               Yama Oathplate Leaderboard
             </p>
-            {yamaLeaderboardQuery.data?.map((player, index) => (
+            <p className="text-center text-xl text-primary font-bold my-auto">
+              Coming soon...
+            </p>
+            {/* {yamaLeaderboardQuery.data?.map((player, index) => (
               <Link
                 to="/$username"
                 params={{
@@ -139,7 +142,7 @@ function RouteComponent() {
                   })}
                 </div>
               </Link>
-            ))}
+            ))} */}
           </div>
 
           <div className="absolute z-20">
