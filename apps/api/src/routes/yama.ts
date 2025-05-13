@@ -1,4 +1,4 @@
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql, sum } from "drizzle-orm";
 
 import { accounts, drizzle, items } from "~/db";
 import { newRouter } from "~/lib/helpers";
@@ -9,62 +9,80 @@ const YAMA_ITEM_IDS = [27277, 20997, 22486];
 export const yamaRouter = newRouter().get("/leaderboard", async (c) => {
   const db = drizzle(c.env.DB);
 
-  const topPlayersCTE = db.$with("top_players").as(
+  const rankedAccountsCTE = db.$with("ranked_accounts").as(
     db
       .select({
-        accountId: accounts.id,
-        username: accounts.username,
-        // Calculate the total quantity of specified items for ranking
-        totalQuantity: sql<number>`sum(${items.quantity})`.as(
-          "total_quantity_for_ranking",
-        ),
+        accountId: items.accountId,
+        totalQuantity: sum(items.quantity).mapWith(Number).as("total_quantity"),
       })
-      .from(accounts)
-      .innerJoin(items, sql`${accounts.id} = ${items.accountId}`)
-
-      .groupBy(accounts.id, accounts.username)
-      .orderBy(sql`total_quantity_for_ranking DESC`)
+      .from(items)
+      .where(inArray(items.id, YAMA_ITEM_IDS))
+      .groupBy(items.accountId)
+      .orderBy(desc(sum(items.quantity).mapWith(Number)))
       .limit(10),
   );
 
-  const queryResult = await db
-    .with(topPlayersCTE)
+  const orderedRows = await db
+    .with(rankedAccountsCTE)
     .select({
-      username: topPlayersCTE.username,
+      username: accounts.username,
+      accountId: accounts.id,
       itemId: items.id,
-      quantity: items.quantity,
+      itemQuantity: items.quantity,
+      totalRankedQuantity: rankedAccountsCTE.totalQuantity,
     })
-    .from(topPlayersCTE)
-    .innerJoin(items, sql`${topPlayersCTE.accountId} = ${items.accountId}`)
-    .where(sql`${items.id} IN ${YAMA_ITEM_IDS}`)
-    .orderBy(topPlayersCTE.username, items.id);
+    .from(rankedAccountsCTE)
+    .innerJoin(accounts, eq(accounts.id, rankedAccountsCTE.accountId))
+    .innerJoin(
+      items,
+      and(
+        eq(items.accountId, rankedAccountsCTE.accountId),
+        inArray(items.id, YAMA_ITEM_IDS),
+      ),
+    )
+    .orderBy(
+      desc(rankedAccountsCTE.totalQuantity),
+      rankedAccountsCTE.accountId,
+      items.id,
+    );
 
   const result: {
     username: string;
-    items: [{ id: number; quantity: number }];
+    items: { id: number; quantity: number }[];
   }[] = [];
+  let currentAccountId: string | null = null;
+  let currentAccountData: {
+    username: string;
+    items: { id: number; quantity: number }[];
+  } | null = null;
 
-  for (const row of queryResult) {
-    const existingPlayer = result.find(
-      (player) => player.username === row.username,
-    );
-
-    if (existingPlayer) {
-      existingPlayer.items.push({
-        id: row.itemId,
-        quantity: row.quantity,
-      });
-    } else {
-      result.push({
+  for (const row of orderedRows) {
+    if (currentAccountId !== row.accountId) {
+      // This is a new account in the ordered list
+      if (currentAccountData) {
+        result.push(currentAccountData);
+      }
+      currentAccountId = row.accountId;
+      currentAccountData = {
         username: row.username,
-        items: [
-          {
-            id: row.itemId,
-            quantity: row.quantity,
-          },
-        ],
+        items: [],
+      };
+    }
+
+    if (
+      currentAccountData &&
+      row.itemId !== null &&
+      row.itemQuantity !== null
+    ) {
+      currentAccountData.items.push({
+        id: row.itemId,
+        quantity: row.itemQuantity,
       });
     }
+  }
+
+  if (currentAccountData) {
+    result.push(currentAccountData);
   }
 
   return c.json(result, STATUS.OK);
