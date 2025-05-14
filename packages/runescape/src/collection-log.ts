@@ -379,6 +379,13 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["wt", "todt"],
       },
       {
+        name: "Yama",
+        items: [
+          30888, 30775, 30750, 30753, 30756, 30759, 3140, 30806, 30763, 30803,
+          30795,
+        ],
+      },
+      {
         name: "Zalcano",
         items: [23760, 23953, 23908, 6571],
         hiscore: { Zalcano: "Zalcano kills" },
@@ -2640,6 +2647,16 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   30631: "Fire element staff crown",
   30637: "Giantsoul amulet (uncharged)",
   30640: "Desiccated page",
+  30750: "Oathplate helm",
+  30753: "Oathplate chest",
+  30756: "Oathplate legs",
+  30759: "Soulflame horn",
+  30763: "Forgotten lockbox",
+  30775: "Chasm teleport scroll",
+  30795: "Barrel of demonic tallow (full)",
+  30803: "Dossier",
+  30806: "Rite of vile transference",
+  30888: "Yami",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =

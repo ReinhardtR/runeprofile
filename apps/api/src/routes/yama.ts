@@ -4,7 +4,7 @@ import { accounts, drizzle, items } from "~/db";
 import { newRouter } from "~/lib/helpers";
 import { STATUS } from "~/lib/status";
 
-const YAMA_ITEM_IDS = [27277, 20997, 22486];
+const YAMA_ITEM_IDS = [30888, 30750, 30753, 30756, 30759];
 
 export const yamaRouter = newRouter().get("/leaderboard", async (c) => {
   const db = drizzle(c.env.DB);
