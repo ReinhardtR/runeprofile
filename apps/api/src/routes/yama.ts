@@ -1,4 +1,5 @@
 import { and, desc, eq, inArray, sql, sum } from "drizzle-orm";
+import { cache } from "hono/cache";
 
 import { accounts, drizzle, items } from "~/db";
 import { newRouter } from "~/lib/helpers";
@@ -6,84 +7,90 @@ import { STATUS } from "~/lib/status";
 
 const YAMA_ITEM_IDS = [30888, 30750, 30753, 30756, 30759];
 
-export const yamaRouter = newRouter().get("/leaderboard", async (c) => {
-  const db = drizzle(c.env.DB);
+export const yamaRouter = newRouter().get(
+  "/leaderboard",
+  cache({ cacheName: "yama-leaderboard", cacheControl: "max-age=1800" }),
+  async (c) => {
+    const db = drizzle(c.env.DB);
 
-  const rankedAccountsCTE = db.$with("ranked_accounts").as(
-    db
-      .select({
-        accountId: items.accountId,
-        totalQuantity: sum(items.quantity).mapWith(Number).as("total_quantity"),
-      })
-      .from(items)
-      .where(inArray(items.id, YAMA_ITEM_IDS))
-      .groupBy(items.accountId)
-      .orderBy(desc(sum(items.quantity).mapWith(Number)))
-      .limit(10),
-  );
-
-  const orderedRows = await db
-    .with(rankedAccountsCTE)
-    .select({
-      username: accounts.username,
-      accountId: accounts.id,
-      itemId: items.id,
-      itemQuantity: items.quantity,
-      totalRankedQuantity: rankedAccountsCTE.totalQuantity,
-    })
-    .from(rankedAccountsCTE)
-    .innerJoin(accounts, eq(accounts.id, rankedAccountsCTE.accountId))
-    .innerJoin(
-      items,
-      and(
-        eq(items.accountId, rankedAccountsCTE.accountId),
-        inArray(items.id, YAMA_ITEM_IDS),
-      ),
-    )
-    .orderBy(
-      desc(rankedAccountsCTE.totalQuantity),
-      rankedAccountsCTE.accountId,
-      items.id,
+    const rankedAccountsCTE = db.$with("ranked_accounts").as(
+      db
+        .select({
+          accountId: items.accountId,
+          totalQuantity: sum(items.quantity)
+            .mapWith(Number)
+            .as("total_quantity"),
+        })
+        .from(items)
+        .where(inArray(items.id, YAMA_ITEM_IDS))
+        .groupBy(items.accountId)
+        .orderBy(desc(sum(items.quantity).mapWith(Number)))
+        .limit(10),
     );
 
-  const result: {
-    username: string;
-    items: { id: number; quantity: number }[];
-  }[] = [];
-  let currentAccountId: string | null = null;
-  let currentAccountData: {
-    username: string;
-    items: { id: number; quantity: number }[];
-  } | null = null;
+    const orderedRows = await db
+      .with(rankedAccountsCTE)
+      .select({
+        username: accounts.username,
+        accountId: accounts.id,
+        itemId: items.id,
+        itemQuantity: items.quantity,
+        totalRankedQuantity: rankedAccountsCTE.totalQuantity,
+      })
+      .from(rankedAccountsCTE)
+      .innerJoin(accounts, eq(accounts.id, rankedAccountsCTE.accountId))
+      .innerJoin(
+        items,
+        and(
+          eq(items.accountId, rankedAccountsCTE.accountId),
+          inArray(items.id, YAMA_ITEM_IDS),
+        ),
+      )
+      .orderBy(
+        desc(rankedAccountsCTE.totalQuantity),
+        rankedAccountsCTE.accountId,
+        items.id,
+      );
 
-  for (const row of orderedRows) {
-    if (currentAccountId !== row.accountId) {
-      // This is a new account in the ordered list
-      if (currentAccountData) {
-        result.push(currentAccountData);
+    const result: {
+      username: string;
+      items: { id: number; quantity: number }[];
+    }[] = [];
+    let currentAccountId: string | null = null;
+    let currentAccountData: {
+      username: string;
+      items: { id: number; quantity: number }[];
+    } | null = null;
+
+    for (const row of orderedRows) {
+      if (currentAccountId !== row.accountId) {
+        // This is a new account in the ordered list
+        if (currentAccountData) {
+          result.push(currentAccountData);
+        }
+        currentAccountId = row.accountId;
+        currentAccountData = {
+          username: row.username,
+          items: [],
+        };
       }
-      currentAccountId = row.accountId;
-      currentAccountData = {
-        username: row.username,
-        items: [],
-      };
+
+      if (
+        currentAccountData &&
+        row.itemId !== null &&
+        row.itemQuantity !== null
+      ) {
+        currentAccountData.items.push({
+          id: row.itemId,
+          quantity: row.itemQuantity,
+        });
+      }
     }
 
-    if (
-      currentAccountData &&
-      row.itemId !== null &&
-      row.itemQuantity !== null
-    ) {
-      currentAccountData.items.push({
-        id: row.itemId,
-        quantity: row.itemQuantity,
-      });
+    if (currentAccountData) {
+      result.push(currentAccountData);
     }
-  }
 
-  if (currentAccountData) {
-    result.push(currentAccountData);
-  }
-
-  return c.json(result, STATUS.OK);
-});
+    return c.json(result, STATUS.OK);
+  },
+);
