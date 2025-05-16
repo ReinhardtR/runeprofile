@@ -4,6 +4,7 @@ import { BufferGeometry } from "three";
 // @ts-expect-error
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
+import COLLECTION_LOG_RANK_ICONS from "~/assets/collection-log-rank-icons.json";
 import { Profile } from "~/lib/api";
 
 export function cn(...inputs: ClassValue[]) {
@@ -32,6 +33,32 @@ export function formatDate(date: string | Date) {
 
 export function getSkillXp(skills: Profile["skills"], skill: string) {
   return skills.find((s) => s.name === skill)?.xp || 0;
+}
+
+export function getCollectionLogRankIcon(uniqueItemsObtained: number) {
+  let rank = "";
+  if (uniqueItemsObtained >= 1400) {
+    rank = "gilded";
+  } else if (uniqueItemsObtained >= 1200) {
+    rank = "dragon";
+  } else if (uniqueItemsObtained >= 1100) {
+    rank = "rune";
+  } else if (uniqueItemsObtained >= 1000) {
+    rank = "adamant";
+  } else if (uniqueItemsObtained >= 900) {
+    rank = "mithril";
+  } else if (uniqueItemsObtained >= 700) {
+    rank = "black";
+  } else if (uniqueItemsObtained >= 500) {
+    rank = "steel";
+  } else if (uniqueItemsObtained >= 300) {
+    rank = "iron";
+  } else {
+    rank = "bronze";
+  }
+  return base64ImgSrc(
+    COLLECTION_LOG_RANK_ICONS[rank as keyof typeof COLLECTION_LOG_RANK_ICONS],
+  );
 }
 
 export function capitalize(str: string) {

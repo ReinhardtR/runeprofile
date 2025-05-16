@@ -34,7 +34,12 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
+import {
+  base64ImgSrc,
+  cn,
+  getCollectionLogRankIcon,
+  numberWithDelimiter,
+} from "~/lib/utils";
 
 export function CollectionLog({
   username,
@@ -109,7 +114,10 @@ export function CollectionLog({
   }, [hiscoresQuery.data, currentPage.hiscore]);
 
   return (
-    <Card icon={CollectionLogIcon} className="lg:w-full lg:h-[480px]">
+    <Card
+      icon={getCollectionLogRankIcon(obtainedCount)}
+      className="lg:w-full lg:h-[480px]"
+    >
       <div
         className={cn(
           "absolute inset-x-0 -top-[14px] left-[140px] mx-auto w-24 font-runescape text-lg font-bold solid-text-shadow",
