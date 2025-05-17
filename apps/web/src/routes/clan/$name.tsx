@@ -141,7 +141,7 @@ function RouteComponent() {
                 to="/$username"
                 params={{ username: member.username }}
                 key={member.username}
-                className="pt-8 overflow-hidden flex flex-row relative group"
+                className="pt-3 overflow-hidden flex flex-row relative group"
               >
                 <div className="bg-card border rounded-md p-4 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
                   <img

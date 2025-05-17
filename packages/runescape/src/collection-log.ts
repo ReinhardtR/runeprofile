@@ -381,7 +381,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Yama",
         items: [
-          30888, 30775, 30750, 30753, 30756, 30759, 3140, 30806, 30763, 30803,
+          30888, 30775, 30750, 30753, 30756, 30759, 30765, 30806, 30763, 30805,
           30795,
         ],
         hiscore: { Yama: "Yama kills" },
@@ -2656,7 +2656,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   30765: "Oathplate shards",
   30775: "Chasm teleport scroll",
   30795: "Barrel of demonic tallow (full)",
-  30803: "Dossier",
+  30805: "Dossier",
   30806: "Rite of vile transference",
   30888: "Yami",
 };
