@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { cache } from "hono/cache";
 import { z } from "zod";
 
-import { accounts, drizzle } from "~/db";
+import { accounts, drizzle, items } from "~/db";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
@@ -11,6 +11,7 @@ import {
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
+import { deleteProfile } from "~/lib/profiles/delete-profile";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
 import { searchProfiles } from "~/lib/profiles/search-profiles";
 import { updateProfile } from "~/lib/profiles/update-profile";
@@ -96,6 +97,25 @@ export const profilesRouter = newRouter()
       await updateProfile(db, data);
 
       return c.json({ message: "Profile updated" }, STATUS.OK);
+    },
+  )
+  .delete(
+    "/:id",
+    validator("param", z.object({ id: accountIdSchema })),
+    async (c) => {
+      const db = drizzle(c.env.DB);
+      const { id } = c.req.valid("param");
+
+      const account = await deleteProfile(db, id);
+
+      try {
+        await c.env.BUCKET.delete(account.username);
+        await c.env.BUCKET.delete(`${account.username}-pet`);
+      } catch (error) {
+        throw RuneProfileFailedToDeleteFileError;
+      }
+
+      return c.json({ message: "Profile deleted successfully" });
     },
   )
   .post(
