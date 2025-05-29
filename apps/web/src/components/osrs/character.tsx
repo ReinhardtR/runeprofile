@@ -103,7 +103,12 @@ export function Character({
 
 export function PlayerModel({ username }: { username: string }) {
   return (
-    <Canvas>
+    <Canvas
+      gl={{
+        alpha: true,
+      }}
+      flat
+    >
       <Model username={username} />
     </Canvas>
   );
