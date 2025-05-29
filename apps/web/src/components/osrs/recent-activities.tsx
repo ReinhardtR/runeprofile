@@ -39,7 +39,7 @@ export function RecentActivities({
   events: Profile["recentActivities"];
 }) {
   return (
-    <Card className="xl:w-full xl:h-24 items-end pb-3 grid grid-cols-3 xl:grid-cols-10 px-3">
+    <Card className="xl:w-full xl:h-24 items-start xl:items-end pb-3 grid grid-cols-3 xl:grid-cols-10 px-3 py-6 xl:pt-5">
       <p className="font-runescape text-osrs-orange text-lg absolute -top-4 text-center inset-x-0 font-bold solid-text-shadow">
         Latest Activities
       </p>

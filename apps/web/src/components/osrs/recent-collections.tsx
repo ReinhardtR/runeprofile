@@ -30,7 +30,7 @@ export function RecentCollections({
   events: Profile["recentItems"];
 }) {
   return (
-    <Card className="xl:w-full xl:h-24 px-4 grid grid-cols-3 xl:grid-cols-10 items-center">
+    <Card className="xl:w-full xl:h-24 px-4 grid grid-cols-3 xl:grid-cols-10 items-start xl:items-center py-6 xl:py-0">
       <p className="font-runescape text-osrs-orange text-lg absolute -top-4 text-center inset-x-0 font-bold solid-text-shadow">
         Latest Collections
       </p>

@@ -1,8 +1,15 @@
+import { Center } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import React from "react";
-import { BufferGeometry, Material, Mesh, MeshStandardMaterial } from "three";
+import {
+  BufferGeometry,
+  Euler,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+} from "three";
 import { CanvasTexture } from "three";
 
 import { AccountType } from "@runeprofile/runescape";
@@ -97,7 +104,6 @@ export function Character({
 export function PlayerModel({ username }: { username: string }) {
   return (
     <Canvas>
-      <ambientLight intensity={3.8} />
       <Model username={username} />
     </Canvas>
   );
@@ -108,36 +114,33 @@ const Model = React.memo(({ username }: { username: string }) => {
     useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
   const petMeshRef = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
 
-  const [playerObject, setPlayerObject] =
-    useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
-  const [petObject, setPetObject] =
-    useState<Mesh<BufferGeometry, MeshStandardMaterial>>();
+  const [playerGeometry, setPlayerGeometry] = useState<BufferGeometry>();
+  const [petGeometry, setPetGeometry] = useState<BufferGeometry>();
+
+  const material = React.useMemo(
+    () => new MeshBasicMaterial({ vertexColors: true }),
+    [],
+  );
+
+  const initialModelRotation = React.useMemo(
+    () => new Euler(-1.55, 0, 0.1),
+    [],
+  );
 
   React.useEffect(() => {
-    const createMesh = (geometry: BufferGeometry) => {
-      geometry.computeVertexNormals();
-      const material = new MeshStandardMaterial({
-        vertexColors: true,
-      });
-      const m = new Mesh(geometry, material);
-      m.rotateX(-1.55);
-      m.rotateZ(0.1);
-      return m;
-    };
-
     // Clear previous models
-    setPlayerObject(undefined);
-    setPetObject(undefined);
+    setPlayerGeometry(undefined);
+    setPetGeometry(undefined);
 
     getProfileModels({ username, includePet: true })
       .then((models) => {
         loadModelFromBase64(models.playerModelBase64).then((geometry) =>
-          setPlayerObject(createMesh(geometry)),
+          setPlayerGeometry(geometry),
         );
 
         if (models.petModelBase64) {
           loadModelFromBase64(models.petModelBase64).then((geometry) =>
-            setPetObject(createMesh(geometry)),
+            setPetGeometry(geometry),
           );
         }
       })
@@ -148,7 +151,7 @@ const Model = React.memo(({ username }: { username: string }) => {
         );
 
         loadModelFromBase64(defaultPlayerModel.base64).then((geometry) =>
-          setPlayerObject(createMesh(geometry)),
+          setPlayerGeometry(geometry),
         );
       });
   }, [username]);
@@ -156,42 +159,46 @@ const Model = React.memo(({ username }: { username: string }) => {
   useFrame(({ clock }) => {
     if (!playerMeshRef.current) return;
     const y = Math.sin(clock.getElapsedTime());
-    playerMeshRef.current.rotation.y = y;
+    playerMeshRef.current.rotation.z = y;
 
     if (!petMeshRef.current) return;
-    petMeshRef.current.rotation.y = y / 1.5;
+    petMeshRef.current.rotation.z = y / 1.5;
   });
 
   const shadowTexture = React.useMemo(() => createRadialTexture(), []);
 
+  const modelScale = 0.028;
+  const playerPosition = [0, -3, 0] as const;
+  const petPosition = [2.5, -3.3, -3] as const;
+
   return (
-    <>
-      {playerObject && (
-        <>
+    <Center rotateX={Math.PI}>
+      {playerGeometry && (
+        <group>
           <mesh
-            castShadow
             ref={playerMeshRef}
-            scale={0.028}
-            position={[0, -3, 0]}
-          >
-            <primitive object={playerObject} />
-          </mesh>
+            geometry={playerGeometry}
+            material={material}
+            scale={modelScale}
+            position={playerPosition}
+            rotation={initialModelRotation}
+          />
 
           <mesh rotation-x={-Math.PI / 2} position={[0, -3.01, 0]} scale={1.4}>
             <circleGeometry args={[1, 32]} />
             <meshBasicMaterial map={shadowTexture} transparent />
           </mesh>
 
-          {petObject && (
+          {petGeometry && (
             <>
               <mesh
-                castShadow
                 ref={petMeshRef}
-                scale={0.028}
-                position={[2.5, -3.3, -3]}
-              >
-                <primitive object={petObject} />
-              </mesh>
+                geometry={petGeometry}
+                material={material}
+                scale={modelScale}
+                position={petPosition}
+                rotation={initialModelRotation}
+              />
 
               <mesh
                 rotation-x={-Math.PI / 2}
@@ -203,9 +210,9 @@ const Model = React.memo(({ username }: { username: string }) => {
               </mesh>
             </>
           )}
-        </>
+        </group>
       )}
-    </>
+    </Center>
   );
 });
 
