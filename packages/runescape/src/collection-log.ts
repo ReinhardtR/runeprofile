@@ -381,7 +381,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Yama",
         items: [
-          30888, 30775, 30750, 30753, 30756, 30759, 30765, 30806, 30763, 30805,
+          30888, 30775, 30765, 30750, 30753, 30756, 30759, 30806, 30763, 30805,
           30795,
         ],
         hiscore: { Yama: "Yama kills" },

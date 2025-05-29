@@ -8,9 +8,9 @@ export const COMBAT_ACHIEVEMENT_TIERS = [
   { id: 1, name: "Easy", tasksCount: 38 },
   { id: 2, name: "Medium", tasksCount: 55 },
   { id: 3, name: "Hard", tasksCount: 82 },
-  { id: 4, name: "Elite", tasksCount: 155 },
-  { id: 5, name: "Master", tasksCount: 158 },
-  { id: 6, name: "Grandmaster", tasksCount: 111 },
+  { id: 4, name: "Elite", tasksCount: 158 },
+  { id: 5, name: "Master", tasksCount: 163 },
+  { id: 6, name: "Grandmaster", tasksCount: 114 },
 ] as const satisfies CombatAchievementTier[];
 
 export function getCombatAchievementTierTaskCount(id: number) {
