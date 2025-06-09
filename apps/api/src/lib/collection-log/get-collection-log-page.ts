@@ -40,7 +40,7 @@ export async function getCollectionLogPage(
       RuneProfileAccountNotFoundError.status,
       RuneProfileAccountNotFoundError.code,
       RuneProfileAccountNotFoundError.message +
-        " A guide can be found on the website.",
+        "Click RuneProfile button in the Collection Log window - A guide can be found on the website.",
     );
   }
 
