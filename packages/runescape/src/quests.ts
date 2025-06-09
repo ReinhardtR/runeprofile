@@ -72,6 +72,7 @@ export const QUESTS = [
   { id: 9, name: "Biohazard", points: 3, type: QuestType.MEMBERS },
   { id: 11, name: "Bone Voyage", points: 1, type: QuestType.MEMBERS },
   { id: 12, name: "Cabin Fever", points: 2, type: QuestType.MEMBERS },
+  { id: 3450, name: "Children of the Sun", points: 1, type: QuestType.MEMBERS },
   { id: 13, name: "Client of Kourend", points: 1, type: QuestType.MEMBERS },
   { id: 14, name: "Clock Tower", points: 1, type: QuestType.MEMBERS },
   { id: 15, name: "Cold War", points: 1, type: QuestType.MEMBERS },
