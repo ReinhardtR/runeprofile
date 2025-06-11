@@ -94,7 +94,12 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.DB);
       const data = c.req.valid("json");
 
-      await updateProfile(db, data);
+      try {
+        await updateProfile(db, data);
+      } catch (error) {
+        console.log("Data: ", data);
+        throw error;
+      }
 
       return c.json({ message: "Profile updated" }, STATUS.OK);
     },
