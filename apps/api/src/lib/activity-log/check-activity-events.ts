@@ -138,12 +138,6 @@ export function checkQuestCompletedEvents(
     // not completed
     if (questUpdate.state !== QuestState.FINISHED) continue;
 
-    // this quest was missing and added recently - so dont include for like a week
-    // so the least amount of active users get confused
-    if (questUpdate.id === 3450) {
-      continue;
-    }
-
     events.push({
       type: "quest_completed",
       data: {
