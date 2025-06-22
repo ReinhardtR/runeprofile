@@ -153,10 +153,7 @@ export const skillsRelations = relations(skills, ({ one }) => ({
 export const activities = sqliteTable(
   "activities",
   {
-    id: text()
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
+    id: text().notNull().primaryKey(),
     accountId: text().notNull().references(account),
     type: text().notNull().$type<ActivityEvent["type"]>(),
     data: text({ mode: "json" }).notNull().$type<ActivityEvent["data"]>(),

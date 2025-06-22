@@ -72,6 +72,7 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
   const activityEvents = checkActivityEvents(updates);
   const activitiesValues: Array<InferInsertModel<typeof activities>> =
     activityEvents.map((activity) => ({
+      id: crypto.randomUUID(),
       accountId,
       type: activity.type,
       data: activity.data,
@@ -142,9 +143,8 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
           set: buildConflictUpdateColumns(skills, ["xp"]),
         }),
     ),
-    ...autochunk(
-      { items: activitiesValues, otherParametersCount: 1 },
-      (chunk) => db.insert(activities).values(chunk),
+    ...autochunk({ items: activitiesValues }, (chunk) =>
+      db.insert(activities).values(chunk),
     ),
   ]);
 }
