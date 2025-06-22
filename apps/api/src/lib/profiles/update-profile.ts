@@ -77,82 +77,74 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
       data: activity.data,
     }));
 
-  try {
-    await Promise.all([
+  await Promise.all([
+    db
+      .update(accounts)
+      .set({
+        username: updates.username,
+        accountType: updates.accountType,
+        clanName: updates.clan?.name,
+        clanRank: updates.clan?.rank,
+        clanIcon: updates.clan?.icon,
+        clanTitle: updates.clan?.title,
+      })
+      .where(eq(accounts.id, accountId)),
+    ...autochunk({ items: achievementDiaryTiersValues }, (chunk) =>
       db
-        .update(accounts)
-        .set({
-          username: updates.username,
-          accountType: updates.accountType,
-          clanName: updates.clan?.name,
-          clanRank: updates.clan?.rank,
-          clanIcon: updates.clan?.icon,
-          clanTitle: updates.clan?.title,
-        })
-        .where(eq(accounts.id, accountId)),
-      ...autochunk({ items: achievementDiaryTiersValues }, (chunk) =>
-        db
-          .insert(achievementDiaryTiers)
-          .values(chunk)
-          .onConflictDoUpdate({
-            target: [
-              achievementDiaryTiers.accountId,
-              achievementDiaryTiers.areaId,
-              achievementDiaryTiers.tier,
-            ],
-            set: buildConflictUpdateColumns(achievementDiaryTiers, [
-              "completedCount",
-            ]),
-          }),
-      ),
-      ...autochunk({ items: combatAchievementTiersValues }, (chunk) =>
-        db
-          .insert(combatAchievementTiers)
-          .values(chunk)
-          .onConflictDoUpdate({
-            target: [
-              combatAchievementTiers.accountId,
-              combatAchievementTiers.id,
-            ],
-            set: buildConflictUpdateColumns(combatAchievementTiers, [
-              "completedCount",
-            ]),
-          }),
-      ),
-      ...autochunk({ items: itemsValues }, (chunk) =>
-        db
-          .insert(items)
-          .values(chunk)
-          .onConflictDoUpdate({
-            target: [items.accountId, items.id],
-            set: buildConflictUpdateColumns(items, ["quantity"]),
-          }),
-      ),
-      ...autochunk({ items: questsValues }, (chunk) =>
-        db
-          .insert(quests)
-          .values(chunk)
-          .onConflictDoUpdate({
-            target: [quests.accountId, quests.id],
-            set: buildConflictUpdateColumns(quests, ["state"]),
-          }),
-      ),
-      ...autochunk({ items: skillsValues }, (chunk) =>
-        db
-          .insert(skills)
-          .values(chunk)
-          .onConflictDoUpdate({
-            target: [skills.accountId, skills.name],
-            set: buildConflictUpdateColumns(skills, ["xp"]),
-          }),
-      ),
-      ...autochunk({ items: activitiesValues }, (chunk) =>
-        db.insert(activities).values(chunk),
-      ),
-    ]);
-  } catch (error) {
-    console.log("Updates: ", updates);
-    console.log("Activities: ", activityEvents);
-    throw error;
-  }
+        .insert(achievementDiaryTiers)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [
+            achievementDiaryTiers.accountId,
+            achievementDiaryTiers.areaId,
+            achievementDiaryTiers.tier,
+          ],
+          set: buildConflictUpdateColumns(achievementDiaryTiers, [
+            "completedCount",
+          ]),
+        }),
+    ),
+    ...autochunk({ items: combatAchievementTiersValues }, (chunk) =>
+      db
+        .insert(combatAchievementTiers)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [combatAchievementTiers.accountId, combatAchievementTiers.id],
+          set: buildConflictUpdateColumns(combatAchievementTiers, [
+            "completedCount",
+          ]),
+        }),
+    ),
+    ...autochunk({ items: itemsValues }, (chunk) =>
+      db
+        .insert(items)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [items.accountId, items.id],
+          set: buildConflictUpdateColumns(items, ["quantity"]),
+        }),
+    ),
+    ...autochunk({ items: questsValues }, (chunk) =>
+      db
+        .insert(quests)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [quests.accountId, quests.id],
+          set: buildConflictUpdateColumns(quests, ["state"]),
+        }),
+    ),
+    ...autochunk({ items: skillsValues }, (chunk) =>
+      db
+        .insert(skills)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [skills.accountId, skills.name],
+          set: buildConflictUpdateColumns(skills, ["xp"]),
+        }),
+    ),
+    ...autochunk(
+      { items: activitiesValues, otherParametersCount: 1 },
+      (chunk) => db.insert(activities).values(chunk),
+    ),
+  ]);
 }
