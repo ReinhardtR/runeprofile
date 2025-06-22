@@ -36,6 +36,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Amoxliatl",
         items: [30154, 29889, 29892, 29895],
         hiscore: { Amoxliatl: "Amoxliatl kills" },
+        aliases: ["amox"],
       },
       {
         name: "Araxxor",
