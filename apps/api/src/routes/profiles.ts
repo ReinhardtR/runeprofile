@@ -30,7 +30,10 @@ export const profilesRouter = newRouter()
   .get(
     "/:username",
     validator("param", z.object({ username: usernameSchema })),
-    cache({ cacheName: "profile", cacheControl: "max-age=60" }),
+    cache({
+      cacheName: "profile",
+      cacheControl: "public, max-age=0, s-maxage=60",
+    }),
     async (c) => {
       const db = drizzle(c.env.DB);
       const { username } = c.req.valid("param");
@@ -50,7 +53,10 @@ export const profilesRouter = newRouter()
         page: z.string(),
       }),
     ),
-    cache({ cacheName: "clog-page", cacheControl: "max-age=10" }),
+    cache({
+      cacheName: "clog-page",
+      cacheControl: "public, max-age=0, s-maxage=10",
+    }),
     async (c) => {
       const db = drizzle(c.env.DB);
       const { username, page } = c.req.valid("param");
