@@ -114,6 +114,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["dks"],
       },
       {
+        name: "Deranged Archaeologist",
+        items: [30895],
+        hiscore: {
+          "Deranged Archaeologist": "Deranged Archaeologist kills",
+        },
+        aliases: ["deranged arch"],
+      },
+      {
         name: "Duke Sucellus",
         items: [
           28250, 28321, 26241, 26243, 26245, 28281, 28270, 28333, 28276, 28334,
@@ -468,8 +476,8 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Tombs of Amascut",
         items: [
           27352, 27277, 25985, 27226, 27229, 27232, 25975, 26219, 27279, 27283,
-          27285, 27289, 27255, 27248, 27372, 27293, 27257, 27259, 27261, 27263,
-          27265, 27377, 27378, 27379, 27380, 27381,
+          27285, 27289, 30893, 27255, 27248, 27372, 27293, 27257, 27259, 27261,
+          27263, 27265, 27377, 27378, 27379, 27380, 27381,
         ],
         hiscore: {
           "Tombs of Amascut": "Tombs of Amascut completions",
@@ -2660,6 +2668,8 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   30805: "Dossier",
   30806: "Rite of vile transference",
   30888: "Yami",
+  30893: "Jewel of amascut",
+  30895: "Steel ring",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =

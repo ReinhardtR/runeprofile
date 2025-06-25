@@ -14,16 +14,6 @@ import {
 import { Profile } from "~/lib/api";
 import { base64ImgSrc, cn } from "~/lib/utils";
 
-const DEMO_ITEMS = [
-  12934, 22486, 27293, 27289, 27277, 20997, 20693, 21021, 20014, 13576,
-];
-const DEMO_EVENTS: Profile["recentItems"] = DEMO_ITEMS.map((itemId) => ({
-  type: ActivityEventType.NEW_ITEM_OBTAINED,
-  data: {
-    itemId,
-  },
-}));
-
 export function RecentCollections({
   events,
 }: {
