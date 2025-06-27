@@ -2610,7 +2610,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   29309: "Huntsman's kit",
   29455: "Teleport anchoring scroll",
   29482: "Brimhaven voucher",
-  29574: "Bone claw",
+  29574: "Burning claw",
   29580: "Tormented synapse",
   29684: "Guthixian temple teleport",
   29781: "Coagulated venom",
