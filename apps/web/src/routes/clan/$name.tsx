@@ -1,9 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import {
-  debounce,
-  useDebouncedState,
-  useDebouncedValue,
-} from "@tanstack/react-pacer";
+import { debounce, useDebouncedValue } from "@tanstack/react-pacer";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ErrorComponentProps,
@@ -19,18 +15,11 @@ import { z } from "zod";
 import AccountTypeIcons from "~/assets/account-type-icons.json";
 import ClanRankIcons from "~/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/assets/default-player-model.json";
+import { BasicPagination } from "~/components/basic-pagination";
 import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "~/components/ui/pagination";
 import { Separator } from "~/components/ui/separator";
 import { getClanMembers, getProfileModels } from "~/lib/api";
 import { base64ImgSrc, loadModelFromBase64 } from "~/lib/utils";
@@ -86,11 +75,7 @@ function RouteComponent() {
   const [query, setQuery] = React.useState(search.q || "");
   const [debouncedQuery] = useDebouncedValue(query, { wait: 300 });
 
-  const previousPage = clan.page ? clan.page - 1 : undefined;
-  const nextPage = (clan.page ?? 1) + 1;
   const pageCount = Math.ceil(clan.total / clan.pageSize);
-  const isFirstPage = clan.page === 1;
-  const isLastPage = clan.page === pageCount;
 
   const showPagination = pageCount > 1 || search.page !== undefined;
   const showSearch = pageCount > 1 || !!query;
@@ -176,43 +161,19 @@ function RouteComponent() {
         </div>
 
         {showPagination && (
-          <Pagination className="justify-end mt-6">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  to="/clan/$name"
-                  params={{ name: params.name }}
-                  search={{ page: previousPage }}
-                  disabled={isFirstPage}
-                />
-              </PaginationItem>
-
-              {[...Array(pageCount)].map((_, i) => {
-                const page = i + 1;
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      isActive={page === clan.page}
-                      to="/clan/$name"
-                      params={{ name: params.name }}
-                      search={{ page }}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-
-              <PaginationItem>
-                <PaginationNext
-                  to="/clan/$name"
-                  params={{ name: params.name }}
-                  search={{ page: nextPage }}
-                  disabled={isLastPage}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <BasicPagination
+            className="justify-end mt-6"
+            totalItems={clan.total}
+            pageSize={clan.pageSize}
+            currentPage={clan.page}
+            onPageChange={(page) => {
+              navigate({
+                to: "/clan/$name",
+                params: { name: params.name },
+                search: { page },
+              });
+            }}
+          />
         )}
       </div>
       <Footer />
