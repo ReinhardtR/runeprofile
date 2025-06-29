@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { debounce, useDebouncedValue } from "@tanstack/react-pacer";
+import { useDebouncedValue } from "@tanstack/react-pacer";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ErrorComponentProps,

@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { cache } from "hono/cache";
 import { z } from "zod";
 
-import { accounts, drizzle, items } from "~/db";
+import { accounts, drizzle } from "~/db";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,

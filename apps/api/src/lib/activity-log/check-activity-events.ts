@@ -16,6 +16,10 @@ import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 export function checkActivityEvents(updates: ProfileUpdates) {
   if (updates.newAccount) return [];
 
+  if (updates.username === "Ailhay") {
+    console.log(updates);
+  }
+
   const events: ActivityEvent[] = [
     ...checkLevelUpEvents(updates.skills),
     ...checkNewItemObtainedEvents(updates.items),
