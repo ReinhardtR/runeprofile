@@ -193,7 +193,10 @@ export const profilesRouter = newRouter()
     "/models/:username",
     validator("param", z.object({ username: usernameSchema })),
     validator("query", z.object({ pet: z.coerce.boolean() })),
-    cache({ cacheName: "profile-model", cacheControl: "max-age=60" }),
+    cache({
+      cacheName: "profile-model",
+      cacheControl: "public, max-age=0, s-maxage=60",
+    }),
     async (c) => {
       const { username } = c.req.valid("param");
       const { pet: includePet } = c.req.valid("query");

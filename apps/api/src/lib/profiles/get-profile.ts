@@ -12,13 +12,13 @@ import {
   SKILLS,
 } from "@runeprofile/runescape";
 
-import { Database, accounts, activities } from "~/db";
+import { Database, accounts } from "~/db";
 import { lower } from "~/db/helpers";
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;
 
-export async function getProfileByUsername(db: Database, username: string) {
+export function getProfileByUsername(db: Database, username: string) {
   return getProfile(db, eq(lower(accounts.username), username.toLowerCase()));
 }
 

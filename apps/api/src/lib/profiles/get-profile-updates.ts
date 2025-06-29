@@ -7,6 +7,10 @@ import {
 } from "@runeprofile/runescape";
 
 import { Database } from "~/db";
+import {
+  RuneProfileAccountNotFoundError,
+  RuneProfileError,
+} from "~/lib/errors";
 import { Profile, getProfileById } from "~/lib/profiles/get-profile";
 
 export type UpdateProfileInput = {
@@ -80,7 +84,15 @@ export async function getProfileUpdates(
   let profile: Profile | null = null;
   try {
     profile = await getProfileById(db, input.id);
-  } catch {}
+  } catch (e) {
+    // Finding the profile failed for other reasons than not found
+    if (
+      !(e instanceof RuneProfileError) ||
+      e.code !== RuneProfileAccountNotFoundError.code
+    ) {
+      throw e;
+    }
+  }
 
   return {
     id: input.id,
