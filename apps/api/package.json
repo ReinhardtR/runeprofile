@@ -10,6 +10,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "wrangler dev src/index.ts",
+    "dev:remote": "wrangler dev src/index.ts --remote",
     "dev:api-client": "tsc -p tsconfig.build.json --watch",
     "dev:setup": "pnpm run db:migrate && pnpm run db:seed",
     "build": "tsc -p tsconfig.build.json",

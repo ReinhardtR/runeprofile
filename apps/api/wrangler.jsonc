@@ -25,7 +25,8 @@
   "r2_buckets": [
     {
       "binding": "BUCKET",
-      "bucket_name": "runeprofile-player-models"
+      "bucket_name": "runeprofile-player-models",
+      "preview_bucket_name": "runeprofile-player-models"
     }
   ]
 }

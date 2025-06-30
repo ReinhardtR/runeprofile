@@ -166,21 +166,23 @@ export const profilesRouter = newRouter()
         throw RuneProfileAccountNotFoundError;
       }
 
+      const username = account.username.toLowerCase();
+
       try {
-        await c.env.BUCKET.put(account.username, model.stream());
+        await c.env.BUCKET.put(username, model.stream());
       } catch (error) {
         throw RuneProfileFailedToUploadFileError;
       }
 
       if (petModel) {
         try {
-          await c.env.BUCKET.put(`${account.username}-pet`, petModel.stream());
+          await c.env.BUCKET.put(`${username}-pet`, petModel.stream());
         } catch (error) {
           throw RuneProfileFailedToUploadFileError;
         }
       } else {
         try {
-          await c.env.BUCKET.delete(`${account.username}-pet`);
+          await c.env.BUCKET.delete(`${username}-pet`);
         } catch (error) {
           throw RuneProfileFailedToDeleteFileError;
         }
@@ -191,7 +193,10 @@ export const profilesRouter = newRouter()
   )
   .get(
     "/models/:username",
-    validator("param", z.object({ username: usernameSchema })),
+    validator(
+      "param",
+      z.object({ username: usernameSchema.transform((v) => v.toLowerCase()) }),
+    ),
     validator("query", z.object({ pet: z.coerce.boolean() })),
     cache({
       cacheName: "profile-model",
