@@ -106,7 +106,9 @@ function Skill({ name, level, xp, combatLevel }: SkillProps) {
                   level === 1 || (name === "Hitpoints" && level === 10),
               },
               {
-                "skill-200m-text": xp >= 200_000_000 && name !== "Overall",
+                "skill-200m-text":
+                  (xp >= 200_000_000 && name !== "Overall") ||
+                  (xp >= 4_600_000_000 && isOverall),
               },
             )}
           >
