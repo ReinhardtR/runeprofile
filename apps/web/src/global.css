@@ -241,7 +241,7 @@
   scrollbar-width: none; /* Firefox */
 }
 
-.skill-200m-text {
+.shimmer-text {
   z-index: 1;
   position: relative;
   background: linear-gradient(

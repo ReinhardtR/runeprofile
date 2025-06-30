@@ -4,6 +4,7 @@ export const ActivityEventType = {
   ACHIEVEMENT_DIARY_TIER_COMPLETED: "achievement_diary_tier_completed",
   COMBAT_ACHIEVEMENT_TIER_COMPLETED: "combat_achievement_tier_completed",
   QUEST_COMPLETED: "quest_completed",
+  MAXED: "maxed",
 } as const;
 
 export type LevelUpEvent = {
@@ -43,9 +44,15 @@ export type QuestCompletedEvent = {
   };
 };
 
+export type MaxedEvent = {
+  type: typeof ActivityEventType.MAXED;
+  data: {};
+};
+
 export type ActivityEvent =
   | LevelUpEvent
   | NewItemObtainedEvent
   | AchievementDiaryTierCompletedEvent
   | CombatAchievementTierCompletedEvent
-  | QuestCompletedEvent;
+  | QuestCompletedEvent
+  | MaxedEvent;

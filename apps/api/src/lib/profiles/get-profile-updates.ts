@@ -40,7 +40,7 @@ export type UpdateProfileInput = {
 
 export type ProfileUpdates = {
   id: string;
-  newAccount: boolean;
+  currentProfile: Profile | null;
   username: string;
   accountType: number;
   clan?: {
@@ -110,7 +110,7 @@ export async function getProfileUpdates(
     items: getItemUpdates(input.items, profile?.items || []),
     quests: getQuestUpdates(input.quests, profile?.quests || []),
     skills: getSkillUpdates(input.skills, profile?.skills || []),
-    newAccount: !profile,
+    currentProfile: profile,
   };
 }
 

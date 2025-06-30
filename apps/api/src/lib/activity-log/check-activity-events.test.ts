@@ -1,26 +1,30 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  MAX_SKILL_LEVEL,
   QuestState,
   getAchievementDiaryTierTaskCount,
   getCombatAchievementTierTaskCount,
+  getLevelXpThreshold,
 } from "@runeprofile/runescape";
 
 import {
   checkAchievementDiaryTierCompletedEvents,
   checkCombatAchievementTierCompletedEvents,
   checkLevelUpEvents,
+  checkMaxedEvent,
   checkNewItemObtainedEvents,
   checkQuestCompletedEvents,
 } from "~/lib/activity-log/check-activity-events";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
 describe("LEVEL UP EVENTS", () => {
+  const maxedSkillXp = getLevelXpThreshold(MAX_SKILL_LEVEL);
   test("milestone", () => {
     expect(
       checkLevelUpEvents([
-        { name: "Attack", xp: 13034431, oldXp: 11805606 }, // 98 -> 99
-        { name: "Strength", xp: 13034431, oldXp: 11805606 }, // 98 -> 99
+        { name: "Attack", xp: maxedSkillXp, oldXp: 11805606 }, // 98 -> 99
+        { name: "Strength", xp: maxedSkillXp, oldXp: 11805606 }, // 98 -> 99
       ]),
     ).toEqual([
       { type: "level_up", data: { name: "Attack", level: 99 } },
@@ -31,7 +35,7 @@ describe("LEVEL UP EVENTS", () => {
   test("milestone skip", () => {
     expect(
       checkLevelUpEvents([
-        { name: "Defence", xp: 13034431, oldXp: 0 }, // 1 -> 99
+        { name: "Defence", xp: maxedSkillXp, oldXp: 0 }, // 1 -> 99
       ]),
     ).toEqual([{ type: "level_up", data: { name: "Defence", level: 99 } }]);
   });
@@ -45,7 +49,9 @@ describe("LEVEL UP EVENTS", () => {
 
   test("should not generate level up event if old level is already at or above milestone", () => {
     expect(
-      checkLevelUpEvents([{ name: "Ranged", xp: 13034431, oldXp: 13034432 }]), // 99 -> 99
+      checkLevelUpEvents([
+        { name: "Ranged", xp: maxedSkillXp, oldXp: 13034432 },
+      ]), // 99 -> 99
     ).toEqual([]);
   });
 });
@@ -230,5 +236,169 @@ describe("QUEST COMPLETED EVENTS", () => {
         },
       ]),
     ).toEqual([]);
+  });
+});
+
+describe("MAXED EVENT", () => {
+  const maxedSkillXp = getLevelXpThreshold(MAX_SKILL_LEVEL);
+  const level98Xp = getLevelXpThreshold(98);
+
+  test("maxed", () => {
+    expect(
+      checkMaxedEvent(
+        [
+          { name: "Attack", xp: level98Xp },
+          { name: "Hitpoints", xp: maxedSkillXp },
+          { name: "Mining", xp: maxedSkillXp },
+          { name: "Strength", xp: maxedSkillXp },
+          { name: "Agility", xp: maxedSkillXp },
+          { name: "Smithing", xp: maxedSkillXp },
+          { name: "Defence", xp: maxedSkillXp },
+          { name: "Herblore", xp: maxedSkillXp },
+          { name: "Fishing", xp: maxedSkillXp },
+          { name: "Ranged", xp: maxedSkillXp },
+          { name: "Thieving", xp: maxedSkillXp },
+          { name: "Cooking", xp: maxedSkillXp },
+          { name: "Prayer", xp: maxedSkillXp },
+          { name: "Crafting", xp: maxedSkillXp },
+          { name: "Firemaking", xp: maxedSkillXp },
+          { name: "Magic", xp: maxedSkillXp },
+          { name: "Fletching", xp: maxedSkillXp },
+          { name: "Woodcutting", xp: maxedSkillXp },
+          { name: "Runecraft", xp: maxedSkillXp },
+          { name: "Slayer", xp: maxedSkillXp },
+          { name: "Farming", xp: maxedSkillXp },
+          { name: "Construction", xp: maxedSkillXp },
+          { name: "Hunter", xp: maxedSkillXp },
+        ],
+        [
+          {
+            name: "Attack",
+            xp: maxedSkillXp,
+            oldXp: level98Xp,
+          },
+        ],
+      ),
+    ).toEqual({
+      type: "maxed",
+      data: {},
+    });
+  });
+
+  test("not maxed - xp up", () => {
+    expect(
+      checkMaxedEvent(
+        [
+          { name: "Attack", xp: level98Xp },
+          { name: "Hitpoints", xp: maxedSkillXp },
+          { name: "Mining", xp: maxedSkillXp },
+          { name: "Strength", xp: maxedSkillXp },
+          { name: "Agility", xp: maxedSkillXp },
+          { name: "Smithing", xp: maxedSkillXp },
+          { name: "Defence", xp: maxedSkillXp },
+          { name: "Herblore", xp: maxedSkillXp },
+          { name: "Fishing", xp: maxedSkillXp },
+          { name: "Ranged", xp: maxedSkillXp },
+          { name: "Thieving", xp: maxedSkillXp },
+          { name: "Cooking", xp: maxedSkillXp },
+          { name: "Prayer", xp: maxedSkillXp },
+          { name: "Crafting", xp: maxedSkillXp },
+          { name: "Firemaking", xp: maxedSkillXp },
+          { name: "Magic", xp: maxedSkillXp },
+          { name: "Fletching", xp: maxedSkillXp },
+          { name: "Woodcutting", xp: maxedSkillXp },
+          { name: "Runecraft", xp: maxedSkillXp },
+          { name: "Slayer", xp: maxedSkillXp },
+          { name: "Farming", xp: maxedSkillXp },
+          { name: "Construction", xp: maxedSkillXp },
+          { name: "Hunter", xp: maxedSkillXp },
+        ],
+        [
+          {
+            name: "Attack",
+            xp: level98Xp + 1,
+            oldXp: level98Xp,
+          },
+        ],
+      ),
+    ).toEqual(undefined);
+  });
+
+  test("not maxed - maxed skill", () => {
+    expect(
+      checkMaxedEvent(
+        [
+          { name: "Attack", xp: level98Xp },
+          { name: "Hitpoints", xp: level98Xp },
+          { name: "Mining", xp: maxedSkillXp },
+          { name: "Strength", xp: maxedSkillXp },
+          { name: "Agility", xp: maxedSkillXp },
+          { name: "Smithing", xp: maxedSkillXp },
+          { name: "Defence", xp: maxedSkillXp },
+          { name: "Herblore", xp: maxedSkillXp },
+          { name: "Fishing", xp: maxedSkillXp },
+          { name: "Ranged", xp: maxedSkillXp },
+          { name: "Thieving", xp: maxedSkillXp },
+          { name: "Cooking", xp: maxedSkillXp },
+          { name: "Prayer", xp: maxedSkillXp },
+          { name: "Crafting", xp: maxedSkillXp },
+          { name: "Firemaking", xp: maxedSkillXp },
+          { name: "Magic", xp: maxedSkillXp },
+          { name: "Fletching", xp: maxedSkillXp },
+          { name: "Woodcutting", xp: maxedSkillXp },
+          { name: "Runecraft", xp: maxedSkillXp },
+          { name: "Slayer", xp: maxedSkillXp },
+          { name: "Farming", xp: maxedSkillXp },
+          { name: "Construction", xp: maxedSkillXp },
+          { name: "Hunter", xp: maxedSkillXp },
+        ],
+        [
+          {
+            name: "Attack",
+            xp: maxedSkillXp,
+            oldXp: level98Xp,
+          },
+        ],
+      ),
+    ).toEqual(undefined);
+  });
+
+  test("already maxed", () => {
+    expect(
+      checkMaxedEvent(
+        [
+          { name: "Attack", xp: maxedSkillXp },
+          { name: "Hitpoints", xp: level98Xp },
+          { name: "Mining", xp: maxedSkillXp },
+          { name: "Strength", xp: maxedSkillXp },
+          { name: "Agility", xp: maxedSkillXp },
+          { name: "Smithing", xp: maxedSkillXp },
+          { name: "Defence", xp: maxedSkillXp },
+          { name: "Herblore", xp: maxedSkillXp },
+          { name: "Fishing", xp: maxedSkillXp },
+          { name: "Ranged", xp: maxedSkillXp },
+          { name: "Thieving", xp: maxedSkillXp },
+          { name: "Cooking", xp: maxedSkillXp },
+          { name: "Prayer", xp: maxedSkillXp },
+          { name: "Crafting", xp: maxedSkillXp },
+          { name: "Firemaking", xp: maxedSkillXp },
+          { name: "Magic", xp: maxedSkillXp },
+          { name: "Fletching", xp: maxedSkillXp },
+          { name: "Woodcutting", xp: maxedSkillXp },
+          { name: "Runecraft", xp: maxedSkillXp },
+          { name: "Slayer", xp: maxedSkillXp },
+          { name: "Farming", xp: maxedSkillXp },
+          { name: "Construction", xp: maxedSkillXp },
+          { name: "Hunter", xp: maxedSkillXp },
+        ],
+        [
+          {
+            name: "Attack",
+            xp: maxedSkillXp + 1,
+            oldXp: maxedSkillXp,
+          },
+        ],
+      ),
+    ).toEqual(undefined);
   });
 });

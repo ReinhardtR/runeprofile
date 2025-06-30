@@ -22,7 +22,7 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
 
   const accountId = updates.id;
 
-  if (updates.newAccount) {
+  if (!updates.currentProfile) {
     await db.insert(accounts).values({
       id: updates.id,
       username: updates.username,

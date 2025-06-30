@@ -1,8 +1,5 @@
 import {
-  ACHIEVEMENT_DIARY_TIER_NAMES,
-  ActivityEvent,
   ActivityEventType,
-  QUESTS,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
   getCombatAchievementTierName,
@@ -12,6 +9,7 @@ import {
 import CombatAchievementTierIcons from "~/assets/combat-achievement-tier-icons.json";
 import AchievementDiaryIcon from "~/assets/icons/achievement-diaries.png";
 import QuestIcon from "~/assets/icons/quest.png";
+import MiscIcons from "~/assets/misc-icons.json";
 import SkillIconsLarge from "~/assets/skill-icons-large.json";
 import { Card } from "~/components/osrs/card";
 import {
@@ -31,6 +29,7 @@ const ActivityRenderMap = {
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]:
     RenderCombatAchievementTierCompletedEvent,
   [ActivityEventType.QUEST_COMPLETED]: RenderQuestCompletedEvent,
+  [ActivityEventType.MAXED]: RenderMaxedEvent,
 };
 
 export function RecentActivities({
@@ -202,6 +201,34 @@ function RenderQuestCompletedEvent({
           Completed <span className="text-secondary-foreground">{name}</span>{" "}
           Quest
         </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function RenderMaxedEvent({
+  event,
+}: {
+  event: Extract<
+    ProfileRecentActivity,
+    { type: typeof ActivityEventType.MAXED }
+  >;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex flex-col items-center justify-center col-span-1">
+          <img
+            src={MiscIcons["max_cape"]}
+            className="size-9 object-contain drop-shadow-solid-sm"
+          />
+          <p className="font-runescape text-osrs-orange solid-text-shadow shimmer-text">
+            Maxed
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="font-semibold text-sm">Max Total Level</p>
       </TooltipContent>
     </Tooltip>
   );

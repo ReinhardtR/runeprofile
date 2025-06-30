@@ -11,6 +11,15 @@ export const LEVELS_XP = [
   7944614, 8771558, 9684577, 10692629, 11805606, 13034431,
 ];
 
+export const getLevelXpThreshold = (level: number) => {
+  if (level < 1 || level > LEVELS_XP.length) {
+    throw new Error(
+      `Invalid level: ${level}. Must be between 1 and ${LEVELS_XP.length}.`,
+    );
+  }
+  return LEVELS_XP[level - 1]!;
+};
+
 export const getLevelFromXP = (xp: number) => {
   for (let i = LEVELS_XP.length - 1; i >= 0; i--) {
     const level = LEVELS_XP[i];
