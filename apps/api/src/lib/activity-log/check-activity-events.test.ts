@@ -15,6 +15,7 @@ import {
   checkMaxedEvent,
   checkNewItemObtainedEvents,
   checkQuestCompletedEvents,
+  checkXpMilestoneEvents,
 } from "~/lib/activity-log/check-activity-events";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
@@ -52,6 +53,36 @@ describe("LEVEL UP EVENTS", () => {
       checkLevelUpEvents([
         { name: "Ranged", xp: maxedSkillXp, oldXp: 13034432 },
       ]), // 99 -> 99
+    ).toEqual([]);
+  });
+});
+
+describe("XP MILESTONE EVENTS", () => {
+  test("xp milestone", () => {
+    expect(
+      checkXpMilestoneEvents([
+        { name: "Attack", xp: 15_000_000, oldXp: 14_999_999 },
+        { name: "Strength", xp: 200_000_000, oldXp: 150_000_000 },
+      ]),
+    ).toEqual([
+      { type: "xp_milestone", data: { name: "Attack", xp: 15_000_000 } },
+      { type: "xp_milestone", data: { name: "Strength", xp: 200_000_000 } },
+    ]);
+  });
+
+  test("no xp milestone", () => {
+    expect(
+      checkXpMilestoneEvents([
+        { name: "Magic", xp: 14_999_999, oldXp: 9_000_000 },
+      ]),
+    ).toEqual([]);
+  });
+
+  test("should not generate xp milestone event if old xp is already at or above milestone", () => {
+    expect(
+      checkXpMilestoneEvents([
+        { name: "Ranged", xp: 15_000_001, oldXp: 15_000_000 },
+      ]),
     ).toEqual([]);
   });
 });

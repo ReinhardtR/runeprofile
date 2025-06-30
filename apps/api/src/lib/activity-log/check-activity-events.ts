@@ -10,6 +10,7 @@ import {
   QuestCompletedEvent,
   QuestState,
   SKILLS,
+  XpMilestoneEvent,
   getAchievementDiaryTierTaskCount,
   getCombatAchievementTierTaskCount,
   getLevelFromXP,
@@ -56,6 +57,41 @@ export function checkLevelUpEvents(skillUpdates: ProfileUpdates["skills"]) {
       data: {
         name: skillUpdate.name,
         level: milestone,
+      },
+    });
+  }
+
+  return events;
+}
+
+const xpMilestones = [
+  15_000_000, 20_000_000, 25_000_000, 30_000_000, 35_000_000, 40_000_000,
+  45_000_000, 50_000_000, 55_000_000, 60_000_000, 65_000_000, 70_000_000,
+  75_000_000, 80_000_000, 85_000_000, 90_000_000, 95_000_000, 100_000_000,
+  105_000_000, 110_000_000, 115_000_000, 120_000_000, 125_000_000, 130_000_000,
+  135_000_000, 140_000_000, 145_000_000, 150_000_000, 155_000_000, 160_000_000,
+  165_000_000, 170_000_000, 175_000_000, 180_000_000, 185_000_000, 190_000_000,
+  195_000_000, 200_000_000,
+];
+
+export function checkXpMilestoneEvents(skillUpdates: ProfileUpdates["skills"]) {
+  const events: XpMilestoneEvent[] = [];
+
+  for (const skillUpdate of skillUpdates) {
+    const oldXp = skillUpdate.oldXp;
+    const newXp = skillUpdate.xp;
+
+    const milestone = xpMilestones.findLast(
+      (milestone) => oldXp < milestone && newXp >= milestone,
+    );
+
+    if (!milestone) continue;
+
+    events.push({
+      type: "xp_milestone",
+      data: {
+        name: skillUpdate.name,
+        xp: milestone,
       },
     });
   }

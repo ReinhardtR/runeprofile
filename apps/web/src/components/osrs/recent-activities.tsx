@@ -18,12 +18,13 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { base64ImgSrc } from "~/lib/utils";
+import { base64ImgSrc, numberWithAbbreviation } from "~/lib/utils";
 
 type ProfileRecentActivity = Profile["recentActivities"][number];
 
 const ActivityRenderMap = {
   [ActivityEventType.LEVEL_UP]: RenderLevelUpEvent,
+  [ActivityEventType.XP_MILESTONE]: RenderXpMilestoneEvent,
   [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]:
     RenderAchievementDiaryTierCompletedEvent,
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]:
@@ -94,6 +95,46 @@ function RenderLevelUpEvent({
           Reached level{" "}
           <span className="text-secondary-foreground">{event.data.level}</span>{" "}
           in{" "}
+          <span className="text-secondary-foreground">{event.data.name}</span>
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function RenderXpMilestoneEvent({
+  event,
+}: {
+  event: Extract<
+    ProfileRecentActivity,
+    { type: typeof ActivityEventType.XP_MILESTONE }
+  >;
+}) {
+  const skillIcon =
+    SkillIconsLarge[
+      event.data.name.toLowerCase() as unknown as keyof typeof SkillIconsLarge
+    ];
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex flex-col items-center justify-center col-span-1">
+          <img
+            src={base64ImgSrc(skillIcon)}
+            alt={event.data.name}
+            className="size-9 object-contain drop-shadow-solid-sm"
+          />
+          <p className="font-runescape text-osrs-orange solid-text-shadow">
+            {numberWithAbbreviation(event.data.xp)}
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="font-semibold text-sm">
+          Reached{" "}
+          <span className="text-secondary-foreground">
+            {numberWithAbbreviation(event.data.xp)}
+          </span>{" "}
+          XP in{" "}
           <span className="text-secondary-foreground">{event.data.name}</span>
         </p>
       </TooltipContent>
