@@ -240,3 +240,38 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+.skill-200m-text {
+  z-index: 1;
+  position: relative;
+  background: linear-gradient(
+    120deg,
+    #ffffff,
+    #e0c3fc,
+    #8ec5fc,
+    #f9f9f9,
+    #ffdde1
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s infinite linear;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+
+  filter: drop-shadow(1.5px 1.5px 0 black) /* solid black shadow */
+    drop-shadow(0 0 8px rgba(142, 197, 252, 0.4)) /* blue glow */
+    drop-shadow(0 0 16px rgba(142, 197, 252, 0.2)); /* bigger soft glow */
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

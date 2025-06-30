@@ -105,6 +105,9 @@ function Skill({ name, level, xp, combatLevel }: SkillProps) {
                 "text-osrs-red":
                   level === 1 || (name === "Hitpoints" && level === 10),
               },
+              {
+                "skill-200m-text": xp >= 200_000_000 && name !== "Overall",
+              },
             )}
           >
             {level}
