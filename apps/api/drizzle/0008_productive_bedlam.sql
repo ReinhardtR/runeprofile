@@ -1,0 +1,1 @@
+ALTER TABLE `accounts` ADD `default_clog_page` text;

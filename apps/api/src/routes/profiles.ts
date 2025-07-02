@@ -14,6 +14,7 @@ import { newRouter, r2FileToBase64 } from "~/lib/helpers";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
 import { searchProfiles } from "~/lib/profiles/search-profiles";
+import { setDefaultClogPage } from "~/lib/profiles/set-default-clog-page";
 import { updateProfile } from "~/lib/profiles/update-profile";
 import { STATUS } from "~/lib/status";
 import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
@@ -108,6 +109,29 @@ export const profilesRouter = newRouter()
       }
 
       return c.json({ message: "Profile updated" }, STATUS.OK);
+    },
+  )
+  .post(
+    "/set-default-clog-page",
+    validator(
+      "json",
+      z.object({
+        id: accountIdSchema,
+        page: z.string(),
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.DB);
+      const { id, page } = c.req.valid("json");
+
+      await setDefaultClogPage(db, {
+        id,
+        page,
+      });
+
+      return c.json({
+        message: "Default collection log page set successfully",
+      });
     },
   )
   .delete(

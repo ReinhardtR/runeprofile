@@ -23,6 +23,7 @@ export const accounts = sqliteTable(
     clanRank: integer(),
     clanIcon: integer(),
     clanTitle: text(),
+    defaultClogPage: text(),
     updatedAt,
     createdAt,
   },

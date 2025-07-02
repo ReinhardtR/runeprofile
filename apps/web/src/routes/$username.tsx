@@ -92,7 +92,8 @@ function RouteComponent() {
     profileQueryOptions(params.username),
   );
 
-  const page = search.page || COLLECTION_LOG_PAGES[0];
+  const page =
+    search.page || profile.defaultClogPage || COLLECTION_LOG_PAGES[0];
 
   return (
     <>
