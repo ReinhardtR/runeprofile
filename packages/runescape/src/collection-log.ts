@@ -723,6 +723,13 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         },
         aliases: ["shared rewards", "shared clue", "shared clues", "shared"],
       },
+      {
+        name: "Scroll Cases",
+        items: [
+          30906, 30908, 30910, 30912, 30914, 30916, 30918, 30920, 30922, 30924,
+          30926,
+        ],
+      },
     ],
   },
   {
@@ -2670,6 +2677,19 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   30888: "Yami",
   30893: "Jewel of amascut",
   30895: "Steel ring",
+  30902: "Minor beginner scroll case",
+  30904: "Major beginner scroll case",
+  30906: "Minor easy scroll case",
+  30908: "Major easy scroll case",
+  30910: "Minor medium scroll case",
+  30912: "Major medium scroll case",
+  30914: "Minor hard scroll case",
+  30916: "Major hard scroll case",
+  30918: "Minor elite scroll case",
+  30920: "Major elite scroll case",
+  30922: "Minor master scroll case",
+  30924: "Major master scroll case",
+  30926: "Mimic scroll case",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
