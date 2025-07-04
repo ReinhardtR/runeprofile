@@ -24,6 +24,7 @@ export function checkActivityEvents(updates: ProfileUpdates) {
 
   const events: Array<ActivityEvent> = [
     ...checkLevelUpEvents(updates.skills),
+    ...checkXpMilestoneEvents(updates.skills),
     ...checkNewItemObtainedEvents(updates.items),
     ...checkAchievementDiaryTierCompletedEvents(updates.achievementDiaryTiers),
     ...checkCombatAchievementTierCompletedEvents(
