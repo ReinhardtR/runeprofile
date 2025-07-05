@@ -1,6 +1,8 @@
 import {
   MAX_SKILL_LEVEL,
+  MAX_SKILL_XP,
   MAX_TOTAL_LEVEL,
+  MAX_TOTAL_XP,
   SKILLS,
   getCombatLevelFromSkills,
   getLevelFromXP,
@@ -107,8 +109,8 @@ function Skill({ name, level, xp, combatLevel }: SkillProps) {
               },
               {
                 "shimmer-text":
-                  (xp >= 200_000_000 && name !== "Overall") ||
-                  (xp >= 4_600_000_000 && isOverall),
+                  (xp >= MAX_SKILL_XP && name !== "Overall") ||
+                  (xp >= MAX_TOTAL_XP && isOverall),
               },
             )}
           >

@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   MAX_SKILL_LEVEL,
+  MAX_SKILL_XP,
   QuestState,
   getAchievementDiaryTierTaskCount,
   getCombatAchievementTierTaskCount,
@@ -62,11 +63,11 @@ describe("XP MILESTONE EVENTS", () => {
     expect(
       checkXpMilestoneEvents([
         { name: "Attack", xp: 15_000_000, oldXp: 14_999_999 },
-        { name: "Strength", xp: 200_000_000, oldXp: 150_000_000 },
+        { name: "Strength", xp: MAX_SKILL_XP, oldXp: 150_000_000 },
       ]),
     ).toEqual([
       { type: "xp_milestone", data: { name: "Attack", xp: 15_000_000 } },
-      { type: "xp_milestone", data: { name: "Strength", xp: 200_000_000 } },
+      { type: "xp_milestone", data: { name: "Strength", xp: MAX_SKILL_XP } },
     ]);
   });
 

@@ -1,5 +1,6 @@
 import {
   ActivityEventType,
+  MAX_SKILL_XP,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
   getCombatAchievementTierName,
@@ -18,7 +19,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { base64ImgSrc, numberWithAbbreviation } from "~/lib/utils";
+import { base64ImgSrc, cn, numberWithAbbreviation } from "~/lib/utils";
 
 type ProfileRecentActivity = Profile["recentActivities"][number];
 
@@ -123,7 +124,11 @@ function RenderXpMilestoneEvent({
             alt={event.data.name}
             className="size-9 object-contain drop-shadow-solid-sm"
           />
-          <p className="font-runescape text-osrs-orange solid-text-shadow">
+          <p
+            className={cn("font-runescape text-osrs-orange solid-text-shadow", {
+              "shimmer-text": event.data.xp >= MAX_SKILL_XP,
+            })}
+          >
             {numberWithAbbreviation(event.data.xp)}
           </p>
         </div>
