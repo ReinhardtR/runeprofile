@@ -38,3 +38,16 @@ export const errorHandler: ErrorHandler = (err, c) => {
     STATUS.INTERNAL_SERVER_ERROR,
   );
 };
+
+export type PaginationParams = {
+  page?: number;
+  pageSize?: number;
+};
+
+export const getPaginationValues = (params?: PaginationParams) => {
+  const page = Math.max(1, params?.page || 1);
+  const pageSize = Math.max(1, params?.pageSize || 10);
+  const offset = (page - 1) * pageSize;
+
+  return { page, pageSize, offset };
+};

@@ -55,18 +55,28 @@ export async function searchProfiles(params: { query: string }) {
   return await getResponseData(response);
 }
 
-export async function getClanMembers(params: {
-  name: string;
-  page?: number;
-  query?: string;
-}) {
+export async function getClanMembers(params: { name: string; page?: number }) {
   const response = await api.clans[":name"].$get({
     param: {
       name: params.name,
     },
     query: {
       page: String(params.page),
-      query: params.query,
+    },
+  });
+  return await getResponseData(response);
+}
+
+export async function getClanActivities(params: {
+  name: string;
+  page?: number;
+}) {
+  const response = await api.clans[":name"].activities.$get({
+    param: {
+      name: params.name,
+    },
+    query: {
+      page: String(params.page),
     },
   });
   return await getResponseData(response);

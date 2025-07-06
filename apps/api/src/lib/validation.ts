@@ -41,6 +41,11 @@ export const collectionLogPageSchema = z.string().transform((val, ctx) => {
   return pageId;
 });
 
+export const paginationPageSchema = z.coerce
+  .number()
+  .optional()
+  .catch(undefined);
+
 export const validator = <
   T extends ZodSchema,
   Target extends keyof ValidationTargets,
