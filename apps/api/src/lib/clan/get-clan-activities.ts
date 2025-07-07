@@ -27,7 +27,7 @@ export async function getClanActivities(
     .from(activities)
     .innerJoin(accounts, eq(activities.accountId, accounts.id))
     .where(eq(lower(accounts.clanName), clanName.toLowerCase()))
-    .orderBy(desc(activities.createdAt))
+    .orderBy(desc(activities.createdAt), desc(activities.id))
     .limit(pageSize)
     .offset(offset);
 

@@ -76,7 +76,7 @@ async function getProfile(db: Database, condition: SQL) {
           eq(table.accountId, profile.id),
           eq(table.type, "new_item_obtained"),
         ),
-      orderBy: (table) => [desc(table.createdAt)],
+      orderBy: (table) => [desc(table.createdAt), desc(table.id)],
       limit: 10,
       columns: {
         type: true,
@@ -89,7 +89,7 @@ async function getProfile(db: Database, condition: SQL) {
           eq(table.accountId, profile.id),
           not(eq(table.type, "new_item_obtained")),
         ),
-      orderBy: (table) => [desc(table.createdAt)],
+      orderBy: (table) => [desc(table.createdAt), desc(table.id)],
       limit: 10,
       columns: {
         type: true,
