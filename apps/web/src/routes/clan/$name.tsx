@@ -124,7 +124,7 @@ function RouteComponent() {
         </div>
         <Separator className="my-4" />
         <div className="flex flex-col lg:flex-row gap-y-4 gap-x-8 mb-4">
-          <div className="lg:max-w-[300px]">
+          <div className="lg:max-w-[280px] w-full">
             <MembersList />
           </div>
           <Separator
