@@ -346,7 +346,7 @@ const ActivityRenderMap = {
       <>
         <ActivityIcon>
           <img
-            src={MiscIcons["max_cape"]}
+            src={base64ImgSrc(MiscIcons["max_cape"])}
             alt="Maxed"
             className="size-7 object-contain drop-shadow-solid-sm"
           />

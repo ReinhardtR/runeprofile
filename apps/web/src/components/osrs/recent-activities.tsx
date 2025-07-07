@@ -265,7 +265,7 @@ function RenderMaxedEvent({
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
           <img
-            src={MiscIcons["max_cape"]}
+            src={base64ImgSrc(MiscIcons["max_cape"])}
             className="size-9 object-contain drop-shadow-solid-sm"
           />
           <p className="font-runescape text-osrs-orange solid-text-shadow shimmer-text">
