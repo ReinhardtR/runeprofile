@@ -94,7 +94,7 @@ function RouteComponent() {
           </GuideSection>
 
           <GuideSection>
-            <GuideHeading id="update-profile">
+            <GuideHeading id="updating-profile">
               Updating your Profile
             </GuideHeading>
             <ol className="ml-6 list-decimal space-y-2 text-muted-foreground">
@@ -173,6 +173,41 @@ function RouteComponent() {
               .
             </GuideParagraph>
             <GuideImage src={LogCommandImage} alt="Log Command Screenshot" />
+          </GuideSection>
+
+          <GuideSection>
+            <GuideHeading id="automatic-updates">
+              Automatically updating your profile
+            </GuideHeading>
+
+            <GuideParagraph>
+              Enabling{" "}
+              <span className="text-secondary-foreground">
+                Update on logout
+              </span>{" "}
+              in the plugin settings (enabled by default), will make the plugin
+              automatically update your profile data on logout (except the
+              collection log). Updating your collection log requires you to
+              manually click the update button in the Collection Log window.
+            </GuideParagraph>
+
+            <GuideParagraph className="italic">
+              Manual collection log updates are a technical limitation of what
+              data is accesible by a RuneLite plugin. In the future the plugin
+              will attempt to automatically update new collection log items.
+            </GuideParagraph>
+          </GuideSection>
+
+          <GuideSection>
+            <GuideHeading id="default-clog-page">
+              Setting default Collection Log page
+            </GuideHeading>
+
+            <GuideParagraph>
+              If you have a preferred Collection Log page that you want to be
+              shown on your profile when initially opened, you can select it in
+              the RuneProfile sidepanel on RuneLite.
+            </GuideParagraph>
           </GuideSection>
         </article>
       </div>
@@ -282,4 +317,6 @@ const tocItems = [
   { id: "update-model", title: "Updating your Player Model" },
   { id: "viewing-profile", title: "Viewing your Profile" },
   { id: "log-command", title: "!log command" },
+  { id: "automatic-updates", title: "Automatically updating your profile" },
+  { id: "default-clog-page", title: "Setting default Collection Log page" },
 ];
