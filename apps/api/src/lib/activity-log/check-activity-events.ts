@@ -25,7 +25,7 @@ export function checkActivityEvents(updates: ProfileUpdates) {
   const events: Array<ActivityEvent> = [
     ...checkLevelUpEvents(updates.skills),
     ...checkXpMilestoneEvents(updates.skills),
-    ...checkNewItemObtainedEvents(updates.items),
+    ...checkNewItemObtainedEvents(updates.currentProfile.items, updates.items),
     ...checkAchievementDiaryTierCompletedEvents(updates.achievementDiaryTiers),
     ...checkCombatAchievementTierCompletedEvents(
       updates.combatAchievementTiers,
@@ -100,10 +100,18 @@ export function checkXpMilestoneEvents(skillUpdates: ProfileUpdates["skills"]) {
   return events;
 }
 
+const LATE_CLOG_INIT_THRESHOLD = 10;
 export function checkNewItemObtainedEvents(
+  currentItems: Profile["items"],
   itemUpdates: ProfileUpdates["items"],
 ) {
   const events: NewItemObtainedEvent[] = [];
+
+  const isLateClogInit =
+    currentItems.length === 0 && itemUpdates.length > LATE_CLOG_INIT_THRESHOLD;
+  if (isLateClogInit) {
+    return events; // assume there is so many new items, because of late clog init
+  }
 
   for (const itemUpdate of itemUpdates) {
     // already obtained

@@ -91,10 +91,13 @@ describe("XP MILESTONE EVENTS", () => {
 describe("NEW ITEM OBTAINED EVENTS", () => {
   test("new items", () => {
     expect(
-      checkNewItemObtainedEvents([
-        { id: 123, quantity: 1, oldQuantity: 0 },
-        { id: 456, quantity: 5, oldQuantity: 0 },
-      ]),
+      checkNewItemObtainedEvents(
+        [],
+        [
+          { id: 123, quantity: 1, oldQuantity: 0 },
+          { id: 456, quantity: 5, oldQuantity: 0 },
+        ],
+      ),
     ).toEqual([
       { type: "new_item_obtained", data: { itemId: 123 } },
       { type: "new_item_obtained", data: { itemId: 456 } },
@@ -103,19 +106,38 @@ describe("NEW ITEM OBTAINED EVENTS", () => {
 
   test("old items", () => {
     expect(
-      checkNewItemObtainedEvents([
-        { id: 123, quantity: 2, oldQuantity: 1 },
-        { id: 789, quantity: 10, oldQuantity: 5 },
-      ]),
+      checkNewItemObtainedEvents(
+        [],
+        [
+          { id: 123, quantity: 2, oldQuantity: 1 },
+          { id: 789, quantity: 10, oldQuantity: 5 },
+        ],
+      ),
     ).toEqual([]);
   });
 
   test("no change", () => {
     expect(
-      checkNewItemObtainedEvents([
-        { id: 123, quantity: 0, oldQuantity: 0 },
-        { id: 456, quantity: 1, oldQuantity: 1 },
-      ]),
+      checkNewItemObtainedEvents(
+        [],
+        [
+          { id: 123, quantity: 0, oldQuantity: 0 },
+          { id: 456, quantity: 1, oldQuantity: 1 },
+        ],
+      ),
+    ).toEqual([]);
+  });
+
+  test("ignore late clog init", () => {
+    expect(
+      checkNewItemObtainedEvents(
+        [],
+        Array.from({ length: 20 }, (_, i) => ({
+          id: i + 1,
+          quantity: 1,
+          oldQuantity: 0,
+        })),
+      ),
     ).toEqual([]);
   });
 });
