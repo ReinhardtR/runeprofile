@@ -1,0 +1,342 @@
+{
+  "clanData": {
+    "page": 1,
+    "pageSize": 10,
+    "total": 10,
+    "members": [
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 0,
+          "key": "normal",
+          "name": "Normal"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 126,
+          "icon": -4,
+          "title": "Owner"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 1,
+          "key": "ironman",
+          "name": "Ironman"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 125,
+          "icon": -3,
+          "title": "Deputy Owner"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 0,
+          "key": "normal",
+          "name": "Normal"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 125,
+          "icon": -3,
+          "title": "Deputy Owner"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 0,
+          "key": "normal",
+          "name": "Normal"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 125,
+          "icon": -3,
+          "title": "Player Owner"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 0,
+          "key": "normal",
+          "name": "Normal"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 125,
+          "icon": -3,
+          "title": "Deputy Owner"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 0,
+          "key": "normal",
+          "name": "Normal"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 124,
+          "icon": 65,
+          "title": "Sapphire"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 1,
+          "key": "ironman",
+          "name": "Ironman"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 110,
+          "icon": 66,
+          "title": "Emerald"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 1,
+          "key": "ironman",
+          "name": "Ironman"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 110,
+          "icon": 66,
+          "title": "Emerald"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 0,
+          "key": "normal",
+          "name": "Normal"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 110,
+          "icon": 66,
+          "title": "Emerald"
+        }
+      },
+      {
+        "username": "Player",
+        "accountType": {
+          "id": 1,
+          "key": "ironman",
+          "name": "Ironman"
+        },
+        "clan": {
+          "name": "Clan Example",
+          "rank": 70,
+          "icon": 41,
+          "title": "Officer"
+        }
+      }
+    ],
+    "name": "Clan Example"
+  },
+  "activitiesData": {
+    "page": 1,
+    "pageSize": 10,
+    "total": 10,
+    "activities": [
+      {
+        "id": "8811271e-2ad3-4de0-bcf7-3e9e10dffbaa",
+        "createdAt": "2025-07-07 21:47:37",
+        "type": "level_up",
+        "data": {
+          "name": "Ranged",
+          "level": 99
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 1,
+            "key": "ironman",
+            "name": "Ironman"
+          },
+          "clanRank": 70,
+          "clanIcon": 41
+        }
+      },
+      {
+        "id": "8043fe40-9f16-4f0c-8de3-733be7f1599d",
+        "createdAt": "2025-07-07 15:31:40",
+        "type": "new_item_obtained",
+        "data": {
+          "itemId": 12538
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 20,
+          "clanIcon": 24
+        }
+      },
+      {
+        "id": "4beecfd2-4824-4e77-999f-3a4f6689db34",
+        "createdAt": "2025-07-07 15:31:40",
+        "type": "new_item_obtained",
+        "data": {
+          "itemId": 30922
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 20,
+          "clanIcon": 24
+        }
+      },
+      {
+        "id": "47269380-95e6-422f-b6cf-83c04bfd4eb6",
+        "createdAt": "2025-07-07 15:31:40",
+        "type": "new_item_obtained",
+        "data": {
+          "itemId": 10312
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 20,
+          "clanIcon": 24
+        }
+      },
+      {
+        "id": "e4948c54-4541-4cd0-af44-fa1f28e05651",
+        "createdAt": "2025-07-07 12:40:04",
+        "type": "xp_milestone",
+        "data": {
+          "name": "Mining",
+          "xp": 15000000
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 125,
+          "clanIcon": -3
+        }
+      },
+      {
+        "id": "95550cfa-86f9-41eb-b768-1ab2204f5d5c",
+        "createdAt": "2025-07-07 09:54:30",
+        "type": "xp_milestone",
+        "data": {
+          "name": "Woodcutting",
+          "xp": 110000000
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 30,
+          "clanIcon": 34
+        }
+      },
+      {
+        "id": "bdcdcee4-67e5-4d46-a810-d386d1a5b98c",
+        "createdAt": "2025-07-07 00:02:38",
+        "type": "level_up",
+        "data": {
+          "name": "Runecraft",
+          "level": 80
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 4,
+            "key": "group_ironman",
+            "name": "Group Ironman"
+          },
+          "clanRank": 30,
+          "clanIcon": 34
+        }
+      },
+      {
+        "id": "2746b662-bff5-47aa-9159-6b8817f9fee2",
+        "createdAt": "2025-07-06 23:24:43",
+        "type": "xp_milestone",
+        "data": {
+          "name": "Hitpoints",
+          "xp": 60000000
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 110,
+          "clanIcon": 66
+        }
+      },
+      {
+        "id": "fc48f5bd-91eb-4b24-8dc7-af215e90fd30",
+        "createdAt": "2025-07-06 22:40:16",
+        "type": "new_item_obtained",
+        "data": {
+          "itemId": 25131
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 30,
+          "clanIcon": 34
+        }
+      },
+      {
+        "id": "fb4e8068-e172-41a4-a0b5-d8acb6222d80",
+        "createdAt": "2025-07-06 22:40:16",
+        "type": "new_item_obtained",
+        "data": {
+          "itemId": 30906
+        },
+        "account": {
+          "username": "Player",
+          "accountType": {
+            "id": 0,
+            "key": "normal",
+            "name": "Normal"
+          },
+          "clanRank": 30,
+          "clanIcon": 34
+        }
+      }
+    ]
+  }
+}

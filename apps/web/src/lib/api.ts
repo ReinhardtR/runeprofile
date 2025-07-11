@@ -61,7 +61,7 @@ export async function getClanMembers(params: { name: string; page?: number }) {
       name: params.name,
     },
     query: {
-      page: String(params.page),
+      page: String(params.page ?? 1),
     },
   });
   return await getResponseData(response);
@@ -76,7 +76,7 @@ export async function getClanActivities(params: {
       name: params.name,
     },
     query: {
-      page: String(params.page),
+      page: String(params.page ?? 1),
     },
   });
   return await getResponseData(response);
