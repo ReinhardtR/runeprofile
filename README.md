@@ -27,7 +27,6 @@ RuneProfile aims to be the best place to share your Old School RuneScape achieve
 The official Hiscores only shows a subset of your achievements and can be tough to navigate.
 
 RuneProfile tries to display all of your important achievements and in a familiar UI.
-to create a familiar user experience.
 
 The plugin is needed to upload your account data to RuneProfile, which will be displayed on the RuneProfile.com website.
 
