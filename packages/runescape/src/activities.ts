@@ -72,6 +72,7 @@ export const XpMilestoneEventSchema = z.object({
 });
 export type XpMilestoneEvent = z.infer<typeof XpMilestoneEventSchema>;
 
+export const ValuableDropThreshold = 1_000_000;
 export const ValuableDropEventSchema = z.object({
   type: z.literal(ActivityEventType.VALUABLE_DROP),
   data: z.object({
