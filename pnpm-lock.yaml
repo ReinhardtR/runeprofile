@@ -176,7 +176,11 @@ importers:
         specifier: ^4.10.0
         version: 4.10.0(@cloudflare/workers-types@4.20250412.0)
 
-  packages/runescape: {}
+  packages/runescape:
+    dependencies:
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
 
   scripts/ts-scripts:
     devDependencies:
@@ -941,8 +945,8 @@ packages:
   '@floating-ui/react-dom@2.1.2':
     resolution: {integrity: sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==}
     peerDependencies:
-      react: 18.3.1
-      react-dom: 18.3.1
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}

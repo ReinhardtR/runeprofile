@@ -56,6 +56,7 @@ export const validator = <
   zv(target, schema, (result, c) => {
     if (!result.success) {
       console.error(result.error);
+      console.error(result.data);
       return c.json(result.error, 400);
     }
   });

@@ -2,5 +2,8 @@
   "name": "@runeprofile/runescape",
   "private": true,
   "description": "RuneScape related helpers and constants",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "dependencies": {
+    "zod": "^3.24.2"
+  }
 }

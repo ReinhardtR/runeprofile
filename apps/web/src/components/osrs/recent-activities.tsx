@@ -19,7 +19,12 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { base64ImgSrc, cn, numberWithAbbreviation } from "~/lib/utils";
+import {
+  base64ImgSrc,
+  cn,
+  numberWithAbbreviation,
+  numberWithDelimiter,
+} from "~/lib/utils";
 
 type ProfileRecentActivity = Profile["recentActivities"][number];
 
@@ -32,6 +37,7 @@ const ActivityRenderMap = {
     RenderCombatAchievementTierCompletedEvent,
   [ActivityEventType.QUEST_COMPLETED]: RenderQuestCompletedEvent,
   [ActivityEventType.MAXED]: RenderMaxedEvent,
+  [ActivityEventType.VALUABLE_DROP]: RenderValuableDropEvent,
 };
 
 export function RecentActivities({
@@ -275,6 +281,39 @@ function RenderMaxedEvent({
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-semibold text-sm">Max Total Level</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function RenderValuableDropEvent({
+  event,
+}: {
+  event: Extract<
+    ProfileRecentActivity,
+    { type: typeof ActivityEventType.VALUABLE_DROP }
+  >;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex flex-col items-center justify-center col-span-1">
+          <img
+            src={`https://static.runelite.net/cache/item/icon/${event.data.itemId}.png`}
+            className="size-9 object-contain drop-shadow-solid-sm"
+          />
+          <p className="font-runescape text-osrs-orange solid-text-shadow">
+            {numberWithAbbreviation(event.data.value)}
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="font-semibold text-sm">
+          Received a valuable drop worth{" "}
+          <span className="text-secondary-foreground">
+            {numberWithDelimiter(event.data.value)} gp
+          </span>
+        </p>
       </TooltipContent>
     </Tooltip>
   );

@@ -2,7 +2,10 @@ import { eq } from "drizzle-orm";
 import { cache } from "hono/cache";
 import { z } from "zod";
 
+import { ValuableDropEventSchema } from "@runeprofile/runescape";
+
 import { accounts, drizzle } from "~/db";
+import { addActivities } from "~/lib/activity-log/add-activities";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
@@ -132,6 +135,27 @@ export const profilesRouter = newRouter()
       return c.json({
         message: "Default collection log page set successfully",
       });
+    },
+  )
+  .post(
+    "/activities",
+    validator(
+      "json",
+      z.object({
+        id: accountIdSchema,
+        activities: z.array(ValuableDropEventSchema), // currently only allow ValuableDropEventSchema
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.DB);
+      const { id, activities } = c.req.valid("json");
+
+      await addActivities(db, {
+        accountId: id,
+        activities,
+      });
+
+      return c.json({ message: "Activities added successfully" });
     },
   )
   .delete(
