@@ -34,7 +34,13 @@ import { Header } from "~/components/header";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { getClanActivities, getClanMembers } from "~/lib/api";
-import { base64ImgSrc, cn, numberWithAbbreviation } from "~/lib/utils";
+import {
+  base64ImgSrc,
+  cn,
+  itemIconUrl,
+  numberWithAbbreviation,
+  numberWithDelimiter,
+} from "~/lib/utils";
 
 function clanQueryOptions(params: Parameters<typeof getClanMembers>[0]) {
   return {
@@ -356,6 +362,32 @@ const ActivityRenderMap = {
           <span>has</span>
           <span className="shimmer-text">Maxed</span>
           <span>all skills.</span>
+        </ActivityContent>
+      </>
+    );
+  },
+  [ActivityEventType.VALUABLE_DROP]: (
+    event: Extract<
+      ClanActivityEvent,
+      { type: typeof ActivityEventType.VALUABLE_DROP }
+    >,
+  ) => {
+    return (
+      <>
+        <ActivityIcon>
+          <img
+            src={itemIconUrl(event.data.itemId)}
+            className={cn(
+              "z-10 drop-shadow-2xl brightness-[0.85] object-contain mx-auto",
+            )}
+          />
+        </ActivityIcon>
+        <ActivityContent>
+          <ActivityAccount account={event.account} />
+          <span>received a valuable drop worth</span>
+          <span className="text-secondary-foreground">
+            {numberWithDelimiter(event.data.value)} gp
+          </span>
         </ActivityContent>
       </>
     );

@@ -22,6 +22,7 @@ import { Profile } from "~/lib/api";
 import {
   base64ImgSrc,
   cn,
+  itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
 } from "~/lib/utils";
@@ -299,7 +300,7 @@ function RenderValuableDropEvent({
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
           <img
-            src={`https://static.runelite.net/cache/item/icon/${event.data.itemId}.png`}
+            src={itemIconUrl(event.data.itemId)}
             className="size-9 object-contain drop-shadow-solid-sm"
           />
           <p className="font-runescape text-osrs-orange solid-text-shadow">
