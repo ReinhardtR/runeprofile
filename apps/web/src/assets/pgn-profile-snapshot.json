@@ -78,10 +78,10 @@
       }
     },
     {
-      "type": "level_up",
+      "type": "valuable_drop",
       "data": {
-        "name": "Crafting",
-        "level": 99
+        "itemId": 24417,
+        "value": 297291810
       }
     },
     {
@@ -99,9 +99,10 @@
       }
     },
     {
-      "type": "quest_completed",
+      "type": "valuable_drop",
       "data": {
-        "questId": 31
+        "itemId": 21079,
+        "value": 3253698
       }
     },
     {
