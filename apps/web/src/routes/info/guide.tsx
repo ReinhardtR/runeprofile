@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";
 
+import DefaultClogPage from "~/assets/guide/default-clog-page.png";
 import InstallPluginImage from "~/assets/guide/install-plugin.png";
 import LogCommandImage from "~/assets/guide/log-command.png";
 import ProfileExampleImage from "~/assets/guide/profile-example.png";
@@ -95,12 +96,32 @@ function RouteComponent() {
 
           <GuideSection>
             <GuideHeading id="updating-profile">
-              Updating your Profile
+              Creating and Updating your Profile
             </GuideHeading>
-            <ol className="ml-6 list-decimal space-y-2 text-muted-foreground">
+            <GuideParagraph>
+              Creating and updating your profile is done in the same way. If you
+              have Auto Sync enabled (enabled by default), the plugin will
+              automatically create/update your profile every 15 minutes. Note,
+              since the plugin can only read your Collection Log data when it is
+              open, the Collection Log items will only be included if you have
+              opened it before Auto Sync triggers.
+            </GuideParagraph>
+
+            <GuideParagraph>
+              If you don't want to wait for Auto Sync, or have it disabled, you
+              can manually update your profile by following these steps:
+            </GuideParagraph>
+            <ol className="ml-6 mt-3 list-decimal space-y-2 text-muted-foreground">
               <li>Open your Collection Log.</li>
-              <li>Click the "RuneProfile"-button at the the top right.</li>
+              <li>Open the menu at the top left.</li>
+              <li>Click the "RuneProfile"-button.</li>
             </ol>
+
+            <GuideParagraph>
+              When you obtain a new Collection Log item, the plugin will update
+              automatically update your profile in that moment.
+            </GuideParagraph>
+
             <GuideParagraph className="italic text-sm">
               The update button is inside the Collection Log window, to allow
               the plugin to read the Collection Log data.
@@ -176,38 +197,20 @@ function RouteComponent() {
           </GuideSection>
 
           <GuideSection>
-            <GuideHeading id="automatic-updates">
-              Automatically updating your profile
-            </GuideHeading>
-
-            <GuideParagraph>
-              Enabling{" "}
-              <span className="text-secondary-foreground">
-                Update on logout
-              </span>{" "}
-              in the plugin settings (enabled by default), will make the plugin
-              automatically update your profile data on logout (except the
-              collection log). Updating your collection log requires you to
-              manually click the update button in the Collection Log window.
-            </GuideParagraph>
-
-            <GuideParagraph className="italic">
-              Manual collection log updates are a technical limitation of what
-              data is accesible by a RuneLite plugin. In the future the plugin
-              will attempt to automatically update new collection log items.
-            </GuideParagraph>
-          </GuideSection>
-
-          <GuideSection>
             <GuideHeading id="default-clog-page">
               Setting default Collection Log page
             </GuideHeading>
 
             <GuideParagraph>
               If you have a preferred Collection Log page that you want to be
-              shown on your profile when initially opened, you can select it in
-              the RuneProfile sidepanel on RuneLite.
+              shown on your profile when initially opened, you can select it by
+              right-clicking the page in the Collection Log.
             </GuideParagraph>
+
+            <GuideImage
+              src={DefaultClogPage}
+              alt="Default Collection Log Page Screenshot"
+            />
           </GuideSection>
         </article>
       </div>
@@ -313,10 +316,9 @@ const GuideImage: React.FC<GuideImageProps> = ({
 const tocItems = [
   { id: "introduction", title: "Introduction" },
   { id: "installation", title: "Installation" },
-  { id: "updating-profile", title: "Updating your Profile" },
+  { id: "updating-profile", title: "Creating and Updating your Profile" },
   { id: "update-model", title: "Updating your Player Model" },
   { id: "viewing-profile", title: "Viewing your Profile" },
   { id: "log-command", title: "!log command" },
-  { id: "automatic-updates", title: "Automatically updating your profile" },
   { id: "default-clog-page", title: "Setting default Collection Log page" },
 ];
