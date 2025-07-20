@@ -82,6 +82,11 @@ export async function getClanActivities(params: {
   return await getResponseData(response);
 }
 
+export async function getMetrics() {
+  const response = await api.metrics.$get();
+  return await getResponseData(response);
+}
+
 export class RuneProfileApiError extends Error {
   code: string;
 

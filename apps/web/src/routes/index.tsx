@@ -1,3 +1,4 @@
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import { Search } from "lucide-react";
@@ -21,18 +22,31 @@ import PgnProfileSnapshot from "~/assets/pgn-profile-snapshot.json";
 import { Footer } from "~/components/footer";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
-import { Profile } from "~/lib/api";
-import { base64ImgSrc, cn } from "~/lib/utils";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Profile, getMetrics } from "~/lib/api";
+import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 import { ProfileContent, SidePanel } from "~/routes/$username";
+
+function metricsQueryOptions() {
+  return queryOptions({
+    queryKey: ["metrics"],
+    queryFn: () => getMetrics(),
+  });
+}
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
+  loader: ({ context }) => {
+    context.queryClient.prefetchQuery(metricsQueryOptions());
+  },
 });
 
 function RouteComponent() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
   const profilePreviewRef = React.useRef<HTMLDivElement>(null);
+
+  const { data: metrics } = useQuery(metricsQueryOptions());
 
   const dataTypeList = [
     { name: "Skills", icon: SkillsIcon },
@@ -127,6 +141,28 @@ function RouteComponent() {
             </Link>
           </div>
 
+          <div
+            className={cn(
+              "z-30 flex flex-row items-center justify-center gap-x-8 absolute bottom-28 left-4 bg-background/80 p-4 rounded-3xl transition-opacity duration-700",
+              !!metrics
+                ? "opacity-100 animate-in fade-in"
+                : "opacity-0 pointer-events-none",
+            )}
+          >
+            <div className="flex flex-col gap-y-1">
+              <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+                {numberWithDelimiter(metrics?.totalAccounts || 0)}
+              </p>
+              <p className="font-bold text-primary">Profiles</p>
+            </div>
+            <div className="flex flex-col gap-y-1">
+              <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+                {numberWithDelimiter(metrics?.totalActivities || 0)}
+              </p>
+              <p className="font-bold text-primary">Activities</p>
+            </div>
+          </div>
+
           <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute bottom-4 left-4 bg-background/80 p-4 rounded-3xl">
             <Button
               variant="outline"
@@ -147,135 +183,139 @@ function RouteComponent() {
             </Link>
           </div>
 
-          <div className="lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30 bg-background/80 p-2 rounded-2xl gap-y-1 flex flex-col max-h-full overflow-y-auto">
-            <p className="text-lg text-center font-bold text-secondary-foreground solid-text-shadow">
-              Doom of Mokhaiotl Leaderboard
-            </p>
-            <div className="absolute inset-0 bg-background/85 rounded-lg flex items-center justify-center z-30">
-              <p className="text-center text-xl text-primary font-bold my-auto solid-text-shadow">
-                Coming soon...
+          <div className="lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30">
+            <ScrollArea className="gap-y-1 flex flex-col p-2 bg-background/80 rounded-2xl flex-1 max-h-full">
+              <p className="text-lg text-center font-bold text-secondary-foreground solid-text-shadow">
+                Doom of Mokhaiotl Leaderboard
               </p>
-            </div>
-            {[
-              {
-                username: "Player",
-                items: [
-                  { id: "item1", quantity: 4 },
-                  { id: "item2", quantity: 5 },
-                  { id: "item2", quantity: 2 },
-                  { id: "item2", quantity: 1 },
-                ],
-              },
-              {
-                username: "Player",
-                items: [
-                  { id: "item3", quantity: 2 },
-                  { id: "item4", quantity: 3 },
-                  { id: "item2", quantity: 1 },
-                ],
-              },
-              {
-                username: "Player",
-                items: [
-                  { id: "item5", quantity: 1 },
-                  { id: "item6", quantity: 2 },
-                ],
-              },
-              {
-                username: "Player",
-                items: [
-                  { id: "item5", quantity: 1 },
-                  { id: "item2", quantity: 1 },
-                ],
-              },
-              {
-                username: "Player",
-                items: [
-                  { id: "item5", quantity: 1 },
-                  { id: "item2", quantity: 1 },
-                ],
-              },
-              {
-                username: "Player",
-                items: [{ id: "item5", quantity: 1 }],
-              },
-              {
-                username: "Player",
-                items: [{ id: "item5", quantity: 1 }],
-              },
-              {
-                username: "Player",
-                items: [{ id: "item5", quantity: 1 }],
-              },
-              {
-                username: "Player",
-                items: [{ id: "item5", quantity: 1 }],
-              },
-              {
-                username: "Player",
-                items: [{ id: "item5", quantity: 1 }],
-              },
-            ].map((player, index) => (
-              <Link
-                to="/$username"
-                params={{
-                  username: player.username,
-                }}
-                className="bg-background/80 rounded-lg shadow flex flex-row items-center gap-x-4 px-4 py-2"
-              >
-                <p
-                  className={cn(
-                    "text-xl font-bold font-runescape",
-                    index === 0 && "text-[#FFD700]",
-                    index === 1 && "text-[#C0C0C0]",
-                    index === 2 && "text-[#CD7F32]",
-                  )}
-                >
-                  {index + 1}.
+              <div className="absolute inset-0 bg-background/85 rounded-lg flex items-center justify-center z-30 pointer-events-none">
+                <p className="text-center text-xl text-primary font-bold my-auto solid-text-shadow">
+                  Coming soon...
                 </p>
-                <p
-                  className={cn(
-                    "font-runescape font-bold text-2xl solid-text-shadow",
-                    index === 0 && "text-[#FFD700]",
-                    index === 1 && "text-[#C0C0C0]",
-                    index === 2 && "text-[#CD7F32]",
-                  )}
+              </div>
+              {[
+                {
+                  username: "Player",
+                  items: [
+                    { id: "item1", quantity: 4 },
+                    { id: "item2", quantity: 5 },
+                    { id: "item2", quantity: 2 },
+                    { id: "item2", quantity: 1 },
+                  ],
+                },
+                {
+                  username: "Player",
+                  items: [
+                    { id: "item3", quantity: 2 },
+                    { id: "item4", quantity: 3 },
+                    { id: "item2", quantity: 1 },
+                  ],
+                },
+                {
+                  username: "Player",
+                  items: [
+                    { id: "item5", quantity: 1 },
+                    { id: "item6", quantity: 2 },
+                  ],
+                },
+                {
+                  username: "Player",
+                  items: [
+                    { id: "item5", quantity: 1 },
+                    { id: "item2", quantity: 1 },
+                  ],
+                },
+                {
+                  username: "Player",
+                  items: [
+                    { id: "item5", quantity: 1 },
+                    { id: "item2", quantity: 1 },
+                  ],
+                },
+                {
+                  username: "Player",
+                  items: [{ id: "item5", quantity: 1 }],
+                },
+                {
+                  username: "Player",
+                  items: [{ id: "item5", quantity: 1 }],
+                },
+                {
+                  username: "Player",
+                  items: [{ id: "item5", quantity: 1 }],
+                },
+                {
+                  username: "Player",
+                  items: [{ id: "item5", quantity: 1 }],
+                },
+                {
+                  username: "Player",
+                  items: [{ id: "item5", quantity: 1 }],
+                },
+              ].map((player, index) => (
+                <Link
+                  to="/$username"
+                  params={{
+                    username: player.username,
+                  }}
+                  className="bg-background/80 rounded-lg shadow flex flex-row items-center gap-x-4 px-4 py-2"
                 >
-                  {player.username}
-                </p>
-                <div className="ml-auto flex flex-row items-center gap-x-2">
-                  {player.items.map((item) => {
-                    const itemIcon =
-                      ITEM_ICONS[item.id as unknown as keyof typeof ITEM_ICONS];
-                    const iconSrc = itemIcon
-                      ? base64ImgSrc(itemIcon)
-                      : QuestionMarkImage;
+                  <p
+                    className={cn(
+                      "text-xl font-bold font-runescape",
+                      index === 0 && "text-[#FFD700]",
+                      index === 1 && "text-[#C0C0C0]",
+                      index === 2 && "text-[#CD7F32]",
+                    )}
+                  >
+                    {index + 1}.
+                  </p>
+                  <p
+                    className={cn(
+                      "font-runescape font-bold text-2xl solid-text-shadow",
+                      index === 0 && "text-[#FFD700]",
+                      index === 1 && "text-[#C0C0C0]",
+                      index === 2 && "text-[#CD7F32]",
+                    )}
+                  >
+                    {player.username}
+                  </p>
+                  <div className="ml-auto flex flex-row items-center gap-x-2">
+                    {player.items.map((item) => {
+                      const itemIcon =
+                        ITEM_ICONS[
+                          item.id as unknown as keyof typeof ITEM_ICONS
+                        ];
+                      const iconSrc = itemIcon
+                        ? base64ImgSrc(itemIcon)
+                        : QuestionMarkImage;
 
-                    return (
-                      <div
-                        key={item.id}
-                        className={cn(
-                          "relative flex flex-row items-center justify-center",
-                        )}
-                      >
-                        {item.quantity > 1 && (
-                          <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow font-runescape">
-                            {item.quantity}
-                          </p>
-                        )}
-                        <img
-                          src={iconSrc}
+                      return (
+                        <div
+                          key={item.id}
                           className={cn(
-                            "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
-                            !item.quantity && "opacity-30",
+                            "relative flex flex-row items-center justify-center",
                           )}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </Link>
-            ))}
+                        >
+                          {item.quantity > 1 && (
+                            <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow font-runescape">
+                              {item.quantity}
+                            </p>
+                          )}
+                          <img
+                            src={iconSrc}
+                            className={cn(
+                              "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
+                              !item.quantity && "opacity-30",
+                            )}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Link>
+              ))}
+            </ScrollArea>
           </div>
 
           <div className="absolute z-20">

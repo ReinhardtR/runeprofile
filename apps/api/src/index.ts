@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { dateHeaderMiddleware, errorHandler, newRouter } from "~/lib/helpers";
 import { clansRouter } from "~/routes/clans";
 import { hiscoresRouter } from "~/routes/hiscores";
+import { metricsRouter } from "~/routes/metrics";
 import { profilesRouter } from "~/routes/profiles";
 
 export default newRouter()
@@ -22,4 +23,5 @@ export default newRouter()
   .use(dateHeaderMiddleware) // TODO: remove when runelite updates plugin to v2.0.3
   .route("/profiles", profilesRouter)
   .route("/clans", clansRouter)
-  .route("/hiscores", hiscoresRouter);
+  .route("/hiscores", hiscoresRouter)
+  .route("/metrics", metricsRouter);
