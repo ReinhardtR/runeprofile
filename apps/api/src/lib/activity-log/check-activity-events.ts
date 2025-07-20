@@ -100,7 +100,8 @@ export function checkXpMilestoneEvents(skillUpdates: ProfileUpdates["skills"]) {
   return events;
 }
 
-const LATE_CLOG_INIT_THRESHOLD = 10;
+const LATE_CLOG_INIT_MIN_CURRENT_THRESHOLD = 10;
+const LATE_CLOG_INIT_MAX_NEW_THRESHOLD = 10;
 export function checkNewItemObtainedEvents(
   currentItems: Profile["items"],
   itemUpdates: ProfileUpdates["items"],
@@ -108,7 +109,8 @@ export function checkNewItemObtainedEvents(
   const events: NewItemObtainedEvent[] = [];
 
   const isLateClogInit =
-    currentItems.length < 10 && itemUpdates.length > LATE_CLOG_INIT_THRESHOLD;
+    currentItems.length < LATE_CLOG_INIT_MIN_CURRENT_THRESHOLD &&
+    itemUpdates.length > LATE_CLOG_INIT_MAX_NEW_THRESHOLD;
   if (isLateClogInit) {
     return events; // assume there is so many new items, because of late clog init
   }
