@@ -11,8 +11,9 @@ import {
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useAtom } from "jotai";
-import { LoaderCircle, SearchIcon } from "lucide-react";
+import { LoaderCircle, SearchIcon, X } from "lucide-react";
 import React from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { z } from "zod";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
@@ -194,7 +195,6 @@ export function SidePanel({ username }: { username: string }) {
       leaderboard: "normal",
     }),
   );
-  const isHiscoresLoading = hiscoresQuery.isPending;
 
   return (
     <>
@@ -215,9 +215,14 @@ export function SidePanel({ username }: { username: string }) {
         <SidePanelButton
           onClick={() => setIsHiscoresOpen((v) => !v)}
           isActive={isHiscoresOpen}
-          isLoading={isHiscoresLoading}
+          isLoading={hiscoresQuery.isPending}
+          isError={hiscoresQuery.isError}
           tooltip={
-            isHiscoresOpen ? "Close Hiscores panel" : "Open Hiscores panel"
+            hiscoresQuery.isError
+              ? "Hiscores not found"
+              : isHiscoresOpen
+                ? "Close Hiscores panel"
+                : "Open Hiscores panel"
           }
         >
           <img src={HiscoresIcon} width={25} height={25} />
@@ -232,14 +237,15 @@ export function SidePanel({ username }: { username: string }) {
           <DiscordIcon className="size-12 group-hover:text-secondary-foreground" />
         </SidePanelButton>
       </div>
-
-      <Sheet modal={false} open={isHiscoresOpen}>
-        <SheetContent className="absolute p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
-          <ScrollArea className="h-full shadow-2xl">
-            <Hiscores username={username} className="pr-2" />
-          </ScrollArea>
-        </SheetContent>
-      </Sheet>
+      <ErrorBoundary fallback={null}>
+        <Sheet modal={false} open={isHiscoresOpen}>
+          <SheetContent className="absolute p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
+            <ScrollArea className="h-full shadow-2xl">
+              <Hiscores username={username} className="pr-2" />
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
+      </ErrorBoundary>
     </>
   );
 }
@@ -249,11 +255,13 @@ function SidePanelButton({
   tooltip,
   isActive,
   isLoading,
+  isError,
   children,
   ...props
 }: ButtonProps & {
   isActive?: boolean;
   isLoading?: boolean;
+  isError?: boolean;
   tooltip?: React.ReactNode;
 }) {
   const RenderedButton = (
@@ -261,14 +269,21 @@ function SidePanelButton({
       className={cn(
         "relative size-14 bg-accent hover:bg-secondary",
         isActive && "bg-secondary",
+        isError && "cursor-not-allowed",
         className,
       )}
       disabled={isLoading}
       {...props}
+      onClick={isError ? undefined : props.onClick}
     >
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/75 rounded-md">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-md">
           <LoaderCircle className="animate-spin size-8" />
+        </div>
+      )}
+      {isError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-md">
+          <X className="size-8 stroke-destructive" />
         </div>
       )}
       {children}

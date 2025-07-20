@@ -2,10 +2,11 @@
   "name": "ts-scripts",
   "private": true,
   "scripts": {
-    "generate-icons": "tsx generate-icons.ts",
-    "generate-items": "tsx generate-items.ts"
+    "gen-icons": "tsx generate-icons.ts",
+    "gen-v-items": "tsx generate-valuable-items.ts"
   },
   "devDependencies": {
+    "@abextm/cache2": "^0.1.2",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",
