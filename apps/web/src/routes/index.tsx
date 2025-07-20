@@ -143,7 +143,7 @@ function RouteComponent() {
 
           <div
             className={cn(
-              "z-30 flex flex-row items-center justify-center gap-x-8 absolute bottom-28 left-4 bg-background/80 p-4 rounded-3xl transition-opacity duration-700",
+              "z-30 flex-row items-center justify-center gap-x-8 absolute bottom-28 left-4 bg-background/80 p-4 rounded-3xl transition-opacity duration-700 hidden lg:flex",
               !!metrics
                 ? "opacity-100 animate-in fade-in"
                 : "opacity-0 pointer-events-none",
