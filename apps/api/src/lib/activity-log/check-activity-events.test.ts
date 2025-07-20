@@ -131,7 +131,14 @@ describe("NEW ITEM OBTAINED EVENTS", () => {
   test("ignore late clog init", () => {
     expect(
       checkNewItemObtainedEvents(
-        [],
+        [
+          {
+            id: 1,
+            quantity: 1,
+            createdAt: new Date().toISOString(),
+            name: "Item 1",
+          },
+        ],
         Array.from({ length: 20 }, (_, i) => ({
           id: i + 1,
           quantity: 1,

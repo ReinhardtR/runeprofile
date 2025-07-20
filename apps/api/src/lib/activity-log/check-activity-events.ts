@@ -108,7 +108,7 @@ export function checkNewItemObtainedEvents(
   const events: NewItemObtainedEvent[] = [];
 
   const isLateClogInit =
-    currentItems.length === 0 && itemUpdates.length > LATE_CLOG_INIT_THRESHOLD;
+    currentItems.length < 10 && itemUpdates.length > LATE_CLOG_INIT_THRESHOLD;
   if (isLateClogInit) {
     return events; // assume there is so many new items, because of late clog init
   }
