@@ -23,11 +23,6 @@ export async function r2FileToBase64(file: R2ObjectBody) {
   return base64String;
 }
 
-export const dateHeaderMiddleware = createMiddleware(async (c, next) => {
-  await next();
-  c.header("Date", new Date().toUTCString());
-});
-
 export const errorHandler: ErrorHandler = (err, c) => {
   console.error(err);
   if (err instanceof RuneProfileError) {
@@ -38,6 +33,11 @@ export const errorHandler: ErrorHandler = (err, c) => {
     STATUS.INTERNAL_SERVER_ERROR,
   );
 };
+
+export const logger = createMiddleware(async (c, next) => {
+  console.log({ UserAgent: c.req.header("User-Agent") });
+  await next();
+});
 
 export type PaginationParams = {
   page?: number;
