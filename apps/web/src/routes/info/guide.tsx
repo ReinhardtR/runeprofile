@@ -116,12 +116,6 @@ function RouteComponent() {
               <li>Open the menu at the top left.</li>
               <li>Click the "RuneProfile"-button.</li>
             </ol>
-
-            <GuideParagraph>
-              When you obtain a new Collection Log item, the plugin will update
-              automatically update your profile in that moment.
-            </GuideParagraph>
-
             <GuideParagraph className="italic text-sm">
               The update button is inside the Collection Log window, to allow
               the plugin to read the Collection Log data.
@@ -130,6 +124,33 @@ function RouteComponent() {
               src={UpdateProfileImage}
               alt="Updating Profile Screenshot"
             />
+            <GuideParagraph>
+              <b className="text-secondary-foreground">
+                Auto Sync - New Collection Log Items
+                <br />
+              </b>
+              When you obtain a new Collection Log item, the plugin will update
+              automatically update your profile in that moment. This feature
+              requires that you have either of these OSRS settings enabled:
+              <ol className="list-disc ml-6">
+                <li>
+                  <code>Collection log - New addition notification</code>
+                </li>
+                <li>
+                  <code>Collection log - New addition popup</code>
+                </li>
+              </ol>
+            </GuideParagraph>
+            <GuideParagraph>
+              <b className="text-secondary-foreground">
+                Auto Sync - Valuable Drops
+                <br />
+              </b>
+              Your profile can display your valuable drops inside your "Latest
+              Activities". This requires you to have the Loot Tracker plugin
+              enabled (Installed by default in RuneLite). Then the RuneProfile
+              plugin will automatically track any items over 1,000,000 gp.
+            </GuideParagraph>
           </GuideSection>
 
           <GuideSection>
