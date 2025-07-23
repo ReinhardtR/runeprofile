@@ -6,7 +6,7 @@ import { newRouter } from "~/lib/helpers";
 import { getMetrics } from "~/lib/metrics/get-metrics";
 import { STATUS } from "~/lib/status";
 
-const EVENT_ITEM_IDS: number[] = [];
+const EVENT_ITEM_IDS: number[] = [31130, 31088, 31115, 31109];
 
 export const metricsRouter = newRouter()
   .get(

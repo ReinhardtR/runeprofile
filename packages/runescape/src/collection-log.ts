@@ -122,6 +122,11 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["deranged arch"],
       },
       {
+        name: "Doom of Mokhaiotl",
+        items: [31130, 31088, 31115, 31109, 31099, 31111],
+        aliases: ["mokha"],
+      },
+      {
         name: "Duke Sucellus",
         items: [
           28250, 28321, 26241, 26243, 26245, 28281, 28270, 28333, 28276, 28334,
@@ -2690,6 +2695,12 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   30922: "Minor master scroll case",
   30924: "Major master scroll case",
   30926: "Mimic scroll case",
+  31130: "Dom",
+  31088: "Avernic treads",
+  31115: "Eye of ayak (uncharged)",
+  31109: "Mokhaiotl cloth",
+  31099: "Mokhaiotl waystone",
+  31111: "Demon tear",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
