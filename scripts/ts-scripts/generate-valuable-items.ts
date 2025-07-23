@@ -39,32 +39,32 @@ async function generateJson(): Promise<void> {
   const provider = new cache.FlatCacheProvider({
     getFile: async (name) => {
       const response = await fetch(
-        `https://raw.githubusercontent.com/abextm/osrs-cache/refs/heads/master/${name}`,
+        `https://raw.githubusercontent.com/abextm/osrs-cache/master/${name}`,
       );
-      if (!response.ok) {
-        throw new Error(`Failed to fetch file: ${name}`);
-      }
+      if (!response.ok) return;
       const buffer = await response.arrayBuffer();
       return new Uint8Array(buffer);
     },
   });
 
-  for (const itemId of valuableItemIds) {
-    console.log(`Processing item ID: ${itemId}`);
-    const itemData = await cache.Item.load(provider, parseInt(itemId));
-    if (!itemData) {
-      throw new Error(`Failed to load item data for ID: ${itemId}`);
-    }
-    const name = itemData.name;
-    if (!name) {
-      throw new Error(`Item name not found for ID: ${itemId}`);
-    }
-    const icon = await fetchAndEncodeImage(parseInt(itemId));
-    if (!icon) {
-      throw new Error(`Failed to fetch icon for item ID: ${itemId}`);
-    }
-    valuableItems[itemId] = [name, icon];
-  }
+  await Promise.all(
+    valuableItemIds.map(async (itemId) => {
+      console.log(`Processing item ID: ${itemId}`);
+      const itemData = await cache.Item.load(provider, parseInt(itemId));
+      if (!itemData) {
+        throw new Error(`Failed to load item data for ID: ${itemId}`);
+      }
+      const name = itemData.name;
+      if (!name) {
+        throw new Error(`Item name not found for ID: ${itemId}`);
+      }
+      const icon = await fetchAndEncodeImage(parseInt(itemId));
+      if (!icon) {
+        throw new Error(`Failed to fetch icon for item ID: ${itemId}`);
+      }
+      valuableItems[itemId] = [name, icon];
+    }),
+  );
 
   const outputPath = path.join(__dirname, "out", "item-icons.json");
 

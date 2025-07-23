@@ -23,7 +23,7 @@ import { Footer } from "~/components/footer";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { Profile, getMetrics } from "~/lib/api";
+import { Profile, getEventLeaderboard, getMetrics } from "~/lib/api";
 import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
 import { ProfileContent, SidePanel } from "~/routes/$username";
 
@@ -34,10 +34,18 @@ function metricsQueryOptions() {
   });
 }
 
+function eventLeaderboardQueryOptions() {
+  return queryOptions({
+    queryKey: ["event-leaderboard"],
+    queryFn: () => getEventLeaderboard(),
+  });
+}
+
 export const Route = createFileRoute("/")({
   component: RouteComponent,
   loader: ({ context }) => {
     context.queryClient.prefetchQuery(metricsQueryOptions());
+    context.queryClient.prefetchQuery(eventLeaderboardQueryOptions());
   },
 });
 
@@ -47,6 +55,7 @@ function RouteComponent() {
   const profilePreviewRef = React.useRef<HTMLDivElement>(null);
 
   const { data: metrics } = useQuery(metricsQueryOptions());
+  const { data: eventLeaderboard } = useQuery(eventLeaderboardQueryOptions());
 
   const dataTypeList = [
     { name: "Skills", icon: SkillsIcon },
@@ -183,76 +192,24 @@ function RouteComponent() {
             </Link>
           </div>
 
-          <div className="lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30">
-            <ScrollArea className="gap-y-1 flex flex-col p-2 bg-background/80 rounded-2xl flex-1 max-h-full">
+          <div
+            className={cn(
+              "lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30 transition-opacity duration-700",
+              !!eventLeaderboard
+                ? "opacity-100 animate-in fade-in"
+                : "opacity-0 pointer-events-none",
+            )}
+          >
+            <ScrollArea className="gap-y-1 flex flex-col p-2 bg-background/80 rounded-2xl flex-1 max-h-full min-h-96">
               <p className="text-lg text-center font-bold text-secondary-foreground solid-text-shadow">
                 Doom of Mokhaiotl Leaderboard
               </p>
-              <div className="absolute inset-0 bg-background/85 rounded-lg flex items-center justify-center z-30 pointer-events-none">
-                <p className="text-center text-xl text-primary font-bold my-auto solid-text-shadow">
-                  Coming soon...
+              {eventLeaderboard?.length === 0 && (
+                <p className="text-center text-muted-foreground pt-38">
+                  No players yet.
                 </p>
-              </div>
-              {[
-                {
-                  username: "Player",
-                  items: [
-                    { id: "item1", quantity: 4 },
-                    { id: "item2", quantity: 5 },
-                    { id: "item2", quantity: 2 },
-                    { id: "item2", quantity: 1 },
-                  ],
-                },
-                {
-                  username: "Player",
-                  items: [
-                    { id: "item3", quantity: 2 },
-                    { id: "item4", quantity: 3 },
-                    { id: "item2", quantity: 1 },
-                  ],
-                },
-                {
-                  username: "Player",
-                  items: [
-                    { id: "item5", quantity: 1 },
-                    { id: "item6", quantity: 2 },
-                  ],
-                },
-                {
-                  username: "Player",
-                  items: [
-                    { id: "item5", quantity: 1 },
-                    { id: "item2", quantity: 1 },
-                  ],
-                },
-                {
-                  username: "Player",
-                  items: [
-                    { id: "item5", quantity: 1 },
-                    { id: "item2", quantity: 1 },
-                  ],
-                },
-                {
-                  username: "Player",
-                  items: [{ id: "item5", quantity: 1 }],
-                },
-                {
-                  username: "Player",
-                  items: [{ id: "item5", quantity: 1 }],
-                },
-                {
-                  username: "Player",
-                  items: [{ id: "item5", quantity: 1 }],
-                },
-                {
-                  username: "Player",
-                  items: [{ id: "item5", quantity: 1 }],
-                },
-                {
-                  username: "Player",
-                  items: [{ id: "item5", quantity: 1 }],
-                },
-              ].map((player, index) => (
+              )}
+              {eventLeaderboard?.map((player, index) => (
                 <Link
                   to="/$username"
                   params={{

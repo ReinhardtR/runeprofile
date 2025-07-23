@@ -3,10 +3,11 @@
   "private": true,
   "scripts": {
     "gen-icons": "tsx generate-icons.ts",
-    "gen-v-items": "tsx generate-valuable-items.ts"
+    "gen-v-items": "tsx generate-valuable-items.ts",
+    "gen-clog": "tsx generate-clog.ts"
   },
   "devDependencies": {
-    "@abextm/cache2": "^0.1.2",
+    "@abextm/cache2": "^0.1.3",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",

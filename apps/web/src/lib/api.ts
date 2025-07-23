@@ -87,6 +87,11 @@ export async function getMetrics() {
   return await getResponseData(response);
 }
 
+export async function getEventLeaderboard() {
+  const response = await api.metrics["event-leaderboard"].$get();
+  return await getResponseData(response);
+}
+
 export class RuneProfileApiError extends Error {
   code: string;
 
