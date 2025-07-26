@@ -124,7 +124,10 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Doom of Mokhaiotl",
         items: [31130, 31088, 31115, 31109, 31099, 31111],
-        aliases: ["mokha"],
+        hiscore: {
+          "Doom of Mokhaiotl": "Deep delves",
+        },
+        aliases: ["dom", "doom", "mokha"],
       },
       {
         name: "Duke Sucellus",
