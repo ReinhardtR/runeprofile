@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import { Search } from "lucide-react";
@@ -12,19 +12,14 @@ import CombatAchievementsIcon from "~/assets/icons/combat-achievements.png";
 import HiscoresIcon from "~/assets/icons/hiscores.png";
 import QuestIcon from "~/assets/icons/quest.png";
 import SkillsIcon from "~/assets/icons/skills.png";
-import ITEM_ICONS from "~/assets/item-icons.json";
-// import HeroImage from "~/assets/misc/hero-image.png";
-import EventHeroImage from "~/assets/misc/event-hero-image.webp";
-import Logo from "~/assets/misc/logo.png";
-import QuestionMarkImage from "~/assets/misc/question-mark.png";
+import HeroImage from "~/assets/misc/hero-image.png";
 import RuneLiteLogo from "~/assets/misc/runelite-logo.png";
 import PgnProfileSnapshot from "~/assets/pgn-profile-snapshot.json";
 import { Footer } from "~/components/footer";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Profile, getEventLeaderboard, getMetrics } from "~/lib/api";
-import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
+import { Profile, getMetrics } from "~/lib/api";
+import { cn } from "~/lib/utils";
 import { ProfileContent, SidePanel } from "~/routes/$username";
 
 function metricsQueryOptions() {
@@ -34,18 +29,10 @@ function metricsQueryOptions() {
   });
 }
 
-function eventLeaderboardQueryOptions() {
-  return queryOptions({
-    queryKey: ["event-leaderboard"],
-    queryFn: () => getEventLeaderboard(),
-  });
-}
-
 export const Route = createFileRoute("/")({
   component: RouteComponent,
   loader: ({ context }) => {
     context.queryClient.prefetchQuery(metricsQueryOptions());
-    context.queryClient.prefetchQuery(eventLeaderboardQueryOptions());
   },
 });
 
@@ -53,9 +40,6 @@ function RouteComponent() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
   const profilePreviewRef = React.useRef<HTMLDivElement>(null);
-
-  const { data: metrics } = useQuery(metricsQueryOptions());
-  const { data: eventLeaderboard } = useQuery(eventLeaderboardQueryOptions());
 
   const dataTypeList = [
     { name: "Skills", icon: SkillsIcon },
@@ -73,8 +57,7 @@ function RouteComponent() {
   return (
     <>
       <div className="flex flex-col">
-        {/* NORMAL HERO */}
-        {/* <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
+        <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
           <div className="z-30 flex flex-1 flex-col items-center pt-[20vh]">
             <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
               <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
@@ -130,157 +113,6 @@ function RouteComponent() {
           >
             Scroll to Profile Example
           </Button>
-        </div> */}
-
-        {/* EVENT HERO */}
-        <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
-          <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute top-4 left-4 bg-background/80 p-4 rounded-3xl">
-            <Link to="/" className="mr-6 flex items-center space-x-2">
-              <img
-                src={Logo}
-                alt="Logo"
-                width={50}
-                height={50}
-                className="drop-shadow"
-              />
-              <p className="flex-col text-2xl font-black leading-none tracking-wide drop-shadow flex">
-                <span className="text-primary">RUNE</span>
-                <span className="text-secondary-foreground">PROFILE</span>
-              </p>
-            </Link>
-          </div>
-
-          <div
-            className={cn(
-              "z-30 flex-row items-center justify-center gap-x-8 absolute bottom-28 left-4 bg-background/80 p-4 rounded-3xl transition-opacity duration-700 hidden lg:flex",
-              !!metrics
-                ? "opacity-100 animate-in fade-in"
-                : "opacity-0 pointer-events-none",
-            )}
-          >
-            <div className="flex flex-col gap-y-1">
-              <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-                {numberWithDelimiter(metrics?.totalAccounts || 0)}
-              </p>
-              <p className="font-bold text-primary">Profiles</p>
-            </div>
-            <div className="flex flex-col gap-y-1">
-              <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-                {numberWithDelimiter(metrics?.totalActivities || 0)}
-              </p>
-              <p className="font-bold text-primary">Activities</p>
-            </div>
-          </div>
-
-          <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute bottom-4 left-4 bg-background/80 p-4 rounded-3xl">
-            <Button
-              variant="outline"
-              className={cn(
-                "flex h-12 transform items-center justify-center gap-x-2 rounded-2xl border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:bg-black/75",
-              )}
-              onClick={() => setIsSearchDialogOpen(true)}
-            >
-              <Search className="mr-1 h-5 w-5" />
-              <span className="inline-flex">Search profiles</span>
-            </Button>
-            <Link
-              to="/info/guide"
-              className="flex transform items-center justify-center space-x-2 rounded-2xl border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all h-12"
-            >
-              <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
-              <span>Plugin Guide</span>
-            </Link>
-          </div>
-
-          <div
-            className={cn(
-              "lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30 transition-opacity duration-700",
-              !!eventLeaderboard
-                ? "opacity-100 animate-in fade-in"
-                : "opacity-0 pointer-events-none",
-            )}
-          >
-            <ScrollArea className="gap-y-1 flex flex-col p-2 bg-background/80 rounded-2xl flex-1 max-h-full min-h-96">
-              <p className="text-lg text-center font-bold text-secondary-foreground solid-text-shadow">
-                Doom of Mokhaiotl Leaderboard
-              </p>
-              {eventLeaderboard?.length === 0 && (
-                <p className="text-center text-muted-foreground pt-38">
-                  No players yet.
-                </p>
-              )}
-              {eventLeaderboard?.map((player, index) => (
-                <Link
-                  to="/$username"
-                  params={{
-                    username: player.username,
-                  }}
-                  className="bg-background/80 rounded-lg shadow flex flex-row items-center gap-x-4 px-4 py-2"
-                >
-                  <p
-                    className={cn(
-                      "text-xl font-bold font-runescape",
-                      index === 0 && "text-[#FFD700]",
-                      index === 1 && "text-[#C0C0C0]",
-                      index === 2 && "text-[#CD7F32]",
-                    )}
-                  >
-                    {index + 1}.
-                  </p>
-                  <p
-                    className={cn(
-                      "font-runescape font-bold text-2xl solid-text-shadow",
-                      index === 0 && "text-[#FFD700]",
-                      index === 1 && "text-[#C0C0C0]",
-                      index === 2 && "text-[#CD7F32]",
-                    )}
-                  >
-                    {player.username}
-                  </p>
-                  <div className="ml-auto flex flex-row items-center gap-x-2">
-                    {player.items.map((item) => {
-                      const itemIcon =
-                        ITEM_ICONS[
-                          item.id as unknown as keyof typeof ITEM_ICONS
-                        ];
-                      const iconSrc = itemIcon
-                        ? base64ImgSrc(itemIcon)
-                        : QuestionMarkImage;
-
-                      return (
-                        <div
-                          key={item.id}
-                          className={cn(
-                            "relative flex flex-row items-center justify-center",
-                          )}
-                        >
-                          {item.quantity > 1 && (
-                            <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow font-runescape">
-                              {item.quantity}
-                            </p>
-                          )}
-                          <img
-                            src={iconSrc}
-                            className={cn(
-                              "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
-                              !item.quantity && "opacity-30",
-                            )}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Link>
-              ))}
-            </ScrollArea>
-          </div>
-
-          <div className="absolute z-20">
-            <img
-              src={EventHeroImage}
-              className="h-screen w-screen object-cover"
-            />
-          </div>
         </div>
 
         <ProfileExample ref={profilePreviewRef} />
