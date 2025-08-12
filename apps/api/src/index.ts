@@ -17,7 +17,7 @@ export default newRouter()
         "https://runeprofile.pages.dev",
         "http://localhost:3001",
       ],
-      allowMethods: ["POST", "GET", "OPTIONS"],
+      allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
     }),
   )
   .use(logger)
