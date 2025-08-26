@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import React from "react";
 
 import Logo from "~/assets/misc/logo.png";
+import { DonateButton } from "~/components/donate-button";
 import { JoinDiscordButton } from "~/components/join-discord";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -34,6 +35,7 @@ export const Footer: React.FC = () => {
           </FooterLink>
 
           <JoinDiscordButton />
+          <DonateButton />
         </div>
 
         <div className="hidden col-span-1 lg:flex flex-col items-start space-y-2"></div>

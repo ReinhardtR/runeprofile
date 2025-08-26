@@ -22,7 +22,7 @@ import HiscoresIcon from "~/assets/icons/hiscores.png";
 import Logo from "~/assets/misc/logo.png";
 import { Footer } from "~/components/footer";
 import { Hiscores, hiscoresQueryOptions } from "~/components/hiscores";
-import { DiscordIcon } from "~/components/icons";
+import { DiscordIcon, KofiIcon } from "~/components/icons";
 import { Character } from "~/components/osrs/character";
 import { CollectionLog } from "~/components/osrs/collection-log";
 import { DataTabsCard } from "~/components/osrs/data-tabs/tabs-card";
@@ -235,6 +235,15 @@ export function SidePanel({ username }: { username: string }) {
           role="link"
         >
           <DiscordIcon className="size-12 group-hover:text-secondary-foreground" />
+        </SidePanelButton>
+
+        <SidePanelButton
+          className="bg-secondary group hover:bg-secondary/80"
+          tooltip="Donate on Ko-fi"
+          onClick={() => window.open("https://ko-fi.com/runeprofile", "_blank")}
+          role="link"
+        >
+          <KofiIcon className="size-12 group-hover:text-primary-foreground" />
         </SidePanelButton>
       </div>
       <ErrorBoundary fallback={null}>

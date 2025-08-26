@@ -4,7 +4,7 @@ import { DISCORD_INVITE_INK } from "~/lib/constants";
 
 export function JoinDiscordButton() {
   return (
-    <Button className="mt-4" size="lg" asChild>
+    <Button className="mt-4 w-52" size="lg" asChild>
       <a
         href={DISCORD_INVITE_INK}
         target="_blank"
