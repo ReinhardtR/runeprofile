@@ -17,10 +17,18 @@ async function generateJson(ids: number[]): Promise<void> {
     }),
   );
 
-  const outputPath = path.join(__dirname, "out", "item-icons.json");
+  const outputPath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "apps",
+    "web",
+    "src",
+    "assets",
+    "item-icons.json",
+  );
 
   try {
-    await fs.mkdir(path.join(__dirname, "out"), { recursive: true });
     await fs.writeFile(outputPath, JSON.stringify(imageData, null, 2), "utf-8");
     console.log(`Successfully wrote image data to: ${outputPath}`);
   } catch (error) {
