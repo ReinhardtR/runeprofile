@@ -544,6 +544,22 @@ describe("SKILLS", () => {
     ]);
   });
 
+  test("regress", () => {
+    expect(
+      getSkillUpdates({ Attack: 4, Strength: 2, Defence: 1 }, [
+        { name: "Attack", xp: 5 },
+        { name: "Strength", xp: 1 },
+        { name: "Defence", xp: 1 },
+      ]),
+    ).toEqual([
+      {
+        name: "Strength",
+        xp: 2,
+        oldXp: 1,
+      },
+    ]);
+  });
+
   test("new skill", () => {
     expect(
       getSkillUpdates({ Attack: 1, Strength: 1, Defence: 1 }, [

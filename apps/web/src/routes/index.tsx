@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
 import { Search } from "lucide-react";
@@ -19,7 +19,7 @@ import { Footer } from "~/components/footer";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
 import { Profile, getMetrics } from "~/lib/api";
-import { cn } from "~/lib/utils";
+import { cn, numberWithDelimiter } from "~/lib/utils";
 import { ProfileContent, SidePanel } from "~/routes/$username";
 
 function metricsQueryOptions() {
@@ -40,6 +40,8 @@ function RouteComponent() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
   const profilePreviewRef = React.useRef<HTMLDivElement>(null);
+
+  const { data: metrics } = useQuery(metricsQueryOptions());
 
   const dataTypeList = [
     { name: "Skills", icon: SkillsIcon },
@@ -82,6 +84,7 @@ function RouteComponent() {
                 ))}
               </div>
             </div>
+
             <Button
               variant="outline"
               className={cn(
@@ -100,12 +103,36 @@ function RouteComponent() {
               <span>Plugin Guide</span>
             </Link>
           </div>
+
           <div className="absolute z-20 bg-primary">
             <img
               src={HeroImage}
               className="h-screen w-screen object-cover mix-blend-multiply"
             />
           </div>
+
+          <div
+            className={cn(
+              "z-30 flex-row items-center justify-center gap-x-8 bg-background/80 p-4 rounded-3xl transition-opacity duration-700 hidden lg:flex absolute bottom-28 left-1/2 -translate-x-1/2",
+              !!metrics
+                ? "opacity-100 animate-in fade-in"
+                : "opacity-0 pointer-events-none",
+            )}
+          >
+            <div className="flex flex-col gap-y-1">
+              <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+                {numberWithDelimiter(metrics?.totalAccounts || 0)}
+              </p>
+              <p className="font-bold text-primary">Profiles</p>
+            </div>
+            <div className="flex flex-col gap-y-1">
+              <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+                {numberWithDelimiter(metrics?.totalActivities || 0)}
+              </p>
+              <p className="font-bold text-primary">Activities</p>
+            </div>
+          </div>
+
           <Button
             className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 text-foreground animate-in fade-in-10 duration-[2000ms]"
             onClick={scrollToProfilePreview}

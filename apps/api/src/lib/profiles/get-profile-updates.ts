@@ -241,7 +241,7 @@ export function getSkillUpdates(
     }
 
     const oldSkill = oldData.find((skill) => skill.name === skillName);
-    if (oldSkill && oldSkill.xp === newXp) {
+    if (oldSkill && oldSkill.xp >= newXp) {
       continue;
     }
 
