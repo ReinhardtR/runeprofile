@@ -18,6 +18,7 @@ import PgnProfileSnapshot from "~/assets/pgn-profile-snapshot.json";
 import { Footer } from "~/components/footer";
 import { isSearchDialogOpenAtom } from "~/components/search-dialog";
 import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
 import { Profile, getMetrics } from "~/lib/api";
 import { cn, numberWithDelimiter } from "~/lib/utils";
 import { ProfileContent, SidePanel } from "~/routes/$username";
@@ -113,19 +114,20 @@ function RouteComponent() {
 
           <div
             className={cn(
-              "z-30 flex-row items-center justify-center gap-x-8 bg-background/80 p-4 rounded-3xl transition-opacity duration-700 hidden lg:flex absolute bottom-28 left-1/2 -translate-x-1/2",
+              "z-30 flex-row items-center justify-center gap-x-6 bg-background/80 py-3 px-6 rounded-3xl transition-opacity duration-700 flex absolute bottom-28 left-1/2 -translate-x-1/2",
               !!metrics
                 ? "opacity-100 animate-in fade-in"
                 : "opacity-0 pointer-events-none",
             )}
           >
-            <div className="flex flex-col gap-y-1">
+            <div className="flex flex-col gap-y-1 items-center justify-center w-32">
               <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
                 {numberWithDelimiter(metrics?.totalAccounts || 0)}
               </p>
               <p className="font-bold text-primary">Profiles</p>
             </div>
-            <div className="flex flex-col gap-y-1">
+            <Separator className="h-14" orientation="vertical" />
+            <div className="flex flex-col gap-y-1 items-center justify-center w-32">
               <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
                 {numberWithDelimiter(metrics?.totalActivities || 0)}
               </p>
