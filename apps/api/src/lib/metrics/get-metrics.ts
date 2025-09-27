@@ -1,4 +1,4 @@
-import { Database, accounts, activities } from "~/db";
+import { Database, accounts, activities } from "@runeprofile/database";
 
 export async function getMetrics(db: Database) {
   const [totalAccounts, totalActivities] = await Promise.all([

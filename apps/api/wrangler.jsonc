@@ -19,7 +19,7 @@
       "binding": "DB",
       "database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
       "database_name": "runeprofile-db",
-      "migrations_dir": "drizzle",
+      "migrations_dir": "../../packages/database/drizzle",
       "preview_database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
     }
   ],

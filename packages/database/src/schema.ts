@@ -10,7 +10,7 @@ import {
 
 import { ActivityEvent } from "@runeprofile/runescape";
 
-import { createdAt, lower, updatedAt } from "~/db/helpers";
+import { createdAt, lower, updatedAt } from "./helpers";
 
 export const accounts = sqliteTable(
   "accounts",

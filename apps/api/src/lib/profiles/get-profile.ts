@@ -1,5 +1,6 @@
 import { SQL, and, desc, eq, not } from "drizzle-orm";
 
+import { Database, accounts, lower } from "@runeprofile/database";
 import {
   ACHIEVEMENT_DIARIES,
   ACHIEVEMENT_DIARY_TIER_NAMES,
@@ -12,8 +13,6 @@ import {
   SKILLS,
 } from "@runeprofile/runescape";
 
-import { Database, accounts } from "~/db";
-import { lower } from "~/db/helpers";
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;

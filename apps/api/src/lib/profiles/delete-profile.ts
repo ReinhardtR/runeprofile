@@ -9,7 +9,8 @@ import {
   items,
   quests,
   skills,
-} from "~/db";
+} from "@runeprofile/database";
+
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
 export async function deleteProfile(db: Database, id: string) {

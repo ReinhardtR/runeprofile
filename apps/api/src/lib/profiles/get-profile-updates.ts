@@ -1,3 +1,4 @@
+import { Database } from "@runeprofile/database";
 import {
   ACHIEVEMENT_DIARIES,
   COLLECTION_LOG_ITEM_IDS,
@@ -6,7 +7,6 @@ import {
   SKILLS,
 } from "@runeprofile/runescape";
 
-import { Database } from "~/db";
 import {
   RuneProfileAccountNotFoundError,
   RuneProfileError,

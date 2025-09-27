@@ -1,7 +1,8 @@
 import { cache } from "hono/cache";
 import { z } from "zod";
 
-import { drizzle } from "~/db";
+import { drizzle } from "@runeprofile/database";
+
 import { getClanActivities } from "~/lib/clan/get-clan-activities";
 import { getClanMembersWithPagination } from "~/lib/clan/get-clan-members";
 import { newRouter } from "~/lib/helpers";

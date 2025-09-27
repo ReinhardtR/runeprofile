@@ -1,9 +1,8 @@
 import { count, desc, eq } from "drizzle-orm";
 
+import { Database, accounts, activities, lower } from "@runeprofile/database";
 import { AccountTypes, ActivityEvent } from "@runeprofile/runescape";
 
-import { Database, accounts, activities } from "~/db";
-import { lower } from "~/db/helpers";
 import { PaginationParams, getPaginationValues } from "~/lib/helpers";
 
 export async function getClanActivities(

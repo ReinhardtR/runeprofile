@@ -1,9 +1,7 @@
 import { InferInsertModel } from "drizzle-orm";
 
+import { Database, activities, autochunk } from "@runeprofile/database";
 import { ActivityEvent } from "@runeprofile/runescape";
-
-import { Database, activities } from "~/db";
-import { autochunk } from "~/db/helpers";
 
 export async function addActivities(
   db: Database,

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import { Database, accounts } from "~/db";
+import { Database, accounts } from "@runeprofile/database";
 
 export function setDefaultClogPage(
   db: Database,

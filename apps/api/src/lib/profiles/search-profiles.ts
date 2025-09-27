@@ -1,7 +1,5 @@
+import { Database, lower } from "@runeprofile/database";
 import { AccountTypes } from "@runeprofile/runescape";
-
-import { Database } from "~/db";
-import { lower } from "~/db/helpers";
 
 export async function searchProfiles(db: Database, query: string) {
   const profiles = await db.query.accounts.findMany({

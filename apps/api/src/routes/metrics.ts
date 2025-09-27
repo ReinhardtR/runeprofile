@@ -1,6 +1,7 @@
 import { cache } from "hono/cache";
 
-import { drizzle } from "~/db";
+import { drizzle } from "@runeprofile/database";
+
 import { newRouter } from "~/lib/helpers";
 import { getMetrics } from "~/lib/metrics/get-metrics";
 import { STATUS } from "~/lib/status";

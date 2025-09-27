@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { cache } from "hono/cache";
 import { z } from "zod";
 
+import { accounts, drizzle } from "@runeprofile/database";
 import { ValuableDropEventSchema } from "@runeprofile/runescape";
 
-import { accounts, drizzle } from "~/db";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {

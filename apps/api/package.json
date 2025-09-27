@@ -15,14 +15,11 @@
     "dev:setup": "pnpm run db:migrate && pnpm run db:seed",
     "build": "tsc -p tsconfig.build.json",
     "deploy": "wrangler deploy --minify",
-    "test": "vitest --ui --watch",
-    "db:generate": "drizzle-kit generate",
-    "db:seed": "wrangler d1 execute runeprofile-db --file=seed.sql",
-    "db:migrate": "wrangler d1 migrations apply runeprofile-db",
-    "db:migrate:remote": "wrangler d1 migrations apply runeprofile-db --remote"
+    "test": "vitest --ui --watch"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.3",
+    "@runeprofile/database": "workspace:*",
     "@runeprofile/runescape": "workspace:*",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.2",

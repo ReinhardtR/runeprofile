@@ -1,5 +1,4 @@
 import { SQL, getTableColumns, sql } from "drizzle-orm";
-import { BatchItem } from "drizzle-orm/batch";
 import { RunnableQuery } from "drizzle-orm/runnable-query";
 import { AnySQLiteColumn, SQLiteTable, text } from "drizzle-orm/sqlite-core";
 
