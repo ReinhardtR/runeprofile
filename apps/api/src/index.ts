@@ -2,6 +2,7 @@ import { cors } from "hono/cors";
 
 import { errorHandler, logger, newRouter } from "~/lib/helpers";
 import { clansRouter } from "~/routes/clans";
+import { discordRouter } from "~/routes/discord";
 import { hiscoresRouter } from "~/routes/hiscores";
 import { metricsRouter } from "~/routes/metrics";
 import { profilesRouter } from "~/routes/profiles";
@@ -24,4 +25,5 @@ export default newRouter()
   .route("/profiles", profilesRouter)
   .route("/clans", clansRouter)
   .route("/hiscores", hiscoresRouter)
-  .route("/metrics", metricsRouter);
+  .route("/metrics", metricsRouter)
+  .route("/discord", discordRouter);

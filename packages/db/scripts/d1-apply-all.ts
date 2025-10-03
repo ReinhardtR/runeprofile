@@ -1,20 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const root = resolve(__dirname, "../../../");
-
-interface Target {
-  name: string;
-  cwd: string;
-}
-
-const targets: Target[] = [
-  { name: "admin", cwd: resolve(root, "apps/admin") },
-  { name: "api", cwd: resolve(root, "apps/api") },
-];
+import { dirname, root, targets } from "./constants";
 
 let hadError = false;
 
@@ -30,7 +16,7 @@ for (const t of targets) {
     },
   );
   if (result.status !== 0) {
-    console.error(`Directory: ${__dirname}\nRoot: ${root}`);
+    console.error(`Directory: ${dirname}\nRoot: ${root}`);
     console.error(`Migration failed for ${t.name}. Target dir: ${t.cwd}`);
     hadError = true;
   }
@@ -39,3 +25,4 @@ for (const t of targets) {
 if (hadError) process.exit(1);
 
 console.log("\nAll migrations applied.");
+

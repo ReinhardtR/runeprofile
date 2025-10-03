@@ -1,6 +1,6 @@
 import { SQL, and, desc, eq, not } from "drizzle-orm";
 
-import { Database, accounts, lower } from "@runeprofile/database";
+import { Database, accounts, lower } from "@runeprofile/db";
 import {
   ACHIEVEMENT_DIARIES,
   ACHIEVEMENT_DIARY_TIER_NAMES,

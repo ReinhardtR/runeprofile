@@ -9,26 +9,30 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "typegen": "wrangler types",
     "dev": "wrangler dev src/index.ts",
     "dev:remote": "wrangler dev src/index.ts --remote",
     "dev:api-client": "tsc -p tsconfig.build.json --watch",
-    "dev:setup": "pnpm run db:migrate && pnpm run db:seed",
+    "discord:register": "tsx --env-file=.dev.vars src/discord/register.ts",
+    "ngrok": "ngrok http 8787",
     "build": "tsc -p tsconfig.build.json",
-    "deploy": "wrangler deploy --minify",
+    "deploy": "pnpm run typecheck && pnpm run discord:register && wrangler deploy --minify",
     "test": "vitest --ui --watch"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.3",
-    "@runeprofile/database": "workspace:*",
+    "@runeprofile/db": "workspace:*",
     "@runeprofile/runescape": "workspace:*",
+    "discord-hono": "^0.20.1",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250214.0",
     "@vitest/ui": "3.1.2",
     "drizzle-kit": "^0.30.5",
+    "ngrok": "5.0.0-beta.2",
+    "tsx": "^4.20.6",
     "vitest": "^3.1.2",
     "wrangler": "^4.10.0"
   }

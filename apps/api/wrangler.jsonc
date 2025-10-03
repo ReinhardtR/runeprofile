@@ -6,28 +6,28 @@
   "routes": [
     {
       "pattern": "api.runeprofile.com",
-      "custom_domain": true
-    }
+      "custom_domain": true,
+    },
   ],
   "observability": {
     "logs": {
-      "enabled": true
-    }
+      "enabled": true,
+    },
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
       "database_name": "runeprofile-db",
-      "migrations_dir": "../../packages/database/drizzle",
+      "migrations_dir": "../../packages/db/drizzle",
       "preview_database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
-    }
+    },
   ],
   "r2_buckets": [
     {
       "binding": "BUCKET",
       "bucket_name": "runeprofile-player-models",
-      "preview_bucket_name": "runeprofile-player-models"
-    }
-  ]
+      "preview_bucket_name": "runeprofile-player-models",
+    },
+  ],
 }

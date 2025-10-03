@@ -1,4 +1,4 @@
-import { Database } from "@runeprofile/database";
+import { Database } from "@runeprofile/db";
 import {
   ACHIEVEMENT_DIARIES,
   COLLECTION_LOG_ITEM_IDS,

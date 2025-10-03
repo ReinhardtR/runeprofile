@@ -1,6 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 
-import { Database, accounts, autochunk, lower } from "@runeprofile/database";
+import { Database, accounts, autochunk, lower } from "@runeprofile/db";
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
 import {

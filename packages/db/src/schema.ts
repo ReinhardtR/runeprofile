@@ -8,9 +8,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-import { ActivityEvent } from "@runeprofile/runescape";
-
 import { createdAt, lower, updatedAt } from "./helpers";
+import { ActivityEvent } from "@runeprofile/runescape";
 
 export const accounts = sqliteTable(
   "accounts",
@@ -179,3 +178,66 @@ export const activitiesRelations = relations(activities, ({ one }) => ({
     references: [accounts.id],
   }),
 }));
+
+// Discord-related tables
+export const discordUsers = sqliteTable(
+  "discord_users",
+  {
+    id: text().notNull().primaryKey(), // Discord user ID
+    accountId: text().references(() => accounts.id), // Optional reference to main account
+    rsn: text(), // Optional RuneScape username (for unregistered users only)
+    createdAt,
+  },
+  (table) => [
+    index("discord_users_account_id_index").on(table.accountId),
+    index("discord_users_rsn_index").on(table.rsn),
+  ],
+);
+
+export const discordUsersRelations = relations(discordUsers, ({ one }) => ({
+  account: one(accounts, {
+    fields: [discordUsers.accountId],
+    references: [accounts.id],
+  }),
+}));
+
+export const discordWatches = sqliteTable(
+  "discord_watches",
+  {
+    id: text().notNull().primaryKey(),
+    channelId: text().notNull(),
+    targetType: text().notNull().$type<"clan" | "player">(),
+    targetId: text().notNull(),
+    createdAt,
+  },
+  (table) => [
+    uniqueIndex("discord_watches_channel_target_unique_index").on(
+      table.channelId,
+      table.targetType,
+      table.targetId,
+    ),
+    index("discord_watches_channel_index").on(table.channelId),
+    index("discord_watches_target_index").on(table.targetType, table.targetId),
+  ],
+);
+
+export const discordWatchesRelations = relations(discordWatches, ({ many }) => ({
+  activities: many(discordWatchFilters),
+}));
+
+export const discordWatchFilters = sqliteTable(
+  "discord_watch_filters",
+  {
+    id: text().notNull().primaryKey(),
+    channelId: text().notNull(),
+    event: text().notNull().$type<ActivityEvent["type"]>(),
+    createdAt,
+  },
+  (table) => [
+    uniqueIndex("discord_watch_filters_channel_event_unique_index").on(
+      table.channelId,
+      table.event,
+    ),
+    index("discord_watch_filters_channel_index").on(table.channelId),
+  ],
+);

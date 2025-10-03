@@ -5,13 +5,12 @@ import {
   accounts,
   achievementDiaryTiers,
   activities,
-  autochunk,
-  buildConflictUpdateColumns,
   combatAchievementTiers,
   items,
   quests,
   skills,
-} from "@runeprofile/database";
+} from "@runeprofile/db";
+import { autochunk, buildConflictUpdateColumns } from "@runeprofile/db";
 
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import {

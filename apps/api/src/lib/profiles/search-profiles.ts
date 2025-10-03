@@ -1,4 +1,4 @@
-import { Database, lower } from "@runeprofile/database";
+import { Database, lower } from "@runeprofile/db";
 import { AccountTypes } from "@runeprofile/runescape";
 
 export async function searchProfiles(db: Database, query: string) {

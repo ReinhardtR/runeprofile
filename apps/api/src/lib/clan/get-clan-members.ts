@@ -1,6 +1,6 @@
 import { count, eq } from "drizzle-orm";
 
-import { Database, accounts, lower } from "@runeprofile/database";
+import { Database, accounts, lower } from "@runeprofile/db";
 import { AccountTypes } from "@runeprofile/runescape";
 
 import { PaginationParams, getPaginationValues } from "~/lib/helpers";

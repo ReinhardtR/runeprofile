@@ -1,8 +1,16 @@
 {
   "name": "@runeprofile/runescape",
   "private": true,
+  "type": "module",
   "description": "RuneScape related helpers and constants",
-  "main": "src/index.ts",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
   "dependencies": {
     "zod": "^3.24.2"
   }

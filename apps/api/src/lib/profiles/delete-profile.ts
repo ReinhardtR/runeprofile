@@ -9,7 +9,7 @@ import {
   items,
   quests,
   skills,
-} from "@runeprofile/database";
+} from "@runeprofile/db";
 
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
 
