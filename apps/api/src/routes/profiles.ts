@@ -3,9 +3,8 @@ import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "@runeprofile/db";
-import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
+import { ValuableDropEventSchema } from "@runeprofile/runescape";
 
-import { sendActivityMessages } from "~/discord/messages";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
@@ -112,19 +111,20 @@ export const profilesRouter = newRouter()
         const activities = checkActivityEvents(updates);
         await updateProfile(db, updates, activities);
 
-        if (activities.length > 0) {
-          c.executionCtx.waitUntil(
-            sendActivityMessages({
-              db,
-              discordToken: c.env.DISCORD_TOKEN,
-              activities,
-              accountId: data.id,
-              rsn: data.username,
-              accountType: AccountTypes[data.accountType],
-              clanName: data.clan?.name,
-            }),
-          );
-        }
+        // TODO: uncomment when discord bot ready
+        // if (activities.length > 0) {
+        //   c.executionCtx.waitUntil(
+        //     sendActivityMessages({
+        //       db,
+        //       discordToken: c.env.DISCORD_TOKEN,
+        //       activities,
+        //       accountId: data.id,
+        //       rsn: data.username,
+        //       accountType: AccountTypes[data.accountType],
+        //       clanName: data.clan?.name,
+        //     }),
+        //   );
+        // }
       } catch (error) {
         console.log("Data: ", data);
         throw error;
