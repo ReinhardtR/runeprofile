@@ -29,7 +29,7 @@ export function DataTabsCard({
       <Card className="shrink-0">
         <Tabs.List className="absolute -top-4 left-0 right-0 flex flex-row items-center justify-center gap-x-4">
           <IconTabsTrigger value="skills">
-            <img src={SkillsIcon} />
+            <img src={SkillsIcon} className="size-7" />
           </IconTabsTrigger>
           <IconTabsTrigger value="quests">
             <img src={QuestsIcon} />
