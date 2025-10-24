@@ -3,11 +3,13 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev dev:api-client",
+    "dev": "turbo run dev dev:api-client --filter=!admin",
+    "dev:admin": "turbo run dev --filter=admin",
     "dev:setup": "turbo run dev:setup",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "clean": "rm -rf node_modules && pnpm -r exec rm -rf node_modules"
+    "clean:modules": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
+    "clean:wrangler": "pnpm -r exec rm -rf .wrangler"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

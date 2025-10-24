@@ -23,6 +23,7 @@
     "@hono/zod-validator": "^0.4.3",
     "@runeprofile/db": "workspace:*",
     "@runeprofile/runescape": "workspace:*",
+    "discord-api-types": "^0.38.28",
     "discord-hono": "^0.20.1",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.2",

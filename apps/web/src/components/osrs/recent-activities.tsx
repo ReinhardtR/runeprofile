@@ -12,6 +12,7 @@ import AchievementDiaryIcon from "~/assets/icons/achievement-diaries.png";
 import QuestIcon from "~/assets/icons/quest.png";
 import MiscIcons from "~/assets/misc-icons.json";
 import SkillIconsLarge from "~/assets/skill-icons-large.json";
+import { GameIcon } from "~/components/icons";
 import { Card } from "~/components/osrs/card";
 import {
   Tooltip,
@@ -20,7 +21,6 @@ import {
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
 import {
-  base64ImgSrc,
   cn,
   itemIconUrl,
   numberWithAbbreviation,
@@ -88,10 +88,11 @@ function RenderLevelUpEvent({
     <Tooltip>
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
-          <img
-            src={base64ImgSrc(skillIcon)}
+          <GameIcon
+            src={skillIcon}
             alt={event.data.name}
-            className="size-9 object-contain drop-shadow-solid-sm"
+            size={36}
+            className="drop-shadow-solid-sm"
           />
           <p className="font-runescape text-osrs-orange solid-text-shadow">
             Lvl. {event.data.level}
@@ -126,10 +127,11 @@ function RenderXpMilestoneEvent({
     <Tooltip>
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
-          <img
-            src={base64ImgSrc(skillIcon)}
+          <GameIcon
+            src={skillIcon}
             alt={event.data.name}
-            className="size-9 object-contain drop-shadow-solid-sm"
+            size={36}
+            className="drop-shadow-solid-sm"
           />
           <p
             className={cn("font-runescape text-osrs-orange solid-text-shadow", {
@@ -208,7 +210,7 @@ function RenderCombatAchievementTierCompletedEvent({
     <Tooltip>
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
-          <img src={base64ImgSrc(tierIcon)} className="size-9 object-contain" />
+          <GameIcon src={tierIcon} alt={tierName} size={36} />
           <p className="font-runescape text-osrs-orange solid-text-shadow">
             {shortTierName}
           </p>
@@ -271,9 +273,11 @@ function RenderMaxedEvent({
     <Tooltip>
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
-          <img
-            src={base64ImgSrc(MiscIcons["max_cape"])}
-            className="size-9 object-contain drop-shadow-solid-sm"
+          <GameIcon
+            src={MiscIcons["max_cape"]}
+            alt="Max cape"
+            size={36}
+            className="drop-shadow-solid-sm"
           />
           <p className="font-runescape text-osrs-orange solid-text-shadow shimmer-text">
             Maxed

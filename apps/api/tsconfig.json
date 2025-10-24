@@ -6,11 +6,19 @@
     "strict": true,
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["./src/**/*", "worker-configuration.d.ts"]
+  "include": [
+    "./src/**/*",
+    "worker-configuration.d.ts"
+  ]
 }

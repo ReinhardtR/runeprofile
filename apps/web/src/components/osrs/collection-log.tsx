@@ -13,6 +13,7 @@ import CollectionLogIcon from "~/assets/icons/collection-log.png";
 import ITEM_ICONS from "~/assets/item-icons.json";
 import QuestionMarkImage from "~/assets/misc/question-mark.png";
 import { hiscoresQueryOptions } from "~/components/hiscores";
+import { GameIcon } from "~/components/icons";
 import { Card } from "~/components/osrs/card";
 import { RuneScapeScrollArea } from "~/components/osrs/scroll-area";
 import {
@@ -34,12 +35,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import {
-  base64ImgSrc,
-  cn,
-  getCollectionLogRankIcon,
-  numberWithDelimiter,
-} from "~/lib/utils";
+import { cn, getCollectionLogRankIcon, numberWithDelimiter } from "~/lib/utils";
 
 export function CollectionLog({
   username,
@@ -316,7 +312,6 @@ function CollectionLogItem({
   const wikiUrlName = name.replaceAll(" ", "_");
 
   const itemIcon = ITEM_ICONS[id as unknown as keyof typeof ITEM_ICONS];
-  const iconSrc = itemIcon ? base64ImgSrc(itemIcon) : QuestionMarkImage;
 
   return (
     <Tooltip>
@@ -337,14 +332,26 @@ function CollectionLogItem({
             target="_blank"
             rel="noreferrer"
           >
-            <img
-              src={iconSrc}
-              alt={name}
-              className={cn(
-                "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
-                !quantity && "opacity-30",
-              )}
-            />
+            {itemIcon ? (
+              <GameIcon
+                src={itemIcon}
+                alt={name}
+                size={54}
+                className={cn(
+                  "z-10 drop-shadow-2xl brightness-[0.85]",
+                  !quantity && "opacity-30",
+                )}
+              />
+            ) : (
+              <img
+                src={QuestionMarkImage}
+                alt={name}
+                className={cn(
+                  "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
+                  !quantity && "opacity-30",
+                )}
+              />
+            )}
           </a>
         </div>
       </TooltipTrigger>

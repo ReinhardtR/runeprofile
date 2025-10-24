@@ -11,6 +11,7 @@ import {
 } from "@runeprofile/runescape";
 
 import SkillIcons from "~/assets/skills-icons.json";
+import { GameIcon } from "~/components/icons";
 import { Separator } from "~/components/ui/separator";
 import {
   Tooltip,
@@ -19,7 +20,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { base64ImgSrc, cn, numberWithDelimiter } from "~/lib/utils";
+import { cn, numberWithDelimiter } from "~/lib/utils";
 
 const OVERALL_NAME = "Overall";
 
@@ -86,13 +87,11 @@ function Skill({ name, level, xp, combatLevel }: SkillProps) {
       <TooltipTrigger asChild>
         <div className="runescape-stats-tile flex items-center justify-between px-3">
           {!isOverall && (
-            <img
-              src={base64ImgSrc(skillIcon)}
+            <GameIcon
+              src={skillIcon}
               alt={name}
-              className="flex-1 object-contain drop-shadow"
-              width={24}
-              height={38}
-              draggable={false}
+              size={24}
+              className="flex-1 drop-shadow"
             />
           )}
           <p

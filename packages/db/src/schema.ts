@@ -8,8 +8,9 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-import { createdAt, lower, updatedAt } from "./helpers";
 import { ActivityEvent } from "@runeprofile/runescape";
+
+import { createdAt, lower, updatedAt } from "./helpers";
 
 export const accounts = sqliteTable(
   "accounts",
@@ -221,23 +222,10 @@ export const discordWatches = sqliteTable(
   ],
 );
 
-export const discordWatchesRelations = relations(discordWatches, ({ many }) => ({
-  activities: many(discordWatchFilters),
+export const discordWatchesRelations = relations(discordWatches, ({ one }) => ({
+  // Only applicable for player watches
+  targetAccount: one(accounts, {
+    fields: [discordWatches.targetId],
+    references: [accounts.id],
+  }),
 }));
-
-export const discordWatchFilters = sqliteTable(
-  "discord_watch_filters",
-  {
-    id: text().notNull().primaryKey(),
-    channelId: text().notNull(),
-    event: text().notNull().$type<ActivityEvent["type"]>(),
-    createdAt,
-  },
-  (table) => [
-    uniqueIndex("discord_watch_filters_channel_event_unique_index").on(
-      table.channelId,
-      table.event,
-    ),
-    index("discord_watch_filters_channel_index").on(table.channelId),
-  ],
-);

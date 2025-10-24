@@ -3,9 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
   },
   "include": [
-    "src/lib/api-client.ts"
+    "./src/**/*",
+    "worker-configuration.d.ts"
   ],
 }

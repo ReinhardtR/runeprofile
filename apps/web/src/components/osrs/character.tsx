@@ -17,13 +17,14 @@ import { AccountType } from "@runeprofile/runescape";
 import AccountTypeIcons from "~/assets/account-type-icons.json";
 import ClanRankIcons from "~/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/assets/default-player-model.json";
+import { GameIcon } from "~/components/icons";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile, getProfileModels } from "~/lib/api";
-import { base64ImgSrc, loadModelFromBase64 } from "~/lib/utils";
+import { loadModelFromBase64 } from "~/lib/utils";
 
 import { Card } from "./card";
 
@@ -52,11 +53,10 @@ export function Character({
       <div className="absolute inset-x-0 z-20 mx-auto flex flex-wrap items-center justify-center space-x-4 p-3 font-runescape text-2xl font-bold leading-none solid-text-shadow">
         <div className="flex items-center space-x-2">
           {!!accountTypeIcon && (
-            <img
-              src={base64ImgSrc(accountTypeIcon)}
+            <GameIcon
+              src={accountTypeIcon}
               alt={accountType.name}
-              width={18}
-              height={18}
+              size={18}
               className="drop-shadow-solid text-xs"
             />
           )}
@@ -68,14 +68,12 @@ export function Character({
         <div className="absolute bottom-4 inset-x-0 z-20 flex flex-row items-center justify-end px-6 gap-x-2 font-runescape font-bold">
           <Tooltip>
             <TooltipTrigger>
-              <img
-                src={base64ImgSrc(
-                  ClanRankIcons[
-                    String(clan.icon) as keyof typeof ClanRankIcons
-                  ],
-                )}
-                width={16}
-                height={16}
+              <GameIcon
+                src={
+                  ClanRankIcons[String(clan.icon) as keyof typeof ClanRankIcons]
+                }
+                alt={clan.title}
+                size={16}
                 className="drop-shadow-solid-sm"
               />
             </TooltipTrigger>

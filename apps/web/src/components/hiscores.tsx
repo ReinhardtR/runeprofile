@@ -5,6 +5,7 @@ import { HiscoreLeaderboardKey } from "@runeprofile/runescape";
 import ClueScrollIcons from "~/assets/clue-scroll-icons.json";
 import HiscoreIcons from "~/assets/hiscore-icons.json";
 import QuestionMarkImage from "~/assets/misc/question-mark.png";
+import { GameIcon } from "~/components/icons";
 import {
   Table,
   TableBody,
@@ -14,12 +15,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { getHiscoresData } from "~/lib/api";
-import {
-  base64ImgSrc,
-  cn,
-  numberWithAbbreviation,
-  numberWithDelimiter,
-} from "~/lib/utils";
+import { cn, numberWithAbbreviation, numberWithDelimiter } from "~/lib/utils";
 
 export function hiscoresQueryOptions(params: {
   leaderboard: HiscoreLeaderboardKey;
@@ -73,6 +69,7 @@ export function Hiscores({
     .filter(showActivityFilter);
 
   const iconSize = "size-[22px]";
+  const iconSizeNum = 22;
 
   return (
     <div className={cn("flex flex-col gap-y-4 font-medium", className)}>
@@ -88,10 +85,19 @@ export function Hiscores({
           {bosses.map((boss) => (
             <TableRow key={boss.id} className="border-b">
               <TableCell className="flex items-center gap-x-3">
-                <img
-                  src={hiscoreIconSrc(boss.name)}
-                  className={cn("object-contain", iconSize)}
-                />
+                {hiscoreIcon(boss.name) ? (
+                  <GameIcon
+                    src={hiscoreIcon(boss.name)!}
+                    alt={boss.name}
+                    size={iconSizeNum}
+                  />
+                ) : (
+                  <img
+                    src={QuestionMarkImage}
+                    alt={boss.name}
+                    className={cn("object-contain", iconSize)}
+                  />
+                )}
                 {boss.name}
               </TableCell>
               <TableCell className="text-right">
@@ -116,10 +122,19 @@ export function Hiscores({
           {clues.map((boss) => (
             <TableRow key={boss.id} className="border-b">
               <TableCell className="flex items-center gap-x-3">
-                <img
-                  src={clueScrollIconSrc(boss.name)}
-                  className={cn("object-contain", iconSize)}
-                />
+                {clueScrollIcon(boss.name) ? (
+                  <GameIcon
+                    src={clueScrollIcon(boss.name)!}
+                    alt={boss.name}
+                    size={iconSizeNum}
+                  />
+                ) : (
+                  <img
+                    src={QuestionMarkImage}
+                    alt={boss.name}
+                    className={cn("object-contain", iconSize)}
+                  />
+                )}
                 {boss.name}
               </TableCell>
               <TableCell className="text-right">
@@ -144,10 +159,19 @@ export function Hiscores({
           {misc.map((activity) => (
             <TableRow key={activity.id} className="border-b">
               <TableCell className="flex items-center gap-x-3">
-                <img
-                  src={hiscoreIconSrc(activity.name)}
-                  className={cn("object-contain", iconSize)}
-                />
+                {hiscoreIcon(activity.name) ? (
+                  <GameIcon
+                    src={hiscoreIcon(activity.name)!}
+                    alt={activity.name}
+                    size={iconSizeNum}
+                  />
+                ) : (
+                  <img
+                    src={QuestionMarkImage}
+                    alt={activity.name}
+                    className={cn("object-contain", iconSize)}
+                  />
+                )}
                 {activity.name}
               </TableCell>
               <TableCell className="text-right">
@@ -173,10 +197,19 @@ export function Hiscores({
           {skills.map((skill) => (
             <TableRow key={skill.id}>
               <TableCell className="flex items-center gap-x-3">
-                <img
-                  src={hiscoreIconSrc(skill.name)}
-                  className={cn("object-contain", iconSize)}
-                />
+                {hiscoreIcon(skill.name) ? (
+                  <GameIcon
+                    src={hiscoreIcon(skill.name)!}
+                    alt={skill.name}
+                    size={iconSizeNum}
+                  />
+                ) : (
+                  <img
+                    src={QuestionMarkImage}
+                    alt={skill.name}
+                    className={cn("object-contain", iconSize)}
+                  />
+                )}
                 {skill.name}
               </TableCell>
               <TableCell className="text-right">
@@ -196,17 +229,13 @@ export function Hiscores({
   );
 }
 
-function clueScrollIconSrc(name: string) {
+function clueScrollIcon(name: string) {
   const tier = name.match(/\((.*?)\)/);
-  if (!tier || tier.length < 2) return QuestionMarkImage;
+  if (!tier || tier.length < 2) return null;
   const tierName = tier[1].toLowerCase();
-  const icon = ClueScrollIcons[tierName as keyof typeof ClueScrollIcons];
-  const src = icon ? base64ImgSrc(icon) : QuestionMarkImage;
-  return src;
+  return ClueScrollIcons[tierName as keyof typeof ClueScrollIcons] || null;
 }
 
-function hiscoreIconSrc(name: string) {
-  const icon = HiscoreIcons[name as keyof typeof HiscoreIcons];
-  const src = icon ? base64ImgSrc(icon) : QuestionMarkImage;
-  return src;
+function hiscoreIcon(name: string) {
+  return HiscoreIcons[name as keyof typeof HiscoreIcons] || null;
 }

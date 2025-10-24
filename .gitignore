@@ -25,4 +25,5 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-apps/admin
+# Cloudflare
+.wrangler/

@@ -3,9 +3,11 @@ import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "@runeprofile/db";
-import { ValuableDropEventSchema } from "@runeprofile/runescape";
+import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 
+import { sendActivityMessages } from "~/discord/messages";
 import { addActivities } from "~/lib/activity-log/add-activities";
+import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
@@ -16,6 +18,7 @@ import {
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
+import { getProfileUpdates } from "~/lib/profiles/get-profile-updates";
 import { searchProfiles } from "~/lib/profiles/search-profiles";
 import { setDefaultClogPage } from "~/lib/profiles/set-default-clog-page";
 import { updateProfile } from "~/lib/profiles/update-profile";
@@ -105,7 +108,23 @@ export const profilesRouter = newRouter()
       const data = c.req.valid("json");
 
       try {
-        await updateProfile(db, data);
+        const updates = await getProfileUpdates(db, data);
+        const activities = checkActivityEvents(updates);
+        await updateProfile(db, updates, activities);
+
+        if (activities.length > 0) {
+          c.executionCtx.waitUntil(
+            sendActivityMessages({
+              db,
+              discordToken: c.env.DISCORD_TOKEN,
+              activities,
+              accountId: data.id,
+              rsn: data.username,
+              accountType: AccountTypes[data.accountType],
+              clanName: data.clan?.name,
+            }),
+          );
+        }
       } catch (error) {
         console.log("Data: ", data);
         throw error;

@@ -11,16 +11,15 @@ import {
   skills,
 } from "@runeprofile/db";
 import { autochunk, buildConflictUpdateColumns } from "@runeprofile/db";
+import { ActivityEvent } from "@runeprofile/runescape";
 
-import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
-import {
-  UpdateProfileInput,
-  getProfileUpdates,
-} from "~/lib/profiles/get-profile-updates";
+import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
-export async function updateProfile(db: Database, input: UpdateProfileInput) {
-  const updates = await getProfileUpdates(db, input);
-
+export async function updateProfile(
+  db: Database,
+  updates: ProfileUpdates,
+  activityEvents: ActivityEvent[],
+) {
   const accountId = updates.id;
 
   if (!updates.currentProfile) {
@@ -70,7 +69,6 @@ export async function updateProfile(db: Database, input: UpdateProfileInput) {
       xp: skill.xp,
     }));
 
-  const activityEvents = checkActivityEvents(updates);
   const activitiesValues: Array<InferInsertModel<typeof activities>> =
     activityEvents.map((activity) => ({
       id: crypto.randomUUID(),

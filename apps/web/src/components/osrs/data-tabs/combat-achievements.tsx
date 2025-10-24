@@ -1,8 +1,9 @@
 import { COMBAT_ACHIEVEMENT_TIERS } from "@runeprofile/runescape";
 
 import CombatAchievementTierIcons from "~/assets/combat-achievement-tier-icons.json";
+import { GameIcon } from "~/components/icons";
 import { Profile } from "~/lib/api";
-import { base64ImgSrc, cn } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 
 export function CombatAchievements({
   data,
@@ -55,11 +56,10 @@ export function CombatAchievements({
               {tier.name}
             </p>
             <div className="relative my-[1px]">
-              <img
-                src={base64ImgSrc(tierIcon)}
+              <GameIcon
+                src={tierIcon}
                 alt={tier.name}
-                width={38}
-                height={38}
+                size={38}
                 className="drop-shadow-xl"
               />
             </div>

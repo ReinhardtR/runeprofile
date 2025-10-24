@@ -31,11 +31,11 @@ import SkillIconsLarge from "~/assets/skill-icons-large.json";
 import { BasicPagination } from "~/components/basic-pagination";
 import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
+import { GameIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { getClanActivities, getClanMembers } from "~/lib/api";
 import {
-  base64ImgSrc,
   cn,
   itemIconUrl,
   numberWithAbbreviation,
@@ -176,18 +176,24 @@ const ActivityRenderMap = {
   ) => {
     const itemIcon =
       ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
-    const iconSrc = itemIcon ? base64ImgSrc(itemIcon) : QuestionMarkImage;
     const itemName = COLLECTION_LOG_ITEMS[event.data.itemId] ?? "Unknown";
     return (
       <>
         <ActivityIcon>
-          <img
-            src={iconSrc}
-            alt={itemName}
-            className={cn(
-              "z-10 drop-shadow-2xl brightness-[0.85] object-contain mx-auto",
-            )}
-          />
+          {itemIcon ? (
+            <GameIcon
+              src={itemIcon}
+              alt={itemName}
+              size={26}
+              className="z-10 drop-shadow-2xl brightness-[0.85] mx-auto"
+            />
+          ) : (
+            <img
+              src={QuestionMarkImage}
+              alt={itemName}
+              className="z-10 drop-shadow-2xl brightness-[0.85] object-contain mx-auto size-[26px]"
+            />
+          )}
         </ActivityIcon>
         <ActivityContent>
           <ActivityAccount account={event.account} />
@@ -212,10 +218,11 @@ const ActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <img
-            src={base64ImgSrc(skillIcon)}
+          <GameIcon
+            src={skillIcon}
             alt={event.data.name}
-            className="size-6.5 object-contain drop-shadow-solid-sm"
+            size={26}
+            className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
         <ActivityContent>
@@ -241,10 +248,11 @@ const ActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <img
-            src={base64ImgSrc(skillIcon)}
+          <GameIcon
+            src={skillIcon}
             alt={event.data.name}
-            className="size-6.5 object-contain drop-shadow-solid-sm"
+            size={26}
+            className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
         <ActivityContent>
@@ -303,10 +311,11 @@ const ActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <img
-            src={base64ImgSrc(tierIcon)}
+          <GameIcon
+            src={tierIcon}
             alt={tierName}
-            className="size-7 object-contain drop-shadow-solid-sm"
+            size={28}
+            className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
         <ActivityContent>
@@ -351,10 +360,11 @@ const ActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <img
-            src={base64ImgSrc(MiscIcons["max_cape"])}
+          <GameIcon
+            src={MiscIcons["max_cape"]}
             alt="Maxed"
-            className="size-7 object-contain drop-shadow-solid-sm"
+            size={28}
+            className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
         <ActivityContent>
@@ -404,20 +414,19 @@ function ActivityAccount({
 
   return (
     <div className="flex flex-row items-center gap-x-1.5">
-      <img
-        src={base64ImgSrc(
-          ClanRankIcons[String(account.clanIcon) as keyof typeof ClanRankIcons],
-        )}
-        width={16}
-        height={16}
+      <GameIcon
+        src={
+          ClanRankIcons[String(account.clanIcon) as keyof typeof ClanRankIcons]
+        }
+        alt="Clan rank"
+        size={16}
         className="drop-shadow-solid-sm"
       />
       {!!accountTypeIcon && (
-        <img
-          src={base64ImgSrc(accountTypeIcon)}
+        <GameIcon
+          src={accountTypeIcon}
           alt={account.accountType.name}
-          width={16}
-          height={16}
+          size={16}
           className="drop-shadow-solid text-xs"
         />
       )}
@@ -520,22 +529,21 @@ function MembersList() {
               className="pt-3 overflow-hidden flex flex-row relative group"
             >
               <div className="bg-card border rounded-md px-4 h-16 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
-                <img
-                  src={base64ImgSrc(
+                <GameIcon
+                  src={
                     ClanRankIcons[
                       String(member.clan.icon) as keyof typeof ClanRankIcons
-                    ],
-                  )}
-                  width={16}
-                  height={16}
+                    ]
+                  }
+                  alt="Clan rank"
+                  size={16}
                   className="drop-shadow-solid-sm"
                 />
                 {!!accountTypeIcon && (
-                  <img
-                    src={base64ImgSrc(accountTypeIcon)}
+                  <GameIcon
+                    src={accountTypeIcon}
                     alt={member.accountType.name}
-                    width={18}
-                    height={18}
+                    size={18}
                     className="drop-shadow-solid text-xs"
                   />
                 )}

@@ -4,13 +4,7 @@ import { createMiddleware } from "hono/factory";
 import { RuneProfileError } from "~/lib/errors";
 import { STATUS } from "~/lib/status";
 
-type Bindings = {
-  DB: D1Database;
-  BUCKET: R2Bucket;
-  CORS_ORIGIN: string;
-};
-
-export const newRouter = () => new Hono<{ Bindings: Bindings }>();
+export const newRouter = () => new Hono<{ Bindings: Env }>();
 
 export async function r2FileToBase64(file: R2ObjectBody) {
   const arrayBuffer = await file.arrayBuffer();

@@ -1,3 +1,5 @@
+import { cn } from "~/lib/utils";
+
 export function DiscordIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -69,5 +71,48 @@ export function KofiIcon({ className }: { className?: string }) {
         />
       </g>
     </svg>
+  );
+}
+
+interface GameIconProps {
+  /** Base64 image data or full data URL */
+  src: string;
+  /** Alternative text for the icon */
+  alt: string;
+  /** Size of the icon in pixels (default: 24) */
+  size?: number;
+  /** Additional CSS classes */
+  className?: string;
+  /** Whether to apply pixelated rendering (default: true) */
+  pixelated?: boolean;
+}
+
+/**
+ * Component for rendering game icons (like RuneScape icons) with proper pixelated scaling.
+ * Automatically handles base64 data and applies image-rendering: pixelated for crisp scaling.
+ */
+export function GameIcon({
+  src,
+  alt,
+  size = 24,
+  className,
+  pixelated = true,
+}: GameIconProps) {
+  // Handle both base64 strings and full data URLs
+  const imageSrc = src.startsWith("data:")
+    ? src
+    : `data:image/png;base64,${src}`;
+
+  return (
+    <img
+      src={imageSrc}
+      alt={alt}
+      className={cn("object-contain", className)}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        imageRendering: pixelated ? "pixelated" : "auto",
+      }}
+    />
   );
 }
