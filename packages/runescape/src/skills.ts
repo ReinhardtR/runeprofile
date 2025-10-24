@@ -22,7 +22,6 @@ export const SKILLS = [
   "Farming",
   "Construction",
   "Hunter",
-  "Sailing",
 ];
 
 export const MAX_SKILL_XP = 200_000_000;
