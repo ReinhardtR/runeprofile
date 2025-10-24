@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "runeprofile-admin",
+  "compatibility_date": "2025-03-01",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
+      "database_name": "runeprofile-db",
+      "migrations_dir": "../../packages/db/drizzle",
+      "experimental_remote": true
+    }
+  ]
+}
