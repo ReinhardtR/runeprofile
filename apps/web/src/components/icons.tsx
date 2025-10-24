@@ -85,6 +85,7 @@ interface GameIconProps {
   className?: string;
   /** Whether to apply pixelated rendering (default: true) */
   pixelated?: boolean;
+  isBase64?: boolean;
 }
 
 /**
@@ -97,11 +98,11 @@ export function GameIcon({
   size = 24,
   className,
   pixelated = true,
+  isBase64 = true,
 }: GameIconProps) {
   // Handle both base64 strings and full data URLs
-  const imageSrc = src.startsWith("data:")
-    ? src
-    : `data:image/png;base64,${src}`;
+  const imageSrc =
+    !isBase64 || src.startsWith("data:") ? src : `data:image/png;base64,${src}`;
 
   return (
     <img

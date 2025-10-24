@@ -1,7 +1,4 @@
-import {
-  ActivityEventType,
-  COLLECTION_LOG_ITEMS,
-} from "@runeprofile/runescape";
+import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 
 import ITEM_ICONS from "~/assets/item-icons.json";
 import QuestionMarkImage from "~/assets/misc/question-mark.png";
@@ -13,7 +10,6 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Profile } from "~/lib/api";
-import { cn } from "~/lib/utils";
 
 export function RecentCollections({
   events,

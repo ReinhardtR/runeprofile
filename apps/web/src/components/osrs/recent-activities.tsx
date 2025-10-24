@@ -210,7 +210,12 @@ function RenderCombatAchievementTierCompletedEvent({
     <Tooltip>
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
-          <GameIcon src={tierIcon} alt={tierName} size={36} />
+          <GameIcon
+            src={tierIcon}
+            alt={tierName}
+            size={36}
+            className="drop-shadow-solid-xs"
+          />
           <p className="font-runescape text-osrs-orange solid-text-shadow">
             {shortTierName}
           </p>
@@ -306,6 +311,7 @@ function RenderValuableDropEvent({
           <img
             src={itemIconUrl(event.data.itemId)}
             className="size-9 object-contain drop-shadow-solid-sm"
+            style={{ imageRendering: "pixelated" }}
           />
           <p className="font-runescape text-osrs-orange solid-text-shadow">
             {numberWithAbbreviation(event.data.value)}

@@ -121,6 +121,7 @@
 
   --drop-shadow-solid: 2px 2px 0 black;
   --drop-shadow-solid-sm: 1px 1px 0 black;
+  --drop-shadow-solid-xs: 0.5px 0.5px 0 black;
 
   --font-runescape: "RuneScape";
 }
@@ -167,14 +168,9 @@
 }
 
 .runescape-stats-tile {
-  background-image: url("~/assets/skill-tile.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-
-  /* Aspect Ratio of the real image */
-  aspect-ratio: 2;
-
-  width: 77px;
+  border-image: url("~/assets/skill-tile.png") 10 10 10 10 fill / 10px 10px 10px
+    10px;
+  border-image-repeat: round;
 }
 
 .runescape-panel {
