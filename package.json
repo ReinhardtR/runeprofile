@@ -5,7 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev dev:api-client --filter=!admin",
     "dev:admin": "turbo run dev --filter=admin",
-    "dev:setup": "turbo run dev:setup",
+    "dev:setup": "turbo run dev:setup --ui=stream",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "clean:modules": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
