@@ -31,8 +31,6 @@ import { toast } from "sonner";
 import {
   ActivityEvent,
   COLLECTION_LOG_ITEMS,
-  COMBAT_ACHIEVEMENT_TIERS,
-  CombatAchievementTier,
   getAchievementDiaryById,
   getCombatAchievementTierName,
   getQuestById,
@@ -40,6 +38,8 @@ import {
 } from "@runeprofile/runescape";
 
 import { deleteAccountActivities } from "./actions";
+import { EditActivityDialog } from "./EditActivityDialog";
+import { AddActivityDialog } from "./AddActivityDialog";
 
 type Activity = {
   id: string;
@@ -390,9 +390,12 @@ export function AccountActivitiesTable({
 
       {/* Activities table */}
       <div className="space-y-2">
-        <p className="text-xs text-muted-foreground">
-          💡 Tip: Hold Shift and click to select a range of activities
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            💡 Tip: Hold Shift and click to select a range of activities
+          </p>
+          <AddActivityDialog accountId={accountId} />
+        </div>
         <div className="border rounded-md">
           <Table>
             <TableHeader>
@@ -411,6 +414,7 @@ export function AccountActivitiesTable({
                 <TableHead>Details</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="w-24">ID</TableHead>
+                <TableHead className="w-20">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -454,6 +458,17 @@ export function AccountActivitiesTable({
                   </TableCell>
                   <TableCell className="font-mono text-xs">
                     {activity.id.slice(0, 8)}...
+                  </TableCell>
+                  <TableCell>
+                    <EditActivityDialog 
+                      accountId={accountId} 
+                      activity={{
+                        id: activity.id,
+                        type: activity.type,
+                        data: activity.data,
+                        createdAt: activity.createdAt,
+                      }} 
+                    />
                   </TableCell>
                 </TableRow>
               ))}

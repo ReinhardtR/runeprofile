@@ -1,4 +1,5 @@
 import { AccountActivitiesTable } from "@/app/accounts/[id]/activities/AccountActivitiesTable";
+import { AddActivityDialog } from "@/app/accounts/[id]/activities/AddActivityDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -37,23 +38,26 @@ export default async function AccountActivitiesPage({
     return (
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" asChild>
-            <Link
-              href={`/accounts${from ? `?q=${encodeURIComponent(from)}` : ""}`}
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back to Accounts
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {account.username}&apos;s Activities
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              Account ID: {account.id}
-            </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link
+                href={`/accounts${from ? `?q=${encodeURIComponent(from)}` : ""}`}
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back to Accounts
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {account.username}&apos;s Activities
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Account ID: {account.id}
+              </p>
+            </div>
           </div>
+          <AddActivityDialog accountId={id} />
         </div>
 
         {/* Statistics */}

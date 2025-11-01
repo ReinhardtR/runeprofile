@@ -5,6 +5,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { accounts, activities, autochunk } from "@runeprofile/db";
+import { ActivityEvent } from "@runeprofile/runescape";
 
 export async function getAccountActivities(
   accountId: string,
@@ -118,4 +119,88 @@ export async function getActivityTypeStats(accountId: string) {
     .orderBy(desc(sql<number>`count(*)`));
 
   return typeStatsResult;
+}
+
+export async function updateActivity(
+  accountId: string,
+  activityId: string,
+  activityData: ActivityEvent,
+  createdAt: string,
+) {
+  const db = getDb();
+
+  // Verify the activity exists and belongs to this account
+  const existingActivity = await db.query.activities.findFirst({
+    where: and(
+      eq(activities.id, activityId),
+      eq(activities.accountId, accountId),
+    ),
+    columns: { id: true },
+  });
+
+  if (!existingActivity) {
+    throw new Error("Activity not found or does not belong to this account");
+  }
+
+  // Validate timestamp
+  const timestamp = new Date(createdAt);
+  if (isNaN(timestamp.getTime())) {
+    throw new Error("Invalid timestamp format");
+  }
+
+  // Update the activity using raw SQL
+  await db
+    .update(activities)
+    .set({
+      type: activityData.type,
+      data: activityData.data,
+      createdAt: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+    })
+    .where(eq(activities.id, activityId));
+
+  revalidatePath(`/accounts/${accountId}/activities`);
+  return { updated: true };
+}
+
+export async function createActivity(
+  accountId: string,
+  activityData: ActivityEvent,
+  createdAt?: string,
+) {
+  const db = getDb();
+
+  // Verify the account exists
+  const account = await db.query.accounts.findFirst({
+    where: eq(accounts.id, accountId),
+    columns: { id: true },
+  });
+
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  // Validate timestamp or use current time
+  let timestamp: Date;
+  if (createdAt) {
+    timestamp = new Date(createdAt);
+    if (isNaN(timestamp.getTime())) {
+      throw new Error("Invalid timestamp format");
+    }
+  } else {
+    timestamp = new Date();
+  }
+
+  // Generate a UUID for the activity
+  const activityId = crypto.randomUUID();
+
+  await db.insert(activities).values({
+    id: activityId,
+    accountId,
+    type: activityData.type,
+    data: activityData.data,
+    createdAt: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+  });
+
+  revalidatePath(`/accounts/${accountId}/activities`);
+  return { created: true, id: activityId };
 }
