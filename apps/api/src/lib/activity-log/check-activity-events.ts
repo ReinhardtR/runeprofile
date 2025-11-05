@@ -120,6 +120,10 @@ export function checkNewItemObtainedEvents(
     if (itemUpdate.oldQuantity > 0) continue;
     // not obtained
     if (itemUpdate.quantity <= 0) continue;
+
+    // temp brimhaven agility arena fix
+    if (itemUpdate.id === 29482) continue;
+
     events.push({
       type: "new_item_obtained",
       data: {
