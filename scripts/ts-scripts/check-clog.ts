@@ -1,6 +1,10 @@
 import * as cache from "@abextm/cache2";
 
-import { COLLECTION_LOG_TABS, CollectionLogPage } from "@runeprofile/runescape";
+import {
+  COLLECTION_LOG_ITEMS,
+  COLLECTION_LOG_TABS,
+  CollectionLogPage,
+} from "@runeprofile/runescape";
 
 const CLOG_GROUPS = 2102 as cache.ParamID;
 const CLOG_TAB_ENUM = 683 as cache.ParamID;
@@ -62,6 +66,13 @@ async function checkClog() {
     isNew: boolean;
   }[] = [];
 
+  const newItems: Record<number, string> = {};
+  const changedItemNames: Array<{
+    id: number;
+    oldName: string;
+    newName: string;
+  }> = [];
+
   for (const tabId of tabIds) {
     const tabStruct = await cache.Struct.load(provider, tabId);
     if (!tabStruct) {
@@ -121,6 +132,42 @@ async function checkClog() {
 
       const itemIds = [...itemIdsEnum.map.values()];
 
+      // Check for new items and name changes
+      for (const itemId of itemIds) {
+        const realItemId = CLOG_DUMMY_ITEM_ID_MAP[itemId as number] || itemId;
+        const runeprofileItemId = itemId as number; // The ID used in runeprofile
+
+        // Check if this real item ID is represented by a dummy ID in runeprofile
+        const dummyIdForRealItem = Object.keys(CLOG_DUMMY_ITEM_ID_MAP).find(
+          (dummyId) => CLOG_DUMMY_ITEM_ID_MAP[Number(dummyId)] === realItemId,
+        );
+
+        // Use the dummy ID if it exists, otherwise use the runeprofile item ID
+        const itemIdToCheck = dummyIdForRealItem
+          ? Number(dummyIdForRealItem)
+          : runeprofileItemId;
+
+        // Get item name from cache (use real item ID for cache lookup)
+        const itemDef = await cache.Item.load(provider, realItemId as number);
+        const itemName = itemDef?.name;
+
+        if (itemName) {
+          // Check if this is a completely new item (use the appropriate ID for lookup)
+          if (!COLLECTION_LOG_ITEMS[itemIdToCheck]) {
+            newItems[itemIdToCheck] = itemName;
+          } else {
+            // Check if the name has changed (use the appropriate ID for lookup)
+            const existingName = COLLECTION_LOG_ITEMS[itemIdToCheck];
+            if (existingName !== itemName) {
+              changedItemNames.push({
+                id: itemIdToCheck,
+                oldName: existingName,
+                newName: itemName,
+              });
+            }
+          }
+        }
+      }
       const existingPage = existingTab?.pages.find(
         (page) => page.name === pageName,
       );
@@ -192,5 +239,32 @@ async function checkClog() {
     }
   } else {
     console.log("No changes found in collection log data.");
+  }
+
+  // Output new items and name changes for COLLECTION_LOG_ITEMS
+  if (Object.keys(newItems).length > 0 || changedItemNames.length > 0) {
+    console.log("\n=== COLLECTION_LOG_ITEMS UPDATES ===\n");
+
+    if (Object.keys(newItems).length > 0) {
+      console.log("// NEW ITEMS - Add these to COLLECTION_LOG_ITEMS:");
+      const sortedNewItems = Object.entries(newItems).sort(
+        ([a], [b]) => Number(a) - Number(b),
+      );
+
+      for (const [id, name] of sortedNewItems) {
+        console.log(`  ${id}: "${name}",`);
+      }
+      console.log("");
+    }
+
+    if (changedItemNames.length > 0) {
+      console.log("// NAME CHANGES - Update these in COLLECTION_LOG_ITEMS:");
+      const sortedChangedItems = changedItemNames.sort((a, b) => a.id - b.id);
+
+      for (const { id, oldName, newName } of sortedChangedItems) {
+        console.log(`  ${id}: "${newName}", // was: "${oldName}"`);
+      }
+      console.log("");
+    }
   }
 }
