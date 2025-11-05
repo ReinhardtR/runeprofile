@@ -2,6 +2,7 @@
 
 import { updateActivity } from "@/app/accounts/[id]/activities/actions";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogClose,
@@ -14,15 +15,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
 import { Edit } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { format } from "date-fns";
 
 import { ActivityEvent } from "@runeprofile/runescape";
+
 import { DynamicActivityForm } from "./DynamicActivityForm";
 
 interface EditActivityDialogProps {
@@ -41,10 +46,10 @@ export function EditActivityDialog({
 }: EditActivityDialogProps) {
   const [open, setOpen] = useState(false);
   const [createdAt, setCreatedAt] = useState<Date>(
-    new Date(activity.createdAt)
+    new Date(activity.createdAt),
   );
   const [time, setTime] = useState(
-    new Date(activity.createdAt).toTimeString().slice(0, 5)
+    new Date(activity.createdAt).toTimeString().slice(0, 5),
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,21 +65,23 @@ export function EditActivityDialog({
     try {
       // Create UTC date by using the Date constructor with individual components
       const [hours, minutes] = time.split(":").map(Number);
-      const combinedDateTime = new Date(Date.UTC(
-        createdAt.getFullYear(),
-        createdAt.getMonth(),
-        createdAt.getDate(),
-        hours,
-        minutes,
-        0,
-        0
-      ));
+      const combinedDateTime = new Date(
+        Date.UTC(
+          createdAt.getFullYear(),
+          createdAt.getMonth(),
+          createdAt.getDate(),
+          hours,
+          minutes,
+          0,
+          0,
+        ),
+      );
 
       await updateActivity(
         accountId,
         activity.id,
         activityData,
-        combinedDateTime.toISOString()
+        combinedDateTime.toISOString(),
       );
 
       toast.success("Activity updated successfully");
@@ -83,7 +90,7 @@ export function EditActivityDialog({
     } catch (error) {
       console.error("Error updating activity:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to update activity"
+        error instanceof Error ? error.message : "Failed to update activity",
       );
     } finally {
       setIsLoading(false);
@@ -109,7 +116,7 @@ export function EditActivityDialog({
             Update the activity details and timestamp.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -134,7 +141,7 @@ export function EditActivityDialog({
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
               <Input

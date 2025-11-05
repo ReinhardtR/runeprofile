@@ -2,6 +2,7 @@
 
 import { createActivity } from "@/app/accounts/[id]/activities/actions";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogClose,
@@ -14,15 +15,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
 import { Plus } from "lucide-react";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { format } from "date-fns";
 
 import { ActivityEvent } from "@runeprofile/runescape";
+
 import { DynamicActivityForm } from "./DynamicActivityForm";
 
 interface AddActivityDialogProps {
@@ -47,20 +52,22 @@ export function AddActivityDialog({ accountId }: AddActivityDialogProps) {
     try {
       // Create UTC date by using the Date constructor with individual components
       const [hours, minutes] = time.split(":").map(Number);
-      const combinedDateTime = new Date(Date.UTC(
-        createdAt.getFullYear(),
-        createdAt.getMonth(),
-        createdAt.getDate(),
-        hours,
-        minutes,
-        0,
-        0
-      ));
+      const combinedDateTime = new Date(
+        Date.UTC(
+          createdAt.getFullYear(),
+          createdAt.getMonth(),
+          createdAt.getDate(),
+          hours,
+          minutes,
+          0,
+          0,
+        ),
+      );
 
       await createActivity(
         accountId,
         activityData,
-        combinedDateTime.toISOString()
+        combinedDateTime.toISOString(),
       );
 
       toast.success("Activity created successfully");
@@ -69,7 +76,7 @@ export function AddActivityDialog({ accountId }: AddActivityDialogProps) {
     } catch (error) {
       console.error("Error creating activity:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to create activity"
+        error instanceof Error ? error.message : "Failed to create activity",
       );
     } finally {
       setIsLoading(false);
@@ -91,7 +98,7 @@ export function AddActivityDialog({ accountId }: AddActivityDialogProps) {
             Create a new activity for this account.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -116,7 +123,7 @@ export function AddActivityDialog({ accountId }: AddActivityDialogProps) {
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
               <Input

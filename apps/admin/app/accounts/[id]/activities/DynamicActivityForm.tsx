@@ -10,27 +10,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import {
-  ActivityEventType,
-  ActivityEvent,
-  LevelUpEventSchema,
-  NewItemObtainedEventSchema,
   AchievementDiaryTierCompletedEventSchema,
+  ActivityEvent,
+  ActivityEventType,
   CombatAchievementTierCompletedEventSchema,
-  QuestCompletedEventSchema,
+  LevelUpEventSchema,
   MaxedEventSchema,
-  XpMilestoneEventSchema,
+  NewItemObtainedEventSchema,
+  QuestCompletedEventSchema,
   ValuableDropEventSchema,
+  XpMilestoneEventSchema,
 } from "@runeprofile/runescape";
 
 const ActivitySchemas = {
   [ActivityEventType.LEVEL_UP]: LevelUpEventSchema,
   [ActivityEventType.NEW_ITEM_OBTAINED]: NewItemObtainedEventSchema,
-  [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]: AchievementDiaryTierCompletedEventSchema,
-  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: CombatAchievementTierCompletedEventSchema,
+  [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]:
+    AchievementDiaryTierCompletedEventSchema,
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]:
+    CombatAchievementTierCompletedEventSchema,
   [ActivityEventType.QUEST_COMPLETED]: QuestCompletedEventSchema,
   [ActivityEventType.MAXED]: MaxedEventSchema,
   [ActivityEventType.XP_MILESTONE]: XpMilestoneEventSchema,
@@ -51,10 +53,10 @@ export function DynamicActivityForm({
   submitText,
 }: DynamicActivityFormProps) {
   const [activityType, setActivityType] = useState<ActivityEvent["type"]>(
-    initialData?.type || ActivityEventType.LEVEL_UP
+    initialData?.type || ActivityEventType.LEVEL_UP,
   );
   const [formData, setFormData] = useState<Record<string, unknown>>(
-    initialData?.data || {}
+    initialData?.data || {},
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -71,7 +73,9 @@ export function DynamicActivityForm({
   const dataSchema = currentSchema.shape.data;
 
   // Extract field definitions from the schema
-  const getFieldDefinitions = (schema: z.ZodObject<Record<string, z.ZodTypeAny>>) => {
+  const getFieldDefinitions = (
+    schema: z.ZodObject<Record<string, z.ZodTypeAny>>,
+  ) => {
     const fields: Array<{
       name: string;
       type: string;
@@ -108,7 +112,7 @@ export function DynamicActivityForm({
   const fields = getFieldDefinitions(dataSchema);
 
   const handleFieldChange = (fieldName: string, value: string) => {
-    const field = fields.find(f => f.name === fieldName);
+    const field = fields.find((f) => f.name === fieldName);
     let processedValue: string | number | undefined = value;
 
     // Convert to appropriate type
@@ -116,14 +120,14 @@ export function DynamicActivityForm({
       processedValue = value === "" ? undefined : Number(value);
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [fieldName]: processedValue,
     }));
 
     // Clear error for this field
     if (errors[fieldName]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldName];
         return newErrors;
@@ -145,7 +149,7 @@ export function DynamicActivityForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.errors.forEach((err) => {
           const path = err.path.join(".");
           // Remove "data." prefix from path for display
           const fieldPath = path.startsWith("data.") ? path.slice(5) : path;
@@ -176,13 +180,13 @@ export function DynamicActivityForm({
     // Convert camelCase to Title Case
     return fieldName
       .replace(/([A-Z])/g, " $1")
-      .replace(/^./, str => str.toUpperCase());
+      .replace(/^./, (str) => str.toUpperCase());
   };
 
   const getActivityTypeLabel = (type: string) => {
     return type
       .split("_")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
   };
 
@@ -192,7 +196,9 @@ export function DynamicActivityForm({
         <Label htmlFor="activityType">Activity Type</Label>
         <Select
           value={activityType}
-          onValueChange={(value) => setActivityType(value as ActivityEvent["type"])}
+          onValueChange={(value) =>
+            setActivityType(value as ActivityEvent["type"])
+          }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select activity type" />
@@ -216,13 +222,17 @@ export function DynamicActivityForm({
                 <div key={field.name} className="space-y-1">
                   <Label htmlFor={field.name}>
                     {getFieldLabel(field.name)}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                    {field.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                   </Label>
                   <Input
                     id={field.name}
                     type={field.type}
                     value={String(formData[field.name] ?? "")}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(field.name, e.target.value)
+                    }
                     placeholder={`Enter ${getFieldLabel(field.name).toLowerCase()}`}
                     className={errors[field.name] ? "border-red-500" : ""}
                   />

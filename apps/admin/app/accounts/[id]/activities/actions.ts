@@ -154,7 +154,7 @@ export async function updateActivity(
     .set({
       type: activityData.type,
       data: activityData.data,
-      createdAt: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+      createdAt: timestamp.toISOString().slice(0, 19).replace("T", " "),
     })
     .where(eq(activities.id, activityId));
 
@@ -198,7 +198,7 @@ export async function createActivity(
     accountId,
     type: activityData.type,
     data: activityData.data,
-    createdAt: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+    createdAt: timestamp.toISOString().slice(0, 19).replace("T", " "),
   });
 
   revalidatePath(`/accounts/${accountId}/activities`);

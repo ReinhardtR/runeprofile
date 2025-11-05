@@ -70,6 +70,49 @@ export async function updateUsername(id: string, newUsername: string) {
   return { oldUsername: account.username, newUsername };
 }
 
+export async function updateAccount(
+  id: string, 
+  updates: {
+    username?: string;
+    clanName?: string | null;
+    clanRank?: number | null;
+    clanIcon?: number | null;
+    clanTitle?: string | null;
+    banned?: boolean;
+  }
+) {
+  const db = getDb();
+
+  // Check if account exists
+  const account = await db.query.accounts.findFirst({
+    where: eq(accounts.id, id),
+    columns: { id: true, username: true },
+  });
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  // If username is being updated, check if it's already taken
+  if (updates.username && updates.username !== account.username) {
+    const existingAccount = await db.query.accounts.findFirst({
+      where: eq(lower(accounts.username), updates.username.toLowerCase()),
+      columns: { id: true },
+    });
+
+    if (existingAccount && existingAccount.id !== id) {
+      throw new Error("Username is already taken");
+    }
+  }
+
+  // Update the account
+  await db
+    .update(accounts)
+    .set(updates)
+    .where(eq(accounts.id, id));
+
+  return { updated: true };
+}
+
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -78,10 +121,20 @@ export async function searchAccounts(q: string) {
   const raw = q.trim();
   if (!raw) return [];
 
+  const selectFields = {
+    id: accounts.id,
+    username: accounts.username,
+    banned: accounts.banned,
+    clanName: accounts.clanName,
+    clanRank: accounts.clanRank,
+    clanIcon: accounts.clanIcon,
+    clanTitle: accounts.clanTitle,
+  };
+
   // If it looks like a full UUID, search by id.
   if (UUID_REGEX.test(raw)) {
     return database
-      .select({ id: accounts.id, username: accounts.username })
+      .select(selectFields)
       .from(accounts)
       .where(eq(accounts.id, raw))
       .limit(1);
@@ -90,7 +143,7 @@ export async function searchAccounts(q: string) {
   // If it's a short hex-like (possible id prefix) >=4 chars, attempt prefix match on id.
   if (/^[0-9a-f-]{4,}$/i.test(raw) && raw.length < 36) {
     return database
-      .select({ id: accounts.id, username: accounts.username })
+      .select(selectFields)
       .from(accounts)
       .where(like(accounts.id, `${raw}%`))
       .limit(25);
@@ -99,7 +152,7 @@ export async function searchAccounts(q: string) {
   // Otherwise treat as username substring search (case-insensitive).
   const term = raw.toLowerCase();
   return database
-    .select({ id: accounts.id, username: accounts.username })
+    .select(selectFields)
     .from(accounts)
     .where(sql`lower(${accounts.username}) like ${`%${term}%`}`)
     .limit(25);

@@ -37,9 +37,9 @@ import {
   getQuestStateFromIndex,
 } from "@runeprofile/runescape";
 
-import { deleteAccountActivities } from "./actions";
-import { EditActivityDialog } from "./EditActivityDialog";
 import { AddActivityDialog } from "./AddActivityDialog";
+import { EditActivityDialog } from "./EditActivityDialog";
+import { deleteAccountActivities } from "./actions";
 
 type Activity = {
   id: string;
@@ -460,14 +460,14 @@ export function AccountActivitiesTable({
                     {activity.id.slice(0, 8)}...
                   </TableCell>
                   <TableCell>
-                    <EditActivityDialog 
-                      accountId={accountId} 
+                    <EditActivityDialog
+                      accountId={accountId}
                       activity={{
                         id: activity.id,
                         type: activity.type,
                         data: activity.data,
                         createdAt: activity.createdAt,
-                      }} 
+                      }}
                     />
                   </TableCell>
                 </TableRow>
