@@ -2653,7 +2653,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   29986: "Alchemist gloves",
   29992: "Alchemist's amulet",
   29996: "Reagent pouch",
-  30002: "Pre-pot device (disassembled)",
+  30002: "Chugging barrel (disassembled)",
   30040: "Colossal wyrm teleport scroll",
   30042: "Calcified acorn",
   30045: "Graceful hood",
