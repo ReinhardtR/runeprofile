@@ -152,7 +152,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Fortis Colosseum",
-        items: [28960, 28947, 28936, 28939, 28933, 28942, 28919, 28924],
+        items: [28960, 28947, 28936, 28939, 28933, 28942, 28919, 28924, 6571],
         hiscore: { "Sol Heredit": "Sol Heredit kills" },
         aliases: ["colo", "sol", "colosseum"],
       },
@@ -309,7 +309,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Scorpia",
-        items: [13181, 11930, 11933],
+        items: [13181, 11930, 11933, 7158],
         hiscore: { Scorpia: "Scorpia kills" },
       },
       {
@@ -753,7 +753,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Brimhaven Agility Arena",
-        items: [2996, 2997, 21061, 21067, 21070, 21073, 21076, 21064],
+        items: [2996, 29482, 2997, 21061, 21067, 21070, 21073, 21076, 21064],
         aliases: ["brimhaven agility", "brimhaven", "brim agility", "brim"],
       },
       {

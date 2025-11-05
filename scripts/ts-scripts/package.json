@@ -1,10 +1,11 @@
 {
   "name": "ts-scripts",
+  "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "gen-icons": "tsx generate-icons.ts",
-    "gen-v-items": "tsx generate-valuable-items.ts",
-    "gen-clog": "tsx generate-clog.ts"
+    "check-clog": "tsx check-clog.ts"
   },
   "devDependencies": {
     "@abextm/cache2": "^0.1.3",
