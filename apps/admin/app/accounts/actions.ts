@@ -71,7 +71,7 @@ export async function updateUsername(id: string, newUsername: string) {
 }
 
 export async function updateAccount(
-  id: string, 
+  id: string,
   updates: {
     username?: string;
     clanName?: string | null;
@@ -79,7 +79,7 @@ export async function updateAccount(
     clanIcon?: number | null;
     clanTitle?: string | null;
     banned?: boolean;
-  }
+  },
 ) {
   const db = getDb();
 
@@ -105,10 +105,7 @@ export async function updateAccount(
   }
 
   // Update the account
-  await db
-    .update(accounts)
-    .set(updates)
-    .where(eq(accounts.id, id));
+  await db.update(accounts).set(updates).where(eq(accounts.id, id));
 
   return { updated: true };
 }

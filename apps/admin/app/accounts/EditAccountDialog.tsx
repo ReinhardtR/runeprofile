@@ -2,6 +2,7 @@
 
 import { updateAccount } from "@/app/accounts/actions";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Edit } from "lucide-react";
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
@@ -33,7 +33,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   // Form state
   const [username, setUsername] = useState(account.username);
   const [banned, setBanned] = useState(account.banned);
@@ -67,31 +67,31 @@ export function EditAccountDialog({ account }: { account: Account }) {
 
     try {
       const updates: Parameters<typeof updateAccount>[1] = {};
-      
+
       // Only include changed fields
       if (username.trim() !== account.username) {
         updates.username = username.trim();
       }
-      
+
       if (banned !== account.banned) {
         updates.banned = banned;
       }
-      
+
       const newClanName = clanName.trim() || null;
       if (newClanName !== account.clanName) {
         updates.clanName = newClanName;
       }
-      
+
       const newClanRank = clanRank.trim() ? parseInt(clanRank.trim()) : null;
       if (newClanRank !== account.clanRank) {
         updates.clanRank = newClanRank;
       }
-      
+
       const newClanIcon = clanIcon.trim() ? parseInt(clanIcon.trim()) : null;
       if (newClanIcon !== account.clanIcon) {
         updates.clanIcon = newClanIcon;
       }
-      
+
       const newClanTitle = clanTitle.trim() || null;
       if (newClanTitle !== account.clanTitle) {
         updates.clanTitle = newClanTitle;
@@ -107,9 +107,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
         handleClose();
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update account",
-      );
+      setError(err instanceof Error ? err.message : "Failed to update account");
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +146,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Clan Information</h4>
-            
+
             <div className="space-y-2">
               <Label htmlFor="clan-name">Clan Name</Label>
               <Input
@@ -205,7 +203,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Account Status</h4>
-            
+
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="banned"
