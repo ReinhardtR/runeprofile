@@ -63,7 +63,7 @@ export function Skills({ data }: { data: Profile["skills"] }) {
           {/* TODO: inlcude sailing in skills array */}
           <Skill name={"Sailing"} level={1} xp={0} />
         </div>
-        <OverallLevel
+        <LevelSummaryRow
           level={overallLevel}
           xp={overallXP}
           combatLevel={combatLevel}
@@ -151,12 +151,12 @@ function SkillTooltipRow({
   );
 }
 
-function OverallLevel({ level, xp, combatLevel }: OverallLevelProps) {
+function LevelSummaryRow({ level, xp, combatLevel }: OverallLevelProps) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="flex items-center justify-center gap-x-8 runescape-stats-tile w-full py-0.5">
-          <div className="flex items-center gap-x-2">
+    <div className="flex items-center justify-center gap-[1px] w-full">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center justify-center gap-x-2 runescape-stats-tile w-full py-0.5">
             <GameIcon
               src={MiscIcons["combat"]}
               alt="Combat Level"
@@ -174,10 +174,17 @@ function OverallLevel({ level, xp, combatLevel }: OverallLevelProps) {
               {combatLevel}
             </p>
           </div>
-          <div className="flex items-center gap-x-2">
+        </TooltipTrigger>
+        <TooltipContent className="pointer-events-none p-2.5 flex flex-col w-[260px]">
+          <SkillTooltipRow label="Combat Level" value={combatLevel} />
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center justify-center gap-x-2 runescape-stats-tile w-full py-0.5">
             <GameIcon
               src={TotalLevelIcon}
-              alt="Combat Level"
+              alt="Total Level"
               size={20}
               isBase64={false}
               className="drop-shadow-solid-sm -mt-0.5"
@@ -194,13 +201,13 @@ function OverallLevel({ level, xp, combatLevel }: OverallLevelProps) {
               {level}
             </p>
           </div>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent className="pointer-events-none p-2.5 flex flex-col w-[260px]">
-        <SkillTooltipRow label="Overall XP" value={numberWithDelimiter(xp)} />
-        <Separator className="my-1" />
-        <SkillTooltipRow label="Combat Level" value={combatLevel} />
-      </TooltipContent>
-    </Tooltip>
+        </TooltipTrigger>
+        <TooltipContent className="pointer-events-none p-2.5 flex flex-col w-[260px]">
+          <SkillTooltipRow label="Total Level" value={level} />
+          <Separator className="my-1" />
+          <SkillTooltipRow label="Overall XP" value={numberWithDelimiter(xp)} />
+        </TooltipContent>
+      </Tooltip>
+    </div>
   );
 }
