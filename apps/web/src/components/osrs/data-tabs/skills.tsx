@@ -59,9 +59,6 @@ export function Skills({ data }: { data: Profile["skills"] }) {
               xp={skill.xp}
             />
           ))}
-
-          {/* TODO: inlcude sailing in skills array */}
-          <Skill name={"Sailing"} level={1} xp={0} />
         </div>
         <OverallLevel
           level={overallLevel}
@@ -107,7 +104,7 @@ function Skill({ name, level, xp }: SkillProps) {
                 "text-osrs-green": level === MAX_SKILL_LEVEL,
                 "text-osrs-red":
                   level === 1 || (name === "Hitpoints" && level === 10),
-                "shimmer-text": xp >= MAX_SKILL_XP || name === "Sailing",
+                "shimmer-text": xp >= MAX_SKILL_XP,
               },
             )}
           >
