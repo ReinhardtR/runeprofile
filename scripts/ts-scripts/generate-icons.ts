@@ -1,7 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import { COLLECTION_LOG_ITEM_IDS } from "@runeprofile/runescape";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 generateJson(COLLECTION_LOG_ITEM_IDS)
   .then(() => console.log("Finished generating collection log items JSON."))
