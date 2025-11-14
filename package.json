@@ -10,8 +10,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "clean:modules": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "clean:wrangler": "pnpm -r exec rm -rf .wrangler",
-    "script:check-clog": "pnpm --filter ts-scripts run check-clog",
-    "script:gen-icons": "pnpm --filter ts-scripts run gen-icons"
+    "script:check-clog": "pnpm --filter ts-scripts run check-clog"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
