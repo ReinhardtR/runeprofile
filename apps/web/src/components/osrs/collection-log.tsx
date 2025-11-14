@@ -338,7 +338,7 @@ function CollectionLogItem({
                 alt={name}
                 size={54}
                 className={cn(
-                  "z-10 drop-shadow-2xl brightness-[0.85]",
+                  "z-10 drop-shadow-2xl",
                   !quantity && "opacity-30",
                 )}
               />
@@ -347,7 +347,7 @@ function CollectionLogItem({
                 src={QuestionMarkImage}
                 alt={name}
                 className={cn(
-                  "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
+                  "z-10 drop-shadow-2xl size-[54px] object-contain",
                   !quantity && "opacity-30",
                 )}
               />
