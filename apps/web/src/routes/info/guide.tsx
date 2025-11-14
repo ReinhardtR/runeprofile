@@ -101,7 +101,7 @@ function RouteComponent() {
             <GuideParagraph>
               Creating and updating your profile is done in the same way. If you
               have Auto Sync enabled (enabled by default), the plugin will
-              automatically create/update your profile every 15 minutes. Note,
+              automatically create/update your profile every 60 minutes. Note,
               since the plugin can only read your Collection Log data when it is
               open, the Collection Log items will only be included if you have
               opened it before Auto Sync triggers.
