@@ -106,6 +106,8 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.DB);
       const data = c.req.valid("json");
 
+      console.log({ Data: data });
+
       try {
         const updates = await getProfileUpdates(db, data);
         const activities = checkActivityEvents(updates);
