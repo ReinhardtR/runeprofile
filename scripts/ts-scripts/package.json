@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "gen-icons": "tsx generate-icons.ts",
     "check-clog": "tsx check-clog.ts"
   },
   "devDependencies": {

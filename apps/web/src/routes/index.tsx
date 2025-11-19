@@ -314,7 +314,7 @@ function EventHero() {
                       <img
                         src={iconSrc}
                         className={cn(
-                          "z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain",
+                          "z-10 drop-shadow-2xl size-[54px] object-contain",
                           !item.quantity && "opacity-30",
                         )}
                       />

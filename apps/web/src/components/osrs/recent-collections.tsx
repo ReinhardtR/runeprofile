@@ -35,13 +35,13 @@ export function RecentCollections({
                   src={itemIcon}
                   alt={itemName}
                   size={54}
-                  className="z-10 drop-shadow-2xl brightness-[0.85] mx-auto"
+                  className="z-10 drop-shadow-2xl mx-auto"
                 />
               ) : (
                 <img
                   src={QuestionMarkImage}
                   alt={itemName}
-                  className="z-10 drop-shadow-2xl brightness-[0.85] size-[54px] object-contain mx-auto"
+                  className="z-10 drop-shadow-2xl size-[54px] object-contain mx-auto"
                 />
               )}
             </TooltipTrigger>

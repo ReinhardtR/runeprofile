@@ -93,6 +93,12 @@ export const QUESTS = [
     points: 2,
     type: QuestType.MEMBERS,
   },
+  {
+    id: 7105,
+    name: "Current Affairs",
+    points: 1,
+    type: QuestType.MEMBERS,
+  },
   { id: 3937, name: "The Curse of Arrav", points: 2, type: QuestType.MEMBERS },
   {
     id: 22,
@@ -249,6 +255,12 @@ export const QUESTS = [
   { id: 106, name: "Olaf's Quest", points: 1, type: QuestType.MEMBERS },
   { id: 107, name: "One Small Favour", points: 2, type: QuestType.MEMBERS },
   {
+    id: 7103,
+    name: "Pandemonium",
+    points: 1,
+    type: QuestType.MEMBERS,
+  },
+  {
     id: 3425,
     name: "The Path of Glouphrie",
     points: 2,
@@ -263,6 +275,7 @@ export const QUESTS = [
     type: QuestType.MEMBERS,
   },
   { id: 111, name: "Priest in Peril", points: 1, type: QuestType.MEMBERS },
+  { id: 7104, name: "Prying Times",  points: 1, type: QuestType.MEMBERS },
   { id: 113, name: "The Queen of Thieves", points: 1, type: QuestType.MEMBERS },
   { id: 114, name: "Rag and Bone Man I", points: 1, type: QuestType.MEMBERS },
   { id: 115, name: "Rag and Bone Man II", points: 1, type: QuestType.MEMBERS },
@@ -324,6 +337,7 @@ export const QUESTS = [
   { id: 151, name: "Tribal Totem", points: 1, type: QuestType.MEMBERS },
   { id: 152, name: "Troll Romance", points: 2, type: QuestType.MEMBERS },
   { id: 153, name: "Troll Stronghold", points: 1, type: QuestType.MEMBERS },
+  { id: 7106, name: "Troubled Tortugans", points: 1, type: QuestType.MEMBERS },
   { id: 3512, name: "Twilight's Promise", points: 1, type: QuestType.MEMBERS },
   { id: 154, name: "Underground Pass", points: 5, type: QuestType.MEMBERS },
   { id: 156, name: "Wanted!", points: 1, type: QuestType.MEMBERS },

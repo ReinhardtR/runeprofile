@@ -185,13 +185,13 @@ const ActivityRenderMap = {
               src={itemIcon}
               alt={itemName}
               size={26}
-              className="z-10 drop-shadow-2xl brightness-[0.85] mx-auto"
+              className="z-10 drop-shadow-2xl mx-auto"
             />
           ) : (
             <img
               src={QuestionMarkImage}
               alt={itemName}
-              className="z-10 drop-shadow-2xl brightness-[0.85] object-contain mx-auto size-[26px]"
+              className="z-10 drop-shadow-2xl object-contain mx-auto size-[26px]"
             />
           )}
         </ActivityIcon>
@@ -387,9 +387,7 @@ const ActivityRenderMap = {
         <ActivityIcon>
           <img
             src={itemIconUrl(event.data.itemId)}
-            className={cn(
-              "z-10 drop-shadow-2xl brightness-[0.85] object-contain mx-auto",
-            )}
+            className={cn("z-10 drop-shadow-2xl object-contain mx-auto")}
           />
         </ActivityIcon>
         <ActivityContent>
