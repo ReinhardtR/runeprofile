@@ -320,7 +320,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Shellbane Gryphon",
-        items: [31285, 31245, 31235],
+        items: [32921, 31285, 31235, 31245],
         aliases: ["shellbane", "gryphon"],
       },
       {
@@ -2850,6 +2850,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   32869: "Mouldy doll",
   32870: "Smashed mirror",
   32876: "Aquanite tendon",
+  32921: "Jar of feathers",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
