@@ -31,3 +31,16 @@ export const MAX_COMBAT_LEVEL = 126;
 
 export const MAX_TOTAL_XP = SKILLS.length * MAX_SKILL_XP;
 export const MAX_TOTAL_LEVEL = SKILLS.length * MAX_SKILL_LEVEL;
+
+export const COMBAT_SKILLS = [
+  "Attack",
+  "Strength",
+  "Defence",
+  "Hitpoints",
+  "Ranged",
+  "Prayer",
+  "Magic",
+] as const;
+export const COMBAT_SKILLS_COUNT = COMBAT_SKILLS.length;
+
+export const MAX_COMBAT_XP = COMBAT_SKILLS_COUNT * MAX_SKILL_XP;

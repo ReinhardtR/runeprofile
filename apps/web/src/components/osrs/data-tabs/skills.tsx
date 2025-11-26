@@ -1,11 +1,13 @@
 import {
   MAX_COMBAT_LEVEL,
+  MAX_COMBAT_XP,
   MAX_SKILL_LEVEL,
   MAX_SKILL_XP,
   MAX_TOTAL_LEVEL,
   MAX_TOTAL_XP,
   SKILLS,
   getCombatLevelFromSkills,
+  getCombatXpFromSkills,
   getLevelFromXP,
   getVirtualLevelFromXP,
   getXPUntilNextLevel,
@@ -39,12 +41,12 @@ export function Skills({ data }: { data: Profile["skills"] }) {
   }
 
   const combatLevel = getCombatLevelFromSkills(skills);
+  const combatXp = getCombatXpFromSkills(skills);
 
   const overallLevel = skills.reduce(
     (totalXP, skill) => totalXP + getLevelFromXP(skill.xp),
     0,
   );
-
   const overallXP = skills.reduce((totalXP, skill) => totalXP + skill.xp, 0);
 
   return (
@@ -64,6 +66,7 @@ export function Skills({ data }: { data: Profile["skills"] }) {
           level={overallLevel}
           xp={overallXP}
           combatLevel={combatLevel}
+          combatXp={combatXp}
         />
       </div>
     </TooltipProvider>
@@ -80,6 +83,7 @@ type OverallLevelProps = {
   level: number;
   xp: number;
   combatLevel: number;
+  combatXp: number;
 };
 
 function Skill({ name, level, xp }: SkillProps) {
@@ -148,7 +152,12 @@ function SkillTooltipRow({
   );
 }
 
-function LevelSummaryRow({ level, xp, combatLevel }: OverallLevelProps) {
+function LevelSummaryRow({
+  level,
+  xp,
+  combatLevel,
+  combatXp,
+}: OverallLevelProps) {
   return (
     <div className="flex items-center justify-center gap-[1px] w-full">
       <Tooltip>
@@ -165,6 +174,7 @@ function LevelSummaryRow({ level, xp, combatLevel }: OverallLevelProps) {
                 "font-runescape font-bold text-osrs-yellow text-lg solid-text-shadow",
                 {
                   "text-osrs-green": combatLevel === MAX_COMBAT_LEVEL,
+                  "shimmer-text": combatXp === MAX_COMBAT_XP,
                 },
               )}
             >

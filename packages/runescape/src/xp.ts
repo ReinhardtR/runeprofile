@@ -1,3 +1,5 @@
+import { COMBAT_SKILLS } from ".";
+
 export const LEVELS_XP = [
   0, 83, 174, 276, 388, 512, 650, 801, 969, 1154, 1358, 1584, 1833, 2107, 2411,
   2746, 3115, 3523, 3973, 4470, 5018, 5624, 6291, 7028, 7842, 8740, 9730, 10824,
@@ -106,20 +108,27 @@ export const getCombatLevel = ({
   return Math.floor(base + Math.max(melee, range, mage));
 };
 
+export const getCombatXpFromSkills = (
+  skills: { name: string; xp: number }[],
+) => {
+  return skills
+    .filter((skill) => COMBAT_SKILLS.includes(skill.name as any))
+    .reduce((total, skill) => total + skill.xp, 0);
+};
+
 export const getCombatLevelFromSkills = (
   skills: { name: string; xp: number }[],
 ) => {
+  const getSkillXP = (name: string, defaultXP = 0) =>
+    skills.find((s) => s.name === name)?.xp ?? defaultXP;
+
   return getCombatLevel({
-    attack: getLevelFromXP(skills.find((s) => s.name === "Attack")?.xp ?? 0),
-    strength: getLevelFromXP(
-      skills.find((s) => s.name === "Strength")?.xp ?? 0,
-    ),
-    defence: getLevelFromXP(skills.find((s) => s.name === "Defence")?.xp ?? 0),
-    hitpoints: getLevelFromXP(
-      skills.find((s) => s.name === "Hitpoints")?.xp ?? 1154, // Default to 10 HP
-    ),
-    ranged: getLevelFromXP(skills.find((s) => s.name === "Ranged")?.xp ?? 0),
-    prayer: getLevelFromXP(skills.find((s) => s.name === "Prayer")?.xp ?? 0),
-    magic: getLevelFromXP(skills.find((s) => s.name === "Magic")?.xp ?? 0),
+    attack: getLevelFromXP(getSkillXP("Attack")),
+    strength: getLevelFromXP(getSkillXP("Strength")),
+    defence: getLevelFromXP(getSkillXP("Defence")),
+    hitpoints: getLevelFromXP(getSkillXP("Hitpoints", 1154)), // Default to 10 HP
+    ranged: getLevelFromXP(getSkillXP("Ranged")),
+    prayer: getLevelFromXP(getSkillXP("Prayer")),
+    magic: getLevelFromXP(getSkillXP("Magic")),
   });
 };
