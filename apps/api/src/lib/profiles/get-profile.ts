@@ -88,7 +88,7 @@ async function getProfile(db: Database, condition: SQL) {
           eq(table.accountId, profile.id),
           not(eq(table.type, "new_item_obtained")),
         ),
-      orderBy: (table) => [desc(table.createdAt), desc(table.id)],
+      orderBy: (table) => [desc(table.createdAt), desc(table.type)],
       limit: 10,
       columns: {
         type: true,
