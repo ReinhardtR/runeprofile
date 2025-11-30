@@ -126,6 +126,7 @@ export async function searchAccounts(q: string) {
     clanRank: accounts.clanRank,
     clanIcon: accounts.clanIcon,
     clanTitle: accounts.clanTitle,
+    updatedAt: accounts.updatedAt,
   };
 
   // If it looks like a full UUID, search by id.

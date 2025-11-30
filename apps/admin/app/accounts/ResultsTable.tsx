@@ -24,6 +24,7 @@ interface AccountRow {
   clanRank: number | null;
   clanIcon: number | null;
   clanTitle: string | null;
+  updatedAt: string;
 }
 
 export function ResultsTable({
@@ -40,6 +41,7 @@ export function ResultsTable({
           <TableHead className="w-[300px]">ID</TableHead>
           <TableHead>Username</TableHead>
           <TableHead>Clan</TableHead>
+          <TableHead>Last Updated</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -88,6 +90,11 @@ export function ResultsTable({
               ) : (
                 <span className="text-muted-foreground text-sm">No clan</span>
               )}
+            </TableCell>
+            <TableCell className="align-top">
+              <div className="text-sm">
+                {r.updatedAt ? new Date(r.updatedAt).toLocaleString() : "N/A"}
+              </div>
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2 flex-wrap">
