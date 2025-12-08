@@ -15,5 +15,12 @@
       "migrations_dir": "../../packages/db/drizzle",
       "experimental_remote": true
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "runeprofile-player-models",
+      "preview_bucket_name": "runeprofile-player-models"
+    }
   ]
 }
