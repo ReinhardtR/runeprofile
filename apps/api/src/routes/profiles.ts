@@ -10,11 +10,12 @@ import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
-  RuneProfileFailedToDeleteFileError,
   RuneProfileFailedToUploadFileError,
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
+import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
+import { uploadPlayerModels } from "~/lib/models/manage-models";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
 import { getProfileUpdates } from "~/lib/profiles/get-profile-updates";
@@ -104,6 +105,7 @@ export const profilesRouter = newRouter()
     ),
     async (c) => {
       const db = drizzle(c.env.DB);
+      const bucket = c.env.BUCKET;
       const data = c.req.valid("json");
 
       console.log({ Data: data });
@@ -111,7 +113,7 @@ export const profilesRouter = newRouter()
       try {
         const updates = await getProfileUpdates(db, data);
         const activities = checkActivityEvents(updates);
-        await updateProfile(db, updates, activities);
+        await updateProfile(db, bucket, updates, activities);
 
         // TODO: uncomment when discord bot ready
         // if (activities.length > 0) {
@@ -184,16 +186,10 @@ export const profilesRouter = newRouter()
     validator("param", z.object({ id: accountIdSchema })),
     async (c) => {
       const db = drizzle(c.env.DB);
+      const bucket = c.env.BUCKET;
       const { id } = c.req.valid("param");
 
-      const account = await deleteProfile(db, id);
-
-      try {
-        await c.env.BUCKET.delete(account.username);
-        await c.env.BUCKET.delete(`${account.username}-pet`);
-      } catch (error) {
-        throw RuneProfileFailedToDeleteFileError;
-      }
+      await deleteProfile(db, bucket, id);
 
       return c.json({ message: "Profile deleted successfully" });
     },
@@ -223,7 +219,7 @@ export const profilesRouter = newRouter()
     ),
     async (c) => {
       const db = drizzle(c.env.DB);
-
+      const bucket = c.env.BUCKET;
       const { accountId, model, petModel } = c.req.valid("form");
 
       const account = await db.query.accounts.findFirst({
@@ -235,26 +231,15 @@ export const profilesRouter = newRouter()
         throw RuneProfileAccountNotFoundError;
       }
 
-      const username = account.username.toLowerCase();
-
       try {
-        await c.env.BUCKET.put(username, model.stream());
+        await uploadPlayerModels(
+          bucket,
+          account.username,
+          model.stream(),
+          petModel?.stream(),
+        );
       } catch (error) {
         throw RuneProfileFailedToUploadFileError;
-      }
-
-      if (petModel) {
-        try {
-          await c.env.BUCKET.put(`${username}-pet`, petModel.stream());
-        } catch (error) {
-          throw RuneProfileFailedToUploadFileError;
-        }
-      } else {
-        try {
-          await c.env.BUCKET.delete(`${username}-pet`);
-        } catch (error) {
-          throw RuneProfileFailedToDeleteFileError;
-        }
       }
 
       return c.json({ message: "Model updated successfully" });
@@ -272,13 +257,14 @@ export const profilesRouter = newRouter()
       cacheControl: "public, max-age=0, s-maxage=60",
     }),
     async (c) => {
+      const bucket = c.env.BUCKET;
       const { username } = c.req.valid("param");
       const { pet: includePet } = c.req.valid("query");
 
       const [playerFile, petFile] = await Promise.all([
-        c.env.BUCKET.get(username),
+        bucket.get(createPlayerModelKey(username)),
         includePet
-          ? c.env.BUCKET.get(`${username}-pet`)
+          ? bucket.get(createPetModelKey(username))
           : Promise.resolve(null),
       ]);
 

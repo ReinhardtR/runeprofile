@@ -12,8 +12,13 @@ import {
 } from "@runeprofile/db";
 
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
+import { deletePlayerModels } from "~/lib/models/manage-models";
 
-export async function deleteProfile(db: Database, id: string) {
+export async function deleteProfile(
+  db: Database,
+  bucket: R2Bucket,
+  id: string,
+) {
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, id),
     columns: {
@@ -40,6 +45,13 @@ export async function deleteProfile(db: Database, id: string) {
   ]);
 
   await db.delete(accounts).where(eq(accounts.id, id));
+
+  // Delete player models from R2 bucket
+  try {
+    await deletePlayerModels(bucket, account.username);
+  } catch (error) {
+    console.error("Failed to delete player models:", error);
+  }
 
   return account;
 }

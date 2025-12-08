@@ -13,10 +13,12 @@ import {
 import { autochunk, buildConflictUpdateColumns } from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
+import { renamePlayerModels } from "~/lib/models/manage-models";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
 export async function updateProfile(
   db: Database,
+  bucket: R2Bucket,
   updates: ProfileUpdates,
   activityEvents: ActivityEvent[],
 ) {
@@ -146,4 +148,20 @@ export async function updateProfile(
       db.insert(activities).values(chunk),
     ),
   ]);
+
+  // Rename player models if username changed
+  if (
+    updates.currentProfile &&
+    updates.currentProfile.username !== updates.username
+  ) {
+    try {
+      await renamePlayerModels(
+        bucket,
+        updates.currentProfile.username,
+        updates.username,
+      );
+    } catch (error) {
+      console.error("Failed to rename player models:", error);
+    }
+  }
 }
