@@ -1,6 +1,7 @@
 "use server";
 
 import { getDb } from "@/lib/db";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
 
 import {
@@ -36,6 +37,20 @@ export async function deleteAccount(id: string) {
     db.delete(activities).where(eq(activities.accountId, id)),
   ]);
   await db.delete(accounts).where(eq(accounts.id, id));
+
+  // Delete player model files from R2 bucket
+  const username = account.username.toLowerCase();
+  try {
+    const { env } = getCloudflareContext();
+    await Promise.all([
+      env.BUCKET.delete(username),
+      env.BUCKET.delete(`${username}-pet`),
+    ]);
+  } catch (error) {
+    console.error("Failed to delete model files:", error);
+    // Don't throw - account is already deleted from DB
+  }
+
   return account;
 }
 
@@ -66,6 +81,45 @@ export async function updateUsername(id: string, newUsername: string) {
     .update(accounts)
     .set({ username: newUsername })
     .where(eq(accounts.id, id));
+
+  // Rename player model files in R2 bucket
+  const oldKey = account.username.toLowerCase();
+  const newKey = newUsername.toLowerCase();
+
+  if (oldKey !== newKey) {
+    try {
+      const { env } = getCloudflareContext();
+
+      // Copy and delete for both player and pet models
+      const [playerModel, petModel] = await Promise.all([
+        env.BUCKET.get(oldKey),
+        env.BUCKET.get(`${oldKey}-pet`),
+      ]);
+
+      const operations = [];
+
+      if (playerModel) {
+        operations.push(
+          env.BUCKET.put(newKey, playerModel.body),
+          env.BUCKET.delete(oldKey),
+        );
+      }
+
+      if (petModel) {
+        operations.push(
+          env.BUCKET.put(`${newKey}-pet`, petModel.body),
+          env.BUCKET.delete(`${oldKey}-pet`),
+        );
+      }
+
+      if (operations.length > 0) {
+        await Promise.all(operations);
+      }
+    } catch (error) {
+      console.error("Failed to rename model files:", error);
+      // Don't throw - username is already updated in DB
+    }
+  }
 
   return { oldUsername: account.username, newUsername };
 }
@@ -106,6 +160,45 @@ export async function updateAccount(
 
   // Update the account
   await db.update(accounts).set(updates).where(eq(accounts.id, id));
+
+  // Rename player model files if username changed
+  if (updates.username && updates.username !== account.username) {
+    const oldKey = account.username.toLowerCase();
+    const newKey = updates.username.toLowerCase();
+
+    try {
+      const { env } = getCloudflareContext();
+
+      // Copy and delete for both player and pet models
+      const [playerModel, petModel] = await Promise.all([
+        env.BUCKET.get(oldKey),
+        env.BUCKET.get(`${oldKey}-pet`),
+      ]);
+
+      const operations = [];
+
+      if (playerModel) {
+        operations.push(
+          env.BUCKET.put(newKey, playerModel.body),
+          env.BUCKET.delete(oldKey),
+        );
+      }
+
+      if (petModel) {
+        operations.push(
+          env.BUCKET.put(`${newKey}-pet`, petModel.body),
+          env.BUCKET.delete(`${oldKey}-pet`),
+        );
+      }
+
+      if (operations.length > 0) {
+        await Promise.all(operations);
+      }
+    } catch (error) {
+      console.error("Failed to rename model files:", error);
+      // Don't throw - username is already updated in DB
+    }
+  }
 
   return { updated: true };
 }
