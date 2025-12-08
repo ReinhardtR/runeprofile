@@ -93,7 +93,13 @@ export function ResultsTable({
             </TableCell>
             <TableCell className="align-top">
               <div className="text-sm">
-                {r.updatedAt ? new Date(r.updatedAt).toLocaleString() : "N/A"}
+                {r.updatedAt ? (
+                  <time dateTime={r.updatedAt} suppressHydrationWarning>
+                    {new Date(r.updatedAt).toLocaleString()}
+                  </time>
+                ) : (
+                  "N/A"
+                )}
               </div>
             </TableCell>
             <TableCell>
