@@ -10,6 +10,7 @@ export async function getAccountItems(
   accountId: string,
   page: number = 1,
   pageSize: number = 50,
+  searchItemId?: string,
 ) {
   const db = getDb();
   const offset = (page - 1) * pageSize;
@@ -26,6 +27,15 @@ export async function getAccountItems(
     throw new Error(`Account not found with ID: ${accountId}`);
   }
 
+  // Build where conditions
+  const whereConditions = [eq(items.accountId, accountId)];
+  if (searchItemId) {
+    const itemIdNum = parseInt(searchItemId, 10);
+    if (!isNaN(itemIdNum)) {
+      whereConditions.push(eq(items.id, itemIdNum));
+    }
+  }
+
   // Get items with pagination
   const itemsQuery = db
     .select({
@@ -34,8 +44,8 @@ export async function getAccountItems(
       createdAt: items.createdAt,
     })
     .from(items)
-    .where(eq(items.accountId, accountId))
-    .orderBy(desc(items.quantity), desc(items.id)) // Order by quantity desc, then by item id
+    .where(and(...whereConditions))
+    .orderBy(desc(items.id)) // Order by item ID descending
     .limit(pageSize + 1) // Fetch one extra to check if there are more
     .offset(offset);
 
@@ -51,7 +61,7 @@ export async function getAccountItems(
     const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(items)
-      .where(eq(items.accountId, accountId));
+      .where(and(...whereConditions));
     totalCount = countResult[0]?.count || 0;
   }
 

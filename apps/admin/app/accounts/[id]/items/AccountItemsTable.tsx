@@ -46,12 +46,14 @@ interface AccountItemsTableProps {
   accountId: string;
   items: Item[];
   currentPage: number;
+  searchItemId?: string;
 }
 
 export function AccountItemsTable({
   accountId,
   items,
   currentPage,
+  searchItemId,
 }: AccountItemsTableProps) {
   const searchParams = useSearchParams();
   const from = searchParams.get("from");
@@ -116,6 +118,7 @@ export function AccountItemsTable({
         );
         url.searchParams.set("page", currentPage.toString());
         if (from) url.searchParams.set("from", from);
+        if (searchItemId) url.searchParams.set("itemId", searchItemId);
         window.location.href = url.toString();
       } catch (error) {
         toast.error("Failed to delete items");
@@ -138,6 +141,7 @@ export function AccountItemsTable({
         );
         url.searchParams.set("page", "1");
         if (from) url.searchParams.set("from", from);
+        if (searchItemId) url.searchParams.set("itemId", searchItemId);
         window.location.href = url.toString();
       } catch (error) {
         toast.error("Failed to clear all items");
@@ -176,6 +180,7 @@ export function AccountItemsTable({
         );
         url.searchParams.set("page", currentPage.toString());
         if (from) url.searchParams.set("from", from);
+        if (searchItemId) url.searchParams.set("itemId", searchItemId);
         window.location.href = url.toString();
       } catch (error) {
         toast.error("Failed to update quantity");

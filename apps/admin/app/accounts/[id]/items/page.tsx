@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Search, X } from "lucide-react";
 import Link from "next/link";
 
 import { AccountItemsTable } from "./AccountItemsTable";
@@ -12,10 +13,10 @@ export default async function AccountItemsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string; from?: string }>;
+  searchParams: Promise<{ page?: string; from?: string; itemId?: string }>;
 }) {
   const { id: encodedId } = await params;
-  const { page: pageStr = "1", from } = await searchParams;
+  const { page: pageStr = "1", from, itemId } = await searchParams;
   const page = Math.max(1, parseInt(pageStr, 10) || 1);
 
   // Decode the URI-encoded account ID
@@ -27,7 +28,7 @@ export default async function AccountItemsPage({
   try {
     // Get account items and stats
     const [itemsData, stats] = await Promise.all([
-      getAccountItems(id, page),
+      getAccountItems(id, page, 50, itemId),
       getItemStats(id),
     ]);
 
@@ -74,6 +75,40 @@ export default async function AccountItemsPage({
           </div>
         </Card>
 
+        {/* Search */}
+        <Card className="p-4">
+          <form action={`/accounts/${encodeURIComponent(id)}/items`} method="get">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  name="itemId"
+                  placeholder="Search by Item ID..."
+                  defaultValue={itemId || ""}
+                  className="pl-9"
+                />
+              </div>
+              <Button type="submit" variant="default">
+                Search
+              </Button>
+              {itemId && (
+                <Button variant="outline" asChild>
+                  <Link href={`/accounts/${encodeURIComponent(id)}/items`}>
+                    <X className="w-4 h-4 mr-1" />
+                    Clear
+                  </Link>
+                </Button>
+              )}
+            </div>
+            {itemId && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Filtering by Item ID: <span className="font-mono font-medium">{itemId}</span>
+              </p>
+            )}
+          </form>
+        </Card>
+
         {/* Items Table */}
         <Card className="p-4 space-y-4">
           {items.length === 0 ? (
@@ -93,7 +128,7 @@ export default async function AccountItemsPage({
                     {currentPage > 1 && (
                       <Button variant="outline" size="sm" asChild>
                         <Link
-                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage - 1}`}
+                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage - 1}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`}
                         >
                           Previous
                         </Link>
@@ -102,7 +137,7 @@ export default async function AccountItemsPage({
                     {hasMore && (
                       <Button variant="outline" size="sm" asChild>
                         <Link
-                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage + 1}`}
+                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage + 1}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`}
                         >
                           Next
                         </Link>
@@ -115,6 +150,7 @@ export default async function AccountItemsPage({
                 accountId={id}
                 items={items}
                 currentPage={currentPage}
+                searchItemId={itemId}
               />
             </div>
           )}
