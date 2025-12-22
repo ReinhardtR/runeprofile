@@ -63,33 +63,24 @@ export async function renamePlayerModels(
   }
 
   try {
-    // Get existing models
-    const [playerModel, petModel] = await Promise.all([
-      bucket.get(oldPlayerKey),
-      bucket.get(createPetModelKey(oldUsername)),
+    await Promise.all([
+      renameFile(bucket, oldPlayerKey, newPlayerKey),
+      renameFile(
+        bucket,
+        createPetModelKey(oldUsername),
+        createPetModelKey(newUsername),
+      ),
     ]);
-
-    const operations: Promise<R2Object | void | null>[] = [];
-
-    // Copy player model to new key and delete old one
-    if (playerModel) {
-      operations.push(bucket.put(newPlayerKey, playerModel.body));
-      operations.push(bucket.delete(oldPlayerKey));
-    }
-
-    // Copy pet model to new key and delete old one
-    if (petModel) {
-      operations.push(
-        bucket.put(createPetModelKey(newUsername), petModel.body),
-      );
-      operations.push(bucket.delete(createPetModelKey(oldUsername)));
-    }
-
-    if (operations.length > 0) {
-      await Promise.all(operations);
-    }
   } catch (error) {
     console.error("Failed to rename player models:", error);
     throw error;
   }
+}
+
+async function renameFile(bucket: R2Bucket, oldKey: string, newKey: string) {
+  const file = await bucket.get(oldKey);
+  if (!file) return;
+  const data = await file.arrayBuffer();
+  await bucket.put(newKey, data);
+  await bucket.delete(oldKey);
 }
