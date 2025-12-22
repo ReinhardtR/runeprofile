@@ -54,76 +54,6 @@ export async function deleteAccount(id: string) {
   return account;
 }
 
-export async function updateUsername(id: string, newUsername: string) {
-  const db = getDb();
-
-  // Check if account exists
-  const account = await db.query.accounts.findFirst({
-    where: eq(accounts.id, id),
-    columns: { id: true, username: true },
-  });
-  if (!account) {
-    throw new Error("Account not found");
-  }
-
-  // Check if the new username is already taken (case-insensitive)
-  const existingAccount = await db.query.accounts.findFirst({
-    where: eq(lower(accounts.username), newUsername.toLowerCase()),
-    columns: { id: true },
-  });
-
-  if (existingAccount && existingAccount.id !== id) {
-    throw new Error("Username is already taken");
-  }
-
-  // Update the username
-  await db
-    .update(accounts)
-    .set({ username: newUsername })
-    .where(eq(accounts.id, id));
-
-  // Rename player model files in R2 bucket
-  const oldKey = account.username.toLowerCase();
-  const newKey = newUsername.toLowerCase();
-
-  if (oldKey !== newKey) {
-    try {
-      const { env } = getCloudflareContext();
-
-      // Copy and delete for both player and pet models
-      const [playerModel, petModel] = await Promise.all([
-        env.BUCKET.get(oldKey),
-        env.BUCKET.get(`${oldKey}-pet`),
-      ]);
-
-      const operations = [];
-
-      if (playerModel) {
-        operations.push(
-          env.BUCKET.put(newKey, playerModel.body),
-          env.BUCKET.delete(oldKey),
-        );
-      }
-
-      if (petModel) {
-        operations.push(
-          env.BUCKET.put(`${newKey}-pet`, petModel.body),
-          env.BUCKET.delete(`${oldKey}-pet`),
-        );
-      }
-
-      if (operations.length > 0) {
-        await Promise.all(operations);
-      }
-    } catch (error) {
-      console.error("Failed to rename model files:", error);
-      // Don't throw - username is already updated in DB
-    }
-  }
-
-  return { oldUsername: account.username, newUsername };
-}
-
 export async function updateAccount(
   id: string,
   updates: {
@@ -166,41 +96,28 @@ export async function updateAccount(
     const oldKey = account.username.toLowerCase();
     const newKey = updates.username.toLowerCase();
 
-    try {
-      const { env } = getCloudflareContext();
-
-      // Copy and delete for both player and pet models
-      const [playerModel, petModel] = await Promise.all([
-        env.BUCKET.get(oldKey),
-        env.BUCKET.get(`${oldKey}-pet`),
-      ]);
-
-      const operations = [];
-
-      if (playerModel) {
-        operations.push(
-          env.BUCKET.put(newKey, playerModel.body),
-          env.BUCKET.delete(oldKey),
-        );
+    if (oldKey !== newKey) {
+      try {
+        const bucket = getCloudflareContext().env.BUCKET;
+        await Promise.all([
+          renameFile(bucket, oldKey, newKey),
+          renameFile(bucket, `${oldKey}-pet`, `${newKey}-pet`),
+        ]);
+      } catch {
+        console.error("Failed to rename model files");
       }
-
-      if (petModel) {
-        operations.push(
-          env.BUCKET.put(`${newKey}-pet`, petModel.body),
-          env.BUCKET.delete(`${oldKey}-pet`),
-        );
-      }
-
-      if (operations.length > 0) {
-        await Promise.all(operations);
-      }
-    } catch (error) {
-      console.error("Failed to rename model files:", error);
-      // Don't throw - username is already updated in DB
     }
   }
 
   return { updated: true };
+}
+
+async function renameFile(bucket: R2Bucket, oldKey: string, newKey: string) {
+  const file = await bucket.get(oldKey);
+  if (!file) return;
+  const data = await file.arrayBuffer();
+  await bucket.put(newKey, data);
+  await bucket.delete(oldKey);
 }
 
 const UUID_REGEX =
