@@ -22,6 +22,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Edit, Trash, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -47,6 +54,7 @@ interface AccountItemsTableProps {
   items: Item[];
   currentPage: number;
   searchItemId?: string;
+  sortBy?: string;
 }
 
 export function AccountItemsTable({
@@ -54,6 +62,7 @@ export function AccountItemsTable({
   items,
   currentPage,
   searchItemId,
+  sortBy = "id",
 }: AccountItemsTableProps) {
   const searchParams = useSearchParams();
   const from = searchParams.get("from");
@@ -119,6 +128,7 @@ export function AccountItemsTable({
         url.searchParams.set("page", currentPage.toString());
         if (from) url.searchParams.set("from", from);
         if (searchItemId) url.searchParams.set("itemId", searchItemId);
+        if (sortBy) url.searchParams.set("sortBy", sortBy);
         window.location.href = url.toString();
       } catch (error) {
         toast.error("Failed to delete items");
@@ -142,6 +152,7 @@ export function AccountItemsTable({
         url.searchParams.set("page", "1");
         if (from) url.searchParams.set("from", from);
         if (searchItemId) url.searchParams.set("itemId", searchItemId);
+        if (sortBy) url.searchParams.set("sortBy", sortBy);
         window.location.href = url.toString();
       } catch (error) {
         toast.error("Failed to clear all items");
@@ -181,6 +192,7 @@ export function AccountItemsTable({
         url.searchParams.set("page", currentPage.toString());
         if (from) url.searchParams.set("from", from);
         if (searchItemId) url.searchParams.set("itemId", searchItemId);
+        if (sortBy) url.searchParams.set("sortBy", sortBy);
         window.location.href = url.toString();
       } catch (error) {
         toast.error("Failed to update quantity");
@@ -212,13 +224,40 @@ export function AccountItemsTable({
     );
   }
 
+  const handleSortChange = (value: string) => {
+    const url = new URL(
+      window.location.origin +
+        `/accounts/${encodeURIComponent(accountId)}/items`,
+    );
+    url.searchParams.set("page", "1"); // Reset to page 1 when sorting changes
+    url.searchParams.set("sortBy", value);
+    if (from) url.searchParams.set("from", from);
+    if (searchItemId) url.searchParams.set("itemId", searchItemId);
+    window.location.href = url.toString();
+  };
+
   return (
     <div className="space-y-4">
-      {/* Bulk actions */}
+      {/* Sort and Bulk actions */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {/* Sort selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Sort by:</span>
+            <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="id">Item ID</SelectItem>
+                <SelectItem value="createdAt">Obtained Date</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Bulk delete actions */}
           {selectedIds.length > 0 && (
-            <>
+            <div className="flex items-center gap-2">
               <span className="text-sm font-medium">
                 {selectedIds.length} selected
               </span>
@@ -248,7 +287,7 @@ export function AccountItemsTable({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </>
+            </div>
           )}
         </div>
 

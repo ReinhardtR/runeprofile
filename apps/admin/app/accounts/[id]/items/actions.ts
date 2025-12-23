@@ -11,6 +11,7 @@ export async function getAccountItems(
   page: number = 1,
   pageSize: number = 50,
   searchItemId?: string,
+  sortBy: string = "id",
 ) {
   const db = getDb();
   const offset = (page - 1) * pageSize;
@@ -37,6 +38,7 @@ export async function getAccountItems(
   }
 
   // Get items with pagination
+  const orderByColumn = sortBy === "createdAt" ? items.createdAt : items.id;
   const itemsQuery = db
     .select({
       id: items.id,
@@ -45,7 +47,7 @@ export async function getAccountItems(
     })
     .from(items)
     .where(and(...whereConditions))
-    .orderBy(desc(items.id)) // Order by item ID descending
+    .orderBy(desc(orderByColumn)) // Order by selected column descending
     .limit(pageSize + 1) // Fetch one extra to check if there are more
     .offset(offset);
 

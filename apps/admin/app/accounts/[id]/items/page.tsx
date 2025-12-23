@@ -13,10 +13,10 @@ export default async function AccountItemsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string; from?: string; itemId?: string }>;
+  searchParams: Promise<{ page?: string; from?: string; itemId?: string; sortBy?: string }>;
 }) {
   const { id: encodedId } = await params;
-  const { page: pageStr = "1", from, itemId } = await searchParams;
+  const { page: pageStr = "1", from, itemId, sortBy = "id" } = await searchParams;
   const page = Math.max(1, parseInt(pageStr, 10) || 1);
 
   // Decode the URI-encoded account ID
@@ -28,7 +28,7 @@ export default async function AccountItemsPage({
   try {
     // Get account items and stats
     const [itemsData, stats] = await Promise.all([
-      getAccountItems(id, page, 50, itemId),
+      getAccountItems(id, page, 50, itemId, sortBy),
       getItemStats(id),
     ]);
 
@@ -128,7 +128,7 @@ export default async function AccountItemsPage({
                     {currentPage > 1 && (
                       <Button variant="outline" size="sm" asChild>
                         <Link
-                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage - 1}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`}
+                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage - 1}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}${sortBy !== "id" ? `&sortBy=${sortBy}` : ""}`}
                         >
                           Previous
                         </Link>
@@ -137,7 +137,7 @@ export default async function AccountItemsPage({
                     {hasMore && (
                       <Button variant="outline" size="sm" asChild>
                         <Link
-                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage + 1}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`}
+                          href={`/accounts/${encodeURIComponent(id)}/items?page=${currentPage + 1}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}${sortBy !== "id" ? `&sortBy=${sortBy}` : ""}`}
                         >
                           Next
                         </Link>
@@ -151,6 +151,7 @@ export default async function AccountItemsPage({
                 items={items}
                 currentPage={currentPage}
                 searchItemId={itemId}
+                sortBy={sortBy}
               />
             </div>
           )}
