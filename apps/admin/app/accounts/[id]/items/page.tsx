@@ -13,10 +13,20 @@ export default async function AccountItemsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string; from?: string; itemId?: string; sortBy?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    from?: string;
+    itemId?: string;
+    sortBy?: string;
+  }>;
 }) {
   const { id: encodedId } = await params;
-  const { page: pageStr = "1", from, itemId, sortBy = "id" } = await searchParams;
+  const {
+    page: pageStr = "1",
+    from,
+    itemId,
+    sortBy = "id",
+  } = await searchParams;
   const page = Math.max(1, parseInt(pageStr, 10) || 1);
 
   // Decode the URI-encoded account ID
@@ -77,7 +87,10 @@ export default async function AccountItemsPage({
 
         {/* Search */}
         <Card className="p-4">
-          <form action={`/accounts/${encodeURIComponent(id)}/items`} method="get">
+          <form
+            action={`/accounts/${encodeURIComponent(id)}/items`}
+            method="get"
+          >
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -103,7 +116,8 @@ export default async function AccountItemsPage({
             </div>
             {itemId && (
               <p className="text-sm text-muted-foreground mt-2">
-                Filtering by Item ID: <span className="font-mono font-medium">{itemId}</span>
+                Filtering by Item ID:{" "}
+                <span className="font-mono font-medium">{itemId}</span>
               </p>
             )}
           </form>
