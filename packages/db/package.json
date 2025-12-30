@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
-    "db:apply:remote": "wrangler d1 migrations apply runeprofile-db --remote --cwd ../../apps/api",
-    "db:apply": "tsx scripts/d1-apply-all.ts",
-    "db:seed": "tsx scripts/d1-seed-all.ts",
+    "db:apply:remote": "drizzle-kit migrate --config=drizzle.config.ts",
     "dev:setup": "pnpm db:apply && pnpm db:seed"
   },
   "main": "./src/index.ts",
@@ -22,14 +20,16 @@
   },
   "dependencies": {
     "@runeprofile/runescape": "workspace:*",
-    "drizzle-orm": "^0.40.0"
+    "drizzle-orm": "^0.45.1",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",
-    "@types/node": "^20.14.11",
-    "drizzle-kit": "^0.30.5",
+    "@types/node": "^20.19.11",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.19.2",
     "typescript": "^5.8.2",
-    "wrangler": "^4.10.0",
-    "tsx": "^4.19.2"
+    "wrangler": "^4.10.0"
   }
 }

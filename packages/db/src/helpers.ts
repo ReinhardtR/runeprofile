@@ -1,22 +1,21 @@
 import { SQL, getTableColumns, sql } from "drizzle-orm";
+import { timestamp } from "drizzle-orm/pg-core";
+import { AnyPgColumn, PgTable } from "drizzle-orm/pg-core";
 import { RunnableQuery } from "drizzle-orm/runnable-query";
-import { AnySQLiteColumn, SQLiteTable, text } from "drizzle-orm/sqlite-core";
 
-export function lower(value: AnySQLiteColumn): SQL {
+export function lower(value: AnyPgColumn): SQL {
   return sql`lower(${value})`;
 }
 
-export const createdAt = text()
-  .notNull()
-  .default(sql`(CURRENT_TIMESTAMP)`);
+export const createdAt = timestamp({ mode: "string" }).notNull().defaultNow();
 
-export const updatedAt = text()
+export const updatedAt = timestamp({ mode: "string" })
   .notNull()
-  .default(sql`(CURRENT_TIMESTAMP)`)
-  .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`);
+  .defaultNow()
+  .$onUpdate(() => sql`now()`);
 
 export const buildConflictUpdateColumns = <
-  T extends SQLiteTable,
+  T extends PgTable,
   Q extends keyof T["_"]["columns"],
 >(
   table: T,
@@ -103,4 +102,3 @@ export const autochunk = <
 
   return results;
 };
-

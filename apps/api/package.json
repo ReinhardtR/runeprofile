@@ -25,11 +25,12 @@
     "@runeprofile/runescape": "workspace:*",
     "discord-api-types": "^0.38.28",
     "discord-hono": "^0.20.1",
-    "drizzle-orm": "^0.40.0",
+    "drizzle-orm": "^0.45.1",
     "hono": "^4.7.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/node": "^25.0.3",
     "@vitest/ui": "3.1.2",
     "drizzle-kit": "^0.30.5",
     "ngrok": "5.0.0-beta.2",

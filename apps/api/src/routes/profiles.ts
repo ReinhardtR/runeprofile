@@ -27,7 +27,7 @@ import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
 
 export const profilesRouter = newRouter()
   .get("/", validator("query", z.object({ q: z.string() })), async (c) => {
-    const db = drizzle(c.env.DB);
+    const db = drizzle(c.env.HYPERDRIVE);
     const { q } = c.req.valid("query");
 
     const profiles = await searchProfiles(db, q);
@@ -42,7 +42,7 @@ export const profilesRouter = newRouter()
       cacheControl: "public, max-age=0, s-maxage=60",
     }),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const { username } = c.req.valid("param");
 
       const profile = await getProfileByUsername(db, username);
@@ -65,7 +65,7 @@ export const profilesRouter = newRouter()
       cacheControl: "public, max-age=0, s-maxage=10",
     }),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const { username, page } = c.req.valid("param");
 
       console.log("Fetching collection log page for: ", username, page);
@@ -104,7 +104,7 @@ export const profilesRouter = newRouter()
       }),
     ),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
       const data = c.req.valid("json");
 
@@ -147,7 +147,7 @@ export const profilesRouter = newRouter()
       }),
     ),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const { id, page } = c.req.valid("json");
 
       await setDefaultClogPage(db, {
@@ -170,7 +170,7 @@ export const profilesRouter = newRouter()
       }),
     ),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const { id, activities } = c.req.valid("json");
 
       await addActivities(db, {
@@ -185,7 +185,7 @@ export const profilesRouter = newRouter()
     "/:id",
     validator("param", z.object({ id: accountIdSchema })),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
       const { id } = c.req.valid("param");
 
@@ -218,7 +218,7 @@ export const profilesRouter = newRouter()
       }),
     ),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
       const { accountId, model, petModel } = c.req.valid("form");
 

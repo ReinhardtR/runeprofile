@@ -13,7 +13,7 @@ export const metricsRouter = newRouter().get(
     cacheControl: "public, max-age=86400, stale-while-revalidate=300",
   }),
   async (c) => {
-    const db = drizzle(c.env.DB);
+    const db = drizzle(c.env.HYPERDRIVE);
 
     const metrics = await getMetrics(db);
 

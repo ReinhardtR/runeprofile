@@ -77,7 +77,7 @@ export const command_watch = factory.autocomplete(
       ),
     ),
   async (c) => {
-    const db = drizzle(c.env.DB);
+    const db = drizzle(c.env.HYPERDRIVE);
 
     let result = new Autocomplete();
     if (c.focused?.name === "rsn") {
@@ -89,7 +89,7 @@ export const command_watch = factory.autocomplete(
     return c.resAutocomplete(result);
   },
   async (c) => {
-    const db = drizzle(c.env.DB);
+    const db = drizzle(c.env.HYPERDRIVE);
     const channelId = c.interaction.channel.id;
 
     try {

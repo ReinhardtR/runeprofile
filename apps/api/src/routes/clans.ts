@@ -23,7 +23,7 @@ export const clansRouter = newRouter()
       }),
     ),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
       const { page } = c.req.valid("query");
 
@@ -51,7 +51,7 @@ export const clansRouter = newRouter()
       cacheControl: "public, max-age=0, s-maxage=600",
     }),
     async (c) => {
-      const db = drizzle(c.env.DB);
+      const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
       const { page } = c.req.valid("query");
 

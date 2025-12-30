@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "runeprofile-api",
   "main": "src/index.ts",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "compatibility_date": "2025-03-01",
   "routes": [
     {
@@ -14,14 +17,11 @@
       "enabled": true,
     },
   },
-  "d1_databases": [
+  "hyperdrive": [
     {
-      "binding": "DB",
-      "database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
-      "database_name": "runeprofile-db",
-      "migrations_dir": "../../packages/db/drizzle",
-      "preview_database_id": "7b14f9ea-6acd-4193-b791-ad93af39620e",
-    },
+      "binding": "HYPERDRIVE",
+      "id": "411e7ad012ac4dc99be2e779457e87fb",
+    }
   ],
   "r2_buckets": [
     {
