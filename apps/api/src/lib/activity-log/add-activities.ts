@@ -1,6 +1,6 @@
 import { InferInsertModel } from "drizzle-orm";
 
-import { Database, activities, autochunk } from "@runeprofile/db";
+import { Database, activities, withValues } from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
 export async function addActivities(
@@ -18,9 +18,5 @@ export async function addActivities(
       data: activity.data,
     }));
 
-  await Promise.all([
-    ...autochunk({ items: activitiesValues }, (chunk) =>
-      db.insert(activities).values(chunk),
-    ),
-  ]);
+  await withValues(activitiesValues, (v) => db.insert(activities).values(v));
 }

@@ -9,8 +9,9 @@ import {
   items,
   quests,
   skills,
+  withValues,
 } from "@runeprofile/db";
-import { autochunk, buildConflictUpdateColumns } from "@runeprofile/db";
+import { buildConflictUpdateColumns } from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
 import { renamePlayerModels } from "~/lib/models/manage-models";
@@ -91,10 +92,10 @@ export async function updateProfile(
         clanTitle: updates.clan?.title,
       })
       .where(eq(accounts.id, accountId)),
-    ...autochunk({ items: achievementDiaryTiersValues }, (chunk) =>
+    withValues(achievementDiaryTiersValues, (values) =>
       db
         .insert(achievementDiaryTiers)
-        .values(chunk)
+        .values(values)
         .onConflictDoUpdate({
           target: [
             achievementDiaryTiers.accountId,
@@ -106,10 +107,10 @@ export async function updateProfile(
           ]),
         }),
     ),
-    ...autochunk({ items: combatAchievementTiersValues }, (chunk) =>
+    withValues(combatAchievementTiersValues, (values) =>
       db
         .insert(combatAchievementTiers)
-        .values(chunk)
+        .values(values)
         .onConflictDoUpdate({
           target: [combatAchievementTiers.accountId, combatAchievementTiers.id],
           set: buildConflictUpdateColumns(combatAchievementTiers, [
@@ -117,35 +118,35 @@ export async function updateProfile(
           ]),
         }),
     ),
-    ...autochunk({ items: itemsValues }, (chunk) =>
+    withValues(itemsValues, (values) =>
       db
         .insert(items)
-        .values(chunk)
+        .values(values)
         .onConflictDoUpdate({
           target: [items.accountId, items.id],
           set: buildConflictUpdateColumns(items, ["quantity"]),
         }),
     ),
-    ...autochunk({ items: questsValues }, (chunk) =>
+    withValues(questsValues, (values) =>
       db
         .insert(quests)
-        .values(chunk)
+        .values(values)
         .onConflictDoUpdate({
           target: [quests.accountId, quests.id],
           set: buildConflictUpdateColumns(quests, ["state"]),
         }),
     ),
-    ...autochunk({ items: skillsValues }, (chunk) =>
+    withValues(skillsValues, (values) =>
       db
         .insert(skills)
-        .values(chunk)
+        .values(values)
         .onConflictDoUpdate({
           target: [skills.accountId, skills.name],
           set: buildConflictUpdateColumns(skills, ["xp"]),
         }),
     ),
-    ...autochunk({ items: activitiesValues }, (chunk) =>
-      db.insert(activities).values(chunk),
+    withValues(activitiesValues, (values) =>
+      db.insert(activities).values(values),
     ),
   ]);
 

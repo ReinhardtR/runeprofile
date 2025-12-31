@@ -1,6 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 
-import { Database, accounts, autochunk, lower } from "@runeprofile/db";
+import { Database, accounts, lower } from "@runeprofile/db";
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
 import {
@@ -43,18 +43,14 @@ export async function getCollectionLogPage(
     );
   }
 
-  const itemsObtainedChunks = await Promise.all(
-    autochunk({ items: page.items, otherParametersCount: 1 }, (chunk) =>
-      db.query.items.findMany({
-        where: (items) =>
-          and(eq(items.accountId, account.id), inArray(items.id, chunk)),
-        columns: {
-          id: true,
-          quantity: true,
-        },
-      }),
-    ),
-  );
+  const itemsObtainedChunks = await db.query.items.findMany({
+    where: (items) =>
+      and(eq(items.accountId, account.id), inArray(items.id, page.items)),
+    columns: {
+      id: true,
+      quantity: true,
+    },
+  });
 
   const itemsObtained = itemsObtainedChunks.flat();
 
