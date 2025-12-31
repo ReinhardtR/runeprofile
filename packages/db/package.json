@@ -6,6 +6,7 @@
   "scripts": {
     "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
     "db:apply:remote": "drizzle-kit migrate --config=drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
     "dev:setup": "pnpm db:apply && pnpm db:seed"
   },
   "main": "./src/index.ts",
