@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { accounts, activities, autochunk } from "@runeprofile/db";
+import { accounts, activities, withValues } from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
 export async function findAccountsWithDuplicateActivities(
@@ -32,11 +32,11 @@ export async function deleteActivityIds(ids: string[]) {
   console.log("*** Deleting activity IDs ***");
   if (!ids.length) return { deleted: 0 };
   const db = getDb();
-  await Promise.all(
-    autochunk({ items: ids }, (chunk) =>
-      db.delete(activities).where(inArray(activities.id, chunk)),
-    ),
+
+  await withValues(ids, (values) =>
+    db.delete(activities).where(inArray(activities.id, values)),
   );
+
   return { deleted: ids.length };
 }
 

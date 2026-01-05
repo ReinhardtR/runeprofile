@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { accounts, activities, autochunk } from "@runeprofile/db";
+import { accounts, activities, withValues } from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
 export async function getAccountActivities(
@@ -94,13 +94,12 @@ export async function deleteAccountActivities(
   }
 
   // Delete activities in chunks
-  await Promise.all(
-    autochunk({ items: validActivityIds }, (chunk) =>
-      db.delete(activities).where(inArray(activities.id, chunk)),
-    ),
+  await withValues(validActivityIds, (values) =>
+    db.delete(activities).where(inArray(activities.id, values)),
   );
 
   revalidatePath(`/accounts/${accountId}/activities`);
+
   return { deleted: validActivityIds.length };
 }
 
