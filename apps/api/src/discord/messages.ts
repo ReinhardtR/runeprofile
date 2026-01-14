@@ -45,21 +45,30 @@ export async function sendActivityMessages(params: {
     )
     .filter((embed): embed is Embed => embed !== null);
 
-  if (embeds.length === 0) return;
+  if (embeds.length === 0) {
+    console.log("No supported activity embeds to send");
+    return;
+  }
 
   // Find channels watching this player or clan
   const condition = getWatchCondition({ accountId, clanName });
-  if (!condition) return;
+  if (!condition) {
+    console.log("No watch condition found");
+    return;
+  }
 
   const watches = await db.query.discordWatches.findMany({
     where: condition,
   });
-  if (watches.length === 0) return;
+  if (watches.length === 0) {
+    console.log("No watches found for this activity");
+    return;
+  }
 
   const discordApi = createDiscordApi(discordToken);
 
   // Send messages to all watching channels
-  await Promise.all(
+  await Promise.allSettled(
     watches.map(async (watch) => {
       try {
         await discordApi(
@@ -76,6 +85,8 @@ export async function sendActivityMessages(params: {
       }
     }),
   );
+
+  console.log(`Sent activity messages to ${watches.length} channels`);
 }
 
 function createNewItemObtainedEmbed(params: {
