@@ -31,8 +31,7 @@ export type AccountItemDiscrepancy = {
 /** KV key prefix for item discrepancies */
 const ITEM_DISCREPANCY_PREFIX = "item-discrepancy:";
 
-/** KV key for the list of account IDs with discrepancies */
-const ITEM_DISCREPANCY_INDEX_KEY = "item-discrepancy-index";
+export { ITEM_DISCREPANCY_PREFIX };
 
 // ============================================================================
 // Detection
@@ -137,16 +136,5 @@ export async function storeItemDiscrepancy(
   discrepancy: AccountItemDiscrepancy,
 ): Promise<void> {
   const key = `${ITEM_DISCREPANCY_PREFIX}${discrepancy.accountId}`;
-
-  // Store the discrepancy (overwrites any existing)
   await kv.put(key, JSON.stringify(discrepancy));
-
-  // Update the index
-  const indexStr = await kv.get(ITEM_DISCREPANCY_INDEX_KEY);
-  const index: string[] = indexStr ? JSON.parse(indexStr) : [];
-
-  if (!index.includes(discrepancy.accountId)) {
-    index.push(discrepancy.accountId);
-    await kv.put(ITEM_DISCREPANCY_INDEX_KEY, JSON.stringify(index));
-  }
 }
