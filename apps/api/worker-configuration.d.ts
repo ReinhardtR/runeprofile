@@ -7,6 +7,7 @@ declare namespace Cloudflare {
 		DISCORD_TOKEN: string;
 		BUCKET: R2Bucket;
 		HYPERDRIVE: Hyperdrive;
+		KV: KVNamespace;
 	}
 }
 interface Env extends Cloudflare.Env {}

@@ -14,5 +14,11 @@
       "preview_bucket_name": "runeprofile-player-models",
       "experimental_remote": true
     }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "c6de4480edb14f219ff7457341829941"
+    }
   ]
 }

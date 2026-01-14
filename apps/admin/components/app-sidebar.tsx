@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Home, ListChecks, Users } from "lucide-react";
+import { AlertTriangle, Home, ListChecks, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,6 +20,11 @@ const items = [
   { title: "Home", url: "/", icon: Home },
   { title: "Accounts", url: "/accounts", icon: Users },
   { title: "Dup Activities", url: "/dup-activities", icon: ListChecks },
+  {
+    title: "Item Discrepancies",
+    url: "/item-discrepancies",
+    icon: AlertTriangle,
+  },
 ];
 
 export function AppSidebar() {

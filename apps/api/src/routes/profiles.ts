@@ -3,8 +3,9 @@ import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "@runeprofile/db";
-import { ValuableDropEventSchema } from "@runeprofile/runescape";
+import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 
+import { sendActivityMessages } from "~/discord/messages";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
@@ -14,6 +15,10 @@ import {
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
 import { newRouter, r2FileToBase64 } from "~/lib/helpers";
+import {
+  detectItemDiscrepancies,
+  storeItemDiscrepancy,
+} from "~/lib/item-discrepancies";
 import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
 import { uploadPlayerModels } from "~/lib/models/manage-models";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
@@ -106,6 +111,7 @@ export const profilesRouter = newRouter()
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
+      const kv = c.env.KV;
       const data = c.req.valid("json");
 
       console.log({ Data: data });
@@ -115,20 +121,33 @@ export const profilesRouter = newRouter()
         const activities = checkActivityEvents(updates);
         await updateProfile(db, bucket, updates, activities);
 
-        // TODO: uncomment when discord bot ready
-        // if (activities.length > 0) {
-        //   c.executionCtx.waitUntil(
-        //     sendActivityMessages({
-        //       db,
-        //       discordToken: c.env.DISCORD_TOKEN,
-        //       activities,
-        //       accountId: data.id,
-        //       rsn: data.username,
-        //       accountType: AccountTypes[data.accountType],
-        //       clanName: data.clan?.name,
-        //     }),
-        //   );
-        // }
+        // Detect and store item discrepancies (runs in background)
+        const discrepancy = detectItemDiscrepancies(
+          data,
+          updates.currentProfile,
+        );
+        if (discrepancy) {
+          c.executionCtx.waitUntil(
+            storeItemDiscrepancy(kv, discrepancy).catch((err) => {
+              console.error("Failed to store item discrepancy:", err);
+            }),
+          );
+        }
+
+        // testing only for this clan for now
+        if (data.clan?.name === "The Pax" && activities.length > 0) {
+          c.executionCtx.waitUntil(
+            sendActivityMessages({
+              db,
+              discordToken: c.env.DISCORD_TOKEN,
+              activities,
+              accountId: data.id,
+              rsn: data.username,
+              accountType: AccountTypes[data.accountType],
+              clanName: data.clan?.name,
+            }),
+          );
+        }
       } catch (error) {
         console.log("Data: ", data);
         throw error;
