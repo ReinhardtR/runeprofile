@@ -16,14 +16,11 @@ import {
   getClanAutocomplete,
   getRsnAutocomplete,
 } from "~/discord/autocomplete";
-import { ActivityEventChoices } from "~/discord/constants";
 import { factory } from "~/discord/factory";
-import {
-  addPlayerWatch,
-  getPlayerWatches,
-  removePlayerWatch,
-} from "~/discord/watch";
+
 import { RuneProfileError } from "~/lib/errors";
+import { addPlayerWatch, getPlayerWatches, removePlayerWatch } from "~/discord/watch/player";
+import { addClanWatch, getClanWatches, removeClanWatch } from "~/discord/watch/clan";
 
 export const command_watch = factory.autocomplete(
   new Command(
@@ -56,25 +53,25 @@ export const command_watch = factory.autocomplete(
         new SubCommand("list", "List all clans you're watching"),
       ),
 
-      new SubGroup(
-        "filter",
-        "Manage activity filters for this channel",
-      ).options(
-        new SubCommand("add", "Add an activity filter to this channel").options(
-          new Option("activity", "Activity to filter")
-            .choices(...ActivityEventChoices)
-            .required(),
-        ),
-        new SubCommand(
-          "remove",
-          "Remove an activity filter from this channel",
-        ).options(
-          new Option("activity", "Activity filter to remove")
-            .choices(...ActivityEventChoices)
-            .required(),
-        ),
-        new SubCommand("list", "List all activity filters for this channel"),
-      ),
+      // new SubGroup(
+      //   "filter",
+      //   "Manage activity filters for this channel",
+      // ).options(
+      //   new SubCommand("add", "Add an activity filter to this channel").options(
+      //     new Option("activity", "Activity to filter")
+      //       .choices(...ActivityEventChoices)
+      //       .required(),
+      //   ),
+      //   new SubCommand(
+      //     "remove",
+      //     "Remove an activity filter from this channel",
+      //   ).options(
+      //     new Option("activity", "Activity filter to remove")
+      //       .choices(...ActivityEventChoices)
+      //       .required(),
+      //   ),
+      //   new SubCommand("list", "List all activity filters for this channel"),
+      // ),
     ),
   async (c) => {
     const db = drizzle(c.env.HYPERDRIVE);
@@ -121,37 +118,47 @@ export const command_watch = factory.autocomplete(
           }
         }
         case "clan": {
+          const clanName = c.var.clan;
           switch (c.sub.command) {
             case "add": {
-              return c.res(`Added clan watch for: ${c.var.clan}`);
+              await addClanWatch({ db, channelId, clanName });
+              return c.res(`Added clan watch for: ${clanName}`);
             }
             case "remove": {
-              return c.res(`Removed clan watch for: ${c.var.clan}`);
+              await removeClanWatch({ db, channelId, clanName });
+              return c.res(`Removed clan watch for: ${clanName}`);
             }
             case "list": {
-              return c.res("Your clan watch list is empty.");
+              const watches = await getClanWatches({ db, channelId });
+              if (watches.length === 0) {
+                return c.res("Your clan watch list is empty.");
+              }
+
+              return c.res(
+                `You're watching the following clans:\n${watches.join(", ")}`,
+              );
             }
             default: {
               return c.res("Unknown clan subcommand");
             }
           }
         }
-        case "filter": {
-          switch (c.sub.command) {
-            case "add": {
-              return c.res("Filter add: " + c.var.activity);
-            }
-            case "remove": {
-              return c.res("Filter remove: " + c.var.activity);
-            }
-            case "list": {
-              return c.res("Filter list");
-            }
-            default: {
-              return c.res("Unknown filter subcommand");
-            }
-          }
-        }
+        // case "filter": {
+        //   switch (c.sub.command) {
+        //     case "add": {
+        //       return c.res("Filter add: " + c.var.activity);
+        //     }
+        //     case "remove": {
+        //       return c.res("Filter remove: " + c.var.activity);
+        //     }
+        //     case "list": {
+        //       return c.res("Filter list");
+        //     }
+        //     default: {
+        //       return c.res("Unknown filter subcommand");
+        //     }
+        //   }
+        // }
         default: {
           return c.res("Unknown sub group");
         }

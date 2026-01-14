@@ -14,6 +14,7 @@
     "dev:remote": "wrangler dev src/index.ts --remote",
     "dev:api-client": "tsc -p tsconfig.build.json --watch",
     "discord:register": "tsx --env-file=.dev.vars src/discord/register.ts",
+    "discord:register:prod": "tsx --env-file=.env src/discord/register.ts",
     "ngrok": "ngrok http 8787",
     "build": "tsc -p tsconfig.build.json",
     "deploy": "pnpm run typecheck && pnpm run discord:register && wrangler deploy --minify",

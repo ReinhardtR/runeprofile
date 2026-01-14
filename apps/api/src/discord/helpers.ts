@@ -11,10 +11,12 @@ export function getItemIconUrl(itemId: number): string {
   return `${ITEM_ICON_BASE_URL}/${itemId}.png`;
 }
 
-export function buildPlayerTitle(
-  rsn: string,
-  accountType?: AccountType,
-): string {
-  const emoji = getAccountTypeEmoji(accountType);
+export function buildPlayerTitle(params: {
+  discordApplicationId: string;
+  rsn: string;
+  accountType?: AccountType;
+}): string {
+  const { discordApplicationId, rsn, accountType } = params;
+  const emoji = getAccountTypeEmoji(discordApplicationId, accountType);
   return emoji ? `${emoji} ${rsn}` : rsn;
 }

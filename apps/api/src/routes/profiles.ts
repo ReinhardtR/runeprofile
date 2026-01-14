@@ -140,6 +140,7 @@ export const profilesRouter = newRouter()
             sendActivityMessages({
               db,
               discordToken: c.env.DISCORD_TOKEN,
+              discordApplicationId: c.env.DISCORD_APPLICATION_ID,
               activities,
               accountId: data.id,
               rsn: data.username,

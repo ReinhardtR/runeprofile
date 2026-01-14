@@ -18,6 +18,7 @@ import {
 export async function sendActivityMessages(params: {
   db: Database;
   discordToken: string;
+  discordApplicationId: string;
   activities: ActivityEvent[];
   accountId: string;
   rsn: string;
@@ -27,6 +28,7 @@ export async function sendActivityMessages(params: {
   const {
     db,
     discordToken,
+    discordApplicationId,
     accountId,
     clanName,
     activities,
@@ -38,7 +40,9 @@ export async function sendActivityMessages(params: {
 
   // Build embeds for supported activity types
   const embeds = activities
-    .map((activity) => createActivityEmbed(activity, rsn, accountType))
+    .map((activity) =>
+      createActivityEmbed({ activity, discordApplicationId, rsn, accountType }),
+    )
     .filter((embed): embed is Embed => embed !== null);
 
   if (embeds.length === 0) return;
@@ -74,15 +78,17 @@ export async function sendActivityMessages(params: {
   );
 }
 
-function createNewItemObtainedEmbed(
-  event: NewItemObtainedEvent,
-  rsn: string,
-  accountType?: AccountType,
-): Embed {
+function createNewItemObtainedEmbed(params: {
+  discordApplicationId: string;
+  event: NewItemObtainedEvent;
+  rsn: string;
+  accountType?: AccountType;
+}): Embed {
+  const { discordApplicationId, event, rsn, accountType } = params;
   const itemName = getItemName(event.data.itemId);
 
   return new Embed()
-    .title(buildPlayerTitle(rsn, accountType))
+    .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
     .description(`**${itemName}**`)
     .thumbnail({ url: getItemIconUrl(event.data.itemId) })
     .footer({ text: "New Collection Log Item" })
@@ -90,14 +96,21 @@ function createNewItemObtainedEmbed(
     .color(0x00ff00); // Green
 }
 
-function createActivityEmbed(
-  activity: ActivityEvent,
-  rsn: string,
-  accountType?: AccountType,
-): Embed | null {
+function createActivityEmbed(params: {
+  discordApplicationId: string;
+  activity: ActivityEvent;
+  rsn: string;
+  accountType?: AccountType;
+}): Embed | null {
+  const { discordApplicationId, activity, rsn, accountType } = params;
   switch (activity.type) {
     case "new_item_obtained":
-      return createNewItemObtainedEmbed(activity, rsn, accountType);
+      return createNewItemObtainedEmbed({
+        event: activity,
+        discordApplicationId,
+        rsn,
+        accountType,
+      });
     default:
       // Other event types not yet supported
       return null;
