@@ -4,6 +4,7 @@ import {
   AccountType,
   ActivityEvent,
   NewItemObtainedEvent,
+  ValuableDropEvent,
 } from "@runeprofile/runescape";
 
 import {
@@ -30,7 +31,7 @@ export function createActivityEmbed(params: {
       });
     case "valuable_drop":
       return createValuableDropEmbed({
-        event: activity as ActivityEvent & { type: "valuable_drop" },
+        event: activity,
         discordApplicationId,
         rsn,
         accountType,
@@ -54,13 +55,13 @@ function createNewItemObtainedEmbed(params: {
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
     .description(`**${itemName}**`)
     .thumbnail({ url: getItemIconUrl(event.data.itemId) })
-    .footer({ text: "New Collection Log" })
+    .footer({ text: "Collection Log" })
     .color(0x00ff00); // Green
 }
 
 function createValuableDropEmbed(params: {
   discordApplicationId: string;
-  event: ActivityEvent & { type: "valuable_drop" };
+  event: ValuableDropEvent;
   rsn: string;
   accountType?: AccountType;
 }): Embed {

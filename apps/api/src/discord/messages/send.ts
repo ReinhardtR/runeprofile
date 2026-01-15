@@ -15,7 +15,7 @@ export async function sendActivityMessages(params: {
   accountId: string;
   rsn: string;
   accountType?: AccountType;
-  clanName?: string;
+  clanName: string | null;
 }) {
   const {
     db,
@@ -81,7 +81,10 @@ export async function sendActivityMessages(params: {
   console.log(`Sent activity messages to ${watches.length} channels`);
 }
 
-function getWatchCondition(params: { accountId?: string; clanName?: string }) {
+function getWatchCondition(params: {
+  accountId?: string;
+  clanName: string | null;
+}) {
   const { accountId, clanName } = params;
   const conditions = [];
 
