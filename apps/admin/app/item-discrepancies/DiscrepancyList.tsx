@@ -122,7 +122,10 @@ export function DiscrepancyList({
 
     if (remainingDiscrepancies.length > 0) {
       // Open the item that's now at the same position (or last if we were at end)
-      const nextIndex = Math.min(currentIndex, remainingDiscrepancies.length - 1);
+      const nextIndex = Math.min(
+        currentIndex,
+        remainingDiscrepancies.length - 1,
+      );
       const nextDiscrepancy = remainingDiscrepancies[nextIndex];
       setDiscrepancies(remainingDiscrepancies);
       openDiscrepancy(nextDiscrepancy.accountId);
@@ -172,7 +175,8 @@ export function DiscrepancyList({
     (d) => d.accountId === selectedAccountId,
   );
 
-  const itemsToRemove = details?.items.filter((i) => i.realQuantity === 0) ?? [];
+  const itemsToRemove =
+    details?.items.filter((i) => i.realQuantity === 0) ?? [];
   const itemsToUpdate = details?.items.filter((i) => i.realQuantity > 0) ?? [];
 
   return (
@@ -202,9 +206,7 @@ export function DiscrepancyList({
               const toRemove = d.items.filter(
                 (i) => i.realQuantity === 0,
               ).length;
-              const toUpdate = d.items.filter(
-                (i) => i.realQuantity > 0,
-              ).length;
+              const toUpdate = d.items.filter((i) => i.realQuantity > 0).length;
 
               return (
                 <TableRow key={d.accountId}>
@@ -247,7 +249,10 @@ export function DiscrepancyList({
       )}
 
       {/* Detail Dialog */}
-      <Dialog open={!!selectedAccountId} onOpenChange={(open) => !open && closeDialog()}>
+      <Dialog
+        open={!!selectedAccountId}
+        onOpenChange={(open) => !open && closeDialog()}
+      >
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -309,7 +314,10 @@ export function DiscrepancyList({
                         Remove
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-xs text-yellow-600">
+                      <Badge
+                        variant="outline"
+                        className="text-xs text-yellow-600"
+                      >
                         {item.storedQuantity} → {item.realQuantity}
                       </Badge>
                     )}
@@ -402,7 +410,10 @@ export function DiscrepancyList({
       </AlertDialog>
 
       {/* Confirm Dismiss Dialog */}
-      <AlertDialog open={confirmDismissOpen} onOpenChange={setConfirmDismissOpen}>
+      <AlertDialog
+        open={confirmDismissOpen}
+        onOpenChange={setConfirmDismissOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Dismiss Discrepancy</AlertDialogTitle>

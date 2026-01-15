@@ -2,8 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 
-import { getAllDiscrepancies } from "./actions";
 import { DiscrepancyList } from "./DiscrepancyList";
+import { getAllDiscrepancies } from "./actions";
 
 export default async function ItemDiscrepanciesPage() {
   const discrepancies = await getAllDiscrepancies();
