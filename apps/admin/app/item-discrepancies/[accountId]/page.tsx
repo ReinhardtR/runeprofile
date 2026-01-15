@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 import { getAccountInfo, getDiscrepancyDetails } from "../actions";
@@ -68,7 +68,7 @@ export default async function DiscrepancyDetailPage({
             Back to Discrepancies
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <AlertTriangle className="w-6 h-6 text-yellow-500" />
             {discrepancy.username}&apos;s Item Discrepancies
@@ -77,6 +77,16 @@ export default async function DiscrepancyDetailPage({
             Account ID: {accountId}
           </p>
         </div>
+        <Button variant="outline" size="sm" asChild>
+          <a
+            href={`https://runeprofile.com/${encodeURIComponent(discrepancy.username)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink className="w-4 h-4 mr-1" />
+            View Profile
+          </a>
+        </Button>
       </div>
 
       {/* Summary Card */}

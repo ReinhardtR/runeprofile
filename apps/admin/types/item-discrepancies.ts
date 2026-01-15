@@ -28,9 +28,6 @@ export type AccountItemDiscrepancy = {
 /** KV key prefix for item discrepancies */
 export const ITEM_DISCREPANCY_PREFIX = "item-discrepancy:";
 
-/** KV key for the list of account IDs with discrepancies */
-export const ITEM_DISCREPANCY_INDEX_KEY = "item-discrepancy-index";
-
 /** Extended item discrepancy with item name and related activity */
 export type ItemDiscrepancyWithDetails = ItemDiscrepancy & {
   itemName: string;

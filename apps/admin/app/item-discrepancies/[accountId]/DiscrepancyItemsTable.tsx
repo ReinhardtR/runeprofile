@@ -52,6 +52,10 @@ export function DiscrepancyItemsTable({
     null,
   );
   const [isPending, startTransition] = useTransition();
+  const [reconcileDialogOpen, setReconcileDialogOpen] = useState(false);
+  const [dismissDialogOpen, setDismissDialogOpen] = useState(false);
+  const [removeSelectedDialogOpen, setRemoveSelectedDialogOpen] =
+    useState(false);
 
   const itemsToRemove = items.filter((i) => i.realQuantity === 0);
   const itemsToUpdate = items.filter((i) => i.realQuantity > 0);
@@ -95,6 +99,7 @@ export function DiscrepancyItemsTable({
     startTransition(async () => {
       try {
         const result = await reconcileDiscrepancy(accountId);
+        setReconcileDialogOpen(false);
         toast.success(
           `Reconciled: ${result.itemsDeleted} items deleted, ${result.itemsUpdated} items updated, ${result.activitiesDeleted} activities removed`,
         );
@@ -110,6 +115,7 @@ export function DiscrepancyItemsTable({
     startTransition(async () => {
       try {
         await dismissDiscrepancy(accountId);
+        setDismissDialogOpen(false);
         toast.success("Discrepancy dismissed");
         router.push("/item-discrepancies");
       } catch (error) {
@@ -125,6 +131,7 @@ export function DiscrepancyItemsTable({
     startTransition(async () => {
       try {
         const result = await removeDiscrepantItems(accountId, selectedIds);
+        setRemoveSelectedDialogOpen(false);
         toast.success(
           `Removed ${result.itemsDeleted} items and ${result.activitiesDeleted} activities`,
         );
@@ -156,7 +163,10 @@ export function DiscrepancyItemsTable({
       <Card className="p-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <AlertDialog>
+            <AlertDialog
+              open={reconcileDialogOpen}
+              onOpenChange={setReconcileDialogOpen}
+            >
               <AlertDialogTrigger asChild>
                 <Button variant="default" disabled={isPending}>
                   <Check className="w-4 h-4 mr-1" />
@@ -168,23 +178,25 @@ export function DiscrepancyItemsTable({
                   <AlertDialogTitle>
                     Reconcile All Discrepancies
                   </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will:
-                    <ul className="list-disc ml-6 mt-2 space-y-1">
-                      <li>
-                        Delete {itemsToRemove.length} items that shouldn&apos;t
-                        exist
-                      </li>
-                      <li>
-                        Update quantities for {itemsToUpdate.length} items
-                      </li>
-                      <li>
-                        Remove{" "}
-                        {itemsToRemove.filter((i) => i.activityId).length}{" "}
-                        associated &quot;new item obtained&quot; activities
-                      </li>
-                    </ul>
-                    <p className="mt-3">This action cannot be undone.</p>
+                  <AlertDialogDescription asChild>
+                    <div>
+                      This will:
+                      <ul className="list-disc ml-6 mt-2 space-y-1">
+                        <li>
+                          Delete {itemsToRemove.length} items that
+                          shouldn&apos;t exist
+                        </li>
+                        <li>
+                          Update quantities for {itemsToUpdate.length} items
+                        </li>
+                        <li>
+                          Remove{" "}
+                          {itemsToRemove.filter((i) => i.activityId).length}{" "}
+                          associated &quot;new item obtained&quot; activities
+                        </li>
+                      </ul>
+                      <p className="mt-3">This action cannot be undone.</p>
+                    </div>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -197,7 +209,10 @@ export function DiscrepancyItemsTable({
             </AlertDialog>
 
             {selectedIds.length > 0 && (
-              <AlertDialog>
+              <AlertDialog
+                open={removeSelectedDialogOpen}
+                onOpenChange={setRemoveSelectedDialogOpen}
+              >
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" disabled={isPending}>
                     <Trash2 className="w-4 h-4 mr-1" />
@@ -227,7 +242,10 @@ export function DiscrepancyItemsTable({
             )}
           </div>
 
-          <AlertDialog>
+          <AlertDialog
+            open={dismissDialogOpen}
+            onOpenChange={setDismissDialogOpen}
+          >
             <AlertDialogTrigger asChild>
               <Button variant="outline" disabled={isPending}>
                 <X className="w-4 h-4 mr-1" />

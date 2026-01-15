@@ -4,7 +4,6 @@ import { getDb } from "@/lib/db";
 import {
   AccountItemDiscrepancy,
   AccountItemDiscrepancyWithDetails,
-  ITEM_DISCREPANCY_INDEX_KEY,
   ITEM_DISCREPANCY_PREFIX,
   ItemDiscrepancyWithDetails,
 } from "@/types/item-discrepancies";
@@ -16,12 +15,16 @@ import { accounts, activities, items } from "@runeprofile/db";
 import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 
 /**
- * Get all account IDs with item discrepancies from KV (internal helper)
+ * Get all account IDs with item discrepancies from KV using list()
  */
 async function getDiscrepancyAccountIds(): Promise<string[]> {
   const { env } = getCloudflareContext();
-  const indexStr = await env.KV.get(ITEM_DISCREPANCY_INDEX_KEY);
-  return indexStr ? JSON.parse(indexStr) : [];
+  const result = await env.KV.list({ prefix: ITEM_DISCREPANCY_PREFIX });
+
+  // Extract account IDs from keys (remove prefix)
+  return result.keys.map((key) =>
+    key.name.slice(ITEM_DISCREPANCY_PREFIX.length),
+  );
 }
 
 /**
@@ -221,17 +224,9 @@ export async function reconcileDiscrepancy(accountId: string): Promise<{
 
   await Promise.all(operations);
 
-  // Remove discrepancy from KV
+  // Remove discrepancy from KV (no index to update - we use list() with prefix)
   const key = `${ITEM_DISCREPANCY_PREFIX}${accountId}`;
   await env.KV.delete(key);
-
-  // Update the index
-  const indexStr = await env.KV.get(ITEM_DISCREPANCY_INDEX_KEY);
-  if (indexStr) {
-    const index: string[] = JSON.parse(indexStr);
-    const newIndex = index.filter((id) => id !== accountId);
-    await env.KV.put(ITEM_DISCREPANCY_INDEX_KEY, JSON.stringify(newIndex));
-  }
 
   revalidatePath("/item-discrepancies");
 
@@ -248,17 +243,9 @@ export async function reconcileDiscrepancy(accountId: string): Promise<{
 export async function dismissDiscrepancy(accountId: string): Promise<void> {
   const { env } = getCloudflareContext();
 
-  // Remove discrepancy from KV
+  // Remove discrepancy from KV (no index to update - we use list() with prefix)
   const key = `${ITEM_DISCREPANCY_PREFIX}${accountId}`;
   await env.KV.delete(key);
-
-  // Update the index
-  const indexStr = await env.KV.get(ITEM_DISCREPANCY_INDEX_KEY);
-  if (indexStr) {
-    const index: string[] = JSON.parse(indexStr);
-    const newIndex = index.filter((id) => id !== accountId);
-    await env.KV.put(ITEM_DISCREPANCY_INDEX_KEY, JSON.stringify(newIndex));
-  }
 
   revalidatePath("/item-discrepancies");
 }
