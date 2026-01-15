@@ -2,18 +2,10 @@ import { Embed } from "discord-hono";
 import { and, eq, or } from "drizzle-orm";
 
 import { Database, discordWatches } from "@runeprofile/db";
-import {
-  AccountType,
-  ActivityEvent,
-  NewItemObtainedEvent,
-} from "@runeprofile/runescape";
+import { AccountType, ActivityEvent } from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/discord/factory";
-import {
-  buildPlayerTitle,
-  getItemIconUrl,
-  getItemName,
-} from "~/discord/helpers";
+import { createActivityEmbed } from "~/discord/messages/activity-embeds";
 
 export async function sendActivityMessages(params: {
   db: Database;
@@ -87,45 +79,6 @@ export async function sendActivityMessages(params: {
   );
 
   console.log(`Sent activity messages to ${watches.length} channels`);
-}
-
-function createNewItemObtainedEmbed(params: {
-  discordApplicationId: string;
-  event: NewItemObtainedEvent;
-  rsn: string;
-  accountType?: AccountType;
-}): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
-  const itemName = getItemName(event.data.itemId);
-
-  return new Embed()
-    .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
-    .description(`**${itemName}**`)
-    .thumbnail({ url: getItemIconUrl(event.data.itemId) })
-    .footer({ text: "New Collection Log Item" })
-    .timestamp(new Date().toISOString())
-    .color(0x00ff00); // Green
-}
-
-function createActivityEmbed(params: {
-  discordApplicationId: string;
-  activity: ActivityEvent;
-  rsn: string;
-  accountType?: AccountType;
-}): Embed | null {
-  const { discordApplicationId, activity, rsn, accountType } = params;
-  switch (activity.type) {
-    case "new_item_obtained":
-      return createNewItemObtainedEmbed({
-        event: activity,
-        discordApplicationId,
-        rsn,
-        accountType,
-      });
-    default:
-      // Other event types not yet supported
-      return null;
-  }
 }
 
 function getWatchCondition(params: { accountId?: string; clanName?: string }) {

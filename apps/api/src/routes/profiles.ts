@@ -5,7 +5,7 @@ import { z } from "zod";
 import { accounts, drizzle } from "@runeprofile/db";
 import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 
-import { sendActivityMessages } from "~/discord/messages";
+import { sendActivityMessages } from "~/discord/messages/send";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
