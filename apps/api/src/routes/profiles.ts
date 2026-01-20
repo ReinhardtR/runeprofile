@@ -95,6 +95,7 @@ export const profilesRouter = newRouter()
             title: z.string(),
           })
           .optional(),
+        groupName: z.string().optional(),
         achievementDiaryTiers: z.array(
           z.object({
             areaId: z.number(),

@@ -23,6 +23,7 @@ export type UpdateProfileInput = {
     icon: number;
     title: string;
   };
+  groupName?: string;
   achievementDiaryTiers: Array<{
     areaId: number;
     tierIndex: number;
@@ -49,6 +50,7 @@ export type ProfileUpdates = {
     icon: number;
     title: string;
   };
+  groupName?: string;
   achievementDiaryTiers: Array<{
     areaId: number;
     tier: number;

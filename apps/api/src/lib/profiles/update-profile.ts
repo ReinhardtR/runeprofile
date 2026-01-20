@@ -90,6 +90,7 @@ export async function updateProfile(
         clanRank: updates.clan?.rank,
         clanIcon: updates.clan?.icon,
         clanTitle: updates.clan?.title,
+        groupName: updates.groupName,
       })
       .where(eq(accounts.id, accountId)),
     withValues(achievementDiaryTiersValues, (values) =>
