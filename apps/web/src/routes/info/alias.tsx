@@ -4,10 +4,9 @@ import React from "react";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
-import { Footer } from "~/components/footer";
-import { Header } from "~/components/header";
-import { Badge } from "~/components/ui/badge";
-import { Input } from "~/components/ui/input";
+import { Footer, Header } from "~/layouts";
+import { Badge } from "~/shared/components/ui/badge";
+import { Input } from "~/shared/components/ui/input";
 
 export const Route = createFileRoute("/info/alias")({
   component: RouteComponent,

@@ -1,6 +1,6 @@
 "use server";
 
-import { getDb } from "@/lib/db";
+import { db } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +12,6 @@ export async function findAccountsWithDuplicateActivities(
   limit = 100,
 ) {
   console.log("*** Finding accounts with duplicate activities ***");
-  const db = getDb();
   // Find accountIds that have duplicate (type,data) combos for target types
   const rows = await db
     .select({
@@ -31,7 +30,6 @@ export async function findAccountsWithDuplicateActivities(
 export async function deleteActivityIds(ids: string[]) {
   console.log("*** Deleting activity IDs ***");
   if (!ids.length) return { deleted: 0 };
-  const db = getDb();
 
   await withValues(ids, (values) =>
     db.delete(activities).where(inArray(activities.id, values)),
@@ -41,7 +39,6 @@ export async function deleteActivityIds(ids: string[]) {
 }
 
 export async function getAccountBasic(accountId: string) {
-  const db = getDb();
   const rows = await db
     .select({ id: accounts.id, username: accounts.username })
     .from(accounts)
@@ -62,7 +59,6 @@ export async function getAccountActivitiesForTypes(
   accountId: string,
   targetTypes: ActivityEvent["type"][],
 ) {
-  const db = getDb();
   if (!targetTypes.length) return [];
   return db
     .select({

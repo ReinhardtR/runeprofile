@@ -1,6 +1,6 @@
 "use server";
 
-import { getDb } from "@/lib/db";
+import { db } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -13,7 +13,6 @@ export async function getAccountItems(
   searchItemId?: string,
   sortBy: string = "id",
 ) {
-  const db = getDb();
   const offset = (page - 1) * pageSize;
 
   // Get account info first
@@ -81,8 +80,6 @@ export async function deleteAccountItems(accountId: string, itemIds: number[]) {
     return { deleted: 0 };
   }
 
-  const db = getDb();
-
   // Verify all items belong to the account (security check)
   const itemCheck = await db
     .select({ id: items.id })
@@ -111,7 +108,6 @@ export async function updateItemQuantity(
   itemId: number,
   newQuantity: number,
 ) {
-  const db = getDb();
 
   if (newQuantity <= 0) {
     // If quantity is 0 or negative, delete the item
@@ -131,7 +127,6 @@ export async function updateItemQuantity(
 }
 
 export async function clearAllAccountItems(accountId: string) {
-  const db = getDb();
 
   // Delete all items for this account
   await db.delete(items).where(eq(items.accountId, accountId));
@@ -140,7 +135,6 @@ export async function clearAllAccountItems(accountId: string) {
 }
 
 export async function getItemStats(accountId: string) {
-  const db = getDb();
 
   // Get total items and total quantity
   const statsResult = await db

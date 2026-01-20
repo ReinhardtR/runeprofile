@@ -18,28 +18,31 @@ import { z } from "zod";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
-import HiscoresIcon from "~/assets/icons/hiscores.png";
-import Logo from "~/assets/misc/logo.png";
-import { Footer } from "~/components/footer";
-import { Hiscores, hiscoresQueryOptions } from "~/components/hiscores";
-import { DiscordIcon, KofiIcon } from "~/components/icons";
-import { Character } from "~/components/osrs/character";
-import { CollectionLog } from "~/components/osrs/collection-log";
-import { DataTabsCard } from "~/components/osrs/data-tabs/tabs-card";
-import { RecentActivities } from "~/components/osrs/recent-activities";
-import { RecentCollections } from "~/components/osrs/recent-collections";
-import { isSearchDialogOpenAtom } from "~/components/search-dialog";
-import { Button, ButtonProps } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Sheet, SheetContent } from "~/components/ui/sheet";
+import HiscoresIcon from "~/core/assets/icons/hiscores.png";
+import Logo from "~/core/assets/misc/logo.png";
+import { DISCORD_INVITE_INK } from "~/core/constants";
+import { Profile, RuneProfileApiError, getProfile } from "~/core/api";
+import {
+  Character,
+  CollectionLog,
+  DataTabsCard,
+  RecentActivities,
+  RecentCollections,
+  Hiscores,
+  hiscoresQueryOptions,
+} from "~/features/profile/components";
+import { isSearchDialogOpenAtom } from "~/features/search";
+import { Footer } from "~/layouts";
+import { DiscordIcon, KofiIcon } from "~/shared/components/icons";
+import { Button, ButtonProps } from "~/shared/components/ui/button";
+import { ScrollArea } from "~/shared/components/ui/scroll-area";
+import { Sheet, SheetContent } from "~/shared/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "~/components/ui/tooltip";
-import { Profile, RuneProfileApiError, getProfile } from "~/lib/api";
-import { DISCORD_INVITE_INK } from "~/lib/constants";
-import { cn } from "~/lib/utils";
+} from "~/shared/components/ui/tooltip";
+import { cn } from "~/shared/utils";
 
 function profileQueryOptions(username: string) {
   return queryOptions({

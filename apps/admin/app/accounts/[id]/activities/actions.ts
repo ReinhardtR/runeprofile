@@ -1,6 +1,6 @@
 "use server";
 
-import { getDb } from "@/lib/db";
+import { db } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +12,6 @@ export async function getAccountActivities(
   page: number = 1,
   pageSize: number = 50,
 ) {
-  const db = getDb();
   const offset = (page - 1) * pageSize;
 
   // Get account info first
@@ -74,8 +73,6 @@ export async function deleteAccountActivities(
     return { deleted: 0 };
   }
 
-  const db = getDb();
-
   // Verify all activities belong to the account (security check)
   const activityCheck = await db
     .select({ id: activities.id })
@@ -104,7 +101,6 @@ export async function deleteAccountActivities(
 }
 
 export async function getActivityTypeStats(accountId: string) {
-  const db = getDb();
 
   // Get activities count by type for this account
   const typeStatsResult = await db
@@ -126,7 +122,6 @@ export async function updateActivity(
   activityData: ActivityEvent,
   createdAt: string,
 ) {
-  const db = getDb();
 
   // Verify the activity exists and belongs to this account
   const existingActivity = await db.query.activities.findFirst({
@@ -166,7 +161,6 @@ export async function createActivity(
   activityData: ActivityEvent,
   createdAt?: string,
 ) {
-  const db = getDb();
 
   // Verify the account exists
   const account = await db.query.accounts.findFirst({

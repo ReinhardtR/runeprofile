@@ -1,15 +1,5 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,15 +27,20 @@ import {
   ExternalLink,
   Eye,
   Loader2,
+  Pause,
+  Play,
+  RefreshCw,
   X,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import {
   dismissDiscrepancy,
+  getAllDiscrepancies,
+  getDetailsAndMaybeReconcile,
   getDiscrepancyDetails,
   reconcileDiscrepancy,
 } from "./actions";
@@ -66,8 +61,19 @@ export function DiscrepancyList({
     useState<AccountItemDiscrepancyWithDetails | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [confirmReconcileOpen, setConfirmReconcileOpen] = useState(false);
-  const [confirmDismissOpen, setConfirmDismissOpen] = useState(false);
+
+  // Auto-mode state
+  const [isAutoMode, setIsAutoMode] = useState(false);
+  const [autoModeStatus, setAutoModeStatus] = useState<string>("");
+  const [autoModeInterrupted, setAutoModeInterrupted] = useState(false);
+  const [isFetchingBatch, setIsFetchingBatch] = useState(false);
+  const autoModeRef = useRef(false);
+  const processingRef = useRef(false);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    autoModeRef.current = isAutoMode;
+  }, [isAutoMode]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -80,6 +86,108 @@ export function DiscrepancyList({
       });
     } catch {
       return dateString;
+    }
+  };
+
+  // Auto-mode processor
+  const processAutoMode = useCallback(async () => {
+    if (processingRef.current || !autoModeRef.current) return;
+    if (discrepancies.length === 0) {
+      // Try to fetch the next batch
+      setAutoModeStatus("Fetching next batch...");
+      setIsFetchingBatch(true);
+      try {
+        const nextBatch = await getAllDiscrepancies();
+        if (nextBatch.length === 0) {
+          setIsAutoMode(false);
+          setAutoModeStatus("Completed - no more discrepancies in KV");
+          toast.success("All discrepancies have been processed!");
+        } else {
+          setDiscrepancies(nextBatch);
+          setAutoModeStatus(`Fetched ${nextBatch.length} more accounts, continuing...`);
+          toast.info(`Fetched ${nextBatch.length} more discrepancies`);
+        }
+      } catch (error) {
+        setIsAutoMode(false);
+        setAutoModeStatus("Error fetching next batch");
+        toast.error("Failed to fetch next batch");
+      } finally {
+        setIsFetchingBatch(false);
+      }
+      return;
+    }
+
+    processingRef.current = true;
+    const currentDiscrepancy = discrepancies[0];
+    setAutoModeStatus(`Processing ${currentDiscrepancy.username}...`);
+
+    try {
+      // Combined action: get details and reconcile if criteria met (single DB connection)
+      const result = await getDetailsAndMaybeReconcile(
+        currentDiscrepancy.accountId,
+      );
+
+      if (result.action === "skipped") {
+        setAutoModeStatus(
+          `No details found for ${currentDiscrepancy.username}, skipping...`,
+        );
+        setDiscrepancies((prev) =>
+          prev.filter((d) => d.accountId !== currentDiscrepancy.accountId),
+        );
+      } else if (result.action === "reconciled") {
+        toast.success(
+          `Auto-reconciled ${currentDiscrepancy.username}: ${result.result.itemsDeleted} items deleted, ${result.result.itemsUpdated} updated, ${result.result.activitiesDeleted} activities removed`,
+        );
+        setDiscrepancies((prev) =>
+          prev.filter((d) => d.accountId !== currentDiscrepancy.accountId),
+        );
+        router.refresh();
+      } else {
+        // Paused - show the discrepancy for manual review
+        setIsAutoMode(false);
+        autoModeRef.current = false;
+        setAutoModeInterrupted(true); // Mark as interrupted so we resume after manual resolution
+
+        setAutoModeStatus(
+          `Paused: ${currentDiscrepancy.username} - ${result.reasons.join(", ")}`,
+        );
+        setSelectedAccountId(currentDiscrepancy.accountId);
+        setDetails(result.details);
+        toast.info(`Auto-mode paused: ${result.reasons.join(", ")}`);
+      }
+    } catch (error) {
+      setIsAutoMode(false);
+      autoModeRef.current = false;
+      setAutoModeStatus(`Error processing ${currentDiscrepancy.username}`);
+      toast.error(
+        `Auto-mode error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    } finally {
+      processingRef.current = false;
+    }
+  }, [discrepancies, router]);
+
+  // Effect to run auto-mode
+  useEffect(() => {
+    if (isAutoMode && !processingRef.current) {
+      const timer = setTimeout(() => {
+        processAutoMode();
+      }, 1500); // Delay between processing to reduce DB connection pressure
+      return () => clearTimeout(timer);
+    }
+  }, [isAutoMode, discrepancies, processAutoMode]);
+
+  const toggleAutoMode = () => {
+    if (isAutoMode) {
+      setIsAutoMode(false);
+      setAutoModeInterrupted(false); // Clear interrupted state when manually stopping
+      setAutoModeStatus("Paused by user");
+    } else {
+      // Close any open dialog when starting auto-mode
+      closeDialog();
+      setAutoModeInterrupted(false);
+      setIsAutoMode(true);
+      setAutoModeStatus("Starting...");
     }
   };
 
@@ -138,15 +246,28 @@ export function DiscrepancyList({
   const handleReconcile = async () => {
     if (!selectedAccountId || !details) return;
 
+    const wasInterrupted = autoModeInterrupted;
+
     startTransition(async () => {
       try {
         const result = await reconcileDiscrepancy(selectedAccountId);
-        setConfirmReconcileOpen(false);
         toast.success(
           `Reconciled ${details.username}: ${result.itemsDeleted} items deleted, ${result.itemsUpdated} updated, ${result.activitiesDeleted} activities removed`,
         );
-        openNextDiscrepancy();
+        
+        // Remove from local state
+        setDiscrepancies((prev) =>
+          prev.filter((d) => d.accountId !== selectedAccountId),
+        );
+        closeDialog();
         router.refresh();
+        
+        // Resume auto-mode if it was interrupted
+        if (wasInterrupted) {
+          setAutoModeInterrupted(false);
+          setIsAutoMode(true);
+          setAutoModeStatus("Resuming...");
+        }
       } catch (error) {
         toast.error("Failed to reconcile discrepancy");
         console.error(error);
@@ -157,13 +278,26 @@ export function DiscrepancyList({
   const handleDismiss = async () => {
     if (!selectedAccountId || !details) return;
 
+    const wasInterrupted = autoModeInterrupted;
+
     startTransition(async () => {
       try {
         await dismissDiscrepancy(selectedAccountId);
-        setConfirmDismissOpen(false);
         toast.success(`Dismissed discrepancy for ${details.username}`);
-        openNextDiscrepancy();
+        
+        // Remove from local state
+        setDiscrepancies((prev) =>
+          prev.filter((d) => d.accountId !== selectedAccountId),
+        );
+        closeDialog();
         router.refresh();
+        
+        // Resume auto-mode if it was interrupted
+        if (wasInterrupted) {
+          setAutoModeInterrupted(false);
+          setIsAutoMode(true);
+          setAutoModeStatus("Resuming...");
+        }
       } catch (error) {
         toast.error("Failed to dismiss discrepancy");
         console.error(error);
@@ -179,16 +313,87 @@ export function DiscrepancyList({
     details?.items.filter((i) => i.realQuantity === 0) ?? [];
   const itemsToUpdate = details?.items.filter((i) => i.realQuantity > 0) ?? [];
 
+  const fetchNextBatch = useCallback(async () => {
+    setIsFetchingBatch(true);
+    setAutoModeStatus("Fetching next batch...");
+    try {
+      const nextBatch = await getAllDiscrepancies();
+      if (nextBatch.length === 0) {
+        setAutoModeStatus("No more discrepancies in KV");
+        toast.info("No more discrepancies found");
+      } else {
+        setDiscrepancies(nextBatch);
+        setAutoModeStatus(`Fetched ${nextBatch.length} accounts`);
+        toast.success(`Fetched ${nextBatch.length} discrepancies`);
+      }
+    } catch (error) {
+      setAutoModeStatus("Error fetching batch");
+      toast.error("Failed to fetch discrepancies");
+    } finally {
+      setIsFetchingBatch(false);
+    }
+  }, []);
+
   return (
     <>
+      {/* Auto-mode controls */}
+      {discrepancies.length > 0 && (
+        <div className="flex items-center gap-4 mb-4 p-3 border rounded-lg bg-muted/50">
+          <Button
+            variant={isAutoMode ? "destructive" : "default"}
+            size="sm"
+            onClick={toggleAutoMode}
+            disabled={isPending}
+          >
+            {isAutoMode ? (
+              <>
+                <Pause className="w-4 h-4 mr-1" />
+                Pause Auto-Mode
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4 mr-1" />
+                Start Auto-Mode
+              </>
+            )}
+          </Button>
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground">
+              Auto-reconciles accounts where all items are whitelisted
+              (Graceful, Decorative, etc.) OR all dates are between Oct 14 -
+              Nov 13.
+            </p>
+            {autoModeStatus && (
+              <p className="text-sm font-medium mt-1">
+                {isAutoMode && (
+                  <Loader2 className="w-3 h-3 inline mr-1 animate-spin" />
+                )}
+                {autoModeStatus}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {discrepancies.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <AlertTriangle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p className="text-lg font-medium">No discrepancies found</p>
-          <p className="text-sm">
-            All accounts have consistent item data between the database and
-            plugin updates.
+          <p className="text-lg font-medium">No discrepancies in current batch</p>
+          <p className="text-sm mb-4">
+            All accounts in this batch have been processed.
           </p>
+          <Button
+            variant="default"
+            onClick={fetchNextBatch}
+            disabled={isFetchingBatch}
+          >
+            {isFetchingBatch ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
+            Fetch Next Batch
+          </Button>
         </div>
       ) : (
         <Table>
@@ -253,7 +458,7 @@ export function DiscrepancyList({
         open={!!selectedAccountId}
         onOpenChange={(open) => !open && closeDialog()}
       >
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="!w-[80vw] !h-[80vh] !max-w-[800px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-yellow-500" />
@@ -270,6 +475,16 @@ export function DiscrepancyList({
             </div>
           ) : details ? (
             <div className="space-y-4">
+              {/* Item counts */}
+              <div className="flex gap-4 text-sm text-muted-foreground">
+                <span>
+                  Input items: <span className="font-medium text-foreground">{details.inputItemCount}</span>
+                </span>
+                <span>
+                  Stored items: <span className="font-medium text-foreground">{details.storedItemCount}</span>
+                </span>
+              </div>
+
               {/* Summary */}
               <div className="grid grid-cols-3 gap-4 text-sm border rounded-lg p-3">
                 <div>
@@ -295,14 +510,14 @@ export function DiscrepancyList({
               </div>
 
               {/* Items list - compact */}
-              <div className="border rounded-lg divide-y max-h-[300px] overflow-y-auto">
+              <div className="border rounded-lg divide-y max-h-[50vh] overflow-y-auto">
                 {details.items.map((item) => (
                   <div
                     key={item.itemId}
                     className="flex items-center gap-3 p-2 text-sm"
                   >
                     <Image
-                      src={`https://chisel.weirdgloop.org/static/img/osrs-dii/${item.itemId}.png`}
+                      src={`https://static.runelite.net/cache/item/icon/${item.itemId}.png`}
                       alt={item.itemName}
                       width={24}
                       height={24}
@@ -322,9 +537,11 @@ export function DiscrepancyList({
                       </Badge>
                     )}
                     {item.activityId && (
-                      <Badge variant="secondary" className="text-xs">
-                        +activity
-                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {item.activityCreatedAt
+                          ? formatDate(item.activityCreatedAt)
+                          : "activity"}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -336,7 +553,7 @@ export function DiscrepancyList({
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => setConfirmReconcileOpen(true)}
+                    onClick={handleReconcile}
                     disabled={isPending}
                   >
                     {isPending ? (
@@ -349,7 +566,7 @@ export function DiscrepancyList({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setConfirmDismissOpen(true)}
+                    onClick={handleDismiss}
                     disabled={isPending}
                   >
                     <X className="w-4 h-4 mr-1" />
@@ -375,62 +592,6 @@ export function DiscrepancyList({
           )}
         </DialogContent>
       </Dialog>
-
-      {/* Confirm Reconcile Dialog */}
-      <AlertDialog
-        open={confirmReconcileOpen}
-        onOpenChange={setConfirmReconcileOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reconcile Discrepancies</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                This will:
-                <ul className="list-disc ml-6 mt-2 space-y-1">
-                  <li>Delete {itemsToRemove.length} items</li>
-                  <li>Update {itemsToUpdate.length} item quantities</li>
-                  <li>
-                    Remove {itemsToRemove.filter((i) => i.activityId).length}{" "}
-                    activities
-                  </li>
-                </ul>
-                <p className="mt-3">This cannot be undone.</p>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReconcile} disabled={isPending}>
-              {isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-              Reconcile
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Confirm Dismiss Dialog */}
-      <AlertDialog
-        open={confirmDismissOpen}
-        onOpenChange={setConfirmDismissOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Dismiss Discrepancy</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove the discrepancy record without making any changes
-              to the database. Use this if you believe the data is correct.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDismiss} disabled={isPending}>
-              {isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-              Dismiss
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

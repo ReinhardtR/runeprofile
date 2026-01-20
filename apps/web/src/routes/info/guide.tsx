@@ -1,16 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import * as React from "react";
 
-import DefaultClogPage from "~/assets/guide/default-clog-page.png";
-import InstallPluginImage from "~/assets/guide/install-plugin.png";
-import LogCommandImage from "~/assets/guide/log-command.png";
-import ProfileExampleImage from "~/assets/guide/profile-example.png";
-import UpdateModelImage from "~/assets/guide/update-model.png";
-import UpdateProfileImage from "~/assets/guide/update-profile.png";
-import { Footer } from "~/components/footer";
-import { Header } from "~/components/header";
-import { JoinDiscordButton } from "~/components/join-discord";
-import { cn } from "~/lib/utils";
+import DefaultClogPage from "~/core/assets/guide/default-clog-page.png";
+import InstallPluginImage from "~/core/assets/guide/install-plugin.png";
+import LogCommandImage from "~/core/assets/guide/log-command.png";
+import ProfileExampleImage from "~/core/assets/guide/profile-example.png";
+import UpdateModelImage from "~/core/assets/guide/update-model.png";
+import UpdateProfileImage from "~/core/assets/guide/update-profile.png";
+import {
+  GuideHeading,
+  GuideImage,
+  GuideParagraph,
+  GuideSection,
+} from "~/features/info";
+import { Footer, Header } from "~/layouts";
+import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
 
 export const Route = createFileRoute("/info/guide")({
   component: RouteComponent,
@@ -129,7 +132,7 @@ function RouteComponent() {
                 Auto Sync - New Collection Log Items
                 <br />
               </b>
-              When you obtain a new Collection Log item, the plugin will update
+              When you obtain a new Collection Log item, the plugin will
               automatically update your profile in that moment. This feature
               requires that you have either of these OSRS settings enabled:
               <ol className="list-disc ml-6">
@@ -239,100 +242,6 @@ function RouteComponent() {
     </>
   );
 }
-
-interface GuideSectionProps extends React.HTMLAttributes<HTMLElement> {
-  children: React.ReactNode;
-}
-
-const GuideSection: React.FC<GuideSectionProps> = ({
-  children,
-  className,
-  ...props
-}) => {
-  return (
-    <section className={cn("mb-12", className)} {...props}>
-      {children}
-    </section>
-  );
-};
-
-interface GuideHeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  children: React.ReactNode;
-  id: string; // Required for TOC linking
-}
-
-const GuideHeading: React.FC<GuideHeadingProps> = ({
-  children,
-  id,
-  className,
-  ...props
-}) => {
-  return (
-    <h2
-      id={id}
-      className={cn(
-        "mb-4 mt-8 scroll-mt-20 border-b border-border pb-2 text-2xl font-bold tracking-tight text-primary first:mt-0",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </h2>
-  );
-};
-
-interface GuideParagraphProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {
-  children: React.ReactNode;
-}
-
-const GuideParagraph: React.FC<GuideParagraphProps> = ({
-  children,
-  className,
-  ...props
-}) => {
-  return (
-    <p
-      className={cn(
-        "leading-7 text-muted-foreground [&:not(:first-child)]:mt-4",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </p>
-  );
-};
-
-interface GuideImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string;
-  alt: string;
-  caption?: string;
-}
-
-const GuideImage: React.FC<GuideImageProps> = ({
-  src,
-  alt,
-  caption,
-  className,
-  ...props
-}) => {
-  return (
-    <figure className="my-6 flex flex-col items-center">
-      <img
-        src={src}
-        alt={alt}
-        className={cn("max-w-full rounded-md", className)}
-        {...props}
-      />
-      {caption && (
-        <figcaption className="mt-2 text-center text-sm text-muted-foreground">
-          {caption}
-        </figcaption>
-      )}
-    </figure>
-  );
-};
 
 const tocItems = [
   { id: "introduction", title: "Introduction" },

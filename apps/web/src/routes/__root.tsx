@@ -5,8 +5,9 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 
-import { SearchDialog } from "~/components/search-dialog";
-import { TooltipProvider } from "~/components/ui/tooltip";
+import { GlobalAlertBanner } from "~/features/alerts";
+import { SearchDialog } from "~/features/search";
+import { TooltipProvider } from "~/shared/components/ui/tooltip";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   { component: RootComponent },
@@ -17,6 +18,7 @@ function RootComponent() {
     <>
       <HeadContent />
       <TooltipProvider>
+        <GlobalAlertBanner />
         <Outlet />
         <SearchDialog />
       </TooltipProvider>

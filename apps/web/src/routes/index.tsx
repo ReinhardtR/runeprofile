@@ -6,24 +6,24 @@ import React from "react";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
-// import AchievementDiariesIcon from "~/assets/icons/achievement-diaries.png";
-// import CollectionLogIcon from "~/assets/icons/collection-log.png";
-// import CombatAchievementsIcon from "~/assets/icons/combat-achievements.png";
-// import HiscoresIcon from "~/assets/icons/hiscores.png";
-// import QuestIcon from "~/assets/icons/quest.png";
-// import SkillsIcon from "~/assets/icons/skills.png";
-// import HeroImage from "~/assets/misc/hero-image.png";
-import Logo from "~/assets/misc/logo.png";
-import RuneLiteLogo from "~/assets/misc/runelite-logo.png";
-import EventHeroImage from "~/assets/misc/sailing-art.png";
-import PgnProfileSnapshot from "~/assets/pgn-profile-snapshot.json";
-import { Footer } from "~/components/footer";
-import { isSearchDialogOpenAtom } from "~/components/search-dialog";
-import { Button } from "~/components/ui/button";
-// import { Separator } from "~/components/ui/separator";
-import { Profile, getMetrics } from "~/lib/api";
-import { cn, numberWithDelimiter } from "~/lib/utils";
+import { Profile, getMetrics } from "~/core/api";
+import AchievementDiariesIcon from "~/core/assets/icons/achievement-diaries.png";
+import CollectionLogIcon from "~/core/assets/icons/collection-log.png";
+import CombatAchievementsIcon from "~/core/assets/icons/combat-achievements.png";
+import HiscoresIcon from "~/core/assets/icons/hiscores.png";
+import QuestIcon from "~/core/assets/icons/quest.png";
+import SkillsIcon from "~/core/assets/icons/skills.png";
+import HeroImage from "~/core/assets/misc/hero-image.png";
+// import Logo from "~/core/assets/misc/logo.png";
+import RuneLiteLogo from "~/core/assets/misc/runelite-logo.png";
+// import EventHeroImage from "~/core/assets/misc/sailing-art.png";
+import PgnProfileSnapshot from "~/core/assets/pgn-profile-snapshot.json";
+import { isSearchDialogOpenAtom } from "~/features/search";
+import { Footer } from "~/layouts";
 import { ProfileContent, SidePanel } from "~/routes/$username";
+import { Button } from "~/shared/components/ui/button";
+import { Separator } from "~/shared/components/ui/separator";
+import { cn, numberWithDelimiter } from "~/shared/utils";
 
 function metricsQueryOptions() {
   return queryOptions({
@@ -50,7 +50,8 @@ function RouteComponent() {
     <>
       <div className="flex flex-col">
         <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
-          <EventHero />
+          {/* <EventHero /> */}
+          <DefaultHero />
 
           <Button
             className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 text-foreground animate-in fade-in-10 duration-[2000ms]"
@@ -90,147 +91,51 @@ function ProfileExample({
   );
 }
 
-// function DefaultHero() {
-//   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
-
-//   const { data: metrics } = useQuery(metricsQueryOptions());
-
-//   const dataTypeList = [
-//     { name: "Skills", icon: SkillsIcon },
-//     { name: "Quests", icon: QuestIcon },
-//     { name: "Achievement Diaries", icon: AchievementDiariesIcon },
-//     { name: "Combat Achievements", icon: CombatAchievementsIcon },
-//     { name: "Collection Log", icon: CollectionLogIcon },
-//     { name: "Hiscores", icon: HiscoresIcon },
-//   ];
-
-//   return (
-//     <>
-//       <div className="z-30 flex flex-1 flex-col items-center pt-[20vh]">
-//         <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
-//           <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
-//             <span className="text-secondary-foreground/90 solid-text-shadow">
-//               RUNE
-//             </span>
-//             <span className="text-primary solid-text-shadow">PROFILE</span>
-//           </h1>
-//           <p className="text-md text-light-gray font-medium drop-shadow-solid-sm md:text-lg lg:text-xl">
-//             Share your Old School RuneScape achievements
-//           </p>
-//           <div className="mb-6 flex items-center justify-center space-x-4 rounded-full bg-black/75 px-5 py-3  shadow">
-//             {dataTypeList.map((type) => (
-//               <img
-//                 src={type.icon}
-//                 alt={type.name}
-//                 key={type.name}
-//                 width={32}
-//                 height={32}
-//                 className="drop-shadow-solid-sm"
-//               />
-//             ))}
-//           </div>
-//         </div>
-
-//         <Button
-//           variant="outline"
-//           className={cn(
-//             "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75 mb-4",
-//           )}
-//           onClick={() => setIsSearchDialogOpen(true)}
-//         >
-//           <Search className="mr-1 h-5 w-5" />
-//           <span className="inline-flex">Search profiles</span>
-//         </Button>
-//         <Link
-//           to="/info/guide"
-//           className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
-//         >
-//           <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
-//           <span>Plugin Guide</span>
-//         </Link>
-//       </div>
-
-//       <div className="absolute z-20 bg-primary/25">
-//         <img
-//           src={HeroImage}
-//           className="h-screen w-screen object-cover mix-blend-multiply"
-//         />
-//       </div>
-
-//       <div
-//         className={cn(
-//           "z-30 flex-row items-center justify-center gap-x-6 bg-background/80 py-3 px-6 rounded-3xl transition-opacity duration-700 flex absolute bottom-28 left-1/2 -translate-x-1/2",
-//           !!metrics
-//             ? "opacity-100 animate-in fade-in"
-//             : "opacity-0 pointer-events-none",
-//         )}
-//       >
-//         <div className="flex flex-col gap-y-1 items-center justify-center w-32">
-//           <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-//             {numberWithDelimiter(metrics?.totalAccounts || 0)}
-//           </p>
-//           <p className="font-bold text-primary">Profiles</p>
-//         </div>
-//         <Separator className="h-14" orientation="vertical" />
-//         <div className="flex flex-col gap-y-1 items-center justify-center w-32">
-//           <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-//             {numberWithDelimiter(metrics?.totalActivities || 0)}
-//           </p>
-//           <p className="font-bold text-primary">Activities</p>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-function EventHero() {
+function DefaultHero() {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
+
   const { data: metrics } = useQuery(metricsQueryOptions());
+
+  const dataTypeList = [
+    { name: "Skills", icon: SkillsIcon },
+    { name: "Quests", icon: QuestIcon },
+    { name: "Achievement Diaries", icon: AchievementDiariesIcon },
+    { name: "Combat Achievements", icon: CombatAchievementsIcon },
+    { name: "Collection Log", icon: CollectionLogIcon },
+    { name: "Hiscores", icon: HiscoresIcon },
+  ];
+
   return (
-    <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
-      <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute top-4 left-4 bg-background/80 p-4 rounded-3xl">
-        <Link to="/" className="mr-6 flex items-center space-x-2">
-          <img
-            src={Logo}
-            alt="Logo"
-            width={50}
-            height={50}
-            className="drop-shadow"
-          />
-          <p className="flex-col text-2xl font-black leading-none tracking-wide drop-shadow flex">
-            <span className="text-primary">RUNE</span>
-            <span className="text-secondary-foreground">PROFILE</span>
+    <>
+      <div className="z-30 flex flex-1 flex-col items-center pt-[20vh]">
+        <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
+          <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
+            <span className="text-secondary-foreground/90 solid-text-shadow">
+              RUNE
+            </span>
+            <span className="text-primary solid-text-shadow">PROFILE</span>
+          </h1>
+          <p className="text-md text-light-gray font-medium drop-shadow-solid-sm md:text-lg lg:text-xl">
+            Share your Old School RuneScape achievements
           </p>
-        </Link>
-      </div>
-
-      <div
-        className={cn(
-          "z-30 flex-row items-center justify-center gap-x-8 absolute bottom-28 left-4 bg-background/80 p-4 rounded-3xl transition-opacity duration-700 hidden lg:flex",
-          !!metrics
-            ? "opacity-100 animate-in fade-in"
-            : "opacity-0 pointer-events-none",
-        )}
-      >
-        <div className="flex flex-col gap-y-1">
-          <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-            {numberWithDelimiter(metrics?.totalAccounts || 0)}
-          </p>
-          <p className="font-bold text-primary">Profiles</p>
+          <div className="mb-6 flex items-center justify-center space-x-4 rounded-full bg-black/75 px-5 py-3  shadow">
+            {dataTypeList.map((type) => (
+              <img
+                src={type.icon}
+                alt={type.name}
+                key={type.name}
+                width={32}
+                height={32}
+                className="drop-shadow-solid-sm"
+              />
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-y-1">
-          <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-            {numberWithDelimiter(metrics?.totalActivities || 0)}
-          </p>
-          <p className="font-bold text-primary">Activities</p>
-        </div>
-      </div>
 
-      <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute bottom-4 left-4 bg-background/80 p-4 rounded-3xl">
         <Button
           variant="outline"
           className={cn(
-            "flex h-12 transform items-center justify-center gap-x-2 rounded-2xl border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:bg-black/75",
+            "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75 mb-4",
           )}
           onClick={() => setIsSearchDialogOpen(true)}
         >
@@ -239,97 +144,193 @@ function EventHero() {
         </Button>
         <Link
           to="/info/guide"
-          className="flex transform items-center justify-center space-x-2 rounded-2xl border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all h-12"
+          className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
         >
           <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
           <span>Plugin Guide</span>
         </Link>
       </div>
 
-      {/* <div
+      <div className="absolute z-20 bg-primary/90">
+        <img
+          src={HeroImage}
+          className="h-screen w-screen object-cover mix-blend-multiply"
+        />
+      </div>
+
+      <div
         className={cn(
-          "lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30 transition-opacity duration-700",
-          !!eventLeaderboard
+          "z-30 flex-row items-center justify-center gap-x-6 bg-background/80 py-3 px-6 rounded-3xl transition-opacity duration-700 flex absolute bottom-28 left-1/2 -translate-x-1/2",
+          !!metrics
             ? "opacity-100 animate-in fade-in"
             : "opacity-0 pointer-events-none",
         )}
       >
-        <ScrollArea className="gap-y-1 flex flex-col p-2 bg-background/80 rounded-2xl flex-1 max-h-full min-h-96">
-          <p className="text-lg text-center font-bold text-secondary-foreground solid-text-shadow">
-            Doom of Mokhaiotl Leaderboard
+        <div className="flex flex-col gap-y-1 items-center justify-center w-32">
+          <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+            {numberWithDelimiter(metrics?.totalAccounts || 0)}
           </p>
-          {eventLeaderboard?.length === 0 && (
-            <p className="text-center text-muted-foreground pt-38">
-              No players yet.
-            </p>
-          )}
-          {eventLeaderboard?.map((player, index) => (
-            <Link
-              to="/$username"
-              params={{
-                username: player.username,
-              }}
-              className="bg-background/80 rounded-lg shadow flex flex-row items-center gap-x-4 px-4 py-2"
-            >
-              <p
-                className={cn(
-                  "text-xl font-bold font-runescape",
-                  index === 0 && "text-[#FFD700]",
-                  index === 1 && "text-[#C0C0C0]",
-                  index === 2 && "text-[#CD7F32]",
-                )}
-              >
-                {index + 1}.
-              </p>
-              <p
-                className={cn(
-                  "font-runescape font-bold text-2xl solid-text-shadow",
-                  index === 0 && "text-[#FFD700]",
-                  index === 1 && "text-[#C0C0C0]",
-                  index === 2 && "text-[#CD7F32]",
-                )}
-              >
-                {player.username}
-              </p>
-              <div className="ml-auto flex flex-row items-center gap-x-2">
-                {player.items.map((item) => {
-                  const itemIcon =
-                    ITEM_ICONS[item.id as unknown as keyof typeof ITEM_ICONS];
-                  const iconSrc = itemIcon
-                    ? base64ImgSrc(itemIcon)
-                    : QuestionMarkImage;
-
-                  return (
-                    <div
-                      key={item.id}
-                      className={cn(
-                        "relative flex flex-row items-center justify-center",
-                      )}
-                    >
-                      {item.quantity > 1 && (
-                        <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow font-runescape">
-                          {item.quantity}
-                        </p>
-                      )}
-                      <img
-                        src={iconSrc}
-                        className={cn(
-                          "z-10 drop-shadow-2xl size-[54px] object-contain",
-                          !item.quantity && "opacity-30",
-                        )}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </Link>
-          ))}
-        </ScrollArea>
-      </div> */}
-
-      <div className="absolute z-20">
-        <img src={EventHeroImage} className="h-screen w-screen object-cover" />
+          <p className="font-bold text-primary">Profiles</p>
+        </div>
+        <Separator className="h-14" orientation="vertical" />
+        <div className="flex flex-col gap-y-1 items-center justify-center w-32">
+          <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+            {numberWithDelimiter(metrics?.totalActivities || 0)}
+          </p>
+          <p className="font-bold text-primary">Activities</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
+
+// function EventHero() {
+//   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
+//   const { data: metrics } = useQuery(metricsQueryOptions());
+//   return (
+//     <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
+//       <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute top-4 left-4 bg-background/80 p-4 rounded-3xl">
+//         <Link to="/" className="mr-6 flex items-center space-x-2">
+//           <img
+//             src={Logo}
+//             alt="Logo"
+//             width={50}
+//             height={50}
+//             className="drop-shadow"
+//           />
+//           <p className="flex-col text-2xl font-black leading-none tracking-wide drop-shadow flex">
+//             <span className="text-primary">RUNE</span>
+//             <span className="text-secondary-foreground">PROFILE</span>
+//           </p>
+//         </Link>
+//       </div>
+
+//       <div
+//         className={cn(
+//           "z-30 flex-row items-center justify-center gap-x-8 absolute bottom-28 left-4 bg-background/80 p-4 rounded-3xl transition-opacity duration-700 hidden lg:flex",
+//           !!metrics
+//             ? "opacity-100 animate-in fade-in"
+//             : "opacity-0 pointer-events-none",
+//         )}
+//       >
+//         <div className="flex flex-col gap-y-1">
+//           <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+//             {numberWithDelimiter(metrics?.totalAccounts || 0)}
+//           </p>
+//           <p className="font-bold text-primary">Profiles</p>
+//         </div>
+//         <div className="flex flex-col gap-y-1">
+//           <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+//             {numberWithDelimiter(metrics?.totalActivities || 0)}
+//           </p>
+//           <p className="font-bold text-primary">Activities</p>
+//         </div>
+//       </div>
+
+//       <div className="z-30 flex flex-row items-center justify-center gap-x-4 absolute bottom-4 left-4 bg-background/80 p-4 rounded-3xl">
+//         <Button
+//           variant="outline"
+//           className={cn(
+//             "flex h-12 transform items-center justify-center gap-x-2 rounded-2xl border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:bg-black/75",
+//           )}
+//           onClick={() => setIsSearchDialogOpen(true)}
+//         >
+//           <Search className="mr-1 h-5 w-5" />
+//           <span className="inline-flex">Search profiles</span>
+//         </Button>
+//         <Link
+//           to="/info/guide"
+//           className="flex transform items-center justify-center space-x-2 rounded-2xl border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all h-12"
+//         >
+//           <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
+//           <span>Plugin Guide</span>
+//         </Link>
+//       </div>
+
+//       {/* <div
+//         className={cn(
+//           "lg:min-w-[500px] left-4 lg:left-auto top-32 bottom-32 lg:top-4 lg:bottom-4 right-4 absolute z-30 transition-opacity duration-700",
+//           !!eventLeaderboard
+//             ? "opacity-100 animate-in fade-in"
+//             : "opacity-0 pointer-events-none",
+//         )}
+//       >
+//         <ScrollArea className="gap-y-1 flex flex-col p-2 bg-background/80 rounded-2xl flex-1 max-h-full min-h-96">
+//           <p className="text-lg text-center font-bold text-secondary-foreground solid-text-shadow">
+//             Doom of Mokhaiotl Leaderboard
+//           </p>
+//           {eventLeaderboard?.length === 0 && (
+//             <p className="text-center text-muted-foreground pt-38">
+//               No players yet.
+//             </p>
+//           )}
+//           {eventLeaderboard?.map((player, index) => (
+//             <Link
+//               to="/$username"
+//               params={{
+//                 username: player.username,
+//               }}
+//               className="bg-background/80 rounded-lg shadow flex flex-row items-center gap-x-4 px-4 py-2"
+//             >
+//               <p
+//                 className={cn(
+//                   "text-xl font-bold font-runescape",
+//                   index === 0 && "text-[#FFD700]",
+//                   index === 1 && "text-[#C0C0C0]",
+//                   index === 2 && "text-[#CD7F32]",
+//                 )}
+//               >
+//                 {index + 1}.
+//               </p>
+//               <p
+//                 className={cn(
+//                   "font-runescape font-bold text-2xl solid-text-shadow",
+//                   index === 0 && "text-[#FFD700]",
+//                   index === 1 && "text-[#C0C0C0]",
+//                   index === 2 && "text-[#CD7F32]",
+//                 )}
+//               >
+//                 {player.username}
+//               </p>
+//               <div className="ml-auto flex flex-row items-center gap-x-2">
+//                 {player.items.map((item) => {
+//                   const itemIcon =
+//                     ITEM_ICONS[item.id as unknown as keyof typeof ITEM_ICONS];
+//                   const iconSrc = itemIcon
+//                     ? base64ImgSrc(itemIcon)
+//                     : QuestionMarkImage;
+
+//                   return (
+//                     <div
+//                       key={item.id}
+//                       className={cn(
+//                         "relative flex flex-row items-center justify-center",
+//                       )}
+//                     >
+//                       {item.quantity > 1 && (
+//                         <p className="absolute top-0 left-0 z-20 text-osrs-yellow text-lg solid-text-shadow font-runescape">
+//                           {item.quantity}
+//                         </p>
+//                       )}
+//                       <img
+//                         src={iconSrc}
+//                         className={cn(
+//                           "z-10 drop-shadow-2xl size-[54px] object-contain",
+//                           !item.quantity && "opacity-30",
+//                         )}
+//                       />
+//                     </div>
+//                   );
+//                 })}
+//               </div>
+//             </Link>
+//           ))}
+//         </ScrollArea>
+//       </div> */}
+
+//       <div className="absolute z-20">
+//         <img src={EventHeroImage} className="h-screen w-screen object-cover" />
+//       </div>
+//     </div>
+//   );
+// }

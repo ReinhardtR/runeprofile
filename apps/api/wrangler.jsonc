@@ -33,7 +33,8 @@
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "c6de4480edb14f219ff7457341829941"
+      "id": "c6de4480edb14f219ff7457341829941",
+      "preview_id": "c6de4480edb14f219ff7457341829941"
     }
   ]
 }

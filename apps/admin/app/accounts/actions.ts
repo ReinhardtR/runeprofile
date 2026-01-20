@@ -1,6 +1,6 @@
 "use server";
 
-import { getDb } from "@/lib/db";
+import { db } from "@/lib/db";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
 
@@ -16,7 +16,6 @@ import {
 import { accounts } from "@runeprofile/db";
 
 export async function deleteAccount(id: string) {
-  const db = getDb();
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, id),
     columns: { username: true },
@@ -65,7 +64,6 @@ export async function updateAccount(
     banned?: boolean;
   },
 ) {
-  const db = getDb();
 
   // Check if account exists
   const account = await db.query.accounts.findFirst({
@@ -124,7 +122,6 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function searchAccounts(q: string) {
-  const database = getDb();
   const raw = q.trim();
   if (!raw) return [];
 
@@ -141,7 +138,7 @@ export async function searchAccounts(q: string) {
 
   // If it looks like a full UUID, search by id.
   if (UUID_REGEX.test(raw)) {
-    return database
+    return db
       .select(selectFields)
       .from(accounts)
       .where(eq(accounts.id, raw))
@@ -150,7 +147,7 @@ export async function searchAccounts(q: string) {
 
   // If it's a short hex-like (possible id prefix) >=4 chars, attempt prefix match on id.
   if (/^[0-9a-f-]{4,}$/i.test(raw) && raw.length < 36) {
-    return database
+    return db
       .select(selectFields)
       .from(accounts)
       .where(like(accounts.id, `${raw}%`))
@@ -158,10 +155,19 @@ export async function searchAccounts(q: string) {
   }
 
   // Otherwise treat as username substring search (case-insensitive).
+  // Order by: exact match first, then prefix matches, then substring matches.
   const term = raw.toLowerCase();
-  return database
+  return db
     .select(selectFields)
     .from(accounts)
     .where(sql`lower(${accounts.username}) like ${`%${term}%`}`)
+    .orderBy(
+      sql`CASE
+        WHEN lower(${accounts.username}) = ${term} THEN 0
+        WHEN lower(${accounts.username}) LIKE ${`${term}%`} THEN 1
+        ELSE 2
+      END`,
+      accounts.username,
+    )
     .limit(25);
 }
