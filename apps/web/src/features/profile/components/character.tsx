@@ -1,7 +1,9 @@
 import { Center } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Link } from "@tanstack/react-router";
-import { Info } from "lucide-react";
+import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
+import { Info, Pause, Play } from "lucide-react";
 import { useRef, useState } from "react";
 import React from "react";
 import {
@@ -34,6 +36,11 @@ import {
 } from "~/shared/components/ui/tooltip";
 import { loadModelFromBase64 } from "~/shared/utils";
 
+export const isAnimatingAtom = atomWithStorage<boolean>(
+  "character-animation",
+  true,
+);
+
 type PlayerDisplayProps = {
   username: string;
   accountType: AccountType;
@@ -52,6 +59,7 @@ export function Character({
 }: PlayerDisplayProps) {
   const accountTypeIcon =
     AccountTypeIcons[accountType.key as keyof typeof AccountTypeIcons];
+  const [isAnimating, setIsAnimating] = useAtom(isAnimatingAtom);
 
   return (
     <Card className="flex max-w-[260px] flex-col 1.5xl:min-h-[730px] 1.5xl:min-w-[400px] relative">
@@ -97,12 +105,32 @@ export function Character({
         </Link>
       )}
 
-      {/* Info icon with timestamps */}
-      <div className="absolute bottom-4 left-4 z-20">
+      {/* Bottom left controls */}
+      <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-y-1">
+        {/* Play/Pause button */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => setIsAnimating(!isAnimating)}
+              className="bg-background/80 border border-border rounded-md p-1 hover:border-primary transition-colors cursor-pointer"
+            >
+              {isAnimating ? (
+                <Pause className="text-osrs-orange size-4" />
+              ) : (
+                <Play className="text-osrs-orange size-4" />
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            {isAnimating ? "Pause animation" : "Play animation"}
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Info icon with timestamps */}
         <Popover>
           <PopoverTrigger asChild>
             <button className="bg-background/80 border border-border rounded-md p-1 hover:border-primary transition-colors cursor-pointer">
-              <Info size={16} className="text-osrs-orange" />
+              <Info className="text-osrs-orange size-4" />
             </button>
           </PopoverTrigger>
           <PopoverContent className="p-2.5 flex flex-col w-[260px]" side="top">
@@ -125,13 +153,19 @@ export function Character({
 
       {/* Model */}
       <div className="h-full p-[1px]">
-        <PlayerModel username={username} />
+        <PlayerModel username={username} isAnimating={isAnimating} />
       </div>
     </Card>
   );
 }
 
-export function PlayerModel({ username }: { username: string }) {
+export function PlayerModel({
+  username,
+  isAnimating,
+}: {
+  username: string;
+  isAnimating: boolean;
+}) {
   return (
     <Canvas
       gl={{
@@ -139,117 +173,131 @@ export function PlayerModel({ username }: { username: string }) {
       }}
       flat
     >
-      <Model username={username} />
+      <Model username={username} isAnimating={isAnimating} />
     </Canvas>
   );
 }
 
-const Model = React.memo(({ username }: { username: string }) => {
-  const playerMeshRef =
-    useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
-  const petMeshRef = useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
+const Model = React.memo(
+  ({ username, isAnimating }: { username: string; isAnimating: boolean }) => {
+    const playerMeshRef =
+      useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
+    const petMeshRef =
+      useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
 
-  const [playerGeometry, setPlayerGeometry] = useState<BufferGeometry>();
-  const [petGeometry, setPetGeometry] = useState<BufferGeometry>();
+    const [playerGeometry, setPlayerGeometry] = useState<BufferGeometry>();
+    const [petGeometry, setPetGeometry] = useState<BufferGeometry>();
 
-  const material = React.useMemo(
-    () => new MeshBasicMaterial({ vertexColors: true }),
-    [],
-  );
+    const animationTimeRef = useRef(0);
 
-  const initialModelRotation = React.useMemo(
-    () => new Euler(-1.55, 0, 0.1),
-    [],
-  );
+    const material = React.useMemo(
+      () => new MeshBasicMaterial({ vertexColors: true }),
+      [],
+    );
 
-  React.useEffect(() => {
-    // Clear previous models
-    setPlayerGeometry(undefined);
-    setPetGeometry(undefined);
+    const initialModelRotation = React.useMemo(
+      () => new Euler(-1.55, 0, 0.1),
+      [],
+    );
 
-    getProfileModels({ username, includePet: true })
-      .then((models) => {
-        loadModelFromBase64(models.playerModelBase64).then((geometry) =>
-          setPlayerGeometry(geometry),
-        );
+    React.useEffect(() => {
+      // Clear previous models
+      setPlayerGeometry(undefined);
+      setPetGeometry(undefined);
 
-        if (models.petModelBase64) {
-          loadModelFromBase64(models.petModelBase64).then((geometry) =>
-            setPetGeometry(geometry),
+      getProfileModels({ username, includePet: true })
+        .then((models) => {
+          loadModelFromBase64(models.playerModelBase64).then((geometry) =>
+            setPlayerGeometry(geometry),
           );
-        }
-      })
-      .catch((error) => {
-        console.error(
-          "Error loading models - falling back to default model.",
-          error,
-        );
 
-        loadModelFromBase64(defaultPlayerModel.base64).then((geometry) =>
-          setPlayerGeometry(geometry),
-        );
-      });
-  }, [username]);
+          if (models.petModelBase64) {
+            loadModelFromBase64(models.petModelBase64).then((geometry) =>
+              setPetGeometry(geometry),
+            );
+          }
+        })
+        .catch((error) => {
+          console.error(
+            "Error loading models - falling back to default model.",
+            error,
+          );
 
-  useFrame(({ clock }) => {
-    if (!playerMeshRef.current) return;
-    const y = Math.sin(clock.getElapsedTime());
-    playerMeshRef.current.rotation.z = y;
+          loadModelFromBase64(defaultPlayerModel.base64).then((geometry) =>
+            setPlayerGeometry(geometry),
+          );
+        });
+    }, [username]);
 
-    if (!petMeshRef.current) return;
-    petMeshRef.current.rotation.z = y / 1.5;
-  });
+    useFrame((_, delta) => {
+      if (!playerMeshRef.current) return;
 
-  const shadowTexture = React.useMemo(() => createRadialTexture(), []);
+      if (isAnimating) {
+        animationTimeRef.current += delta;
+      }
 
-  const modelScale = 0.028;
-  const playerPosition = [0, -3, 0] as const;
-  const petPosition = [2.5, -3.3, -3] as const;
+      const y = Math.sin(animationTimeRef.current);
+      playerMeshRef.current.rotation.z = y;
 
-  return (
-    <Center rotateX={Math.PI}>
-      {playerGeometry && (
-        <group>
-          <mesh
-            ref={playerMeshRef}
-            geometry={playerGeometry}
-            material={material}
-            scale={modelScale}
-            position={playerPosition}
-            rotation={initialModelRotation}
-          />
+      if (!petMeshRef.current) return;
+      petMeshRef.current.rotation.z = y / 1.5;
+    });
 
-          <mesh rotation-x={-Math.PI / 2} position={[0, -3.01, 0]} scale={1.4}>
-            <circleGeometry args={[1, 32]} />
-            <meshBasicMaterial map={shadowTexture} transparent />
-          </mesh>
+    const shadowTexture = React.useMemo(() => createRadialTexture(), []);
 
-          {petGeometry && (
-            <>
-              <mesh
-                ref={petMeshRef}
-                geometry={petGeometry}
-                material={material}
-                scale={modelScale}
-                position={petPosition}
-                rotation={initialModelRotation}
-              />
+    const modelScale = 0.028;
+    const playerPosition = [0, -3, 0] as const;
+    const petPosition = [2.5, -3.3, -3] as const;
 
-              <mesh
-                rotation-x={-Math.PI / 2}
-                position={[2.5, -3.31, -3]}
-                scale={1.4}
-              >
-                <circleGeometry args={[1, 32]} />
-                <meshBasicMaterial map={shadowTexture} transparent />
-              </mesh>
-            </>
-          )}
-        </group>
-      )}
-    </Center>
-  );
-});
+    return (
+      <Center rotateX={Math.PI}>
+        {playerGeometry && (
+          <group>
+            <mesh
+              ref={playerMeshRef}
+              geometry={playerGeometry}
+              material={material}
+              scale={modelScale}
+              position={playerPosition}
+              rotation={initialModelRotation}
+            />
+
+            <mesh
+              rotation-x={-Math.PI / 2}
+              position={[0, -3.01, 0]}
+              scale={1.4}
+            >
+              <circleGeometry args={[1, 32]} />
+              <meshBasicMaterial map={shadowTexture} transparent />
+            </mesh>
+
+            {petGeometry && (
+              <>
+                <mesh
+                  ref={petMeshRef}
+                  geometry={petGeometry}
+                  material={material}
+                  scale={modelScale}
+                  position={petPosition}
+                  rotation={initialModelRotation}
+                />
+
+                <mesh
+                  rotation-x={-Math.PI / 2}
+                  position={[2.5, -3.31, -3]}
+                  scale={1.4}
+                >
+                  <circleGeometry args={[1, 32]} />
+                  <meshBasicMaterial map={shadowTexture} transparent />
+                </mesh>
+              </>
+            )}
+          </group>
+        )}
+      </Center>
+    );
+  },
+);
 
 function createRadialTexture() {
   const size = 128;
