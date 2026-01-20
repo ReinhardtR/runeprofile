@@ -1,6 +1,7 @@
 import { Center } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Link } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 import { useRef, useState } from "react";
 import React from "react";
 import {
@@ -64,7 +65,11 @@ export function Character({
       </div>
 
       {!!clan && (
-        <div className="absolute bottom-4 inset-x-0 z-20 flex flex-row items-center justify-end px-6 gap-x-2 font-runescape font-bold">
+        <Link
+          to="/clan/$name"
+          params={{ name: clan.name }}
+          className="absolute bottom-4 right-4 left-auto inset-x-0 z-20 flex flex-row px-4 py-1 gap-x-2 font-runescape font-bold bg-background/80 border border-border rounded-md items-center hover:border-primary hover:bg-background transition-colors group"
+        >
           <Tooltip>
             <TooltipTrigger>
               <GameIcon
@@ -80,14 +85,10 @@ export function Character({
               <p>{clan.title}</p>
             </TooltipContent>
           </Tooltip>
-          <Link
-            to="/clan/$name"
-            params={{ name: clan.name }}
-            className="text-md text-osrs-orange solid-text-shadow"
-          >
+          <p className="text-md text-osrs-orange solid-text-shadow group-hover:underline">
             {clan.name}
-          </Link>
-        </div>
+          </p>
+        </Link>
       )}
 
       {/* Model */}
