@@ -22,7 +22,7 @@ import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { GameIcon } from "~/shared/components/icons";
 import {
   cn,
-  formatDate,
+  formatRelativeTime,
   itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
@@ -41,7 +41,7 @@ export function ActivityContent(props: {
       </div>
       {props.createdAt && (
         <span className="text-xs text-muted-foreground lg:ml-auto mt-0.5 lg:mt-0">
-          {formatDate(props.createdAt)}
+          {formatRelativeTime(props.createdAt)}
         </span>
       )}
     </div>

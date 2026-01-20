@@ -34,7 +34,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
-import { formatDate, formatDatetime, loadModelFromBase64 } from "~/shared/utils";
+import {
+  formatDate,
+  formatRelativeTime,
+  loadModelFromBase64,
+} from "~/shared/utils";
 
 export const isAnimatingAtom = atomWithStorage<boolean>(
   "character-animation",
@@ -144,7 +148,7 @@ export function Character({
             <div className="flex flex-row items-center justify-between text-sm">
               <span className="font-semibold text-foreground">Updated</span>
               <span className="font-semibold text-secondary-foreground">
-                {formatDatetime(updatedAt)}
+                {formatRelativeTime(updatedAt)}
               </span>
             </div>
           </PopoverContent>

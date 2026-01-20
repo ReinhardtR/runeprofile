@@ -10,7 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
-import { formatDate } from "~/shared/utils";
+import { formatRelativeTime } from "~/shared/utils";
 
 export function RecentCollections({
   events,
@@ -56,7 +56,7 @@ export function RecentCollections({
             <TooltipContent>
               <p className="font-semibold text-sm">{itemName}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {formatDate(event.createdAt)}
+                {formatRelativeTime(event.createdAt)}
               </p>
             </TooltipContent>
           </Tooltip>

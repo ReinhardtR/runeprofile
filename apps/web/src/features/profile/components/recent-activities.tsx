@@ -22,7 +22,7 @@ import {
 } from "~/shared/components/ui/tooltip";
 import {
   cn,
-  formatDate,
+  formatRelativeTime,
   itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
@@ -108,7 +108,7 @@ function RenderLevelUpEvent({
           <span className="text-secondary-foreground">{event.data.name}</span>
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -156,7 +156,7 @@ function RenderXpMilestoneEvent({
           <span className="text-secondary-foreground">{event.data.name}</span>
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -195,7 +195,7 @@ function RenderAchievementDiaryTierCompletedEvent({
           Diary
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -238,7 +238,7 @@ function RenderCombatAchievementTierCompletedEvent({
           Achievement Tier
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -275,7 +275,7 @@ function RenderQuestCompletedEvent({
           Quest
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -308,7 +308,7 @@ function RenderMaxedEvent({
       <TooltipContent>
         <p className="font-semibold text-sm">Max Total Level</p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -345,7 +345,7 @@ function RenderValuableDropEvent({
           </span>
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {formatDate(event.createdAt)}
+          {formatRelativeTime(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>

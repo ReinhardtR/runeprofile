@@ -36,6 +36,32 @@ export function formatDatetime(date: string | Date) {
   return `${day}. ${month} ${year}, ${hours}:${minutes}`;
 }
 
+export function formatRelativeTime(date: string | Date) {
+  const dateObj = date instanceof Date ? date : new Date(date);
+  const now = new Date();
+  const diffMs = now.getTime() - dateObj.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  // If within the last week, show relative time
+  if (diffDays < 7) {
+    if (diffSecs < 60) {
+      return "just now";
+    } else if (diffMins < 60) {
+      return `${diffMins} ${diffMins === 1 ? "min" : "mins"} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} ${diffHours === 1 ? "hr" : "hrs"} ago`;
+    } else {
+      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
+    }
+  }
+
+  // Otherwise show absolute date
+  return formatDate(dateObj);
+}
+
 export function getSkillXp(skills: Profile["skills"], skill: string) {
   return skills.find((s) => s.name === skill)?.xp || 0;
 }
