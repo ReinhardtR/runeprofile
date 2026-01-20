@@ -254,19 +254,33 @@ export function CollectionLog({
                 <CommandEmpty>No page found.</CommandEmpty>
                 {COLLECTION_LOG_TABS.map((tab) => (
                   <CommandGroup heading={tab.name} key={tab.name}>
-                    {tab.pages.map((page) => (
-                      <CommandItem
-                        key={page.name}
-                        value={page.name.toLowerCase()}
-                        onSelect={(value) => {
-                          if (!value) return;
-                          onPageChange(value);
-                          setIsPageSelectOpen(false);
-                        }}
-                      >
-                        {page.name}
-                      </CommandItem>
-                    ))}
+                    {tab.pages.map((page) => {
+                      const pageObtainedCount = page.items.filter(
+                        (itemId) =>
+                          !!items.find((i) => i.id === itemId)?.quantity,
+                      ).length;
+
+                      const isCompleted = page.items.length === pageObtainedCount;
+                      const isNothingObtained = pageObtainedCount === 0;
+
+                      return (
+                        <CommandItem
+                          key={page.name}
+                          value={page.name.toLowerCase()}
+                          onSelect={(value) => {
+                            if (!value) return;
+                            onPageChange(value);
+                            setIsPageSelectOpen(false);
+                          }}
+                          className={cn({
+                            "text-osrs-green": isCompleted,
+                            "text-osrs-red": isNothingObtained,
+                          })}
+                        >
+                          {page.name}
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 ))}
               </CommandList>
