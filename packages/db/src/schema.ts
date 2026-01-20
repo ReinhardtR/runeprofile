@@ -16,6 +16,7 @@ export const accounts = t.pgTable(
     clanRank: t.integer(),
     clanIcon: t.integer(),
     clanTitle: t.text(),
+    groupName: t.text(),
     defaultClogPage: t.text(),
     updatedAt,
     createdAt,
