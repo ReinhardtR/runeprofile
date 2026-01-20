@@ -121,9 +121,6 @@ export function checkNewItemObtainedEvents(
     // not obtained
     if (itemUpdate.quantity <= 0) continue;
 
-    // temp ancient page fix
-    if (itemUpdate.id === 11341) continue;
-
     events.push({
       type: "new_item_obtained",
       data: {
