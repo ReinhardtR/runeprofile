@@ -10,9 +10,6 @@ export interface GlobalAlert {
 }
 
 /**
- * Active alerts configuration.
- * Add/remove alerts here to show them on the website.
- *
  * Example:
  * {
  *   id: "maintenance-2026-01",
