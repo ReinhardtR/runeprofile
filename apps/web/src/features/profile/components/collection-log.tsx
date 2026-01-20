@@ -260,7 +260,8 @@ export function CollectionLog({
                           !!items.find((i) => i.id === itemId)?.quantity,
                       ).length;
 
-                      const isCompleted = page.items.length === pageObtainedCount;
+                      const isCompleted =
+                        page.items.length === pageObtainedCount;
                       const isNothingObtained = pageObtainedCount === 0;
 
                       return (
