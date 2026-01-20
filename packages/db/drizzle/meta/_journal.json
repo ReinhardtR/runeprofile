@@ -15,6 +15,13 @@
       "when": 1768949198351,
       "tag": "0001_wet_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768949414021,
+      "tag": "0002_zippy_karma",
+      "breakpoints": true
     }
   ]
 }

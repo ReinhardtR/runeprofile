@@ -1,0 +1,1 @@
+CREATE INDEX "accounts_group_name_index" ON "accounts" USING btree (lower("group_name"));

@@ -24,6 +24,7 @@ export const accounts = t.pgTable(
   (table) => [
     t.uniqueIndex("accounts_username_unique_index").on(lower(table.username)),
     t.index("accounts_clan_name_index").on(lower(table.clanName)),
+    t.index("accounts_group_name_index").on(lower(table.groupName)),
     t
       .index("accounts_clan_members_sorted_index")
       .on(lower(table.clanName), table.clanRank, lower(table.username)),
