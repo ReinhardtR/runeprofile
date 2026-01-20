@@ -64,7 +64,6 @@ export async function updateAccount(
     banned?: boolean;
   },
 ) {
-
   // Check if account exists
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, id),

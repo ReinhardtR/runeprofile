@@ -104,7 +104,9 @@ export function DiscrepancyList({
           toast.success("All discrepancies have been processed!");
         } else {
           setDiscrepancies(nextBatch);
-          setAutoModeStatus(`Fetched ${nextBatch.length} more accounts, continuing...`);
+          setAutoModeStatus(
+            `Fetched ${nextBatch.length} more accounts, continuing...`,
+          );
           toast.info(`Fetched ${nextBatch.length} more discrepancies`);
         }
       } catch (error) {
@@ -254,14 +256,14 @@ export function DiscrepancyList({
         toast.success(
           `Reconciled ${details.username}: ${result.itemsDeleted} items deleted, ${result.itemsUpdated} updated, ${result.activitiesDeleted} activities removed`,
         );
-        
+
         // Remove from local state
         setDiscrepancies((prev) =>
           prev.filter((d) => d.accountId !== selectedAccountId),
         );
         closeDialog();
         router.refresh();
-        
+
         // Resume auto-mode if it was interrupted
         if (wasInterrupted) {
           setAutoModeInterrupted(false);
@@ -284,14 +286,14 @@ export function DiscrepancyList({
       try {
         await dismissDiscrepancy(selectedAccountId);
         toast.success(`Dismissed discrepancy for ${details.username}`);
-        
+
         // Remove from local state
         setDiscrepancies((prev) =>
           prev.filter((d) => d.accountId !== selectedAccountId),
         );
         closeDialog();
         router.refresh();
-        
+
         // Resume auto-mode if it was interrupted
         if (wasInterrupted) {
           setAutoModeInterrupted(false);
@@ -360,8 +362,8 @@ export function DiscrepancyList({
           <div className="flex-1">
             <p className="text-sm text-muted-foreground">
               Auto-reconciles accounts where all items are whitelisted
-              (Graceful, Decorative, etc.) OR all dates are between Oct 14 -
-              Nov 13.
+              (Graceful, Decorative, etc.) OR all dates are between Oct 14 - Nov
+              13.
             </p>
             {autoModeStatus && (
               <p className="text-sm font-medium mt-1">
@@ -378,7 +380,9 @@ export function DiscrepancyList({
       {discrepancies.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <AlertTriangle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p className="text-lg font-medium">No discrepancies in current batch</p>
+          <p className="text-lg font-medium">
+            No discrepancies in current batch
+          </p>
           <p className="text-sm mb-4">
             All accounts in this batch have been processed.
           </p>
@@ -478,10 +482,16 @@ export function DiscrepancyList({
               {/* Item counts */}
               <div className="flex gap-4 text-sm text-muted-foreground">
                 <span>
-                  Input items: <span className="font-medium text-foreground">{details.inputItemCount}</span>
+                  Input items:{" "}
+                  <span className="font-medium text-foreground">
+                    {details.inputItemCount}
+                  </span>
                 </span>
                 <span>
-                  Stored items: <span className="font-medium text-foreground">{details.storedItemCount}</span>
+                  Stored items:{" "}
+                  <span className="font-medium text-foreground">
+                    {details.storedItemCount}
+                  </span>
                 </span>
               </div>
 

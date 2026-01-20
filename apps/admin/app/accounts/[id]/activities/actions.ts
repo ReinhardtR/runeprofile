@@ -101,7 +101,6 @@ export async function deleteAccountActivities(
 }
 
 export async function getActivityTypeStats(accountId: string) {
-
   // Get activities count by type for this account
   const typeStatsResult = await db
     .select({
@@ -122,7 +121,6 @@ export async function updateActivity(
   activityData: ActivityEvent,
   createdAt: string,
 ) {
-
   // Verify the activity exists and belongs to this account
   const existingActivity = await db.query.activities.findFirst({
     where: and(
@@ -161,7 +159,6 @@ export async function createActivity(
   activityData: ActivityEvent,
   createdAt?: string,
 ) {
-
   // Verify the account exists
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, accountId),

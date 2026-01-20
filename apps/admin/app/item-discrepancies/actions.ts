@@ -393,27 +393,32 @@ function isItemWithinDateRange(item: ItemDiscrepancyWithDetails): boolean {
  */
 function canAutoReconcile(details: AccountItemDiscrepancyWithDetails): boolean {
   if (details.items.length === 0) return false;
-  
-  return details.items.every((item) => 
-    isItemInWhitelist(item) || isItemWithinDateRange(item)
+
+  return details.items.every(
+    (item) => isItemInWhitelist(item) || isItemWithinDateRange(item),
   );
 }
 
 /**
  * Get reasons why an account cannot be auto-reconciled
  */
-function getAutoReconcileFailureReasons(details: AccountItemDiscrepancyWithDetails): string[] {
+function getAutoReconcileFailureReasons(
+  details: AccountItemDiscrepancyWithDetails,
+): string[] {
   const reasons: string[] = [];
   const failingItems = details.items.filter(
-    (item) => !isItemInWhitelist(item) && !isItemWithinDateRange(item)
+    (item) => !isItemInWhitelist(item) && !isItemWithinDateRange(item),
   );
-  
+
   if (failingItems.length > 0) {
     const itemNames = failingItems.map((i) => i.itemName).slice(0, 3);
-    const suffix = failingItems.length > 3 ? ` and ${failingItems.length - 3} more` : "";
-    reasons.push(`items not matching criteria: ${itemNames.join(", ")}${suffix}`);
+    const suffix =
+      failingItems.length > 3 ? ` and ${failingItems.length - 3} more` : "";
+    reasons.push(
+      `items not matching criteria: ${itemNames.join(", ")}${suffix}`,
+    );
   }
-  
+
   return reasons;
 }
 
@@ -421,9 +426,7 @@ function getAutoReconcileFailureReasons(details: AccountItemDiscrepancyWithDetai
  * Get details and reconcile in one call (for auto-mode to reduce DB connections)
  * Returns details if not reconciled, or reconcile result if reconciled
  */
-export async function getDetailsAndMaybeReconcile(
-  accountId: string,
-): Promise<
+export async function getDetailsAndMaybeReconcile(accountId: string): Promise<
   | { action: "skipped"; reason: string }
   | {
       action: "paused";

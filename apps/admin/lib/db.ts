@@ -1,4 +1,4 @@
-import { drizzle, type Database } from "@runeprofile/db";
+import { type Database, drizzle } from "@runeprofile/db";
 
 // Use globalThis to persist across hot reloads in development
 const globalForDb = globalThis as unknown as {
@@ -16,8 +16,7 @@ function createDb(): Database {
   );
 }
 
-export const db: Database =
-  globalForDb.db ?? createDb();
+export const db: Database = globalForDb.db ?? createDb();
 
 if (process.env.NODE_ENV !== "production") {
   globalForDb.db = db;

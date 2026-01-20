@@ -108,7 +108,6 @@ export async function updateItemQuantity(
   itemId: number,
   newQuantity: number,
 ) {
-
   if (newQuantity <= 0) {
     // If quantity is 0 or negative, delete the item
     await db
@@ -127,7 +126,6 @@ export async function updateItemQuantity(
 }
 
 export async function clearAllAccountItems(accountId: string) {
-
   // Delete all items for this account
   await db.delete(items).where(eq(items.accountId, accountId));
 
@@ -135,7 +133,6 @@ export async function clearAllAccountItems(accountId: string) {
 }
 
 export async function getItemStats(accountId: string) {
-
   // Get total items and total quantity
   const statsResult = await db
     .select({
