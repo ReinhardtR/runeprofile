@@ -20,11 +20,20 @@ export function numberWithAbbreviation(x: number) {
 
 export function formatDate(date: string | Date) {
   const dateObj = date instanceof Date ? date : new Date(date);
-  return dateObj.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleDateString("en-US", { month: "long" });
+  const year = dateObj.getFullYear();
+  return `${day}. ${month} ${year}`;
+}
+
+export function formatDatetime(date: string | Date) {
+  const dateObj = date instanceof Date ? date : new Date(date);
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleDateString("en-US", { month: "long" });
+  const year = dateObj.getFullYear();
+  const hours = dateObj.getHours().toString().padStart(2, "0");
+  const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+  return `${day}. ${month} ${year}, ${hours}:${minutes}`;
 }
 
 export function getSkillXp(skills: Profile["skills"], skill: string) {

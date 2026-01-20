@@ -18,17 +18,17 @@ import { z } from "zod";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
+import { Profile, RuneProfileApiError, getProfile } from "~/core/api";
 import HiscoresIcon from "~/core/assets/icons/hiscores.png";
 import Logo from "~/core/assets/misc/logo.png";
 import { DISCORD_INVITE_INK } from "~/core/constants";
-import { Profile, RuneProfileApiError, getProfile } from "~/core/api";
 import {
   Character,
   CollectionLog,
   DataTabsCard,
+  Hiscores,
   RecentActivities,
   RecentCollections,
-  Hiscores,
   hiscoresQueryOptions,
 } from "~/features/profile/components";
 import { isSearchDialogOpenAtom } from "~/features/search";

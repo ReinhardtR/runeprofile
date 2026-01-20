@@ -13,8 +13,8 @@ import { Profile } from "~/core/api";
 import CollectionLogIcon from "~/core/assets/icons/collection-log.png";
 import ITEM_ICONS from "~/core/assets/item-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
-import { hiscoresQueryOptions } from "~/features/profile/components/Hiscores";
 import { Card } from "~/features/profile/components/card";
+import { hiscoresQueryOptions } from "~/features/profile/components/hiscores";
 import { RuneScapeScrollArea } from "~/features/profile/components/scroll-area";
 import { GameIcon } from "~/shared/components/icons";
 import {

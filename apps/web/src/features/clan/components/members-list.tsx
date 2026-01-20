@@ -8,10 +8,9 @@ import {
 
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";
 import ClanRankIcons from "~/core/assets/clan-rank-icons.json";
+import { clanQueryOptions } from "~/features/clan/queries";
 import { BasicPagination } from "~/shared/components/BasicPagination";
 import { GameIcon } from "~/shared/components/icons";
-
-import { clanQueryOptions } from "../hooks";
 
 export function MembersList() {
   const params = useParams({ from: "/clan/$name" });

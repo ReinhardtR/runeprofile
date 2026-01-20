@@ -80,6 +80,7 @@ async function getProfile(db: Database, condition: SQL) {
       columns: {
         type: true,
         data: true,
+        createdAt: true,
       },
     }),
     db.query.activities.findMany({
@@ -93,6 +94,7 @@ async function getProfile(db: Database, condition: SQL) {
       columns: {
         type: true,
         data: true,
+        createdAt: true,
       },
     }),
   ]);

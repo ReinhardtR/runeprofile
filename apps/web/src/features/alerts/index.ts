@@ -1,4 +1,4 @@
-export { GlobalAlertBanner } from "./GlobalAlertBanner";
+export { GlobalAlertBanner } from "./global-alert-banner";
 export { ACTIVE_ALERTS, getActiveAlerts } from "./config";
 export type { AlertType, GlobalAlert } from "./config";
 export {

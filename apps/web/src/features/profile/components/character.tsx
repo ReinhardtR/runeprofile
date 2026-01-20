@@ -34,7 +34,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
-import { loadModelFromBase64 } from "~/shared/utils";
+import { formatDate, formatDatetime, loadModelFromBase64 } from "~/shared/utils";
 
 export const isAnimatingAtom = atomWithStorage<boolean>(
   "character-animation",
@@ -62,7 +62,7 @@ export function Character({
   const [isAnimating, setIsAnimating] = useAtom(isAnimatingAtom);
 
   return (
-    <Card className="flex max-w-[260px] flex-col 1.5xl:min-h-[730px] 1.5xl:min-w-[400px] relative">
+    <Card className="flex max-w-[260px] flex-col 1.5xl:min-h-[730px] 1.5xl:min-w-[400px] relative overflow-visible">
       {/* Name and Combat Level banner */}
       <div className="absolute inset-x-0 z-20 mx-auto flex flex-wrap items-center justify-center space-x-4 p-3 font-runescape text-2xl font-bold leading-none solid-text-shadow">
         <div className="flex items-center space-x-2">
@@ -137,14 +137,14 @@ export function Character({
             <div className="flex flex-row items-center justify-between text-sm">
               <span className="font-semibold text-foreground">Created</span>
               <span className="font-semibold text-secondary-foreground">
-                {createdAt.toLocaleString()}
+                {formatDate(createdAt)}
               </span>
             </div>
             <Separator className="my-1" />
             <div className="flex flex-row items-center justify-between text-sm">
               <span className="font-semibold text-foreground">Updated</span>
               <span className="font-semibold text-secondary-foreground">
-                {updatedAt.toLocaleString()}
+                {formatDatetime(updatedAt)}
               </span>
             </div>
           </PopoverContent>
@@ -152,7 +152,7 @@ export function Character({
       </div>
 
       {/* Model */}
-      <div className="h-full p-[1px]">
+      <div className="h-full p-[1px] relative">
         <PlayerModel username={username} isAnimating={isAnimating} />
       </div>
     </Card>

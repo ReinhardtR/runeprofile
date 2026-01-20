@@ -6,10 +6,10 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 
+import { clanActivitiesQueryOptions } from "~/features/clan/queries";
 import { BasicPagination } from "~/shared/components/BasicPagination";
 
-import { clanActivitiesQueryOptions } from "../hooks";
-import { ActivityRenderMap } from "./ActivityRenderers";
+import { ActivityRenderMap } from "./activity-renderers";
 
 interface ActivitiesListProps {
   membersPage?: number;
@@ -47,7 +47,7 @@ export function ActivitiesList({ membersPage }: ActivitiesListProps) {
             params={{ username: event.account.username }}
             className="pt-3 overflow-hidden flex flex-row relative group"
           >
-            <div className="bg-card border rounded-md h-16 px-4 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
+            <div className="bg-card border rounded-md min-h-16 lg:h-16 px-4 py-2 lg:py-0 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
               {render(event as any)}
             </div>
           </Link>

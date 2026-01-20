@@ -22,6 +22,7 @@ import {
 } from "~/shared/components/ui/tooltip";
 import {
   cn,
+  formatDate,
   itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
@@ -106,6 +107,9 @@ function RenderLevelUpEvent({
           in{" "}
           <span className="text-secondary-foreground">{event.data.name}</span>
         </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
@@ -151,6 +155,9 @@ function RenderXpMilestoneEvent({
           XP in{" "}
           <span className="text-secondary-foreground">{event.data.name}</span>
         </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
@@ -186,6 +193,9 @@ function RenderAchievementDiaryTierCompletedEvent({
             {areaName} {tierName}
           </span>{" "}
           Diary
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -227,6 +237,9 @@ function RenderCombatAchievementTierCompletedEvent({
           <span className="text-secondary-foreground">{tierName}</span> Combat
           Achievement Tier
         </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
@@ -261,6 +274,9 @@ function RenderQuestCompletedEvent({
           Completed <span className="text-secondary-foreground">{name}</span>{" "}
           Quest
         </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
@@ -291,6 +307,9 @@ function RenderMaxedEvent({
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-semibold text-sm">Max Total Level</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
@@ -324,6 +343,9 @@ function RenderValuableDropEvent({
           <span className="text-secondary-foreground">
             {numberWithDelimiter(event.data.value)} gp
           </span>
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatDate(event.createdAt)}
         </p>
       </TooltipContent>
     </Tooltip>

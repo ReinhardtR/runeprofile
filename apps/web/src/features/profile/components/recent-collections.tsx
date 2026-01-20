@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
+import { formatDate } from "~/shared/utils";
 
 export function RecentCollections({
   events,
@@ -26,27 +27,37 @@ export function RecentCollections({
           ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
 
         const itemName = COLLECTION_LOG_ITEMS[event.data.itemId] ?? "Unknown";
+        const wikiUrlName = itemName.replaceAll(" ", "_");
 
         return (
           <Tooltip key={idx}>
             <TooltipTrigger>
-              {itemIcon ? (
-                <GameIcon
-                  src={itemIcon}
-                  alt={itemName}
-                  size={54}
-                  className="z-10 drop-shadow-2xl mx-auto"
-                />
-              ) : (
-                <img
-                  src={QuestionMarkImage}
-                  alt={itemName}
-                  className="z-10 drop-shadow-2xl size-[54px] object-contain mx-auto"
-                />
-              )}
+              <a
+                href={`https://oldschool.runescape.wiki/w/${wikiUrlName}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {itemIcon ? (
+                  <GameIcon
+                    src={itemIcon}
+                    alt={itemName}
+                    size={54}
+                    className="z-10 drop-shadow-2xl mx-auto"
+                  />
+                ) : (
+                  <img
+                    src={QuestionMarkImage}
+                    alt={itemName}
+                    className="z-10 drop-shadow-2xl size-[54px] object-contain mx-auto"
+                  />
+                )}
+              </a>
             </TooltipTrigger>
             <TooltipContent>
               <p className="font-semibold text-sm">{itemName}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatDate(event.createdAt)}
+              </p>
             </TooltipContent>
           </Tooltip>
         );

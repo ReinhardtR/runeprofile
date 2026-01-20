@@ -4,7 +4,7 @@ export { CollectionLog } from "./collection-log";
 export { DataTabsCard } from "./tabs-card";
 export { RecentActivities } from "./recent-activities";
 export { RecentCollections } from "./recent-collections";
-export { Hiscores, hiscoresQueryOptions } from "./Hiscores";
+export { Hiscores, hiscoresQueryOptions } from "./hiscores";
 export { Skills } from "./skills";
 export { QuestList } from "./quest-list";
 export { AchievementDiaries } from "./achievement-diaries";

@@ -1,1 +1,1 @@
-export { SearchDialog, isSearchDialogOpenAtom } from "./SearchDialog";
+export { SearchDialog, isSearchDialogOpenAtom } from "./search-dialog";

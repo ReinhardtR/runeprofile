@@ -22,6 +22,7 @@ import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { GameIcon } from "~/shared/components/icons";
 import {
   cn,
+  formatDate,
   itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
@@ -29,10 +30,20 @@ import {
 
 import type { ClanActivityEvent } from "../hooks";
 
-export function ActivityContent(props: { children: React.ReactNode }) {
+export function ActivityContent(props: {
+  children: React.ReactNode;
+  createdAt?: string;
+}) {
   return (
-    <div className="flex flex-wrap items-center font-runescape text-lg gap-x-1">
-      {props.children}
+    <div className="flex flex-col lg:flex-row lg:items-center flex-1 gap-x-1">
+      <div className="flex flex-wrap items-center font-runescape text-lg gap-x-1">
+        {props.children}
+      </div>
+      {props.createdAt && (
+        <span className="text-xs text-muted-foreground lg:ml-auto mt-0.5 lg:mt-0">
+          {formatDate(props.createdAt)}
+        </span>
+      )}
     </div>
   );
 }
@@ -106,7 +117,7 @@ export const ActivityRenderMap = {
             />
           )}
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>obtained</span>
           <span className="text-secondary-foreground">
@@ -136,7 +147,7 @@ export const ActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>reached level</span>
           <span className="text-secondary-foreground">
@@ -166,7 +177,7 @@ export const ActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>reached</span>
           <span
@@ -197,7 +208,7 @@ export const ActivityRenderMap = {
             className="size-7 object-contain drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>completed the</span>
           <span className="text-secondary-foreground">
@@ -229,7 +240,7 @@ export const ActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>completed all</span>
           <span className="text-secondary-foreground">
@@ -255,7 +266,7 @@ export const ActivityRenderMap = {
             className="size-6.5 object-contain drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>completed</span>
           <span className="text-secondary-foreground">
@@ -278,7 +289,7 @@ export const ActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>has</span>
           <span className="shimmer-text">Maxed</span>
@@ -301,7 +312,7 @@ export const ActivityRenderMap = {
             className={cn("z-10 drop-shadow-2xl object-contain mx-auto")}
           />
         </ActivityIcon>
-        <ActivityContent>
+        <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>received a valuable drop worth</span>
           <span className="text-secondary-foreground">

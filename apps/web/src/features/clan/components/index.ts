@@ -1,8 +1,8 @@
-export { ActivitiesList } from "./ActivitiesList";
-export { MembersList } from "./MembersList";
+export { ActivitiesList } from "./activities-list";
+export { MembersList } from "./members-list";
 export {
   ActivityContent,
   ActivityIcon,
   ActivityAccount,
   ActivityRenderMap,
-} from "./ActivityRenderers";
+} from "./activity-renderers";

@@ -3,4 +3,4 @@ export {
   clanActivitiesQueryOptions,
   type ClanActivityEvent,
   type ClanMember,
-} from "./use-clan-queries";
+} from "./clan-queries";
