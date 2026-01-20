@@ -1,7 +1,7 @@
 import { Center } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Link } from "@tanstack/react-router";
-import { ExternalLink } from "lucide-react";
+import { Info } from "lucide-react";
 import { useRef, useState } from "react";
 import React from "react";
 import {
@@ -21,6 +21,12 @@ import ClanRankIcons from "~/core/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/core/assets/default-player-model.json";
 import { Card } from "~/features/profile/components/card";
 import { GameIcon } from "~/shared/components/icons";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/shared/components/ui/popover";
+import { Separator } from "~/shared/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -90,6 +96,32 @@ export function Character({
           </p>
         </Link>
       )}
+
+      {/* Info icon with timestamps */}
+      <div className="absolute bottom-4 left-4 z-20">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="bg-background/80 border border-border rounded-md p-1 hover:border-primary transition-colors cursor-pointer">
+              <Info size={16} className="text-osrs-orange" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="p-2.5 flex flex-col w-[260px]" side="top">
+            <div className="flex flex-row items-center justify-between text-sm">
+              <span className="font-semibold text-foreground">Created</span>
+              <span className="font-semibold text-secondary-foreground">
+                {createdAt.toLocaleString()}
+              </span>
+            </div>
+            <Separator className="my-1" />
+            <div className="flex flex-row items-center justify-between text-sm">
+              <span className="font-semibold text-foreground">Updated</span>
+              <span className="font-semibold text-secondary-foreground">
+                {updatedAt.toLocaleString()}
+              </span>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
       {/* Model */}
       <div className="h-full p-[1px]">
