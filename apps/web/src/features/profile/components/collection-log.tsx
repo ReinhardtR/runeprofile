@@ -376,7 +376,7 @@ function CollectionLogItem({
 
   const tooltipContent = distribution ? (
     <div className="flex flex-col min-w-[160px]">
-      <div className="flex flex-row items-center justify-between text-sm">
+      <div className="flex flex-row items-center justify-between text-sm gap-x-6">
         <span className="font-semibold text-secondary-foreground">{name}</span>
         <span className="font-semibold text-secondary-foreground">
           {quantity}
@@ -386,7 +386,7 @@ function CollectionLogItem({
       {distribution.map((entry, index) => (
         <React.Fragment key={entry.username}>
           {index > 0 && <Separator className="my-1" />}
-          <div className="flex flex-row items-center justify-between text-sm">
+          <div className="flex flex-row items-center justify-between text-sm gap-x-6">
             <span className="font-semibold text-foreground">
               {entry.username}
             </span>
@@ -491,8 +491,8 @@ function CollectionLogPageKillCounts(props: {
             </p>
           </TooltipTrigger>
           <TooltipContent>
-            <div className="flex flex-col w-[260px]">
-              <div className="flex flex-row items-center justify-between text-sm">
+            <div className="flex flex-col min-w-[160px]">
+              <div className="flex flex-row gap-x-6 items-center justify-between text-sm">
                 <span className="font-semibold text-secondary-foreground">
                   {kc.label}
                 </span>
@@ -504,7 +504,7 @@ function CollectionLogPageKillCounts(props: {
               {kc.distribution.map((entry, index) => (
                 <React.Fragment key={entry.username}>
                   {index > 0 && <Separator className="my-1" />}
-                  <div className="flex flex-row items-center justify-between text-sm">
+                  <div className="flex flex-row items-center gap-x-6 justify-between text-sm">
                     <span className="font-semibold text-foreground">
                       {entry.username}
                     </span>
