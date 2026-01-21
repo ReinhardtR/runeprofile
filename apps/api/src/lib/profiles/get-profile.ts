@@ -182,6 +182,7 @@ async function getProfile(db: Database, condition: SQL) {
     username: profile.username,
     accountType,
     clan,
+    groupName: profile.groupName,
     defaultClogPage: profile.defaultClogPage,
 
     recentItems: recentItems as Array<

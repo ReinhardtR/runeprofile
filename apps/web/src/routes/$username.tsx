@@ -133,6 +133,7 @@ export function ProfileContent({
           username={profile.username}
           accountType={profile.accountType}
           clan={profile.clan}
+          groupName={profile.groupName}
           createdAt={new Date(profile.createdAt)}
           updatedAt={new Date(profile.updatedAt)}
         />

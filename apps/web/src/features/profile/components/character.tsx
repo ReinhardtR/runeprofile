@@ -35,6 +35,7 @@ import {
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
 import {
+  cn,
   formatDate,
   formatRelativeTime,
   loadModelFromBase64,
@@ -54,6 +55,7 @@ type Profile = {
     icon: number;
     title: string;
   } | null;
+  groupName: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -66,6 +68,7 @@ export function Character({
   username,
   accountType,
   clan,
+  groupName,
   createdAt,
   updatedAt,
 }: PlayerDisplayProps) {
@@ -90,31 +93,58 @@ export function Character({
         </div>
       </div>
 
-      {!!clan && (
-        <Link
-          to="/clan/$name"
-          params={{ name: clan.name }}
-          className="absolute bottom-4 right-4 left-auto inset-x-0 z-20 flex flex-row px-4 py-1 gap-x-2 font-runescape font-bold bg-background/80 border border-border rounded-md items-center hover:border-primary hover:bg-background transition-colors group"
-        >
-          <Tooltip>
-            <TooltipTrigger>
-              <GameIcon
-                src={
-                  ClanRankIcons[String(clan.icon) as keyof typeof ClanRankIcons]
-                }
-                alt={clan.title}
-                size={16}
-                className="drop-shadow-solid-sm"
-              />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{clan.title}</p>
-            </TooltipContent>
-          </Tooltip>
-          <p className="text-md text-osrs-orange solid-text-shadow group-hover:underline">
-            {clan.name}
-          </p>
-        </Link>
+      {/* Right side buttons - Group and Clan */}
+      {(!!groupName || !!clan) && (
+        <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-y-1">
+          {!!groupName && (
+            <Link
+              to="/group/$name"
+              params={{ name: groupName }}
+              className="flex flex-row px-4 py-1 gap-x-2 font-runescape font-bold bg-background/80 border border-border rounded-md items-center hover:border-primary hover:bg-background transition-colors group"
+            >
+              {!!accountTypeIcon && (
+                <GameIcon
+                  src={accountTypeIcon}
+                  alt={accountType.name}
+                  size={16}
+                  className="drop-shadow-solid-sm"
+                />
+              )}
+              <p className="text-md text-osrs-blue solid-text-shadow group-hover:underline">
+                {groupName}
+              </p>
+            </Link>
+          )}
+
+          {!!clan && (
+            <Link
+              to="/clan/$name"
+              params={{ name: clan.name }}
+              className="flex flex-row px-4 py-1 gap-x-2 font-runescape font-bold bg-background/80 border border-border rounded-md items-center hover:border-primary hover:bg-background transition-colors group"
+            >
+              <Tooltip>
+                <TooltipTrigger>
+                  <GameIcon
+                    src={
+                      ClanRankIcons[
+                        String(clan.icon) as keyof typeof ClanRankIcons
+                      ]
+                    }
+                    alt={clan.title}
+                    size={16}
+                    className="drop-shadow-solid-sm"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{clan.title}</p>
+                </TooltipContent>
+              </Tooltip>
+              <p className="text-md text-osrs-orange solid-text-shadow group-hover:underline">
+                {clan.name}
+              </p>
+            </Link>
+          )}
+        </div>
       )}
 
       {/* Bottom left controls */}
