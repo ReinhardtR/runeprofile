@@ -13,7 +13,10 @@ import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
 
 import { RuneProfileApiError, getBatchHiscores, getGroup } from "~/core/api";
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";
-import { GroupActivitiesList, groupActivitiesQueryOptions } from "~/features/group";
+import {
+  GroupActivitiesList,
+  groupActivitiesQueryOptions,
+} from "~/features/group";
 import { GroupCharacters } from "~/features/profile/components/character";
 import { CollectionLog } from "~/features/profile/components/collection-log";
 import {
@@ -53,9 +56,11 @@ function groupHiscoresQueryOptions(params: { usernames: string[] }) {
 export const Route = createFileRoute("/group/$name")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
-  validateSearch: zodValidator(groupSearchSchema),  loaderDeps: ({ search: { activityPage } }) => ({
+  validateSearch: zodValidator(groupSearchSchema),
+  loaderDeps: ({ search: { activityPage } }) => ({
     activityPage,
-  }),  loader: async ({ params, context, deps }) => {
+  }),
+  loader: async ({ params, context, deps }) => {
     // Fetch group data first
     const group = await context.queryClient.fetchQuery(
       groupQueryOptions({ name: params.name }),
@@ -66,9 +71,7 @@ export const Route = createFileRoute("/group/$name")({
       (m: { username: string }) => m.username,
     );
     await Promise.all([
-      context.queryClient.fetchQuery(
-        groupHiscoresQueryOptions({ usernames }),
-      ),
+      context.queryClient.fetchQuery(groupHiscoresQueryOptions({ usernames })),
       context.queryClient.fetchQuery(
         groupActivitiesQueryOptions({
           name: params.name,
