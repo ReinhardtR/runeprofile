@@ -17,7 +17,7 @@ import { CanvasTexture } from "three";
 
 import { AccountType } from "@runeprofile/runescape";
 
-import { Profile, getProfileModels } from "~/core/api";
+import { Group, getProfileModels } from "~/core/api";
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";
 import ClanRankIcons from "~/core/assets/clan-rank-icons.json";
 import defaultPlayerModel from "~/core/assets/default-player-model.json";
@@ -45,12 +45,20 @@ export const isAnimatingAtom = atomWithStorage<boolean>(
   true,
 );
 
-type PlayerDisplayProps = {
+type Profile = {
   username: string;
   accountType: AccountType;
-  clan: Profile["clan"];
+  clan: {
+    name: string;
+    rank: number;
+    icon: number;
+    title: string;
+  } | null;
   createdAt: Date;
   updatedAt: Date;
+};
+
+type PlayerDisplayProps = Profile & {
   showPet?: boolean;
 };
 
@@ -257,44 +265,30 @@ const Model = React.memo(
       <Center rotateX={Math.PI}>
         {playerGeometry && (
           <group>
-            <mesh
-              ref={playerMeshRef}
+            <Model3D
               geometry={playerGeometry}
               material={material}
-              scale={modelScale}
               position={playerPosition}
               rotation={initialModelRotation}
+              scale={modelScale}
+              showShadow
+              shadowTexture={shadowTexture}
+              shadowPosition={[0, -3.01, 0]}
+              meshRef={playerMeshRef}
             />
 
-            <mesh
-              rotation-x={-Math.PI / 2}
-              position={[0, -3.01, 0]}
-              scale={1.4}
-            >
-              <circleGeometry args={[1, 32]} />
-              <meshBasicMaterial map={shadowTexture} transparent />
-            </mesh>
-
             {petGeometry && (
-              <>
-                <mesh
-                  ref={petMeshRef}
-                  geometry={petGeometry}
-                  material={material}
-                  scale={modelScale}
-                  position={petPosition}
-                  rotation={initialModelRotation}
-                />
-
-                <mesh
-                  rotation-x={-Math.PI / 2}
-                  position={[2.5, -3.31, -3]}
-                  scale={1.4}
-                >
-                  <circleGeometry args={[1, 32]} />
-                  <meshBasicMaterial map={shadowTexture} transparent />
-                </mesh>
-              </>
+              <Model3D
+                geometry={petGeometry}
+                material={material}
+                position={petPosition}
+                rotation={initialModelRotation}
+                scale={modelScale}
+                showShadow
+                shadowTexture={shadowTexture}
+                shadowPosition={[2.5, -3.31, -3]}
+                meshRef={petMeshRef}
+              />
             )}
           </group>
         )}
@@ -302,6 +296,199 @@ const Model = React.memo(
     );
   },
 );
+
+type Model3DProps = {
+  geometry: BufferGeometry;
+  material: MeshBasicMaterial;
+  position: readonly [number, number, number];
+  rotation: Euler;
+  scale: number;
+  showShadow?: boolean;
+  shadowTexture?: CanvasTexture;
+  shadowPosition?: [number, number, number];
+  meshRef?: React.RefObject<Mesh<BufferGeometry, Material | Material[]> | null>;
+};
+
+function Model3D({
+  geometry,
+  material,
+  position,
+  rotation,
+  scale,
+  showShadow,
+  shadowTexture,
+  shadowPosition,
+  meshRef,
+}: Model3DProps) {
+  return (
+    <>
+      <mesh
+        ref={meshRef}
+        geometry={geometry}
+        material={material}
+        scale={scale}
+        position={position}
+        rotation={rotation}
+      />
+
+      {showShadow && shadowTexture && shadowPosition && (
+        <mesh rotation-x={-Math.PI / 2} position={shadowPosition} scale={1.4}>
+          <circleGeometry args={[1, 32]} />
+          <meshBasicMaterial map={shadowTexture} transparent />
+        </mesh>
+      )}
+    </>
+  );
+}
+
+export function GroupCharacters({ members }: { members: Group["members"] }) {
+  const [loading, setLoading] = useState(true);
+  const [geometries, setGeometries] = useState<
+    Map<string, BufferGeometry | null>
+  >(new Map());
+
+  const material = React.useMemo(
+    () => new MeshBasicMaterial({ vertexColors: true }),
+    [],
+  );
+
+  const initialModelRotation = React.useMemo(
+    () => new Euler(-1.55, 0, 0.1),
+    [],
+  );
+
+  const shadowTexture = React.useMemo(() => createRadialTexture(), []);
+
+  React.useEffect(() => {
+    setLoading(true);
+    setGeometries(new Map());
+
+    const loadAllModels = async () => {
+      const promises = members.map(async (member) => {
+        try {
+          const models = await getProfileModels({
+            username: member.username,
+            includePet: false,
+          });
+          const geometry = await loadModelFromBase64(models.playerModelBase64);
+          return { username: member.username, geometry };
+        } catch (error) {
+          console.error(
+            `Error loading model for ${member.username} - falling back to default model.`,
+            error,
+          );
+          try {
+            const geometry = await loadModelFromBase64(
+              defaultPlayerModel.base64,
+            );
+            return { username: member.username, geometry };
+          } catch {
+            return { username: member.username, geometry: null };
+          }
+        }
+      });
+
+      const results = await Promise.all(promises);
+      const newGeometries = new Map<string, BufferGeometry | null>();
+      results.forEach(({ username, geometry }) => {
+        newGeometries.set(username, geometry);
+      });
+
+      setGeometries(newGeometries);
+      setLoading(false);
+    };
+
+    loadAllModels();
+  }, [members]);
+
+  const modelScale = 0.028;
+  const memberCount = members.length;
+
+  return (
+    <div className="relative w-full h-full">
+      {/* Labels positioned absolutely above the canvas */}
+      {!loading && (
+        <div className="absolute inset-x-0 top-4 z-20 flex justify-center gap-x-6">
+          {members.map((member, index) => {
+            const accountTypeIcon =
+              AccountTypeIcons[
+                member.accountType.key as keyof typeof AccountTypeIcons
+              ];
+
+            // Calculate horizontal position to align with character model
+            // Each character takes up space proportional to memberCount
+            const centerOffset = index - (memberCount - 1) / 2;
+            const percentageOffset =
+              (centerOffset / Math.max(memberCount, 1)) * 40;
+
+            return (
+              <Link
+                key={member.username}
+                to="/$username"
+                params={{ username: member.username }}
+                style={{
+                  transform: `translateX(${percentageOffset}%)`,
+                }}
+                className="flex items-center space-x-1.5 font-runescape text-lg font-bold solid-text-shadow hover:underline cursor-pointer bg-background/80 px-3 py-1.5 rounded-md border border-border whitespace-nowrap"
+              >
+                {!!accountTypeIcon && (
+                  <GameIcon
+                    src={accountTypeIcon}
+                    alt={member.accountType.name}
+                    size={18}
+                    className="drop-shadow-solid"
+                  />
+                )}
+                <span className="text-osrs-white">{member.username}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      <Canvas
+        gl={{
+          alpha: true,
+        }}
+        flat
+      >
+        <Center rotateX={Math.PI}>
+          {!loading && (
+            <group>
+              {members.map((member, index) => {
+                const geometry = geometries.get(member.username);
+                if (!geometry) return null;
+
+                const xPosition = (index - (memberCount - 1) / 2) * 3;
+                const position = [xPosition, -3, 0] as const;
+                const shadowPosition: [number, number, number] = [
+                  xPosition,
+                  -3.01,
+                  0,
+                ];
+
+                return (
+                  <group key={member.username}>
+                    <Model3D
+                      geometry={geometry}
+                      material={material}
+                      position={position}
+                      rotation={initialModelRotation}
+                      scale={modelScale}
+                      showShadow
+                      shadowTexture={shadowTexture}
+                      shadowPosition={shadowPosition}
+                    />
+                  </group>
+                );
+              })}
+            </group>
+          )}
+        </Center>
+      </Canvas>
+    </div>
+  );
+}
 
 function createRadialTexture() {
   const size = 128;

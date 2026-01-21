@@ -87,6 +87,45 @@ export async function getMetrics() {
   return await getResponseData(response);
 }
 
+export type Group = Awaited<ReturnType<typeof getGroup>>;
+
+export async function getGroup(params: { name: string }) {
+  const response = await api.groups[":name"].$get({
+    param: {
+      name: params.name,
+    },
+  });
+  return await getResponseData(response);
+}
+
+export async function getGroupActivities(params: {
+  name: string;
+  page?: number;
+}) {
+  const response = await api.groups[":name"].activities.$get({
+    param: {
+      name: params.name,
+    },
+    query: {
+      page: String(params.page ?? 1),
+    },
+  });
+  return await getResponseData(response);
+}
+
+export async function getBatchHiscores(params: {
+  usernames: string[];
+  leaderboard: HiscoreLeaderboardKey;
+}) {
+  const response = await api.hiscores.batch.$post({
+    json: {
+      usernames: params.usernames,
+      leaderboard: params.leaderboard,
+    },
+  });
+  return await getResponseData(response);
+}
+
 export class RuneProfileApiError extends Error {
   code: string;
 

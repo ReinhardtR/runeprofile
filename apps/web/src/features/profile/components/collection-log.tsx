@@ -30,6 +30,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/shared/components/ui/popover";
+import { Separator } from "~/shared/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -46,20 +47,27 @@ export function CollectionLog({
   page,
   onPageChange,
   data,
+  mode = "single",
+  itemDistribution,
+  killCountDistribution,
 }: {
-  username: string;
+  username?: string;
   page: string;
   onPageChange: (page: string) => void;
   data: Profile["items"];
+  mode?: "single" | "group";
+  itemDistribution?: Map<number, { username: string; quantity: number }[]>;
+  killCountDistribution?: Map<string, { username: string; count: number }[]>;
 }) {
   const [isPageSelectOpen, setIsPageSelectOpen] = React.useState(false);
 
-  const hiscoresQuery = useQuery(
-    hiscoresQueryOptions({
-      username,
+  const hiscoresQuery = useQuery({
+    ...hiscoresQueryOptions({
+      username: username || "",
       leaderboard: "normal",
     }),
-  );
+    enabled: mode === "single" && !!username,
+  });
 
   let currentTab = COLLECTION_LOG_TABS[0];
   let currentPage = currentTab.pages[0];
@@ -94,6 +102,33 @@ export function CollectionLog({
 
   const killCounts = React.useMemo(() => {
     if (!currentPage.hiscore) return [];
+
+    // If we have kill count distribution (group mode), use that
+    if (killCountDistribution) {
+      return Object.entries(currentPage.hiscore).map(([, kcLabel]) => {
+        const distribution = killCountDistribution.get(kcLabel);
+        if (!distribution) {
+          return {
+            label: kcLabel,
+            count: -1,
+            distribution: undefined,
+          };
+        }
+
+        const totalCount = distribution.reduce((sum, entry) => {
+          if (entry.count === -1) return sum;
+          return sum + entry.count;
+        }, 0);
+
+        return {
+          label: kcLabel,
+          count: totalCount,
+          distribution,
+        };
+      });
+    }
+
+    // Single player mode - use hiscores query
     return Object.entries(currentPage.hiscore).map(([hiscoreName, kcLabel]) => {
       const hiscoreEntry = hiscoresQuery.data?.activities.find(
         (activity) => activity.name === hiscoreName,
@@ -109,9 +144,10 @@ export function CollectionLog({
       return {
         label: kcLabel,
         count: killCount,
+        distribution: undefined,
       };
     });
-  }, [hiscoresQuery.data, currentPage.hiscore]);
+  }, [hiscoresQuery.data, currentPage.hiscore, killCountDistribution]);
 
   return (
     <Card
@@ -224,12 +260,14 @@ export function CollectionLog({
                 >
                   {currentPage.items.map((id) => {
                     const item = items.find((i) => i.id === id);
+                    const distribution = itemDistribution?.get(id);
                     return item ? (
                       <CollectionLogItem
                         key={id}
                         id={item.id}
                         name={item.name}
                         quantity={item.quantity}
+                        distribution={distribution}
                       />
                     ) : null;
                   })}
@@ -302,12 +340,14 @@ export function CollectionLog({
         >
           {currentPage.items.map((id) => {
             const item = items.find((i) => i.id === id);
+            const distribution = itemDistribution?.get(id);
             return item ? (
               <CollectionLogItem
                 key={id}
                 id={item.id}
                 name={item.name}
                 quantity={item.quantity}
+                distribution={distribution}
               />
             ) : null;
           })}
@@ -321,16 +361,45 @@ function CollectionLogItem({
   id,
   name,
   quantity,
+  distribution,
   className,
 }: {
   id: number;
   name: string;
   quantity: number;
+  distribution?: { username: string; quantity: number }[];
   className?: string;
 }) {
   const wikiUrlName = name.replaceAll(" ", "_");
 
   const itemIcon = ITEM_ICONS[id as unknown as keyof typeof ITEM_ICONS];
+
+  const tooltipContent = distribution ? (
+    <div className="flex flex-col min-w-[160px]">
+      <div className="flex flex-row items-center justify-between text-sm">
+        <span className="font-semibold text-secondary-foreground">{name}</span>
+        <span className="font-semibold text-secondary-foreground">
+          {quantity}
+        </span>
+      </div>
+      <Separator className="my-1" />
+      {distribution.map((entry, index) => (
+        <React.Fragment key={entry.username}>
+          {index > 0 && <Separator className="my-1" />}
+          <div className="flex flex-row items-center justify-between text-sm">
+            <span className="font-semibold text-foreground">
+              {entry.username}
+            </span>
+            <span className="font-semibold text-secondary-foreground">
+              {entry.quantity}
+            </span>
+          </div>
+        </React.Fragment>
+      ))}
+    </div>
+  ) : (
+    <p className="font-semibold text-sm">{name}</p>
+  );
 
   return (
     <Tooltip>
@@ -374,9 +443,7 @@ function CollectionLogItem({
           </a>
         </div>
       </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-semibold text-sm">{name}</p>
-      </TooltipContent>
+      <TooltipContent>{tooltipContent}</TooltipContent>
     </Tooltip>
   );
 }
@@ -402,14 +469,63 @@ function CollectionLogPageObtainedCount(props: {
 }
 
 function CollectionLogPageKillCounts(props: {
-  killCounts: { label: string; count: number }[];
+  killCounts: {
+    label: string;
+    count: number;
+    distribution?: { username: string; count: number }[];
+  }[];
 }) {
-  return props.killCounts.map((kc) => (
-    <p key={kc.label} className="text-xl leading-none solid-text-shadow">
-      {kc.label}:{" "}
+  return props.killCounts.map((kc) => {
+    const content = (
       <span className={cn(kc.count < 0 ? "text-osrs-gray" : "text-osrs-white")}>
         {kc.count < 0 ? "?" : numberWithDelimiter(kc.count)}
       </span>
-    </p>
-  ));
+    );
+
+    if (kc.distribution) {
+      return (
+        <Tooltip key={kc.label}>
+          <TooltipTrigger asChild>
+            <p className="text-xl leading-none solid-text-shadow cursor-default">
+              {kc.label}: {content}
+            </p>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div className="flex flex-col w-[260px]">
+              <div className="flex flex-row items-center justify-between text-sm">
+                <span className="font-semibold text-secondary-foreground">
+                  {kc.label}
+                </span>
+                <span className="font-semibold text-secondary-foreground">
+                  {kc.count < 0 ? "?" : numberWithDelimiter(kc.count)}
+                </span>
+              </div>
+              <Separator className="my-1" />
+              {kc.distribution.map((entry, index) => (
+                <React.Fragment key={entry.username}>
+                  {index > 0 && <Separator className="my-1" />}
+                  <div className="flex flex-row items-center justify-between text-sm">
+                    <span className="font-semibold text-foreground">
+                      {entry.username}
+                    </span>
+                    <span className="font-semibold text-secondary-foreground">
+                      {entry.count === -1
+                        ? "?"
+                        : numberWithDelimiter(entry.count)}
+                    </span>
+                  </div>
+                </React.Fragment>
+              ))}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return (
+      <p key={kc.label} className="text-xl leading-none solid-text-shadow">
+        {kc.label}: {content}
+      </p>
+    );
+  });
 }
