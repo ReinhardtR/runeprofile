@@ -101,6 +101,7 @@ export async function getProfileUpdates(
     username: input.username,
     accountType: input.accountType,
     clan: input.clan,
+    groupName: input.groupName,
     achievementDiaryTiers: getAchievementDiaryTierUpdates(
       input.achievementDiaryTiers,
       profile?.achievementDiaryTiers || [],
