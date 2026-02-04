@@ -12,61 +12,71 @@
       "type": "new_item_obtained",
       "data": {
         "itemId": 12934
-      }
+      },
+      "createdAt": "2026-01-28T10:30:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 22486
-      }
+      },
+      "createdAt": "2026-01-27T15:20:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 27293
-      }
+      },
+      "createdAt": "2026-01-26T08:45:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 27289
-      }
+      },
+      "createdAt": "2026-01-25T14:10:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 27277
-      }
+      },
+      "createdAt": "2026-01-24T19:30:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 20997
-      }
+      },
+      "createdAt": "2026-01-23T11:15:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 20693
-      }
+      },
+      "createdAt": "2026-01-22T16:40:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 21021
-      }
+      },
+      "createdAt": "2026-01-21T09:25:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 20014
-      }
+      },
+      "createdAt": "2026-01-20T13:50:00Z"
     },
     {
       "type": "new_item_obtained",
       "data": {
         "itemId": 13576
-      }
+      },
+      "createdAt": "2026-01-19T17:05:00Z"
     }
   ],
   "recentActivities": [
@@ -75,67 +85,77 @@
       "data": {
         "name": "Sailing",
         "level": 80
-      }
+      },
+      "createdAt": "2026-01-28T18:30:00Z"
     },
     {
       "type": "valuable_drop",
       "data": {
         "itemId": 24417,
         "value": 297291810
-      }
+      },
+      "createdAt": "2026-01-27T22:15:00Z"
     },
     {
       "type": "achievement_diary_tier_completed",
       "data": {
         "areaId": 1,
         "tier": 1
-      }
+      },
+      "createdAt": "2026-01-26T12:40:00Z"
     },
     {
       "type": "achievement_diary_tier_completed",
       "data": {
         "areaId": 2,
         "tier": 3
-      }
+      },
+      "createdAt": "2026-01-25T16:20:00Z"
     },
     {
       "type": "valuable_drop",
       "data": {
         "itemId": 21079,
         "value": 3253698
-      }
+      },
+      "createdAt": "2026-01-24T10:55:00Z"
     },
     {
       "type": "level_up",
       "data": {
         "name": "Runecraft",
         "level": 80
-      }
+      },
+      "createdAt": "2026-01-23T14:30:00Z"
     },
     {
       "type": "level_up",
       "data": {
         "name": "Farming",
         "level": 99
-      }
+      },
+      "createdAt": "2026-01-22T08:10:00Z"
     },
     {
       "type": "combat_achievement_tier_completed",
       "data": {
         "tierId": 6
-      }
+      },
+      "createdAt": "2026-01-21T20:45:00Z"
     },
     {
       "type": "combat_achievement_tier_completed",
       "data": {
         "tierId": 5
-      }
+      },
+      "createdAt": "2026-01-20T11:25:00Z"
     },
     {
       "type": "quest_completed",
       "data": {
         "questId": 2343
-      }
+      },
+      "createdAt": "2026-01-19T15:00:00Z"
     }
   ],
   "skills": [
