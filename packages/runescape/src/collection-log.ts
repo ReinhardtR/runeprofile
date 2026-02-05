@@ -52,7 +52,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           4757, 4738, 4714, 4722, 4730, 4751, 4759, 4734, 4710, 4718, 4726,
           4747, 4755, 4740,
         ],
-        hiscore: { "Barrows Chests": "Barrows Chests opended" },
+        hiscore: { "Barrows Chests": "Barrows Chests opened" },
         aliases: ["barrows"],
       },
       {
