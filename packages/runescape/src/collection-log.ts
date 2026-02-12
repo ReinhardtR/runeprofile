@@ -1077,8 +1077,8 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Sailing Miscellaneous",
         items: [
-          31996, 31406, 31916, 31946, 31952, 31954, 31959, 31961, 31949, 32115,
-          31989,
+          31406, 31916, 31946, 31949, 31952, 31954, 31959, 31961, 31989, 31996,
+          32115, 33074,
         ],
         aliases: ["sailing misc"],
       },
@@ -2852,6 +2852,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   32870: "Smashed mirror",
   32876: "Aquanite tendon",
   32921: "Jar of feathers",
+  33074: "Facility bottle (empty)",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
