@@ -15,7 +15,7 @@ async function getIconFile(
 ): Promise<Record<string, string> | null> {
   try {
     const decodedFilename = decodeURIComponent(filename);
-    const assetsPath = path.join(process.cwd(), "../web/src/assets");
+    const assetsPath = path.join(process.cwd(), "../web/src/core/assets");
     const filePath = path.join(assetsPath, decodedFilename);
 
     // Security check - ensure file is within assets directory

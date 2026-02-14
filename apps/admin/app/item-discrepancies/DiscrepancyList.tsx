@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -67,13 +68,19 @@ export function DiscrepancyList({
   const [autoModeStatus, setAutoModeStatus] = useState<string>("");
   const [autoModeInterrupted, setAutoModeInterrupted] = useState(false);
   const [isFetchingBatch, setIsFetchingBatch] = useState(false);
+  const [autoDismissOnFail, setAutoDismissOnFail] = useState(false);
   const autoModeRef = useRef(false);
   const processingRef = useRef(false);
+  const autoDismissRef = useRef(false);
 
-  // Keep ref in sync with state
+  // Keep refs in sync with state
   useEffect(() => {
     autoModeRef.current = isAutoMode;
   }, [isAutoMode]);
+
+  useEffect(() => {
+    autoDismissRef.current = autoDismissOnFail;
+  }, [autoDismissOnFail]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -145,17 +152,33 @@ export function DiscrepancyList({
         );
         router.refresh();
       } else {
-        // Paused - show the discrepancy for manual review
-        setIsAutoMode(false);
-        autoModeRef.current = false;
-        setAutoModeInterrupted(true); // Mark as interrupted so we resume after manual resolution
+        // Cannot auto-reconcile - either dismiss or pause for manual review
+        if (autoDismissRef.current) {
+          // Auto-dismiss mode: dismiss and continue
+          try {
+            await dismissDiscrepancy(currentDiscrepancy.accountId);
+            toast.warning(
+              `Auto-dismissed ${currentDiscrepancy.username}: ${result.reasons.join(", ")}`,
+            );
+            setDiscrepancies((prev) =>
+              prev.filter((d) => d.accountId !== currentDiscrepancy.accountId),
+            );
+          } catch (dismissError) {
+            toast.error(`Failed to dismiss ${currentDiscrepancy.username}`);
+          }
+        } else {
+          // Paused - show the discrepancy for manual review
+          setIsAutoMode(false);
+          autoModeRef.current = false;
+          setAutoModeInterrupted(true); // Mark as interrupted so we resume after manual resolution
 
-        setAutoModeStatus(
-          `Paused: ${currentDiscrepancy.username} - ${result.reasons.join(", ")}`,
-        );
-        setSelectedAccountId(currentDiscrepancy.accountId);
-        setDetails(result.details);
-        toast.info(`Auto-mode paused: ${result.reasons.join(", ")}`);
+          setAutoModeStatus(
+            `Paused: ${currentDiscrepancy.username} - ${result.reasons.join(", ")}`,
+          );
+          setSelectedAccountId(currentDiscrepancy.accountId);
+          setDetails(result.details);
+          toast.info(`Auto-mode paused: ${result.reasons.join(", ")}`);
+        }
       }
     } catch (error) {
       setIsAutoMode(false);
@@ -359,6 +382,20 @@ export function DiscrepancyList({
               </>
             )}
           </Button>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="auto-dismiss"
+              checked={autoDismissOnFail}
+              onCheckedChange={(checked) => setAutoDismissOnFail(!!checked)}
+              disabled={isAutoMode}
+            />
+            <label
+              htmlFor="auto-dismiss"
+              className="text-sm text-muted-foreground cursor-pointer select-none"
+            >
+              Auto-dismiss non-reconcilable
+            </label>
+          </div>
           <div className="flex-1">
             <p className="text-sm text-muted-foreground">
               Auto-reconciles accounts where all items are whitelisted

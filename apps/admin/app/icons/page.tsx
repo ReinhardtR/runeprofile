@@ -18,7 +18,7 @@ interface IconFile {
 }
 
 async function getIconFiles(): Promise<IconFile[]> {
-  const assetsPath = path.join(process.cwd(), "../web/src/assets");
+  const assetsPath = path.join(process.cwd(), "../web/src/core/assets");
 
   try {
     const files = fs.readdirSync(assetsPath);
