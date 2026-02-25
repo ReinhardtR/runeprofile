@@ -5,10 +5,10 @@ export type CombatAchievementTier = {
   tasksCount: number;
 };
 export const COMBAT_ACHIEVEMENT_TIERS = [
-  { id: 1, name: "Easy", tasksCount: 40 },
-  { id: 2, name: "Medium", tasksCount: 58 },
-  { id: 3, name: "Hard", tasksCount: 84 },
-  { id: 4, name: "Elite", tasksCount: 161 },
+  { id: 1, name: "Easy", tasksCount: 41 },
+  { id: 2, name: "Medium", tasksCount: 60 },
+  { id: 3, name: "Hard", tasksCount: 85 },
+  { id: 4, name: "Elite", tasksCount: 162 },
   { id: 5, name: "Master", tasksCount: 168 },
   { id: 6, name: "Grandmaster", tasksCount: 121 },
 ] as const satisfies CombatAchievementTier[];
