@@ -47,6 +47,7 @@ export const QUESTS = [
   { id: 31, name: "Dragon Slayer I", points: 2, type: QuestType.FREE },
   { id: 44, name: "Ernest the Chicken", points: 4, type: QuestType.FREE },
   { id: 64, name: "Goblin Diplomacy", points: 5, type: QuestType.FREE },
+  { id: 9645, name: "The Ides of Milk", points: 1, type: QuestType.FREE },
   { id: 76, name: "Imp Catcher", points: 1, type: QuestType.FREE },
   { id: 83, name: "The Knight's Sword", points: 1, type: QuestType.FREE },
   { id: 94, name: "Misthalin Mystery", points: 1, type: QuestType.FREE },
