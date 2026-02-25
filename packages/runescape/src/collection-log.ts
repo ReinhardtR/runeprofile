@@ -56,6 +56,10 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["barrows"],
       },
       {
+        name: "Brutus",
+        items: [33124, 33101, 33091, 33093],
+      },
+      {
         name: "Bryophyta",
         items: [22372],
         hiscore: { Bryophyta: "Bryophyta kills" },
@@ -303,7 +307,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Sarachnis",
-        items: [23495, 23525, 23517, 23528],
+        items: [23495, 23517, 23525, 23528, 33133],
         hiscore: { Sarachnis: "Sarachnis kills" },
         aliases: ["saracha", "sarac", "saracnis"],
       },
@@ -921,7 +925,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           20661, 20663, 20665, 20693, 20851, 21273, 21291, 21509, 21748, 21992,
           22473, 22746, 23495, 23757, 23760, 24491, 25348, 25602, 26348, 26901,
           27352, 27590, 28246, 28248, 28250, 28252, 28801, 28960, 28962, 29836,
-          30152, 30154, 30622, 30888, 31130, 31283, 31285,
+          30152, 30154, 30622, 30888, 31130, 31283, 31285, 33124,
         ],
         aliases: ["all pets", "pets", "pet"],
       },
@@ -2853,6 +2857,11 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   32876: "Aquanite tendon",
   32921: "Jar of feathers",
   33074: "Facility bottle (empty)",
+  33091: "Bottomless milk bucket (empty)",
+  33093: "Cow slippers",
+  33101: "Mooleta",
+  33124: "Beef",
+  33133: "Pristine spider silk",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
