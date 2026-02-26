@@ -5,6 +5,7 @@ import {
   accounts,
   achievementDiaryTiers,
   activities,
+  // clanActivities,
   combatAchievementTiers,
   items,
   quests,
@@ -80,76 +81,92 @@ export async function updateProfile(
       data: activity.data,
     }));
 
-  await Promise.all([
-    db
-      .update(accounts)
-      .set({
-        username: updates.username,
-        accountType: updates.accountType,
-        clanName: updates.clan?.name,
-        clanRank: updates.clan?.rank,
-        clanIcon: updates.clan?.icon,
-        clanTitle: updates.clan?.title,
-        groupName: updates.groupName,
-      })
-      .where(eq(accounts.id, accountId)),
-    withValues(achievementDiaryTiersValues, (values) =>
-      db
-        .insert(achievementDiaryTiers)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [
-            achievementDiaryTiers.accountId,
-            achievementDiaryTiers.areaId,
-            achievementDiaryTiers.tier,
-          ],
-          set: buildConflictUpdateColumns(achievementDiaryTiers, [
-            "completedCount",
-          ]),
-        }),
-    ),
-    withValues(combatAchievementTiersValues, (values) =>
-      db
-        .insert(combatAchievementTiers)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [combatAchievementTiers.accountId, combatAchievementTiers.id],
-          set: buildConflictUpdateColumns(combatAchievementTiers, [
-            "completedCount",
-          ]),
-        }),
-    ),
-    withValues(itemsValues, (values) =>
-      db
-        .insert(items)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [items.accountId, items.id],
-          set: buildConflictUpdateColumns(items, ["quantity"]),
-        }),
-    ),
-    withValues(questsValues, (values) =>
-      db
-        .insert(quests)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [quests.accountId, quests.id],
-          set: buildConflictUpdateColumns(quests, ["state"]),
-        }),
-    ),
-    withValues(skillsValues, (values) =>
-      db
-        .insert(skills)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [skills.accountId, skills.name],
-          set: buildConflictUpdateColumns(skills, ["xp"]),
-        }),
-    ),
-    withValues(activitiesValues, (values) =>
-      db.insert(activities).values(values),
-    ),
-  ]);
+  // const clanActivitiesValues: Array<InferInsertModel<typeof clanActivities>> =
+  //   updates.clan?.name
+  //     ? activitiesValues.map((activity) => ({
+  //         activityId: activity.id,
+  //         clanName: updates.clan?.name?.toLowerCase() ?? "",
+  //       }))
+  //     : [];
+
+  await db.transaction(async (tx) => {
+    await Promise.all([
+      tx
+        .update(accounts)
+        .set({
+          username: updates.username,
+          accountType: updates.accountType,
+          clanName: updates.clan?.name ?? null,
+          clanRank: updates.clan?.rank ?? null,
+          clanIcon: updates.clan?.icon ?? null,
+          clanTitle: updates.clan?.title ?? null,
+          groupName: updates.groupName ?? null,
+        })
+        .where(eq(accounts.id, accountId)),
+      withValues(achievementDiaryTiersValues, (values) =>
+        tx
+          .insert(achievementDiaryTiers)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [
+              achievementDiaryTiers.accountId,
+              achievementDiaryTiers.areaId,
+              achievementDiaryTiers.tier,
+            ],
+            set: buildConflictUpdateColumns(achievementDiaryTiers, [
+              "completedCount",
+            ]),
+          }),
+      ),
+      withValues(combatAchievementTiersValues, (values) =>
+        tx
+          .insert(combatAchievementTiers)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [
+              combatAchievementTiers.accountId,
+              combatAchievementTiers.id,
+            ],
+            set: buildConflictUpdateColumns(combatAchievementTiers, [
+              "completedCount",
+            ]),
+          }),
+      ),
+      withValues(itemsValues, (values) =>
+        tx
+          .insert(items)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [items.accountId, items.id],
+            set: buildConflictUpdateColumns(items, ["quantity"]),
+          }),
+      ),
+      withValues(questsValues, (values) =>
+        tx
+          .insert(quests)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [quests.accountId, quests.id],
+            set: buildConflictUpdateColumns(quests, ["state"]),
+          }),
+      ),
+      withValues(skillsValues, (values) =>
+        tx
+          .insert(skills)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [skills.accountId, skills.name],
+            set: buildConflictUpdateColumns(skills, ["xp"]),
+          }),
+      ),
+      withValues(activitiesValues, (values) =>
+        tx.insert(activities).values(values),
+      ),
+      // withValues(clanActivitiesValues, (values) =>
+      //   tx.insert(clanActivities).values(values),
+      // ),
+    ]);
+  });
 
   // Rename player models if username changed
   if (
