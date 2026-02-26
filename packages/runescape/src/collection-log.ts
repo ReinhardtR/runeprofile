@@ -58,6 +58,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Brutus",
         items: [33124, 33101, 33091, 33093],
+        hiscore: { Brutus: "Brutus kills" },
       },
       {
         name: "Bryophyta",
