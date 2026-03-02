@@ -24,6 +24,7 @@ export const accounts = t.pgTable(
   (table) => [
     t.uniqueIndex("accounts_username_unique_index").on(lower(table.username)),
     t.index("accounts_clan_name_index").on(lower(table.clanName)),
+    t.index("accounts_clan_name_id_index").on(lower(table.clanName), table.id),
     t.index("accounts_group_name_index").on(lower(table.groupName)),
     t
       .index("accounts_clan_members_sorted_index")
@@ -156,8 +157,11 @@ export const activities = t.pgTable(
   (table) => [
     t.index("activities_account_id_index").on(table.accountId),
     t
-      .index("activities_account_id_created_at_index")
-      .on(table.accountId, table.createdAt),
+      .index("activities_account_id_created_at_id_desc_index")
+      .on(table.accountId, table.createdAt.desc(), table.id.desc()),
+    t
+      .index("activities_account_id_created_at_id_index")
+      .on(table.accountId, table.createdAt, table.id),
     t
       .index("activities_account_id_type_created_at_index")
       .on(table.accountId, table.type, table.createdAt),
@@ -169,6 +173,25 @@ export const activitiesRelations = relations(activities, ({ one }) => ({
     references: [accounts.id],
   }),
 }));
+
+// This table is used to quickly query recent activities for all members of a clan without needing to join the accounts table.
+export const clanActivities = t.pgTable(
+  "clan_activities",
+  {
+    activityId: t
+      .text()
+      .notNull()
+      .primaryKey()
+      .references(() => activities.id),
+    clanName: t.text().notNull(), // Stored in lowercase for case-insensitive searching
+    createdAt,
+  },
+  (table) => [
+    t
+      .index("clan_activities_name_created_at_id_desc_index")
+      .on(table.clanName, table.createdAt.desc(), table.activityId.desc()),
+  ],
+);
 
 // Discord-related tables
 export const discordUsers = t.pgTable(

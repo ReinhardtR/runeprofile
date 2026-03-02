@@ -46,6 +46,21 @@ export const paginationPageSchema = z.coerce
   .optional()
   .catch(undefined);
 
+export const cursorSchema = z.string().optional();
+
+export const directionSchema = z
+  .enum(["next", "prev"])
+  .optional()
+  .default("next");
+
+export const limitSchema = z.coerce
+  .number()
+  .int()
+  .min(1)
+  .max(100)
+  .optional()
+  .default(10);
+
 export const validator = <
   T extends ZodSchema,
   Target extends keyof ValidationTargets,

@@ -5,51 +5,62 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
+import { Suspense } from "react";
 import { z } from "zod";
 
 import {
   ActivitiesList,
+  ActivitiesListSkeleton,
   MembersList,
+  MembersListSkeleton,
   clanActivitiesQueryOptions,
   clanQueryOptions,
 } from "~/features/clan";
 import { Footer, Header } from "~/layouts";
 import { Button } from "~/shared/components/ui/button";
 import { Separator } from "~/shared/components/ui/separator";
+import { Skeleton } from "~/shared/components/ui/skeleton";
 
 const clanSearchSchema = z.object({
-  activityPage: z.coerce.number().gt(0).optional().catch(undefined),
-  membersPage: z.coerce.number().gt(0).optional().catch(undefined),
+  activityCursor: z.string().optional().catch(undefined),
+  activityDir: z.enum(["next", "prev"]).optional().catch(undefined),
+  activityPage: z.coerce.number().int().min(1).optional().catch(undefined),
+  membersCursor: z.string().optional().catch(undefined),
+  membersDir: z.enum(["next", "prev"]).optional().catch(undefined),
+  membersPage: z.coerce.number().int().min(1).optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/clan/$name")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
   validateSearch: zodValidator(clanSearchSchema),
-  loaderDeps: ({ search: { activityPage, membersPage } }) => ({
-    activityPage,
-    membersPage,
+  loaderDeps: ({ search }) => ({
+    activityCursor: search.activityCursor,
+    activityDir: search.activityDir,
+    membersCursor: search.membersCursor,
+    membersDir: search.membersDir,
   }),
   loader: ({ params, context, deps }) => {
-    return Promise.all([
-      context.queryClient.fetchQuery(
-        clanQueryOptions({
-          name: params.name,
-          page: deps.membersPage,
-        }),
-      ),
-      context.queryClient.fetchQuery(
-        clanActivitiesQueryOptions({
-          name: params.name,
-          page: deps.activityPage,
-        }),
-      ),
-    ]);
+    // Prefetch both queries without blocking the route
+    context.queryClient.prefetchQuery(
+      clanQueryOptions({
+        name: params.name,
+        cursor: deps.membersCursor,
+        direction: deps.membersDir,
+      }),
+    );
+    context.queryClient.prefetchQuery(
+      clanActivitiesQueryOptions({
+        name: params.name,
+        cursor: deps.activityCursor,
+        direction: deps.activityDir,
+      }),
+    );
   },
-  head: ({ loaderData }) => ({
+  head: ({ params }) => ({
     meta: [
       {
-        title: `${loaderData[0].name} | RuneProfile`,
+        title: `${decodeURIComponent(params.name)} | RuneProfile`,
       },
     ],
   }),
@@ -57,52 +68,71 @@ export const Route = createFileRoute("/clan/$name")({
 
 function RouteComponent() {
   const params = Route.useParams();
-  const search = Route.useSearch();
-
-  const { data: clan } = useSuspenseQuery(
-    clanQueryOptions({
-      name: params.name,
-      page: search.membersPage,
-    }),
-  );
-
-  const { data: activities } = useSuspenseQuery(
-    clanActivitiesQueryOptions({
-      name: params.name,
-      page: search.activityPage,
-    }),
-  );
 
   return (
     <>
       <Header />
       <div className="container max-w-6xl mx-auto py-8 px-4 relative min-h-screen flex flex-col">
-        <div className="flex flex-row items-end gap-x-8">
-          <h1 className="text-4xl font-bold text-secondary-foreground">
-            {clan.name}
-          </h1>
-          <div className="flex flex-row items-center gap-x-2 ml-auto text-sm text-muted-foreground">
-            <p>{clan.total} members</p>
-            <p>•</p>
-            <p>{activities.total} activities</p>
-          </div>
-        </div>
+        <Suspense fallback={<ClanHeaderSkeleton name={params.name} />}>
+          <ClanHeader />
+        </Suspense>
         <Separator className="my-4" />
         <div className="flex flex-col lg:flex-row gap-y-4 gap-x-8 mb-4">
           <div className="lg:max-w-[280px] w-full">
-            <MembersList />
+            <Suspense fallback={<MembersListSkeleton />}>
+              <MembersList />
+            </Suspense>
           </div>
           <Separator
             orientation="horizontal"
             className="block lg:hidden my-4"
           />
           <div className="flex-1">
-            <ActivitiesList membersPage={search.membersPage} />
+            <Suspense fallback={<ActivitiesListSkeleton />}>
+              <ActivitiesList />
+            </Suspense>
           </div>
         </div>
       </div>
       <Footer />
     </>
+  );
+}
+
+function ClanHeader() {
+  const params = Route.useParams();
+  const search = Route.useSearch();
+
+  const { data: clan } = useSuspenseQuery(
+    clanQueryOptions({
+      name: params.name,
+      cursor: search.membersCursor,
+      direction: search.membersDir,
+    }),
+  );
+
+  return (
+    <div className="flex flex-row items-end gap-x-8">
+      <h1 className="text-4xl font-bold text-secondary-foreground">
+        {clan.name}
+      </h1>
+      <div className="flex flex-row items-center gap-x-2 ml-auto text-sm text-muted-foreground">
+        <p>{clan.total} members</p>
+      </div>
+    </div>
+  );
+}
+
+function ClanHeaderSkeleton({ name }: { name: string }) {
+  return (
+    <div className="flex flex-row items-end gap-x-8">
+      <h1 className="text-4xl font-bold text-secondary-foreground">
+        {decodeURIComponent(name)}
+      </h1>
+      <div className="flex flex-row items-center gap-x-2 ml-auto text-sm text-muted-foreground">
+        <Skeleton className="h-4 w-20" />
+      </div>
+    </div>
   );
 }
 

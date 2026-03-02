@@ -55,13 +55,20 @@ export async function searchProfiles(params: { query: string }) {
   return await getResponseData(response);
 }
 
-export async function getClanMembers(params: { name: string; page?: number }) {
+export async function getClanMembers(params: {
+  name: string;
+  cursor?: string;
+  direction?: "next" | "prev";
+  limit?: number;
+}) {
   const response = await api.clans[":name"].$get({
     param: {
       name: params.name,
     },
     query: {
-      page: String(params.page ?? 1),
+      cursor: params.cursor,
+      direction: params.direction,
+      limit: params.limit?.toString(),
     },
   });
   return await getResponseData(response);
@@ -69,14 +76,18 @@ export async function getClanMembers(params: { name: string; page?: number }) {
 
 export async function getClanActivities(params: {
   name: string;
-  page?: number;
+  cursor?: string;
+  direction?: "next" | "prev";
+  limit?: number;
 }) {
   const response = await api.clans[":name"].activities.$get({
     param: {
       name: params.name,
     },
     query: {
-      page: String(params.page ?? 1),
+      cursor: params.cursor,
+      direction: params.direction,
+      limit: params.limit?.toString(),
     },
   });
   return await getResponseData(response);

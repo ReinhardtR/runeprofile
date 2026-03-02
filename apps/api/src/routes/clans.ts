@@ -5,10 +5,12 @@ import { drizzle } from "@runeprofile/db";
 
 import { getClanActivities } from "~/lib/clan/get-clan-activities";
 import { getClanMembersWithPagination } from "~/lib/clan/get-clan-members";
-import { newRouter } from "~/lib/helpers";
+import { decodeCursor, newRouter } from "~/lib/helpers";
 import {
   clanNameSchema,
-  paginationPageSchema,
+  cursorSchema,
+  directionSchema,
+  limitSchema,
   validator,
 } from "~/lib/validation";
 
@@ -19,16 +21,20 @@ export const clansRouter = newRouter()
     validator(
       "query",
       z.object({
-        page: paginationPageSchema,
+        cursor: cursorSchema,
+        direction: directionSchema,
+        limit: limitSchema,
       }),
     ),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
-      const { page } = c.req.valid("query");
+      const { cursor, direction, limit } = c.req.valid("query");
 
       const result = await getClanMembersWithPagination(db, name, {
-        page,
+        cursor,
+        direction,
+        limit,
       });
 
       return c.json({
@@ -43,7 +49,9 @@ export const clansRouter = newRouter()
     validator(
       "query",
       z.object({
-        page: paginationPageSchema,
+        cursor: cursorSchema,
+        direction: directionSchema,
+        limit: limitSchema,
       }),
     ),
     cache({
@@ -53,9 +61,13 @@ export const clansRouter = newRouter()
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
-      const { page } = c.req.valid("query");
+      const { cursor, direction, limit } = c.req.valid("query");
 
-      const result = await getClanActivities(db, name, { page });
+      const result = await getClanActivities(db, name, {
+        cursor,
+        direction,
+        limit,
+      });
 
       return c.json(result);
     },
