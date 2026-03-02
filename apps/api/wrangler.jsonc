@@ -6,6 +6,9 @@
     "nodejs_compat"
   ],
   "compatibility_date": "2025-03-01",
+  "placement": {
+    "region": "aws:us-east-1"
+  },
   "routes": [
     {
       "pattern": "api.runeprofile.com",
