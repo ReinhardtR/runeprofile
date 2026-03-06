@@ -58,7 +58,6 @@ export const hiscoresRouter = newRouter()
         ),
       }),
     ),
-    cache({ cacheName: "batch-hiscores", cacheControl: "max-age=300" }),
     async (c) => {
       const { usernames, leaderboard } = c.req.valid("json");
 
