@@ -327,7 +327,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Shellbane Gryphon",
         items: [32921, 31285, 31245, 31235],
         hiscore: { "Shellbane Gryphon": "Shellbane Gryphon kills" },
-        aliases: ["shellbane", "gryphon"],
+        aliases: ["shellbane", "gryphon", "gull"],
       },
       {
         name: "Skotizo",
