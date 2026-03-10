@@ -351,9 +351,8 @@ export function AccountItemsTable({
                       <br />
                       <strong>
                         {
-                          discrepancy.items.filter(
-                            (i) => i.realQuantity === 0,
-                          ).length
+                          discrepancy.items.filter((i) => i.realQuantity === 0)
+                            .length
                         }{" "}
                         items
                       </strong>{" "}
@@ -361,9 +360,8 @@ export function AccountItemsTable({
                       <br />
                       <strong>
                         {
-                          discrepancy.items.filter(
-                            (i) => i.realQuantity > 0,
-                          ).length
+                          discrepancy.items.filter((i) => i.realQuantity > 0)
+                            .length
                         }{" "}
                         items
                       </strong>{" "}
@@ -422,19 +420,13 @@ export function AccountItemsTable({
             <span>
               To remove:{" "}
               <strong className="text-red-600">
-                {
-                  discrepancy.items.filter((i) => i.realQuantity === 0)
-                    .length
-                }
+                {discrepancy.items.filter((i) => i.realQuantity === 0).length}
               </strong>
             </span>
             <span>
               To update qty:{" "}
               <strong className="text-yellow-600">
-                {
-                  discrepancy.items.filter((i) => i.realQuantity > 0)
-                    .length
-                }
+                {discrepancy.items.filter((i) => i.realQuantity > 0).length}
               </strong>
             </span>
           </div>
@@ -491,7 +483,10 @@ export function AccountItemsTable({
                         {item.realQuantity === 0 ? (
                           <Badge variant="destructive">Remove</Badge>
                         ) : (
-                          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                          <Badge
+                            variant="outline"
+                            className="text-yellow-600 border-yellow-600"
+                          >
                             Update qty
                           </Badge>
                         )}
