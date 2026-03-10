@@ -25,6 +25,7 @@ export type UpdateProfileInput = {
     icon: number;
     title: string;
   };
+  eventSource?: string;
   groupName?: string;
   achievementDiaryTiers: Array<{
     areaId: number;

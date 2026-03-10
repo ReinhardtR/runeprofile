@@ -100,6 +100,7 @@ export const profilesRouter = newRouter()
             title: z.string(),
           })
           .optional(),
+        eventSource: z.string().optional(),
         groupName: z.string().optional(),
         achievementDiaryTiers: z.array(
           z.object({
@@ -120,7 +121,7 @@ export const profilesRouter = newRouter()
       const kv = c.env.KV;
       const data = c.req.valid("json");
 
-      console.log({ Data: data });
+      console.log({ EventSource: data.eventSource ?? "unknown", Data: data });
 
       try {
         const updates = await getProfileUpdates(db, kv, data);
