@@ -1,4 +1,6 @@
-import { Database } from "@runeprofile/db";
+import { eq } from "drizzle-orm";
+
+import { Database, accounts } from "@runeprofile/db";
 import {
   ACHIEVEMENT_DIARIES,
   COLLECTION_LOG_ITEM_IDS,
@@ -8,10 +10,10 @@ import {
 } from "@runeprofile/runescape";
 
 import {
-  RuneProfileAccountNotFoundError,
-  RuneProfileError,
-} from "~/lib/errors";
-import { Profile, getProfileById } from "~/lib/profiles/get-profile";
+  DiffProfile,
+  getDiffProfileFromCache,
+  setDiffProfileCache,
+} from "~/lib/profiles/diff-cache";
 
 export type UpdateProfileInput = {
   id: string;
@@ -41,7 +43,7 @@ export type UpdateProfileInput = {
 
 export type ProfileUpdates = {
   id: string;
-  currentProfile: Profile | null;
+  currentProfile: DiffProfile | null;
   username: string;
   accountType: number;
   clan?: {
@@ -79,20 +81,94 @@ export type ProfileUpdates = {
   }>;
 };
 
+async function getProfileForDiff(
+  db: Database,
+  id: string,
+): Promise<DiffProfile | null> {
+  const result = await db.query.accounts.findFirst({
+    where: (fields, { eq }) => eq(fields.id, id),
+    columns: { username: true, updatedAt: true },
+    with: {
+      achievementDiaryTiers: {
+        columns: { areaId: true, tier: true, completedCount: true },
+      },
+      combatAchievementTiers: {
+        columns: { id: true, completedCount: true },
+      },
+      items: { columns: { id: true, quantity: true } },
+      quests: { columns: { id: true, state: true } },
+      skills: { columns: { name: true, xp: true } },
+    },
+  });
+
+  if (!result) return null;
+
+  return {
+    username: result.username,
+    updatedAt: result.updatedAt,
+    achievementDiaryTiers: result.achievementDiaryTiers.map((t) => ({
+      areaId: t.areaId,
+      tierIndex: t.tier,
+      completedCount: t.completedCount,
+    })),
+    combatAchievementTiers: result.combatAchievementTiers,
+    items: result.items,
+    quests: result.quests,
+    skills: result.skills,
+  };
+}
+
 export async function getProfileUpdates(
   db: Database,
+  kv: KVNamespace,
   input: UpdateProfileInput,
 ): Promise<ProfileUpdates> {
-  let profile: Profile | null = null;
+  // Try KV cache first, fall back to lightweight DB query
+  let diffProfile: DiffProfile | null = null;
+
   try {
-    profile = await getProfileById(db, input.id);
-  } catch (e) {
-    // Finding the profile failed for other reasons than not found
-    if (
-      !(e instanceof RuneProfileError) ||
-      e.code !== RuneProfileAccountNotFoundError.code
-    ) {
-      throw e;
+    diffProfile = await getDiffProfileFromCache(kv, input.id);
+    console.log(
+      `Cache ${diffProfile ? "hit" : "miss"} for profile diff with ID: ${input.id}`,
+    );
+  } catch {
+    // KV read failed, fall through to DB
+    console.log(`Failed to read diff profile from cache for ID: ${input.id}`);
+  }
+
+  if (diffProfile) {
+    // Validate cache against DB timestamp
+    try {
+      const row = await db
+        .select({ updatedAt: accounts.updatedAt })
+        .from(accounts)
+        .where(eq(accounts.id, input.id))
+        .limit(1);
+
+      const dbUpdatedAt = row[0]?.updatedAt;
+      if (!dbUpdatedAt || dbUpdatedAt !== diffProfile.updatedAt) {
+        // Cache is inconsistent with DB — discard and fetch fresh
+        console.log(
+          `Cache invalid for ID: ${input.id}. DB updatedAt: ${dbUpdatedAt}, Cache updatedAt: ${diffProfile.updatedAt}`,
+        );
+        diffProfile = null;
+      }
+    } catch {
+      // Timestamp check failed, discard cache to be safe
+      diffProfile = null;
+    }
+  }
+
+  if (!diffProfile) {
+    diffProfile = await getProfileForDiff(db, input.id);
+
+    if (diffProfile) {
+      try {
+        await setDiffProfileCache(kv, input.id, diffProfile);
+      } catch {
+        // Non-critical: cache will be populated after successful update
+        console.log(`Failed to set diff profile cache for ID: ${input.id}`);
+      }
     }
   }
 
@@ -104,22 +180,22 @@ export async function getProfileUpdates(
     groupName: input.groupName,
     achievementDiaryTiers: getAchievementDiaryTierUpdates(
       input.achievementDiaryTiers,
-      profile?.achievementDiaryTiers || [],
+      diffProfile?.achievementDiaryTiers || [],
     ),
     combatAchievementTiers: getCombatAchievementTierUpdates(
       input.combatAchievementTiers,
-      profile?.combatAchievementTiers || [],
+      diffProfile?.combatAchievementTiers || [],
     ),
-    items: getItemUpdates(input.items, profile?.items || []),
-    quests: getQuestUpdates(input.quests, profile?.quests || []),
-    skills: getSkillUpdates(input.skills, profile?.skills || []),
-    currentProfile: profile,
+    items: getItemUpdates(input.items, diffProfile?.items || []),
+    quests: getQuestUpdates(input.quests, diffProfile?.quests || []),
+    skills: getSkillUpdates(input.skills, diffProfile?.skills || []),
+    currentProfile: diffProfile,
   };
 }
 
 export function getAchievementDiaryTierUpdates(
   newData: UpdateProfileInput["achievementDiaryTiers"],
-  oldData: Profile["achievementDiaryTiers"],
+  oldData: DiffProfile["achievementDiaryTiers"],
 ): ProfileUpdates["achievementDiaryTiers"] {
   const updates: ProfileUpdates["achievementDiaryTiers"] = [];
 
@@ -152,7 +228,7 @@ export function getAchievementDiaryTierUpdates(
 
 export function getCombatAchievementTierUpdates(
   newData: UpdateProfileInput["combatAchievementTiers"],
-  oldData: Profile["combatAchievementTiers"],
+  oldData: DiffProfile["combatAchievementTiers"],
 ): ProfileUpdates["combatAchievementTiers"] {
   const updates: ProfileUpdates["combatAchievementTiers"] = [];
 
@@ -179,7 +255,7 @@ export function getCombatAchievementTierUpdates(
 
 export function getItemUpdates(
   newData: UpdateProfileInput["items"],
-  oldData: Profile["items"],
+  oldData: DiffProfile["items"],
 ): ProfileUpdates["items"] {
   const updates: ProfileUpdates["items"] = [];
 
@@ -206,7 +282,7 @@ export function getItemUpdates(
 
 export function getQuestUpdates(
   newData: UpdateProfileInput["quests"],
-  oldData: Profile["quests"],
+  oldData: DiffProfile["quests"],
 ): ProfileUpdates["quests"] {
   const updates: ProfileUpdates["quests"] = [];
 
@@ -233,7 +309,7 @@ export function getQuestUpdates(
 
 export function getSkillUpdates(
   newData: UpdateProfileInput["skills"],
-  oldData: Profile["skills"],
+  oldData: DiffProfile["skills"],
 ): ProfileUpdates["skills"] {
   const updates: ProfileUpdates["skills"] = [];
 

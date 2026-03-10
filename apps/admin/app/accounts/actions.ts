@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
 
@@ -36,6 +37,8 @@ export async function deleteAccount(id: string) {
     db.delete(activities).where(eq(activities.accountId, id)),
   ]);
   await db.delete(accounts).where(eq(accounts.id, id));
+
+  await invalidateDiffCache(id);
 
   // Delete player model files from R2 bucket
   const username = account.username.toLowerCase();
@@ -87,6 +90,8 @@ export async function updateAccount(
 
   // Update the account
   await db.update(accounts).set(updates).where(eq(accounts.id, id));
+
+  await invalidateDiffCache(id);
 
   // Rename player model files if username changed
   if (updates.username && updates.username !== account.username) {

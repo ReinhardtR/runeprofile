@@ -16,7 +16,7 @@ import {
   getLevelFromXP,
 } from "@runeprofile/runescape";
 
-import { Profile } from "~/lib/profiles/get-profile";
+import type { DiffProfile } from "~/lib/profiles/diff-cache";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
 export function checkActivityEvents(updates: ProfileUpdates) {
@@ -103,7 +103,7 @@ export function checkXpMilestoneEvents(skillUpdates: ProfileUpdates["skills"]) {
 const LATE_CLOG_INIT_MIN_CURRENT_THRESHOLD = 10;
 const LATE_CLOG_INIT_MAX_NEW_THRESHOLD = 10;
 export function checkNewItemObtainedEvents(
-  currentItems: Profile["items"],
+  currentItems: DiffProfile["items"],
   itemUpdates: ProfileUpdates["items"],
 ) {
   const events: NewItemObtainedEvent[] = [];
@@ -206,7 +206,7 @@ export function checkQuestCompletedEvents(
 }
 
 export function checkMaxedEvent(
-  currentSkills: Profile["skills"],
+  currentSkills: DiffProfile["skills"],
   skillsUpdates: ProfileUpdates["skills"],
 ): MaxedEvent | undefined {
   const newMaxedSkills = skillsUpdates.filter(

@@ -1,7 +1,5 @@
 import { describe, expect, test } from "vitest";
 
-import { QuestType } from "@runeprofile/runescape";
-
 import {
   getAchievementDiaryTierUpdates,
   getCombatAchievementTierUpdates,
@@ -24,10 +22,7 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 1,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -60,18 +55,12 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -97,18 +86,12 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -134,26 +117,17 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 2,
-            area: "Test Area 3",
             tierIndex: 2,
-            tierName: "Test Tier 3",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -171,18 +145,12 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -197,18 +165,12 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 0,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -223,18 +185,12 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
         [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 0,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
@@ -246,9 +202,7 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
 describe("COMBAT ACHIEVEMENT TIERS", () => {
   test("no changes", () => {
     expect(
-      getCombatAchievementTierUpdates({ 1: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-      ]),
+      getCombatAchievementTierUpdates({ 1: 1 }, [{ id: 1, completedCount: 1 }]),
     ).toEqual([]);
   });
 
@@ -259,8 +213,8 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
   test("progress", () => {
     expect(
       getCombatAchievementTierUpdates({ 1: 1, 2: 2 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
+        { id: 1, completedCount: 1 },
+        { id: 2, completedCount: 1 },
       ]),
     ).toEqual([
       {
@@ -274,8 +228,8 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
   test("new tier", () => {
     expect(
       getCombatAchievementTierUpdates({ 1: 1, 2: 1, 3: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
+        { id: 1, completedCount: 1 },
+        { id: 2, completedCount: 1 },
       ]),
     ).toEqual([
       {
@@ -289,8 +243,8 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
   test("unknown tier", () => {
     expect(
       getCombatAchievementTierUpdates({ 1: 1, 2: 1, 0: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
+        { id: 1, completedCount: 1 },
+        { id: 2, completedCount: 1 },
       ]),
     ).toEqual([]);
   });
@@ -298,9 +252,9 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
   test("missing tier", () => {
     expect(
       getCombatAchievementTierUpdates({ 1: 1, 2: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
-        { id: 3, name: "Hard", completedCount: 1, tasksCount: 1 },
+        { id: 1, completedCount: 1 },
+        { id: 2, completedCount: 1 },
+        { id: 3, completedCount: 1 },
       ]),
     ).toEqual([]);
   });
@@ -308,11 +262,9 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
 
 describe("ITEMS", () => {
   test("no changes", () => {
-    expect(
-      getItemUpdates({ 1249: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-      ]),
-    ).toEqual([]);
+    expect(getItemUpdates({ 1249: 1 }, [{ id: 1249, quantity: 1 }])).toEqual(
+      [],
+    );
   });
 
   test("no progress", () => {
@@ -322,8 +274,8 @@ describe("ITEMS", () => {
   test("progress", () => {
     expect(
       getItemUpdates({ 1249: 1, 2366: 2 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
+        { id: 1249, quantity: 1 },
+        { id: 2366, quantity: 1 },
       ]),
     ).toEqual([
       {
@@ -337,8 +289,8 @@ describe("ITEMS", () => {
   test("new item", () => {
     expect(
       getItemUpdates({ 1249: 1, 2366: 1, 2577: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
+        { id: 1249, quantity: 1 },
+        { id: 2366, quantity: 1 },
       ]),
     ).toEqual([
       {
@@ -352,8 +304,8 @@ describe("ITEMS", () => {
   test("unknown item", () => {
     expect(
       getItemUpdates({ 1249: 1, 2366: 1, 0: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
+        { id: 1249, quantity: 1 },
+        { id: 2366, quantity: 1 },
       ]),
     ).toEqual([]);
   });
@@ -361,9 +313,9 @@ describe("ITEMS", () => {
   test("missing item", () => {
     expect(
       getItemUpdates({ 1249: 1, 2366: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
-        { id: 2577, name: "Test Item 3", quantity: 1, createdAt: "" },
+        { id: 1249, quantity: 1 },
+        { id: 2366, quantity: 1 },
+        { id: 2577, quantity: 1 },
       ]),
     ).toEqual([]);
   });
@@ -375,9 +327,7 @@ describe("QUESTS", () => {
       getQuestUpdates({ 0: 1 }, [
         {
           id: 0,
-          name: "Test Quest",
           state: 1,
-          type: QuestType.FREE,
         },
       ]),
     ).toEqual([]);
@@ -397,15 +347,11 @@ describe("QUESTS", () => {
         [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
       ),
@@ -429,15 +375,11 @@ describe("QUESTS", () => {
         [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
       ),
@@ -461,21 +403,15 @@ describe("QUESTS", () => {
         [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 3,
-            name: "Test Quest 3",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
       ),
@@ -492,21 +428,15 @@ describe("QUESTS", () => {
         [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 3,
-            name: "Test Quest 3",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
       ),
