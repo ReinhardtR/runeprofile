@@ -150,6 +150,7 @@ async function getProfile(db: Database, condition: SQL) {
       name: quest?.name || "Unknown",
       state: profileQuest.state,
       type: quest?.type || -1,
+      points: quest?.points ?? 0,
     };
   });
 
