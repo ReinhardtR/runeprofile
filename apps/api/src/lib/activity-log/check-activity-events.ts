@@ -19,6 +19,8 @@ import {
 import type { DiffProfile } from "~/lib/profiles/diff-cache";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
+const TEMP_IGNORED_QUEST_COMPLETION_ACTIVITY_IDS = new Set([9643]);
+
 export function checkActivityEvents(updates: ProfileUpdates) {
   if (!updates.currentProfile) return [];
 
@@ -193,6 +195,9 @@ export function checkQuestCompletedEvents(
     if (questUpdate.oldState === QuestState.FINISHED) continue;
     // not completed
     if (questUpdate.state !== QuestState.FINISHED) continue;
+    if (TEMP_IGNORED_QUEST_COMPLETION_ACTIVITY_IDS.has(questUpdate.id)) {
+      continue;
+    }
 
     events.push({
       type: "quest_completed",
