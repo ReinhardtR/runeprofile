@@ -1019,7 +1019,8 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Lost Schematics",
         items: [
-          32401, 32402, 32403, 32405, 32407, 32408, 32409, 32410, 32404, 32406,
+          32401, 32402, 32403, 32404, 32405, 32406, 32407, 32408, 32409, 32410,
+          33143,
         ],
         aliases: ["lost schematic"],
       },
@@ -2863,6 +2864,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   33101: "Mooleta",
   33124: "Beef",
   33133: "Pristine spider silk",
+  33143: "Ballistic attractor schematic",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
