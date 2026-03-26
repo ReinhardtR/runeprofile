@@ -5,7 +5,7 @@ import {
   accounts,
   achievementDiaryTiers,
   activities,
-  // clanActivities,
+  clanActivities,
   combatAchievementTiers,
   items,
   quests,
@@ -81,13 +81,13 @@ export async function updateProfile(
       data: activity.data,
     }));
 
-  // const clanActivitiesValues: Array<InferInsertModel<typeof clanActivities>> =
-  //   updates.clan?.name
-  //     ? activitiesValues.map((activity) => ({
-  //         activityId: activity.id,
-  //         clanName: updates.clan?.name?.toLowerCase() ?? "",
-  //       }))
-  //     : [];
+  const clanActivitiesValues: Array<InferInsertModel<typeof clanActivities>> =
+    updates.clan?.name
+      ? activitiesValues.map((activity) => ({
+          activityId: activity.id,
+          clanName: updates.clan?.name?.toLowerCase() ?? "",
+        }))
+      : [];
 
   let resultUpdatedAt: string | undefined;
 
@@ -169,9 +169,9 @@ export async function updateProfile(
       withValues(activitiesValues, (values) =>
         tx.insert(activities).values(values),
       ),
-      // withValues(clanActivitiesValues, (values) =>
-      //   tx.insert(clanActivities).values(values),
-      // ),
+      withValues(clanActivitiesValues, (values) =>
+        tx.insert(clanActivities).values(values),
+      ),
     ]);
   });
 

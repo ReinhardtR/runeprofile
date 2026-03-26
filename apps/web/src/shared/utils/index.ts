@@ -18,8 +18,19 @@ export function numberWithAbbreviation(x: number) {
   if (x >= 1e9 && x < 1e12) return +(x / 1e9).toFixed(1) + "B";
 }
 
+function parseAsUTC(date: string | Date): Date {
+  if (date instanceof Date) {
+    return date;
+  }
+  // If the date string doesn't have timezone info, treat it as UTC
+  const dateStr = date.includes('Z') || date.includes('+') || date.includes('T') && date.lastIndexOf('-') > 10
+    ? date
+    : date.replace(' ', 'T') + 'Z';
+  return new Date(dateStr);
+}
+
 export function formatDate(date: string | Date) {
-  const dateObj = date instanceof Date ? date : new Date(date);
+  const dateObj = parseAsUTC(date);
   const day = dateObj.getDate();
   const month = dateObj.toLocaleDateString("en-US", { month: "long" });
   const year = dateObj.getFullYear();
@@ -27,7 +38,7 @@ export function formatDate(date: string | Date) {
 }
 
 export function formatDatetime(date: string | Date) {
-  const dateObj = date instanceof Date ? date : new Date(date);
+  const dateObj = parseAsUTC(date);
   const day = dateObj.getDate();
   const month = dateObj.toLocaleDateString("en-US", { month: "long" });
   const year = dateObj.getFullYear();
@@ -37,7 +48,7 @@ export function formatDatetime(date: string | Date) {
 }
 
 export function formatRelativeTime(date: string | Date) {
-  const dateObj = date instanceof Date ? date : new Date(date);
+  const dateObj = parseAsUTC(date);
   const now = new Date();
   const diffMs = now.getTime() - dateObj.getTime();
   const diffSecs = Math.floor(diffMs / 1000);
@@ -49,9 +60,9 @@ export function formatRelativeTime(date: string | Date) {
   if (diffDays < 7) {
     if (diffSecs < 60) {
       return "just now";
-    } else if (diffMins < 60) {
+    } else if (diffMins < 60 && diffHours === 0) {
       return `${diffMins} ${diffMins === 1 ? "min" : "mins"} ago`;
-    } else if (diffHours < 24) {
+    } else if (diffHours < 24 && diffDays === 0) {
       return `${diffHours} ${diffHours === 1 ? "hr" : "hrs"} ago`;
     } else {
       return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;

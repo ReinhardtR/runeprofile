@@ -1,19 +1,53 @@
-import { count, desc, eq } from "drizzle-orm";
+import { SQL, and, asc, desc, eq, sql } from "drizzle-orm";
 
-import { Database, accounts, activities, lower } from "@runeprofile/db";
+import {
+  Database,
+  accounts,
+  activities,
+  clanActivities,
+} from "@runeprofile/db";
 import { AccountTypes, ActivityEvent } from "@runeprofile/runescape";
 
-import { PaginationParams, getPaginationValues } from "~/lib/helpers";
+import {
+  CursorPaginationParams,
+  encodeCursor,
+  getCursorPaginationValues,
+} from "~/lib/helpers";
 
 export async function getClanActivities(
   db: Database,
   clanName: string,
-  filters?: PaginationParams,
+  filters?: CursorPaginationParams,
 ) {
-  const { page, pageSize, offset } = getPaginationValues(filters);
+  const { cursor, direction, limit } = getCursorPaginationValues(filters);
 
-  const activitiesQuery = db
+  // Fetch limit + 1 to determine if there are more results
+  const fetchLimit = limit + 1;
+
+  const clanCondition = eq(clanActivities.clanName, clanName.toLowerCase());
+
+  // Add cursor condition based on direction
+  let cursorCondition: SQL | undefined;
+  if (cursor && cursor.createdAt && cursor.id) {
+    const cursorDate = cursor.createdAt;
+    if (direction === "next") {
+      // For descending order: fetch items BEFORE cursor (older items)
+      cursorCondition = sql`(${clanActivities.createdAt}, ${clanActivities.activityId}) < (${cursorDate}, ${cursor.id})`;
+    } else {
+      // For prev: fetch items AFTER cursor (newer items)
+      cursorCondition = sql`(${clanActivities.createdAt}, ${clanActivities.activityId}) > (${cursorDate}, ${cursor.id})`;
+    }
+  }
+
+  const whereCondition = cursorCondition
+    ? and(clanCondition, cursorCondition)
+    : clanCondition;
+
+  // Query with appropriate ordering
+  const query = db
     .select({
+      activityId: clanActivities.activityId,
+      clanActivityCreatedAt: clanActivities.createdAt,
       id: activities.id,
       type: activities.type,
       data: activities.data,
@@ -23,25 +57,57 @@ export async function getClanActivities(
       clanRank: accounts.clanRank,
       clanIcon: accounts.clanIcon,
     })
-    .from(activities)
+    .from(clanActivities)
+    .innerJoin(activities, eq(clanActivities.activityId, activities.id))
     .innerJoin(accounts, eq(activities.accountId, accounts.id))
-    .where(eq(lower(accounts.clanName), clanName.toLowerCase()))
-    .orderBy(desc(activities.createdAt), desc(activities.id))
-    .limit(pageSize)
-    .offset(offset);
+    .where(whereCondition)
+    .orderBy(
+      direction === "prev"
+        ? asc(clanActivities.createdAt)
+        : desc(clanActivities.createdAt),
+      direction === "prev"
+        ? asc(clanActivities.activityId)
+        : desc(clanActivities.activityId),
+    )
+    .limit(fetchLimit);
 
-  const totalCountQuery = db
-    .select({ count: count(activities.id) })
-    .from(activities)
-    .innerJoin(accounts, eq(activities.accountId, accounts.id))
-    .where(eq(lower(accounts.clanName), clanName.toLowerCase()));
+  let activitiesList = await query;
 
-  const [activitiesList, totalCountResult] = await Promise.all([
-    activitiesQuery,
-    totalCountQuery,
-  ]);
+  // If going backwards, reverse the results to maintain desc order
+  if (direction === "prev") {
+    activitiesList = activitiesList.reverse();
+  }
 
-  const total = totalCountResult[0]?.count ?? 0;
+  // Determine if there are more results in the current query direction
+  const hasMoreInDirection = activitiesList.length > limit;
+  if (hasMoreInDirection) {
+    activitiesList = activitiesList.slice(0, limit);
+  }
+
+  // Determine cursors
+  const firstItem = activitiesList[0];
+  const lastItem = activitiesList[activitiesList.length - 1];
+
+  const hasPrev =
+    direction === "next" ? cursor !== undefined : hasMoreInDirection;
+  const hasMore =
+    direction === "next" ? hasMoreInDirection : cursor !== undefined;
+
+  const nextCursor =
+    hasMore && lastItem
+      ? encodeCursor({
+          createdAt: lastItem.createdAt,
+          id: lastItem.id,
+        })
+      : null;
+
+  const prevCursor =
+    hasPrev && firstItem
+      ? encodeCursor({
+          createdAt: firstItem.createdAt,
+          id: firstItem.id,
+        })
+      : null;
 
   const formattedActivities = activitiesList.map((activity) => {
     const accountType =
@@ -67,9 +133,10 @@ export async function getClanActivities(
   });
 
   return {
-    page,
-    pageSize,
-    total,
     activities: formattedActivities,
+    nextCursor,
+    prevCursor,
+    hasMore,
+    hasPrev,
   };
 }

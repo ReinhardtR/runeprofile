@@ -1,32 +1,41 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Link,
   useNavigate,
   useParams,
   useSearch,
 } from "@tanstack/react-router";
+import { LoaderCircle } from "lucide-react";
 
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";
 import ClanRankIcons from "~/core/assets/clan-rank-icons.json";
 import { clanQueryOptions } from "~/features/clan/queries";
-import { BasicPagination } from "~/shared/components/BasicPagination";
 import { GameIcon } from "~/shared/components/icons";
+import { Button } from "~/shared/components/ui/button";
+
+import { MembersListSkeleton } from "./members-list-skeleton";
 
 export function MembersList() {
   const params = useParams({ from: "/clan/$name" });
   const search = useSearch({ from: "/clan/$name" });
   const navigate = useNavigate();
 
-  const { data: clan } = useSuspenseQuery(
-    clanQueryOptions({
+  const page = search.membersPage ?? (search.membersCursor ? 2 : 1);
+
+  const { data: clan, isFetching } = useQuery({
+    ...clanQueryOptions({
       name: params.name,
-      page: search.membersPage,
+      cursor: search.membersCursor,
+      direction: search.membersDir,
     }),
-  );
+    placeholderData: keepPreviousData,
+  });
 
-  const pageCount = Math.ceil(clan.total / clan.pageSize);
+  if (!clan) {
+    return <MembersListSkeleton />;
+  }
 
-  const showPagination = pageCount > 1 || search.membersPage !== undefined;
+  const showPagination = clan.hasMore || clan.hasPrev;
 
   return (
     <div className="relative flex flex-col">
@@ -74,20 +83,59 @@ export function MembersList() {
       </div>
 
       {showPagination && (
-        <BasicPagination
-          className="justify-end mt-6"
-          totalItems={clan.total}
-          pageSize={clan.pageSize}
-          currentPage={clan.page}
-          onPageChange={(page) => {
-            navigate({
-              to: "/clan/$name",
-              params: { name: params.name },
-              search: (prev) => ({ ...prev, membersPage: page }),
-              resetScroll: false,
-            });
-          }}
-        />
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-x-2">
+            <p className="text-xs text-muted-foreground">Page {page}</p>
+            {isFetching && (
+              <LoaderCircle className="size-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex justify-end gap-x-2">
+            <Button
+              variant="outline"
+              disabled={!clan.hasPrev}
+              onClick={() => {
+                const nextPage = Math.max(1, page - 1);
+                const isFirstPage = nextPage === 1;
+
+                navigate({
+                  to: "/clan/$name",
+                  params: { name: params.name },
+                  search: (prev) => ({
+                    ...prev,
+                    membersPage: nextPage,
+                    membersCursor: isFirstPage
+                      ? undefined
+                      : (clan.prevCursor ?? undefined),
+                    membersDir: isFirstPage ? undefined : ("prev" as const),
+                  }),
+                  resetScroll: false,
+                });
+              }}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!clan.hasMore}
+              onClick={() => {
+                navigate({
+                  to: "/clan/$name",
+                  params: { name: params.name },
+                  search: (prev) => ({
+                    ...prev,
+                    membersPage: page + 1,
+                    membersCursor: clan.nextCursor ?? undefined,
+                    membersDir: undefined,
+                  }),
+                  resetScroll: false,
+                });
+              }}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

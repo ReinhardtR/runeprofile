@@ -1,35 +1,39 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Link,
   useNavigate,
   useParams,
   useSearch,
 } from "@tanstack/react-router";
+import { LoaderCircle } from "lucide-react";
 
 import { clanActivitiesQueryOptions } from "~/features/clan/queries";
-import { BasicPagination } from "~/shared/components/BasicPagination";
+import { Button } from "~/shared/components/ui/button";
 
+import { ActivitiesListSkeleton } from "./activities-list-skeleton";
 import { ActivityRenderMap } from "./activity-renderers";
 
-interface ActivitiesListProps {
-  membersPage?: number;
-}
-
-export function ActivitiesList({ membersPage }: ActivitiesListProps) {
+export function ActivitiesList() {
   const params = useParams({ from: "/clan/$name" });
   const search = useSearch({ from: "/clan/$name" });
   const navigate = useNavigate();
 
-  const { data: activities } = useSuspenseQuery(
-    clanActivitiesQueryOptions({
+  const page = search.activityPage ?? (search.activityCursor ? 2 : 1);
+
+  const { data: activities, isFetching } = useQuery({
+    ...clanActivitiesQueryOptions({
       name: params.name,
-      page: search.activityPage,
+      cursor: search.activityCursor,
+      direction: search.activityDir,
     }),
-  );
+    placeholderData: keepPreviousData,
+  });
 
-  const pageCount = Math.ceil(activities.total / activities.pageSize);
+  if (!activities) {
+    return <ActivitiesListSkeleton />;
+  }
 
-  const showPagination = pageCount > 1 || membersPage !== undefined;
+  const showPagination = activities.hasMore || activities.hasPrev;
 
   return (
     <div className="relative flex flex-col">
@@ -55,20 +59,59 @@ export function ActivitiesList({ membersPage }: ActivitiesListProps) {
       })}
 
       {showPagination && (
-        <BasicPagination
-          className="justify-end mt-6"
-          totalItems={activities.total}
-          pageSize={activities.pageSize}
-          currentPage={activities.page}
-          onPageChange={(page) => {
-            navigate({
-              to: "/clan/$name",
-              params: { name: params.name },
-              search: (prev) => ({ ...prev, activityPage: page }),
-              resetScroll: false,
-            });
-          }}
-        />
+        <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center gap-x-2">
+            <p className="text-xs text-muted-foreground">Page {page}</p>
+            {isFetching && (
+              <LoaderCircle className="size-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex justify-end gap-x-2">
+            <Button
+              variant="outline"
+              disabled={!activities.hasPrev}
+              onClick={() => {
+                const nextPage = Math.max(1, page - 1);
+                const isFirstPage = nextPage === 1;
+
+                navigate({
+                  to: "/clan/$name",
+                  params: { name: params.name },
+                  search: (prev) => ({
+                    ...prev,
+                    activityPage: nextPage,
+                    activityCursor: isFirstPage
+                      ? undefined
+                      : (activities.prevCursor ?? undefined),
+                    activityDir: isFirstPage ? undefined : ("prev" as const),
+                  }),
+                  resetScroll: false,
+                });
+              }}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!activities.hasMore}
+              onClick={() => {
+                navigate({
+                  to: "/clan/$name",
+                  params: { name: params.name },
+                  search: (prev) => ({
+                    ...prev,
+                    activityPage: page + 1,
+                    activityCursor: activities.nextCursor ?? undefined,
+                    activityDir: undefined,
+                  }),
+                  resetScroll: false,
+                });
+              }}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

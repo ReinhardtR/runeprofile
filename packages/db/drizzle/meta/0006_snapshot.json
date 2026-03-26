@@ -1,6 +1,6 @@
 {
-  "id": "9264e674-f657-4c82-9d0c-779a05f0b51b",
-  "prevId": "0e7f75ae-4a02-488f-b169-17f684f06562",
+  "id": "417a3d53-ae47-4fab-bdef-a6045dde9975",
+  "prevId": "6e81eb3c-6ace-475f-b090-28eeb6a8898f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -68,6 +68,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "force_resync": {
+          "name": "force_resync",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -408,6 +415,80 @@
             "id"
           ],
           "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.clan_activities": {
+      "name": "clan_activities",
+      "schema": "",
+      "columns": {
+        "activity_id": {
+          "name": "activity_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "clan_name": {
+          "name": "clan_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "clan_activities_name_created_at_id_desc_index": {
+          "name": "clan_activities_name_created_at_id_desc_index",
+          "columns": [
+            {
+              "expression": "clan_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "activity_id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "clan_activities_activity_id_activities_id_fk": {
+          "name": "clan_activities_activity_id_activities_id_fk",
+          "tableFrom": "clan_activities",
+          "tableTo": "activities",
+          "columnsFrom": [
+            "activity_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
