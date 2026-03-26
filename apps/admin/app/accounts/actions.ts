@@ -137,6 +137,7 @@ export async function searchAccounts(q: string) {
     clanRank: accounts.clanRank,
     clanIcon: accounts.clanIcon,
     clanTitle: accounts.clanTitle,
+    forceResync: accounts.forceResync,
     updatedAt: accounts.updatedAt,
   };
 
@@ -174,4 +175,24 @@ export async function searchAccounts(q: string) {
       accounts.username,
     )
     .limit(25);
+}
+
+export async function toggleForceResync(id: string) {
+  const account = await db.query.accounts.findFirst({
+    where: eq(accounts.id, id),
+    columns: { id: true, forceResync: true },
+  });
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  const newValue = !account.forceResync;
+  await db
+    .update(accounts)
+    .set({ forceResync: newValue })
+    .where(eq(accounts.id, id));
+
+  await invalidateDiffCache(id);
+
+  return { forceResync: newValue };
 }

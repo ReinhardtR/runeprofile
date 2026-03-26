@@ -103,6 +103,7 @@ export async function updateProfile(
           clanIcon: updates.clan?.icon ?? null,
           clanTitle: updates.clan?.title ?? null,
           groupName: updates.groupName ?? null,
+          forceResync: false,
         })
         .where(eq(accounts.id, accountId))
         .returning({ updatedAt: accounts.updatedAt })

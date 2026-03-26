@@ -1,0 +1,1 @@
+ALTER TABLE "accounts" ADD COLUMN "force_resync" boolean DEFAULT false NOT NULL;

@@ -22,6 +22,13 @@
       "when": 1768949414021,
       "tag": "0002_zippy_karma",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774511713152,
+      "tag": "0003_special_network",
+      "breakpoints": true
     }
   ]
 }

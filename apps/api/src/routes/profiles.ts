@@ -125,7 +125,9 @@ export const profilesRouter = newRouter()
 
       try {
         const updates = await getProfileUpdates(db, kv, data);
-        const activities = checkActivityEvents(updates);
+        const activities = updates.forceResync
+          ? []
+          : checkActivityEvents(updates);
         const { updatedAt } = await updateProfile(
           db,
           bucket,
