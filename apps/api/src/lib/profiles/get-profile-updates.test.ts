@@ -235,6 +235,44 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
       }),
     ).toEqual([]);
   });
+
+  test("resync to zero corrects corrupt data", () => {
+    expect(
+      getAchievementDiaryTierUpdates({
+        newData: [{ areaId: 0, tierIndex: 0, completedCount: 0 }],
+        oldData: [
+          {
+            areaId: 0,
+            tierIndex: 0,
+            completedCount: 3,
+          },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        areaId: 0,
+        tier: 0,
+        completedCount: 0,
+        oldCompletedCount: 3,
+      },
+    ]);
+  });
+
+  test("zero still skipped without forceResync", () => {
+    expect(
+      getAchievementDiaryTierUpdates({
+        newData: [{ areaId: 0, tierIndex: 0, completedCount: 0 }],
+        oldData: [
+          {
+            areaId: 0,
+            tierIndex: 0,
+            completedCount: 3,
+          },
+        ],
+      }),
+    ).toEqual([]);
+  });
 });
 
 describe("COMBAT ACHIEVEMENT TIERS", () => {
@@ -334,6 +372,31 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
     expect(
       getCombatAchievementTierUpdates({
         newData: { 1: 1 },
+        oldData: [{ id: 1, completedCount: 5 }],
+      }),
+    ).toEqual([]);
+  });
+
+  test("resync to zero corrects corrupt data", () => {
+    expect(
+      getCombatAchievementTierUpdates({
+        newData: { 1: 0 },
+        oldData: [{ id: 1, completedCount: 5 }],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 1,
+        completedCount: 0,
+        oldCompletedCount: 5,
+      },
+    ]);
+  });
+
+  test("zero still skipped without forceResync", () => {
+    expect(
+      getCombatAchievementTierUpdates({
+        newData: { 1: 0 },
         oldData: [{ id: 1, completedCount: 5 }],
       }),
     ).toEqual([]);
@@ -565,6 +628,31 @@ describe("QUESTS", () => {
       }),
     ).toEqual([]);
   });
+
+  test("resync to zero corrects corrupt data", () => {
+    expect(
+      getQuestUpdates({
+        newData: { 0: 0 },
+        oldData: [{ id: 0, state: 2 }],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 0,
+        state: 0,
+        oldState: 2,
+      },
+    ]);
+  });
+
+  test("zero still skipped without forceResync", () => {
+    expect(
+      getQuestUpdates({
+        newData: { 0: 0 },
+        oldData: [{ id: 0, state: 2 }],
+      }),
+    ).toEqual([]);
+  });
 });
 
 describe("SKILLS", () => {
@@ -581,9 +669,9 @@ describe("SKILLS", () => {
   });
 
   test("no progress", () => {
-    expect(
-      getSkillUpdates({ newData: { Attack: 0 }, oldData: [] }),
-    ).toEqual([]);
+    expect(getSkillUpdates({ newData: { Attack: 0 }, oldData: [] })).toEqual(
+      [],
+    );
   });
 
   test("progress", () => {
@@ -658,6 +746,31 @@ describe("SKILLS", () => {
           { name: "Strength", xp: 1 },
         ],
         forceResync: true,
+      }),
+    ).toEqual([]);
+  });
+
+  test("resync to zero corrects corrupt data", () => {
+    expect(
+      getSkillUpdates({
+        newData: { Attack: 0 },
+        oldData: [{ name: "Attack", xp: 500 }],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        name: "Attack",
+        xp: 0,
+        oldXp: 500,
+      },
+    ]);
+  });
+
+  test("zero still skipped without forceResync", () => {
+    expect(
+      getSkillUpdates({
+        newData: { Attack: 0 },
+        oldData: [{ name: "Attack", xp: 500 }],
       }),
     ).toEqual([]);
   });

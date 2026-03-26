@@ -239,11 +239,11 @@ export function getAchievementDiaryTierUpdates({
         (t) => t.areaId === diary.id && t.tierIndex === tierIndex,
       );
       if (!newTier) continue;
-      if (newTier.completedCount === 0) continue;
 
       const oldTier = oldData.find(
         (t) => t.areaId === diary.id && t.tierIndex === tierIndex,
       );
+      if (newTier.completedCount === 0 && !(forceResync && oldTier)) continue;
       if (oldTier && oldTier.completedCount === newTier.completedCount) {
         continue;
       }
@@ -280,11 +280,14 @@ export function getCombatAchievementTierUpdates({
 
   for (const tier of COMBAT_ACHIEVEMENT_TIERS) {
     const newCompletedCount = newData[tier.id];
-    if (newCompletedCount === undefined || newCompletedCount === 0) {
+    if (newCompletedCount === undefined) {
       continue;
     }
 
     const oldTier = oldData.find((t) => t.id === tier.id);
+    if (newCompletedCount === 0 && !(forceResync && oldTier)) {
+      continue;
+    }
     if (oldTier && oldTier.completedCount === newCompletedCount) {
       continue;
     }
@@ -349,11 +352,14 @@ export function getQuestUpdates({
 
   for (const quest of QUESTS) {
     const newState = newData[quest.id];
-    if (newState === undefined || newState === 0) {
+    if (newState === undefined) {
       continue;
     }
 
     const oldQuest = oldData.find((q) => q.id === quest.id);
+    if (newState === 0 && !(forceResync && oldQuest)) {
+      continue;
+    }
     if (oldQuest && oldQuest.state === newState) {
       continue;
     }
@@ -384,11 +390,14 @@ export function getSkillUpdates({
 
   for (const skillName of SKILLS) {
     const newXp = newData[skillName];
-    if (newXp === undefined || newXp === 0) {
+    if (newXp === undefined) {
       continue;
     }
 
     const oldSkill = oldData.find((skill) => skill.name === skillName);
+    if (newXp === 0 && !(forceResync && oldSkill)) {
+      continue;
+    }
     if (oldSkill && oldSkill.xp >= newXp && !forceResync) {
       continue;
     }
