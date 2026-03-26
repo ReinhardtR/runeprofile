@@ -1,6 +1,6 @@
 {
-  "id": "6e81eb3c-6ace-475f-b090-28eeb6a8898f",
-  "prevId": "1d3e655e-b76c-4b93-a8c7-acb97722a8ae",
+  "id": "417a3d53-ae47-4fab-bdef-a6045dde9975",
+  "prevId": "6e81eb3c-6ace-475f-b090-28eeb6a8898f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -69,6 +69,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "force_resync": {
+          "name": "force_resync",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
@@ -82,13 +89,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "force_resync": {
-          "name": "force_resync",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         }
       },
       "indexes": {
@@ -453,9 +453,9 @@
           "name": "clan_activities_name_created_at_id_desc_index",
           "columns": [
             {
-              "expression": "lower(\"clan_name\")",
+              "expression": "clan_name",
+              "isExpression": false,
               "asc": true,
-              "isExpression": true,
               "nulls": "last"
             },
             {
@@ -488,7 +488,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

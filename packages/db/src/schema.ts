@@ -183,7 +183,7 @@ export const clanActivities = t.pgTable(
       .text()
       .notNull()
       .primaryKey()
-      .references(() => activities.id),
+      .references(() => activities.id, { onDelete: "cascade" }),
     clanName: t.text().notNull(), // Stored in lowercase for case-insensitive searching
     createdAt,
   },
