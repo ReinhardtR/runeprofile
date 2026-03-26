@@ -1,7 +1,5 @@
 import { describe, expect, test } from "vitest";
 
-import { QuestType } from "@runeprofile/runescape";
-
 import {
   getAchievementDiaryTierUpdates,
   getCombatAchievementTierUpdates,
@@ -13,69 +11,60 @@ import {
 describe("ACHIEVEMENT DIARY TIERS", () => {
   test("no changes", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [
           {
             areaId: 1,
             tierIndex: 0,
             completedCount: 1,
           },
         ],
-        [
+        oldData: [
           {
             areaId: 1,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
     ).toEqual([]);
   });
 
   test("no progress", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [
           {
             areaId: 1,
             tierIndex: 0,
             completedCount: 0,
           },
         ],
-        [],
-      ),
+        oldData: [],
+      }),
     ).toEqual([]);
   });
 
   test("progress", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [
           { areaId: 0, tierIndex: 0, completedCount: 1 },
           { areaId: 1, tierIndex: 1, completedCount: 2 },
         ],
-        [
+        oldData: [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
     ).toEqual([
       {
         areaId: 1,
@@ -88,31 +77,25 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
 
   test("new area", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [
           { areaId: 0, tierIndex: 0, completedCount: 1 },
           { areaId: 1, tierIndex: 1, completedCount: 1 },
           { areaId: 2, tierIndex: 2, completedCount: 1 },
         ],
-        [
+        oldData: [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
     ).toEqual([
       {
         areaId: 2,
@@ -125,120 +108,131 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
 
   test("unknown area", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [
           { areaId: 0, tierIndex: 0, completedCount: 1 },
           { areaId: 1, tierIndex: 1, completedCount: 1 },
           { areaId: 100, tierIndex: 2, completedCount: 1 },
         ],
-        [
+        oldData: [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 2,
-            area: "Test Area 3",
             tierIndex: 2,
-            tierName: "Test Tier 3",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
     ).toEqual([]);
   });
 
   test("unknown tier", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [
           { areaId: 0, tierIndex: 0, completedCount: 1 },
           { areaId: 1, tierIndex: 100, completedCount: 1 },
         ],
-        [
+        oldData: [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
     ).toEqual([]);
   });
 
   test("missing area", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [{ areaId: 0, tierIndex: 0, completedCount: 1 }],
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [{ areaId: 0, tierIndex: 0, completedCount: 1 }],
+        oldData: [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 1,
-            area: "Test Area 2",
             tierIndex: 0,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
     ).toEqual([]);
   });
 
   test("missing tier", () => {
     expect(
-      getAchievementDiaryTierUpdates(
-        [{ areaId: 0, tierIndex: 0, completedCount: 1 }],
-        [
+      getAchievementDiaryTierUpdates({
+        newData: [{ areaId: 0, tierIndex: 0, completedCount: 1 }],
+        oldData: [
           {
             areaId: 0,
-            area: "Test Area",
             tierIndex: 0,
-            tierName: "Test Tier",
-            tasksCount: 1,
             completedCount: 1,
           },
           {
             areaId: 0,
-            area: "Test Area 2",
             tierIndex: 1,
-            tierName: "Test Tier 2",
-            tasksCount: 1,
             completedCount: 1,
           },
         ],
-      ),
+      }),
+    ).toEqual([]);
+  });
+
+  test("regress with forceResync", () => {
+    expect(
+      getAchievementDiaryTierUpdates({
+        newData: [{ areaId: 0, tierIndex: 0, completedCount: 1 }],
+        oldData: [
+          {
+            areaId: 0,
+            tierIndex: 0,
+            completedCount: 3,
+          },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        areaId: 0,
+        tier: 0,
+        completedCount: 1,
+        oldCompletedCount: 3,
+      },
+    ]);
+  });
+
+  test("regress blocked without forceResync", () => {
+    expect(
+      getAchievementDiaryTierUpdates({
+        newData: [{ areaId: 0, tierIndex: 0, completedCount: 1 }],
+        oldData: [
+          {
+            areaId: 0,
+            tierIndex: 0,
+            completedCount: 3,
+          },
+        ],
+      }),
     ).toEqual([]);
   });
 });
@@ -246,22 +240,28 @@ describe("ACHIEVEMENT DIARY TIERS", () => {
 describe("COMBAT ACHIEVEMENT TIERS", () => {
   test("no changes", () => {
     expect(
-      getCombatAchievementTierUpdates({ 1: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-      ]),
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1 },
+        oldData: [{ id: 1, completedCount: 1 }],
+      }),
     ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getCombatAchievementTierUpdates({ 1: 0 }, [])).toEqual([]);
+    expect(
+      getCombatAchievementTierUpdates({ newData: { 1: 0 }, oldData: [] }),
+    ).toEqual([]);
   });
 
   test("progress", () => {
     expect(
-      getCombatAchievementTierUpdates({ 1: 1, 2: 2 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
-      ]),
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1, 2: 2 },
+        oldData: [
+          { id: 1, completedCount: 1 },
+          { id: 2, completedCount: 1 },
+        ],
+      }),
     ).toEqual([
       {
         id: 2,
@@ -273,10 +273,13 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
 
   test("new tier", () => {
     expect(
-      getCombatAchievementTierUpdates({ 1: 1, 2: 1, 3: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
-      ]),
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1, 2: 1, 3: 1 },
+        oldData: [
+          { id: 1, completedCount: 1 },
+          { id: 2, completedCount: 1 },
+        ],
+      }),
     ).toEqual([
       {
         id: 3,
@@ -288,20 +291,51 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
 
   test("unknown tier", () => {
     expect(
-      getCombatAchievementTierUpdates({ 1: 1, 2: 1, 0: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
-      ]),
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1, 2: 1, 0: 1 },
+        oldData: [
+          { id: 1, completedCount: 1 },
+          { id: 2, completedCount: 1 },
+        ],
+      }),
     ).toEqual([]);
   });
 
   test("missing tier", () => {
     expect(
-      getCombatAchievementTierUpdates({ 1: 1, 2: 1 }, [
-        { id: 1, name: "Easy", completedCount: 1, tasksCount: 1 },
-        { id: 2, name: "Medium", completedCount: 1, tasksCount: 1 },
-        { id: 3, name: "Hard", completedCount: 1, tasksCount: 1 },
-      ]),
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1, 2: 1 },
+        oldData: [
+          { id: 1, completedCount: 1 },
+          { id: 2, completedCount: 1 },
+          { id: 3, completedCount: 1 },
+        ],
+      }),
+    ).toEqual([]);
+  });
+
+  test("regress with forceResync", () => {
+    expect(
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1 },
+        oldData: [{ id: 1, completedCount: 5 }],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 1,
+        completedCount: 1,
+        oldCompletedCount: 5,
+      },
+    ]);
+  });
+
+  test("regress blocked without forceResync", () => {
+    expect(
+      getCombatAchievementTierUpdates({
+        newData: { 1: 1 },
+        oldData: [{ id: 1, completedCount: 5 }],
+      }),
     ).toEqual([]);
   });
 });
@@ -309,22 +343,26 @@ describe("COMBAT ACHIEVEMENT TIERS", () => {
 describe("ITEMS", () => {
   test("no changes", () => {
     expect(
-      getItemUpdates({ 1249: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-      ]),
+      getItemUpdates({
+        newData: { 1249: 1 },
+        oldData: [{ id: 1249, quantity: 1 }],
+      }),
     ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getItemUpdates({ 1249: 0 }, [])).toEqual([]);
+    expect(getItemUpdates({ newData: { 1249: 0 }, oldData: [] })).toEqual([]);
   });
 
   test("progress", () => {
     expect(
-      getItemUpdates({ 1249: 1, 2366: 2 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
-      ]),
+      getItemUpdates({
+        newData: { 1249: 1, 2366: 2 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 1 },
+        ],
+      }),
     ).toEqual([
       {
         id: 2366,
@@ -336,10 +374,13 @@ describe("ITEMS", () => {
 
   test("new item", () => {
     expect(
-      getItemUpdates({ 1249: 1, 2366: 1, 2577: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
-      ]),
+      getItemUpdates({
+        newData: { 1249: 1, 2366: 1, 2577: 1 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 1 },
+        ],
+      }),
     ).toEqual([
       {
         id: 2577,
@@ -351,20 +392,26 @@ describe("ITEMS", () => {
 
   test("unknown item", () => {
     expect(
-      getItemUpdates({ 1249: 1, 2366: 1, 0: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
-      ]),
+      getItemUpdates({
+        newData: { 1249: 1, 2366: 1, 0: 1 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 1 },
+        ],
+      }),
     ).toEqual([]);
   });
 
   test("missing item", () => {
     expect(
-      getItemUpdates({ 1249: 1, 2366: 1 }, [
-        { id: 1249, name: "Test Item", quantity: 1, createdAt: "" },
-        { id: 2366, name: "Test Item 2", quantity: 1, createdAt: "" },
-        { id: 2577, name: "Test Item 3", quantity: 1, createdAt: "" },
-      ]),
+      getItemUpdates({
+        newData: { 1249: 1, 2366: 1 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 1 },
+          { id: 2577, quantity: 1 },
+        ],
+      }),
     ).toEqual([]);
   });
 });
@@ -372,43 +419,40 @@ describe("ITEMS", () => {
 describe("QUESTS", () => {
   test("no changes", () => {
     expect(
-      getQuestUpdates({ 0: 1 }, [
-        {
-          id: 0,
-          name: "Test Quest",
-          state: 1,
-          type: QuestType.FREE,
-        },
-      ]),
+      getQuestUpdates({
+        newData: { 0: 1 },
+        oldData: [
+          {
+            id: 0,
+            state: 1,
+          },
+        ],
+      }),
     ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getQuestUpdates({ 0: 0 }, [])).toEqual([]);
+    expect(getQuestUpdates({ newData: { 0: 0 }, oldData: [] })).toEqual([]);
   });
 
   test("progress", () => {
     expect(
-      getQuestUpdates(
-        {
+      getQuestUpdates({
+        newData: {
           0: 1,
           1: 2,
         },
-        [
+        oldData: [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
-      ),
+      }),
     ).toEqual([
       {
         id: 1,
@@ -420,27 +464,23 @@ describe("QUESTS", () => {
 
   test("new quest", () => {
     expect(
-      getQuestUpdates(
-        {
+      getQuestUpdates({
+        newData: {
           0: 1,
           1: 1,
           3: 1,
         },
-        [
+        oldData: [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
-      ),
+      }),
     ).toEqual([
       {
         id: 3,
@@ -452,64 +492,77 @@ describe("QUESTS", () => {
 
   test("unknown quest", () => {
     expect(
-      getQuestUpdates(
-        {
+      getQuestUpdates({
+        newData: {
           0: 1,
           1: 1,
           2: 1,
         },
-        [
+        oldData: [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 3,
-            name: "Test Quest 3",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
-      ),
+      }),
     ).toEqual([]);
   });
 
   test("missing quest", () => {
     expect(
-      getQuestUpdates(
-        {
+      getQuestUpdates({
+        newData: {
           0: 1,
           1: 1,
         },
-        [
+        oldData: [
           {
             id: 0,
-            name: "Test Quest",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 1,
-            name: "Test Quest 2",
             state: 1,
-            type: QuestType.FREE,
           },
           {
             id: 3,
-            name: "Test Quest 3",
             state: 1,
-            type: QuestType.FREE,
           },
         ],
-      ),
+      }),
+    ).toEqual([]);
+  });
+
+  test("regress with forceResync", () => {
+    expect(
+      getQuestUpdates({
+        newData: { 0: 1 },
+        oldData: [{ id: 0, state: 2 }],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 0,
+        state: 1,
+        oldState: 2,
+      },
+    ]);
+  });
+
+  test("regress blocked without forceResync", () => {
+    expect(
+      getQuestUpdates({
+        newData: { 0: 1 },
+        oldData: [{ id: 0, state: 2 }],
+      }),
     ).toEqual([]);
   });
 });
@@ -517,24 +570,32 @@ describe("QUESTS", () => {
 describe("SKILLS", () => {
   test("no changes", () => {
     expect(
-      getSkillUpdates({ Attack: 1, Strength: 1 }, [
-        { name: "Attack", xp: 1 },
-        { name: "Strength", xp: 1 },
-      ]),
+      getSkillUpdates({
+        newData: { Attack: 1, Strength: 1 },
+        oldData: [
+          { name: "Attack", xp: 1 },
+          { name: "Strength", xp: 1 },
+        ],
+      }),
     ).toEqual([]);
   });
 
   test("no progress", () => {
-    expect(getSkillUpdates({ Attack: 0 }, [])).toEqual([]);
+    expect(
+      getSkillUpdates({ newData: { Attack: 0 }, oldData: [] }),
+    ).toEqual([]);
   });
 
   test("progress", () => {
     expect(
-      getSkillUpdates({ Attack: 1, Strength: 2, Defence: 1 }, [
-        { name: "Attack", xp: 1 },
-        { name: "Strength", xp: 1 },
-        { name: "Defence", xp: 1 },
-      ]),
+      getSkillUpdates({
+        newData: { Attack: 1, Strength: 2, Defence: 1 },
+        oldData: [
+          { name: "Attack", xp: 1 },
+          { name: "Strength", xp: 1 },
+          { name: "Defence", xp: 1 },
+        ],
+      }),
     ).toEqual([
       {
         name: "Strength",
@@ -546,11 +607,14 @@ describe("SKILLS", () => {
 
   test("regress", () => {
     expect(
-      getSkillUpdates({ Attack: 4, Strength: 2, Defence: 1 }, [
-        { name: "Attack", xp: 5 },
-        { name: "Strength", xp: 1 },
-        { name: "Defence", xp: 1 },
-      ]),
+      getSkillUpdates({
+        newData: { Attack: 4, Strength: 2, Defence: 1 },
+        oldData: [
+          { name: "Attack", xp: 5 },
+          { name: "Strength", xp: 1 },
+          { name: "Defence", xp: 1 },
+        ],
+      }),
     ).toEqual([
       {
         name: "Strength",
@@ -560,12 +624,53 @@ describe("SKILLS", () => {
     ]);
   });
 
+  test("regress with forceResync", () => {
+    expect(
+      getSkillUpdates({
+        newData: { Attack: 4, Strength: 2, Defence: 1 },
+        oldData: [
+          { name: "Attack", xp: 5 },
+          { name: "Strength", xp: 1 },
+          { name: "Defence", xp: 1 },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        name: "Attack",
+        xp: 4,
+        oldXp: 5,
+      },
+      {
+        name: "Strength",
+        xp: 2,
+        oldXp: 1,
+      },
+    ]);
+  });
+
+  test("forceResync skips unchanged skills", () => {
+    expect(
+      getSkillUpdates({
+        newData: { Attack: 5, Strength: 1 },
+        oldData: [
+          { name: "Attack", xp: 5 },
+          { name: "Strength", xp: 1 },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([]);
+  });
+
   test("new skill", () => {
     expect(
-      getSkillUpdates({ Attack: 1, Strength: 1, Defence: 1 }, [
-        { name: "Attack", xp: 1 },
-        { name: "Strength", xp: 1 },
-      ]),
+      getSkillUpdates({
+        newData: { Attack: 1, Strength: 1, Defence: 1 },
+        oldData: [
+          { name: "Attack", xp: 1 },
+          { name: "Strength", xp: 1 },
+        ],
+      }),
     ).toEqual([
       {
         name: "Defence",
@@ -577,21 +682,27 @@ describe("SKILLS", () => {
 
   test("unknown skill", () => {
     expect(
-      getSkillUpdates({ Attack: 1, Strength: 1 }, [
-        { name: "Attack", xp: 1 },
-        { name: "Strength", xp: 1 },
-        { name: "TestSkill", xp: 1 },
-      ]),
+      getSkillUpdates({
+        newData: { Attack: 1, Strength: 1 },
+        oldData: [
+          { name: "Attack", xp: 1 },
+          { name: "Strength", xp: 1 },
+          { name: "TestSkill", xp: 1 },
+        ],
+      }),
     ).toEqual([]);
   });
 
   test("missing skill", () => {
     expect(
-      getSkillUpdates({ Attack: 1, Strength: 1 }, [
-        { name: "Attack", xp: 1 },
-        { name: "Strength", xp: 1 },
-        { name: "Defence", xp: 1 },
-      ]),
+      getSkillUpdates({
+        newData: { Attack: 1, Strength: 1 },
+        oldData: [
+          { name: "Attack", xp: 1 },
+          { name: "Strength", xp: 1 },
+          { name: "Defence", xp: 1 },
+        ],
+      }),
     ).toEqual([]);
   });
 });

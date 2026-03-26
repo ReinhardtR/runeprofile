@@ -18,6 +18,7 @@ export const accounts = t.pgTable(
     clanTitle: t.text(),
     groupName: t.text(),
     defaultClogPage: t.text(),
+    forceResync: t.boolean().notNull().default(false),
     updatedAt,
     createdAt,
   }),

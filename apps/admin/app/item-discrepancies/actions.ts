@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
 import {
   AccountItemDiscrepancy,
   AccountItemDiscrepancyWithDetails,
@@ -324,6 +325,8 @@ export async function removeDiscrepantItems(
   revalidatePath("/item-discrepancies");
   revalidatePath(`/item-discrepancies/${encodeURIComponent(accountId)}`);
 
+  await invalidateDiffCache(accountId);
+
   return {
     itemsDeleted: itemIds.length,
     activitiesDeleted,
@@ -572,6 +575,8 @@ export async function getDetailsAndMaybeReconcile(accountId: string): Promise<
   // Remove discrepancy from KV
   const key = `${ITEM_DISCREPANCY_PREFIX}${accountId}`;
   await env.KV.delete(key);
+
+  await invalidateDiffCache(accountId);
 
   revalidatePath("/item-discrepancies");
 

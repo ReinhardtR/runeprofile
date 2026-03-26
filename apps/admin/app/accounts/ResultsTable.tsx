@@ -15,6 +15,7 @@ import Link from "next/link";
 
 import { DeleteDialog } from "./DeleteDialog";
 import { EditAccountDialog } from "./EditAccountDialog";
+import { ResyncButton } from "./ResyncButton";
 
 interface AccountRow {
   id: string;
@@ -24,6 +25,7 @@ interface AccountRow {
   clanRank: number | null;
   clanIcon: number | null;
   clanTitle: string | null;
+  forceResync: boolean;
   updatedAt: string;
 }
 
@@ -106,6 +108,7 @@ export function ResultsTable({
               <div className="flex items-center gap-2 flex-wrap">
                 <EditAccountDialog account={r} />
                 <DeleteDialog id={r.id} username={r.username} />
+                <ResyncButton id={r.id} forceResync={r.forceResync} />
                 <Button variant="outline" size="sm" asChild>
                   <Link
                     href={`/accounts/${encodeURIComponent(r.id)}/activities${searchQuery ? `?from=${encodeURIComponent(searchQuery)}` : ""}`}

@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
 
@@ -36,6 +37,8 @@ export async function deleteAccount(id: string) {
     db.delete(activities).where(eq(activities.accountId, id)),
   ]);
   await db.delete(accounts).where(eq(accounts.id, id));
+
+  await invalidateDiffCache(id);
 
   // Delete player model files from R2 bucket
   const username = account.username.toLowerCase();
@@ -88,6 +91,8 @@ export async function updateAccount(
   // Update the account
   await db.update(accounts).set(updates).where(eq(accounts.id, id));
 
+  await invalidateDiffCache(id);
+
   // Rename player model files if username changed
   if (updates.username && updates.username !== account.username) {
     const oldKey = account.username.toLowerCase();
@@ -132,6 +137,7 @@ export async function searchAccounts(q: string) {
     clanRank: accounts.clanRank,
     clanIcon: accounts.clanIcon,
     clanTitle: accounts.clanTitle,
+    forceResync: accounts.forceResync,
     updatedAt: accounts.updatedAt,
   };
 
@@ -169,4 +175,24 @@ export async function searchAccounts(q: string) {
       accounts.username,
     )
     .limit(25);
+}
+
+export async function toggleForceResync(id: string) {
+  const account = await db.query.accounts.findFirst({
+    where: eq(accounts.id, id),
+    columns: { id: true, forceResync: true },
+  });
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  const newValue = !account.forceResync;
+  await db
+    .update(accounts)
+    .set({ forceResync: newValue })
+    .where(eq(accounts.id, id));
+
+  await invalidateDiffCache(id);
+
+  return { forceResync: newValue };
 }

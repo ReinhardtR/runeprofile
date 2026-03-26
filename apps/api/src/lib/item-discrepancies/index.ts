@@ -1,4 +1,4 @@
-import type { Profile } from "~/lib/profiles/get-profile";
+import type { DiffProfile } from "~/lib/profiles/diff-cache";
 import type { UpdateProfileInput } from "~/lib/profiles/get-profile-updates";
 
 // ============================================================================
@@ -57,7 +57,7 @@ const MINIMUM_FULL_UPDATE_ITEMS = 20;
  */
 export function detectItemDiscrepancies(
   input: UpdateProfileInput,
-  profile: Profile | null,
+  profile: DiffProfile | null,
 ): AccountItemDiscrepancy | null {
   // Can't detect discrepancies without a profile to compare against
   if (!profile) {

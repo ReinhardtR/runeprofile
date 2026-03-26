@@ -23,7 +23,7 @@ export async function updateProfile(
   bucket: R2Bucket,
   updates: ProfileUpdates,
   activityEvents: ActivityEvent[],
-) {
+): Promise<{ updatedAt: string }> {
   const accountId = updates.id;
 
   if (!updates.currentProfile) {
@@ -89,6 +89,8 @@ export async function updateProfile(
   //       }))
   //     : [];
 
+  let resultUpdatedAt: string | undefined;
+
   await db.transaction(async (tx) => {
     await Promise.all([
       tx
@@ -101,8 +103,13 @@ export async function updateProfile(
           clanIcon: updates.clan?.icon ?? null,
           clanTitle: updates.clan?.title ?? null,
           groupName: updates.groupName ?? null,
+          forceResync: false,
         })
-        .where(eq(accounts.id, accountId)),
+        .where(eq(accounts.id, accountId))
+        .returning({ updatedAt: accounts.updatedAt })
+        .then((rows) => {
+          resultUpdatedAt = rows[0]?.updatedAt;
+        }),
       withValues(achievementDiaryTiersValues, (values) =>
         tx
           .insert(achievementDiaryTiers)
@@ -183,4 +190,6 @@ export async function updateProfile(
       console.error("Failed to rename player models:", error);
     }
   }
+
+  return { updatedAt: resultUpdatedAt ?? new Date().toISOString() };
 }

@@ -1,4 +1,6 @@
-import { Database } from "@runeprofile/db";
+import { eq } from "drizzle-orm";
+
+import { Database, accounts } from "@runeprofile/db";
 import {
   ACHIEVEMENT_DIARIES,
   COLLECTION_LOG_ITEM_IDS,
@@ -8,10 +10,10 @@ import {
 } from "@runeprofile/runescape";
 
 import {
-  RuneProfileAccountNotFoundError,
-  RuneProfileError,
-} from "~/lib/errors";
-import { Profile, getProfileById } from "~/lib/profiles/get-profile";
+  DiffProfile,
+  getDiffProfileFromCache,
+  setDiffProfileCache,
+} from "~/lib/profiles/diff-cache";
 
 export type UpdateProfileInput = {
   id: string;
@@ -23,6 +25,7 @@ export type UpdateProfileInput = {
     icon: number;
     title: string;
   };
+  eventSource?: string;
   groupName?: string;
   achievementDiaryTiers: Array<{
     areaId: number;
@@ -41,7 +44,8 @@ export type UpdateProfileInput = {
 
 export type ProfileUpdates = {
   id: string;
-  currentProfile: Profile | null;
+  currentProfile: DiffProfile | null;
+  forceResync: boolean;
   username: string;
   accountType: number;
   clan?: {
@@ -79,48 +83,154 @@ export type ProfileUpdates = {
   }>;
 };
 
+async function getProfileForDiff(
+  db: Database,
+  id: string,
+): Promise<{ diffProfile: DiffProfile; forceResync: boolean } | null> {
+  const result = await db.query.accounts.findFirst({
+    where: (fields, { eq }) => eq(fields.id, id),
+    columns: { username: true, updatedAt: true, forceResync: true },
+    with: {
+      achievementDiaryTiers: {
+        columns: { areaId: true, tier: true, completedCount: true },
+      },
+      combatAchievementTiers: {
+        columns: { id: true, completedCount: true },
+      },
+      items: { columns: { id: true, quantity: true } },
+      quests: { columns: { id: true, state: true } },
+      skills: { columns: { name: true, xp: true } },
+    },
+  });
+
+  if (!result) return null;
+
+  return {
+    diffProfile: {
+      username: result.username,
+      updatedAt: result.updatedAt,
+      achievementDiaryTiers: result.achievementDiaryTiers.map((t) => ({
+        areaId: t.areaId,
+        tierIndex: t.tier,
+        completedCount: t.completedCount,
+      })),
+      combatAchievementTiers: result.combatAchievementTiers,
+      items: result.items,
+      quests: result.quests,
+      skills: result.skills,
+    },
+    forceResync: result.forceResync,
+  };
+}
+
 export async function getProfileUpdates(
   db: Database,
+  kv: KVNamespace,
   input: UpdateProfileInput,
 ): Promise<ProfileUpdates> {
-  let profile: Profile | null = null;
+  // Try KV cache first, fall back to lightweight DB query
+  let diffProfile: DiffProfile | null = null;
+  let forceResync = false;
+
   try {
-    profile = await getProfileById(db, input.id);
-  } catch (e) {
-    // Finding the profile failed for other reasons than not found
-    if (
-      !(e instanceof RuneProfileError) ||
-      e.code !== RuneProfileAccountNotFoundError.code
-    ) {
-      throw e;
+    diffProfile = await getDiffProfileFromCache(kv, input.id);
+    console.log(
+      `Cache ${diffProfile ? "hit" : "miss"} for profile diff with ID: ${input.id}`,
+    );
+  } catch {
+    // KV read failed, fall through to DB
+    console.log(`Failed to read diff profile from cache for ID: ${input.id}`);
+  }
+
+  if (diffProfile) {
+    // Validate cache against DB timestamp and check forceResync flag
+    try {
+      const row = await db
+        .select({ updatedAt: accounts.updatedAt, forceResync: accounts.forceResync })
+        .from(accounts)
+        .where(eq(accounts.id, input.id))
+        .limit(1);
+
+      const dbRow = row[0];
+      forceResync = dbRow?.forceResync ?? false;
+
+      if (!dbRow?.updatedAt || dbRow.updatedAt !== diffProfile.updatedAt) {
+        // Cache is inconsistent with DB — discard and fetch fresh
+        console.log(
+          `Cache invalid for ID: ${input.id}. DB updatedAt: ${dbRow?.updatedAt}, Cache updatedAt: ${diffProfile.updatedAt}`,
+        );
+        diffProfile = null;
+      }
+    } catch {
+      // Timestamp check failed, discard cache to be safe
+      diffProfile = null;
     }
+  }
+
+  if (!diffProfile) {
+    const result = await getProfileForDiff(db, input.id);
+
+    if (result) {
+      diffProfile = result.diffProfile;
+      forceResync = result.forceResync;
+
+      try {
+        await setDiffProfileCache(kv, input.id, diffProfile);
+      } catch {
+        // Non-critical: cache will be populated after successful update
+        console.log(`Failed to set diff profile cache for ID: ${input.id}`);
+      }
+    }
+  }
+
+  if (forceResync) {
+    console.log(`Force resync enabled for account ID: ${input.id}`);
   }
 
   return {
     id: input.id,
+    forceResync,
     username: input.username,
     accountType: input.accountType,
     clan: input.clan,
     groupName: input.groupName,
-    achievementDiaryTiers: getAchievementDiaryTierUpdates(
-      input.achievementDiaryTiers,
-      profile?.achievementDiaryTiers || [],
-    ),
-    combatAchievementTiers: getCombatAchievementTierUpdates(
-      input.combatAchievementTiers,
-      profile?.combatAchievementTiers || [],
-    ),
-    items: getItemUpdates(input.items, profile?.items || []),
-    quests: getQuestUpdates(input.quests, profile?.quests || []),
-    skills: getSkillUpdates(input.skills, profile?.skills || []),
-    currentProfile: profile,
+    achievementDiaryTiers: getAchievementDiaryTierUpdates({
+      newData: input.achievementDiaryTiers,
+      oldData: diffProfile?.achievementDiaryTiers || [],
+      forceResync,
+    }),
+    combatAchievementTiers: getCombatAchievementTierUpdates({
+      newData: input.combatAchievementTiers,
+      oldData: diffProfile?.combatAchievementTiers || [],
+      forceResync,
+    }),
+    items: getItemUpdates({
+      newData: input.items,
+      oldData: diffProfile?.items || [],
+    }),
+    quests: getQuestUpdates({
+      newData: input.quests,
+      oldData: diffProfile?.quests || [],
+      forceResync,
+    }),
+    skills: getSkillUpdates({
+      newData: input.skills,
+      oldData: diffProfile?.skills || [],
+      forceResync,
+    }),
+    currentProfile: diffProfile,
   };
 }
 
-export function getAchievementDiaryTierUpdates(
-  newData: UpdateProfileInput["achievementDiaryTiers"],
-  oldData: Profile["achievementDiaryTiers"],
-): ProfileUpdates["achievementDiaryTiers"] {
+export function getAchievementDiaryTierUpdates({
+  newData,
+  oldData,
+  forceResync,
+}: {
+  newData: UpdateProfileInput["achievementDiaryTiers"];
+  oldData: DiffProfile["achievementDiaryTiers"];
+  forceResync?: boolean;
+}): ProfileUpdates["achievementDiaryTiers"] {
   const updates: ProfileUpdates["achievementDiaryTiers"] = [];
 
   for (const diary of ACHIEVEMENT_DIARIES) {
@@ -137,6 +247,13 @@ export function getAchievementDiaryTierUpdates(
       if (oldTier && oldTier.completedCount === newTier.completedCount) {
         continue;
       }
+      if (
+        oldTier &&
+        oldTier.completedCount > newTier.completedCount &&
+        !forceResync
+      ) {
+        continue;
+      }
 
       updates.push({
         areaId: diary.id,
@@ -150,10 +267,15 @@ export function getAchievementDiaryTierUpdates(
   return updates;
 }
 
-export function getCombatAchievementTierUpdates(
-  newData: UpdateProfileInput["combatAchievementTiers"],
-  oldData: Profile["combatAchievementTiers"],
-): ProfileUpdates["combatAchievementTiers"] {
+export function getCombatAchievementTierUpdates({
+  newData,
+  oldData,
+  forceResync,
+}: {
+  newData: UpdateProfileInput["combatAchievementTiers"];
+  oldData: DiffProfile["combatAchievementTiers"];
+  forceResync?: boolean;
+}): ProfileUpdates["combatAchievementTiers"] {
   const updates: ProfileUpdates["combatAchievementTiers"] = [];
 
   for (const tier of COMBAT_ACHIEVEMENT_TIERS) {
@@ -164,6 +286,13 @@ export function getCombatAchievementTierUpdates(
 
     const oldTier = oldData.find((t) => t.id === tier.id);
     if (oldTier && oldTier.completedCount === newCompletedCount) {
+      continue;
+    }
+    if (
+      oldTier &&
+      oldTier.completedCount > newCompletedCount &&
+      !forceResync
+    ) {
       continue;
     }
 
@@ -177,10 +306,13 @@ export function getCombatAchievementTierUpdates(
   return updates;
 }
 
-export function getItemUpdates(
-  newData: UpdateProfileInput["items"],
-  oldData: Profile["items"],
-): ProfileUpdates["items"] {
+export function getItemUpdates({
+  newData,
+  oldData,
+}: {
+  newData: UpdateProfileInput["items"];
+  oldData: DiffProfile["items"];
+}): ProfileUpdates["items"] {
   const updates: ProfileUpdates["items"] = [];
 
   for (const itemId of COLLECTION_LOG_ITEM_IDS) {
@@ -204,10 +336,15 @@ export function getItemUpdates(
   return updates;
 }
 
-export function getQuestUpdates(
-  newData: UpdateProfileInput["quests"],
-  oldData: Profile["quests"],
-): ProfileUpdates["quests"] {
+export function getQuestUpdates({
+  newData,
+  oldData,
+  forceResync,
+}: {
+  newData: UpdateProfileInput["quests"];
+  oldData: DiffProfile["quests"];
+  forceResync?: boolean;
+}): ProfileUpdates["quests"] {
   const updates: ProfileUpdates["quests"] = [];
 
   for (const quest of QUESTS) {
@@ -218,6 +355,9 @@ export function getQuestUpdates(
 
     const oldQuest = oldData.find((q) => q.id === quest.id);
     if (oldQuest && oldQuest.state === newState) {
+      continue;
+    }
+    if (oldQuest && oldQuest.state > newState && !forceResync) {
       continue;
     }
 
@@ -231,10 +371,15 @@ export function getQuestUpdates(
   return updates;
 }
 
-export function getSkillUpdates(
-  newData: UpdateProfileInput["skills"],
-  oldData: Profile["skills"],
-): ProfileUpdates["skills"] {
+export function getSkillUpdates({
+  newData,
+  oldData,
+  forceResync,
+}: {
+  newData: UpdateProfileInput["skills"];
+  oldData: DiffProfile["skills"];
+  forceResync?: boolean;
+}): ProfileUpdates["skills"] {
   const updates: ProfileUpdates["skills"] = [];
 
   for (const skillName of SKILLS) {
@@ -244,7 +389,10 @@ export function getSkillUpdates(
     }
 
     const oldSkill = oldData.find((skill) => skill.name === skillName);
-    if (oldSkill && oldSkill.xp >= newXp) {
+    if (oldSkill && oldSkill.xp >= newXp && !forceResync) {
+      continue;
+    }
+    if (oldSkill && oldSkill.xp === newXp) {
       continue;
     }
 

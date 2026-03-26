@@ -22,6 +22,11 @@ import {
 import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
 import { uploadPlayerModels } from "~/lib/models/manage-models";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
+import {
+  buildUpdatedDiffProfile,
+  deleteDiffProfileCache,
+  setDiffProfileCache,
+} from "~/lib/profiles/diff-cache";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
 import { getProfileUpdates } from "~/lib/profiles/get-profile-updates";
 import { searchProfiles } from "~/lib/profiles/search-profiles";
@@ -95,6 +100,7 @@ export const profilesRouter = newRouter()
             title: z.string(),
           })
           .optional(),
+        eventSource: z.string().optional(),
         groupName: z.string().optional(),
         achievementDiaryTiers: z.array(
           z.object({
@@ -115,12 +121,30 @@ export const profilesRouter = newRouter()
       const kv = c.env.KV;
       const data = c.req.valid("json");
 
-      console.log({ Data: data });
+      console.log({ EventSource: data.eventSource ?? "unknown", Data: data });
 
       try {
-        const updates = await getProfileUpdates(db, data);
-        const activities = checkActivityEvents(updates);
-        await updateProfile(db, bucket, updates, activities);
+        const updates = await getProfileUpdates(db, kv, data);
+        const activities = updates.forceResync
+          ? []
+          : checkActivityEvents(updates);
+        const { updatedAt } = await updateProfile(
+          db,
+          bucket,
+          updates,
+          activities,
+        );
+
+        // Update diff cache after successful write
+        c.executionCtx.waitUntil(
+          setDiffProfileCache(
+            kv,
+            data.id,
+            buildUpdatedDiffProfile(updates.currentProfile, updatedAt, updates),
+          ).catch((err) => {
+            console.error("Failed to update diff cache:", err);
+          }),
+        );
 
         // Detect and store item discrepancies (runs in background)
         const discrepancy = detectItemDiscrepancies(
@@ -240,9 +264,16 @@ export const profilesRouter = newRouter()
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
+      const kv = c.env.KV;
       const { id } = c.req.valid("param");
 
       await deleteProfile(db, bucket, id);
+
+      c.executionCtx.waitUntil(
+        deleteDiffProfileCache(kv, id).catch((err) => {
+          console.error("Failed to delete diff cache:", err);
+        }),
+      );
 
       return c.json({ message: "Profile deleted successfully" });
     },

@@ -6,7 +6,11 @@ import { ArrowLeft, Search, X } from "lucide-react";
 import Link from "next/link";
 
 import { AccountItemsTable } from "./AccountItemsTable";
-import { getAccountItems, getItemStats } from "./actions";
+import {
+  getAccountItems,
+  getDiscrepancyDetails,
+  getItemStats,
+} from "./actions";
 
 export default async function AccountItemsPage({
   params,
@@ -36,10 +40,11 @@ export default async function AccountItemsPage({
   console.log("Decoded account ID:", id);
 
   try {
-    // Get account items and stats
-    const [itemsData, stats] = await Promise.all([
+    // Get account items, stats, and discrepancy info
+    const [itemsData, stats, discrepancy] = await Promise.all([
       getAccountItems(id, page, 50, itemId, sortBy),
       getItemStats(id),
+      getDiscrepancyDetails(id),
     ]);
 
     const { account, items, totalCount, hasMore, currentPage } = itemsData;
@@ -166,6 +171,7 @@ export default async function AccountItemsPage({
                 currentPage={currentPage}
                 searchItemId={itemId}
                 sortBy={sortBy}
+                discrepancy={discrepancy}
               />
             </div>
           )}

@@ -73,6 +73,13 @@ export function DiscrepancyList({
   const processingRef = useRef(false);
   const autoDismissRef = useRef(false);
 
+  // Session stats
+  const [sessionStats, setSessionStats] = useState({
+    reconciled: 0,
+    dismissed: 0,
+    skipped: 0,
+  });
+
   // Keep refs in sync with state
   useEffect(() => {
     autoModeRef.current = isAutoMode;
@@ -140,6 +147,7 @@ export function DiscrepancyList({
         setAutoModeStatus(
           `No details found for ${currentDiscrepancy.username}, skipping...`,
         );
+        setSessionStats((prev) => ({ ...prev, skipped: prev.skipped + 1 }));
         setDiscrepancies((prev) =>
           prev.filter((d) => d.accountId !== currentDiscrepancy.accountId),
         );
@@ -147,6 +155,10 @@ export function DiscrepancyList({
         toast.success(
           `Auto-reconciled ${currentDiscrepancy.username}: ${result.result.itemsDeleted} items deleted, ${result.result.itemsUpdated} updated, ${result.result.activitiesDeleted} activities removed`,
         );
+        setSessionStats((prev) => ({
+          ...prev,
+          reconciled: prev.reconciled + 1,
+        }));
         setDiscrepancies((prev) =>
           prev.filter((d) => d.accountId !== currentDiscrepancy.accountId),
         );
@@ -160,6 +172,10 @@ export function DiscrepancyList({
             toast.warning(
               `Auto-dismissed ${currentDiscrepancy.username}: ${result.reasons.join(", ")}`,
             );
+            setSessionStats((prev) => ({
+              ...prev,
+              dismissed: prev.dismissed + 1,
+            }));
             setDiscrepancies((prev) =>
               prev.filter((d) => d.accountId !== currentDiscrepancy.accountId),
             );
@@ -279,6 +295,10 @@ export function DiscrepancyList({
         toast.success(
           `Reconciled ${details.username}: ${result.itemsDeleted} items deleted, ${result.itemsUpdated} updated, ${result.activitiesDeleted} activities removed`,
         );
+        setSessionStats((prev) => ({
+          ...prev,
+          reconciled: prev.reconciled + 1,
+        }));
 
         // Remove from local state
         setDiscrepancies((prev) =>
@@ -309,6 +329,7 @@ export function DiscrepancyList({
       try {
         await dismissDiscrepancy(selectedAccountId);
         toast.success(`Dismissed discrepancy for ${details.username}`);
+        setSessionStats((prev) => ({ ...prev, dismissed: prev.dismissed + 1 }));
 
         // Remove from local state
         setDiscrepancies((prev) =>
@@ -411,6 +432,38 @@ export function DiscrepancyList({
               </p>
             )}
           </div>
+          {/* Session stats counter */}
+          {(sessionStats.reconciled > 0 ||
+            sessionStats.dismissed > 0 ||
+            sessionStats.skipped > 0) && (
+            <div className="flex items-center gap-3 text-sm border-l pl-4 ml-2">
+              <span className="text-muted-foreground font-medium">
+                Session:
+              </span>
+              <span className="text-green-600 font-semibold">
+                <Check className="w-3 h-3 inline mr-0.5" />
+                {sessionStats.reconciled} reconciled
+              </span>
+              {sessionStats.dismissed > 0 && (
+                <span className="text-yellow-600 font-semibold">
+                  <X className="w-3 h-3 inline mr-0.5" />
+                  {sessionStats.dismissed} dismissed
+                </span>
+              )}
+              {sessionStats.skipped > 0 && (
+                <span className="text-muted-foreground">
+                  {sessionStats.skipped} skipped
+                </span>
+              )}
+              <span className="text-muted-foreground">
+                (
+                {sessionStats.reconciled +
+                  sessionStats.dismissed +
+                  sessionStats.skipped}{" "}
+                total)
+              </span>
+            </div>
+          )}
         </div>
       )}
 
