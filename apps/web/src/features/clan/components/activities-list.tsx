@@ -102,7 +102,7 @@ export function ActivitiesList() {
                     ...prev,
                     activityPage: page + 1,
                     activityCursor: activities.nextCursor ?? undefined,
-                    activityDir: "next" as const,
+                    activityDir: undefined,
                   }),
                   resetScroll: false,
                 });

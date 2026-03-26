@@ -52,9 +52,9 @@ export function encodeCursor(fields: CursorFields): string {
   const entries = Object.entries(fields)
     .map(([key, value]) => {
       const shortKey = cursorKeyMap[key] ?? key;
-      return `${shortKey}:${encodeCursorValue(key, value)}`;
+      return `${shortKey}-${encodeCursorValue(key, value)}`;
     })
-    .join("|");
+    .join("_");
 
   return entries;
 }
@@ -78,27 +78,31 @@ const cursorKeyMapReverse: Record<string, string> = Object.fromEntries(
 );
 
 function encodeCursorValue(key: string, value: string) {
+  if (key === "id") {
+    return uuidToBase62(value);
+  }
+
   if (key === "clanRank") {
     const parsed = Number.parseInt(value, 10);
-    return Number.isNaN(parsed)
-      ? encodeURIComponent(value)
-      : parsed.toString(36);
+    return Number.isNaN(parsed) ? value : parsed.toString(36);
   }
 
   if (key === "createdAt") {
     const epochMs = Date.parse(value);
-    return Number.isNaN(epochMs)
-      ? encodeURIComponent(value)
-      : epochMs.toString(36);
+    return Number.isNaN(epochMs) ? value : epochMs.toString(36);
   }
 
-  return encodeURIComponent(value);
+  return value;
 }
 
 function decodeCursorValue(key: string, value: string) {
+  if (key === "id") {
+    return base62ToUuid(value);
+  }
+
   if (key === "clanRank") {
     const parsed = Number.parseInt(value, 36);
-    return Number.isNaN(parsed) ? decodeURIComponent(value) : String(parsed);
+    return Number.isNaN(parsed) ? value : String(parsed);
   }
 
   if (key === "createdAt") {
@@ -108,24 +112,50 @@ function decodeCursorValue(key: string, value: string) {
     }
   }
 
-  return decodeURIComponent(value);
+  return value;
 }
 
 function decodeCursorPayload(payload: string): CursorFields | undefined {
   if (!payload) return undefined;
-  const entries = payload.split("|");
+  // Fields are separated by "_", key-value by "-" (split on first "-" only)
+  const entries = payload.split("_");
   const fields: CursorFields = {};
 
   for (const entry of entries) {
     if (!entry) continue;
-    const [rawKey, rawValue] = entry.split(":");
-    if (!rawKey || rawValue === undefined) continue;
+    const dashIdx = entry.indexOf("-");
+    if (dashIdx === -1) continue;
+    const rawKey = entry.slice(0, dashIdx);
+    const rawValue = entry.slice(dashIdx + 1);
+    if (!rawKey) continue;
 
     const key = cursorKeyMapReverse[rawKey] ?? rawKey;
     fields[key] = decodeCursorValue(key, rawValue);
   }
 
   return Object.keys(fields).length > 0 ? fields : undefined;
+}
+
+const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+function uuidToBase62(uuid: string): string {
+  const hex = uuid.replace(/-/g, "");
+  let num = BigInt("0x" + hex);
+  let result = "";
+  while (num > 0n) {
+    result = BASE62[Number(num % 62n)] + result;
+    num = num / 62n;
+  }
+  return result.padStart(22, "0");
+}
+
+function base62ToUuid(b62: string): string {
+  let num = 0n;
+  for (const c of b62) {
+    num = num * 62n + BigInt(BASE62.indexOf(c));
+  }
+  const hex = num.toString(16).padStart(32, "0");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 export type CursorPaginationParams = {

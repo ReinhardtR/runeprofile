@@ -126,7 +126,7 @@ export function MembersList() {
                     ...prev,
                     membersPage: page + 1,
                     membersCursor: clan.nextCursor ?? undefined,
-                    membersDir: "next" as const,
+                    membersDir: undefined,
                   }),
                   resetScroll: false,
                 });
