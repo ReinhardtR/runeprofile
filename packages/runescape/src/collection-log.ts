@@ -44,6 +44,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           29836, 29784, 29782, 29799, 29790, 29792, 29794, 29788, 29786, 29781,
         ],
         hiscore: { Araxxor: "Araxxor kills" },
+        aliases: ["rax"],
       },
       {
         name: "Barrows Chests",
