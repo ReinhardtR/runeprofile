@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check-clog": "tsx check-clog.ts"
+    "check-clog": "tsx check-clog.ts",
+    "update-clog": "tsx check-clog.ts --write"
   },
   "devDependencies": {
-    "@abextm/cache2": "^0.1.3",
+    "@abextm/cache2": "^0.1.7",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",
+    "ts-morph": "^27.0.2",
     "tsx": "^4.19.3"
   }
 }

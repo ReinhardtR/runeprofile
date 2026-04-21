@@ -1,4 +1,9 @@
+import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import * as cache from "@abextm/cache2";
+import { Project, SyntaxKind } from "ts-morph";
 
 import {
   COLLECTION_LOG_ITEMS,
@@ -35,6 +40,15 @@ const CLOG_DUMMY_ITEM_ID_MAP: Record<number, number> = {
   29992: 29990, // Alchemist's amulet
   30805: 30803, // Dossier
 };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const COLLECTION_LOG_PATH = path.resolve(
+  __dirname,
+  "../../packages/runescape/src/collection-log.ts",
+);
+
+const writeMode = process.argv.includes("--write");
 
 checkClog()
   .then(() => console.log("Finished checking collection log."))
@@ -229,42 +243,258 @@ async function checkClog() {
     }
   }
 
-  // Output the page objects
-  if (pagesWithChanges.length > 0) {
-    console.log("\n=== COPY-PASTE PAGE OBJECTS ===\n");
-    for (const { tab, page, isNew } of pagesWithChanges) {
-      console.log(`// ${isNew ? "NEW" : "UPDATED"} page in tab: ${tab}`);
-      console.log(JSON.stringify(page, null, 2) + ",");
-      console.log(""); // Empty line between pages
-    }
-  } else {
+  const hasChanges =
+    pagesWithChanges.length > 0 ||
+    Object.keys(newItems).length > 0 ||
+    changedItemNames.length > 0;
+
+  if (!hasChanges) {
     console.log("No changes found in collection log data.");
+    return;
   }
 
-  // Output new items and name changes for COLLECTION_LOG_ITEMS
-  if (Object.keys(newItems).length > 0 || changedItemNames.length > 0) {
-    console.log("\n=== COLLECTION_LOG_ITEMS UPDATES ===\n");
+  // Build change summary
+  const summary = buildChangeSummary(
+    pagesWithChanges,
+    newItems,
+    changedItemNames,
+  );
+  console.log(summary);
 
-    if (Object.keys(newItems).length > 0) {
-      console.log("// NEW ITEMS - Add these to COLLECTION_LOG_ITEMS:");
-      const sortedNewItems = Object.entries(newItems).sort(
-        ([a], [b]) => Number(a) - Number(b),
+  if (writeMode) {
+    writeChanges(pagesWithChanges, newItems, changedItemNames);
+
+    // Write summary file for GitHub Actions
+    const summaryPath = path.join("/tmp", "clog-changes-summary.txt");
+    writeFileSync(summaryPath, summary, "utf-8");
+    console.log(`\nChange summary written to ${summaryPath}`);
+  } else {
+    // Output copy-paste blocks for manual use
+    if (pagesWithChanges.length > 0) {
+      console.log("\n=== COPY-PASTE PAGE OBJECTS ===\n");
+      for (const { tab, page, isNew } of pagesWithChanges) {
+        console.log(`// ${isNew ? "NEW" : "UPDATED"} page in tab: ${tab}`);
+        console.log(JSON.stringify(page, null, 2) + ",");
+        console.log("");
+      }
+    }
+
+    if (Object.keys(newItems).length > 0 || changedItemNames.length > 0) {
+      console.log("\n=== COLLECTION_LOG_ITEMS UPDATES ===\n");
+
+      if (Object.keys(newItems).length > 0) {
+        console.log("// NEW ITEMS - Add these to COLLECTION_LOG_ITEMS:");
+        const sortedNewItems = Object.entries(newItems).sort(
+          ([a], [b]) => Number(a) - Number(b),
+        );
+        for (const [id, name] of sortedNewItems) {
+          console.log(`  ${id}: "${name}",`);
+        }
+        console.log("");
+      }
+
+      if (changedItemNames.length > 0) {
+        console.log(
+          "// NAME CHANGES - Update these in COLLECTION_LOG_ITEMS:",
+        );
+        const sortedChangedItems = changedItemNames.sort(
+          (a, b) => a.id - b.id,
+        );
+        for (const { id, oldName, newName } of sortedChangedItems) {
+          console.log(`  ${id}: "${newName}", // was: "${oldName}"`);
+        }
+        console.log("");
+      }
+    }
+  }
+}
+
+function buildChangeSummary(
+  pagesWithChanges: { tab: string; page: CollectionLogPage; isNew: boolean }[],
+  newItems: Record<number, string>,
+  changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
+): string {
+  const lines: string[] = ["## Collection Log Update Summary\n"];
+
+  const newPages = pagesWithChanges.filter((p) => p.isNew);
+  const updatedPages = pagesWithChanges.filter((p) => !p.isNew);
+
+  if (newPages.length > 0) {
+    lines.push(`### New Pages (${newPages.length})\n`);
+    for (const { tab, page } of newPages) {
+      lines.push(
+        `- **${page.name}** in tab *${tab}* (${page.items.length} items)`,
       );
-
-      for (const [id, name] of sortedNewItems) {
-        console.log(`  ${id}: "${name}",`);
-      }
-      console.log("");
     }
+    lines.push("");
+    lines.push(
+      "> **Note:** New pages need manual additions for `hiscore` and `aliases` properties.\n",
+    );
+  }
 
-    if (changedItemNames.length > 0) {
-      console.log("// NAME CHANGES - Update these in COLLECTION_LOG_ITEMS:");
-      const sortedChangedItems = changedItemNames.sort((a, b) => a.id - b.id);
+  if (updatedPages.length > 0) {
+    lines.push(`### Updated Pages (${updatedPages.length})\n`);
+    for (const { tab, page } of updatedPages) {
+      lines.push(`- **${page.name}** in tab *${tab}*`);
+    }
+    lines.push("");
+  }
 
-      for (const { id, oldName, newName } of sortedChangedItems) {
-        console.log(`  ${id}: "${newName}", // was: "${oldName}"`);
-      }
-      console.log("");
+  const newItemEntries = Object.entries(newItems).sort(
+    ([a], [b]) => Number(a) - Number(b),
+  );
+  if (newItemEntries.length > 0) {
+    lines.push(`### New Items (${newItemEntries.length})\n`);
+    for (const [id, name] of newItemEntries) {
+      lines.push(`- \`${id}\`: ${name}`);
+    }
+    lines.push("");
+  }
+
+  if (changedItemNames.length > 0) {
+    const sorted = [...changedItemNames].sort((a, b) => a.id - b.id);
+    lines.push(`### Item Name Changes (${sorted.length})\n`);
+    for (const { id, oldName, newName } of sorted) {
+      lines.push(`- \`${id}\`: ~~${oldName}~~ → ${newName}`);
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+function writeChanges(
+  pagesWithChanges: { tab: string; page: CollectionLogPage; isNew: boolean }[],
+  newItems: Record<number, string>,
+  changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
+) {
+  console.log(`\nWriting changes to ${COLLECTION_LOG_PATH}...`);
+
+  const project = new Project({
+    tsConfigFilePath: path.resolve(__dirname, "../../tsconfig.json"),
+    skipAddingFilesFromTsConfig: true,
+  });
+  const sourceFile = project.addSourceFileAtPath(COLLECTION_LOG_PATH);
+
+  // --- Update COLLECTION_LOG_ITEMS ---
+  const itemsDecl = sourceFile.getVariableDeclarationOrThrow(
+    "COLLECTION_LOG_ITEMS",
+  );
+  const itemsObj = itemsDecl.getInitializerIfKindOrThrow(
+    SyntaxKind.ObjectLiteralExpression,
+  );
+
+  // Apply name changes
+  for (const { id, newName } of changedItemNames) {
+    const prop = itemsObj.getProperty(String(id));
+    if (prop && prop.isKind(SyntaxKind.PropertyAssignment)) {
+      prop.setInitializer(`"${newName.replace(/"/g, '\\"')}"`);
     }
   }
+
+  // Add new items
+  for (const [id, name] of Object.entries(newItems)) {
+    itemsObj.addPropertyAssignment({
+      name: id,
+      initializer: `"${name.replace(/"/g, '\\"')}"`,
+    });
+  }
+
+  // Sort all properties by numeric key
+  const allProps = itemsObj.getProperties();
+  const propData = allProps.map((prop) => ({
+    name: prop.isKind(SyntaxKind.PropertyAssignment)
+      ? prop.getName()
+      : prop.getText(),
+    text: prop.getText(),
+  }));
+  propData.sort((a, b) => Number(a.name) - Number(b.name));
+
+  // Remove all and re-add sorted
+  for (const prop of allProps) {
+    prop.remove();
+  }
+  for (const { name, text } of propData) {
+    const match = text.match(/:\s*(.*)/s);
+    const initializer = match?.[1] ?? `""`;
+    itemsObj.addPropertyAssignment({
+      name,
+      initializer,
+    });
+  }
+
+  // --- Update COLLECTION_LOG_TABS ---
+  const tabsDecl = sourceFile.getVariableDeclarationOrThrow(
+    "COLLECTION_LOG_TABS",
+  );
+  const tabsArray = tabsDecl.getInitializerIfKindOrThrow(
+    SyntaxKind.ArrayLiteralExpression,
+  );
+
+  for (const { tab: tabName, page, isNew } of pagesWithChanges) {
+    // Find the tab object in the array
+    const tabElement = tabsArray.getElements().find((el) => {
+      if (!el.isKind(SyntaxKind.ObjectLiteralExpression)) return false;
+      const nameProp = el.getProperty("name");
+      if (!nameProp || !nameProp.isKind(SyntaxKind.PropertyAssignment))
+        return false;
+      const init = nameProp.getInitializer();
+      return init?.getText() === `"${tabName}"`;
+    });
+
+    if (!tabElement || !tabElement.isKind(SyntaxKind.ObjectLiteralExpression)) {
+      console.warn(`Could not find tab "${tabName}" in COLLECTION_LOG_TABS`);
+      continue;
+    }
+
+    const pagesProp = tabElement.getPropertyOrThrow("pages");
+    if (!pagesProp.isKind(SyntaxKind.PropertyAssignment)) continue;
+    const pagesArray = pagesProp.getInitializerIfKindOrThrow(
+      SyntaxKind.ArrayLiteralExpression,
+    );
+
+    if (isNew) {
+      // Add new page to the tab's pages array
+      const itemsStr = `[${page.items.join(", ")}]`;
+      pagesArray.addElement(
+        `{\n  name: "${page.name}",\n  items: ${itemsStr},\n}`,
+      );
+    } else {
+      // Update existing page's items array
+      const pageElement = pagesArray.getElements().find((el) => {
+        if (!el.isKind(SyntaxKind.ObjectLiteralExpression)) return false;
+        const nameProp = el.getProperty("name");
+        if (!nameProp || !nameProp.isKind(SyntaxKind.PropertyAssignment))
+          return false;
+        const init = nameProp.getInitializer();
+        return init?.getText() === `"${page.name}"`;
+      });
+
+      if (
+        !pageElement ||
+        !pageElement.isKind(SyntaxKind.ObjectLiteralExpression)
+      ) {
+        console.warn(
+          `Could not find page "${page.name}" in tab "${tabName}"`,
+        );
+        continue;
+      }
+
+      const itemsProp = pageElement.getPropertyOrThrow("items");
+      if (!itemsProp.isKind(SyntaxKind.PropertyAssignment)) continue;
+      const itemsStr = `[${page.items.join(", ")}]`;
+      itemsProp.setInitializer(itemsStr);
+    }
+  }
+
+  sourceFile.saveSync();
+  console.log("File saved.");
+
+  // Run prettier
+  console.log("Running prettier...");
+  execSync(`pnpm prettier --write "${COLLECTION_LOG_PATH}"`, {
+    cwd: path.resolve(__dirname, "../.."),
+    stdio: "inherit",
+  });
+  console.log("Prettier formatting complete.");
 }
