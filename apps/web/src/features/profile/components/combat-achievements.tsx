@@ -22,7 +22,7 @@ export function CombatAchievements({
     tiers.push({
       id: tier.id,
       name: tier.name,
-      tasksCount: tier.tasksCount,
+      tasksCount: tierData?.tasksCount ?? tier.tasksCount,
       completedCount: tierData?.completedCount ?? 0,
     });
   }

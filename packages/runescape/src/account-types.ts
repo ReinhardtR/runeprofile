@@ -8,3 +8,9 @@ export const AccountTypes = [
   { id: 6, key: "unranked_group_ironman", name: "Unranked Group Ironman" },
 ] as const satisfies { id: number; key: string; name: string }[];
 export type AccountType = (typeof AccountTypes)[number];
+
+const GROUP_IRONMAN_ACCOUNT_TYPE_IDS = new Set([4, 5, 6]);
+
+export function isGroupIronman(accountTypeId: number): boolean {
+  return GROUP_IRONMAN_ACCOUNT_TYPE_IDS.has(accountTypeId);
+}

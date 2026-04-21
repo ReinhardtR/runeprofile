@@ -11,6 +11,7 @@ import {
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
   SKILLS,
+  getCombatAchievementTierTaskCount,
 } from "@runeprofile/runescape";
 
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
@@ -138,7 +139,11 @@ async function getProfile(db: Database, condition: SQL) {
         id: profileTier.id,
         name: tier?.name || "Unknown",
         completedCount: profileTier.completedCount,
-        tasksCount: tier?.tasksCount || 0,
+        tasksCount:
+          getCombatAchievementTierTaskCount(
+            profileTier.id,
+            profile.accountType,
+          ) ?? 0,
       };
     },
   );

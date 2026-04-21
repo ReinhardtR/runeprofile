@@ -1,3 +1,5 @@
+import { isGroupIronman } from "./account-types";
+
 // ids based on runescript:4784
 export type CombatAchievementTier = {
   id: number;
@@ -13,8 +15,24 @@ export const COMBAT_ACHIEVEMENT_TIERS = [
   { id: 6, name: "Grandmaster", tasksCount: 121 },
 ] as const satisfies CombatAchievementTier[];
 
-export function getCombatAchievementTierTaskCount(id: number) {
-  return COMBAT_ACHIEVEMENT_TIERS.find((tier) => tier.id === id)?.tasksCount;
+// Number of tasks excluded per tier for Group Ironman accounts
+const GIM_EXCLUDED_TASKS: Partial<Record<number, number>> = {
+  6: 1,
+};
+
+export function getCombatAchievementTierTaskCount(
+  id: number,
+  accountTypeId?: number,
+) {
+  const tier = COMBAT_ACHIEVEMENT_TIERS.find((tier) => tier.id === id);
+  if (!tier) return undefined;
+
+  if (accountTypeId !== undefined && isGroupIronman(accountTypeId)) {
+    const excluded = GIM_EXCLUDED_TASKS[id] ?? 0;
+    return tier.tasksCount - excluded;
+  }
+
+  return tier.tasksCount;
 }
 
 export function getCombatAchievementTierName(id: number) {

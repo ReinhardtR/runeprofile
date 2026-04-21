@@ -31,6 +31,7 @@ export function checkActivityEvents(updates: ProfileUpdates) {
     ...checkAchievementDiaryTierCompletedEvents(updates.achievementDiaryTiers),
     ...checkCombatAchievementTierCompletedEvents(
       updates.combatAchievementTiers,
+      updates.accountType,
     ),
     ...checkQuestCompletedEvents(updates.quests),
 
@@ -163,11 +164,15 @@ export function checkAchievementDiaryTierCompletedEvents(
 
 export function checkCombatAchievementTierCompletedEvents(
   combatAchievementTierUpdates: ProfileUpdates["combatAchievementTiers"],
+  accountTypeId: number,
 ) {
   const events: CombatAchievementTierCompletedEvent[] = [];
 
   for (const tierUpdate of combatAchievementTierUpdates) {
-    const tierTaskCount = getCombatAchievementTierTaskCount(tierUpdate.id);
+    const tierTaskCount = getCombatAchievementTierTaskCount(
+      tierUpdate.id,
+      accountTypeId,
+    );
     if (tierTaskCount === undefined) continue;
     // already completed
     if (tierUpdate.oldCompletedCount >= tierTaskCount) continue;
