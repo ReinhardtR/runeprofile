@@ -213,7 +213,7 @@ describe("COMBAT ACHIEVEMENT TIER COMPLETED EVENTS", () => {
           completedCount: getCombatAchievementTierTaskCount(2) ?? 0,
           oldCompletedCount: 4,
         },
-      ]),
+      ], 0),
     ).toEqual([
       { type: "combat_achievement_tier_completed", data: { tierId: 1 } },
       { type: "combat_achievement_tier_completed", data: { tierId: 2 } },
@@ -224,7 +224,7 @@ describe("COMBAT ACHIEVEMENT TIER COMPLETED EVENTS", () => {
     expect(
       checkCombatAchievementTierCompletedEvents([
         { id: 1, completedCount: 4, oldCompletedCount: 3 },
-      ]),
+      ], 0),
     ).toEqual([]);
   });
 
@@ -241,7 +241,7 @@ describe("COMBAT ACHIEVEMENT TIER COMPLETED EVENTS", () => {
           completedCount: getCombatAchievementTierTaskCount(2) ?? 0,
           oldCompletedCount: getCombatAchievementTierTaskCount(2) ?? 0,
         },
-      ]),
+      ], 0),
     ).toEqual([]);
   });
 });
