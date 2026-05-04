@@ -243,3 +243,19 @@ export const discordWatchesRelations = relations(discordWatches, ({ one }) => ({
     references: [accounts.id],
   }),
 }));
+
+// API key management
+export const apiKeys = t.pgTable(
+  "api_keys",
+  {
+    id: t.text().notNull().primaryKey(),
+    keyHash: t.text().notNull(),
+    name: t.text().notNull(),
+    tier: t.text().notNull().default("standard"),
+    active: t.boolean().notNull().default(true),
+    createdAt,
+  },
+  (table) => [
+    t.uniqueIndex("api_keys_key_hash_unique_index").on(table.keyHash),
+  ],
+);

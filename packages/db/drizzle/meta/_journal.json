@@ -50,6 +50,13 @@
       "when": 1774520389043,
       "tag": "0006_flawless_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777900595060,
+      "tag": "0007_strange_klaw",
+      "breakpoints": true
     }
   ]
 }
