@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { ChevronRight, ImageIcon, Users } from "lucide-react";
+import { ChevronRight, ImageIcon, KeyRound, Users } from "lucide-react";
 import Link from "next/link";
 
 type Tool = {
@@ -15,6 +15,12 @@ const tools: Tool[] = [
     href: "/accounts",
     description: "Search accounts by username or id.",
     icon: Users,
+  },
+  {
+    name: "API Keys",
+    href: "/api-keys",
+    description: "Create, view, and manage API keys.",
+    icon: KeyRound,
   },
   {
     name: "Icons",
