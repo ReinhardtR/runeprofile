@@ -140,3 +140,50 @@ export const AchievementDiariesResponseSchema = z
 export const CombatAchievementsResponseSchema = z
   .object({ data: z.array(CombatAchievementTierSchema) })
   .openapi("CombatAchievementsResponse");
+
+export const FullProfileSchema = z
+  .object({
+    username: z.string(),
+    accountType: AccountTypeSchema,
+    clan: ClanInfoSchema,
+    groupName: z
+      .string()
+      .nullable()
+      .openapi({ description: "Group Ironman group name, if applicable" }),
+    skills: z.array(SkillSchema),
+    quests: z.array(QuestSchema),
+    collectionLog: z.object({
+      obtained: z.number().openapi({
+        description: "Total number of unique collection log items obtained",
+      }),
+      total: z.number().openapi({
+        description: "Total number of unique collection log items",
+      }),
+      tabs: z.array(
+        z.object({
+          name: z.string(),
+          obtained: z.number(),
+          total: z.number(),
+          pages: z.array(
+            z.object({
+              name: z.string(),
+              obtained: z.number(),
+              total: z.number(),
+              items: z.array(
+                z.object({
+                  id: z.number(),
+                  name: z.string(),
+                  quantity: z.number(),
+                }),
+              ),
+            }),
+          ),
+        }),
+      ),
+    }),
+    combatAchievements: z.array(CombatAchievementTierSchema),
+    achievementDiaries: z.array(AchievementDiaryAreaSchema),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+  })
+  .openapi("FullProfile");

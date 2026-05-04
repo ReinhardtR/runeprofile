@@ -8,7 +8,7 @@ import { createV1App } from "./app";
 import type { V1Env } from "./app";
 import { apiKeyMiddleware } from "./middleware/api-key";
 import { v1RateLimiter } from "./middleware/rate-limit";
-import { accountsRouter } from "./routes/accounts";
+import { accountsRouter, fullProfileRouter } from "./routes/accounts";
 import { activitiesRouter } from "./routes/activities";
 import { clansRouter } from "./routes/clans";
 import {
@@ -31,6 +31,7 @@ v1.route("/", collectionLogRouter);
 v1.route("/", collectionLogTabRouter);
 v1.route("/", collectionLogPageRouter);
 v1.route("/", activitiesRouter);
+v1.route("/", fullProfileRouter);
 v1.route("/", clansRouter);
 
 // --- OpenAPI spec ---

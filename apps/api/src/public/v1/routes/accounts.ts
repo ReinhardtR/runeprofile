@@ -15,6 +15,8 @@ import {
   ACHIEVEMENT_DIARIES,
   ACHIEVEMENT_DIARY_TIER_NAMES,
   AccountTypes,
+  COLLECTION_LOG_ITEMS,
+  COLLECTION_LOG_ITEM_IDS,
   COLLECTION_LOG_TABS,
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
@@ -34,6 +36,7 @@ import {
   AccountSummarySchema,
   AchievementDiariesResponseSchema,
   CombatAchievementsResponseSchema,
+  FullProfileSchema,
   QuestsResponseSchema,
   SkillsResponseSchema,
 } from "../schemas/accounts";
@@ -117,6 +120,100 @@ function formatClan(account: {
         title: account.clanTitle!,
       }
     : null;
+}
+
+// --- Shared data formatting ---
+
+function formatSkills(skillRows: { name: string; xp: number }[]) {
+  const skillMap = new Map(skillRows.map((s) => [s.name, s.xp]));
+  return SKILLS.map((name) => {
+    const xp = skillMap.get(name) ?? 0;
+    return {
+      name,
+      xp,
+      level: getLevelFromXP(xp),
+      virtualLevel: getVirtualLevelFromXP(xp),
+      xpToNextLevel: getXPUntilNextLevel(xp),
+    };
+  });
+}
+
+function formatQuests(questRows: { id: number; state: number }[]) {
+  const questMap = new Map(questRows.map((q) => [q.id, q.state]));
+  return QUESTS.map((quest) => ({
+    id: quest.id,
+    name: quest.name,
+    points: quest.points,
+    type: questTypeToString(quest.type),
+    state: questStateToString(questMap.get(quest.id) ?? QuestState.NOT_STARTED),
+  }));
+}
+
+function formatAchievementDiaries(
+  diaryRows: { areaId: number; tier: number; completedCount: number }[],
+) {
+  const diaryMap = new Map<number, Map<number, number>>();
+  for (const row of diaryRows) {
+    if (!diaryMap.has(row.areaId)) diaryMap.set(row.areaId, new Map());
+    diaryMap.get(row.areaId)!.set(row.tier, row.completedCount);
+  }
+  return ACHIEVEMENT_DIARIES.map((area) => ({
+    areaId: area.id,
+    area: area.name,
+    tiers: area.tiers.map((taskCount, tierIdx) => ({
+      tier: ACHIEVEMENT_DIARY_TIER_NAMES[tierIdx] ?? "Unknown",
+      completed: diaryMap.get(area.id)?.get(tierIdx) ?? 0,
+      total: taskCount,
+    })),
+  }));
+}
+
+function formatCombatAchievements(
+  combatRows: { id: number; completedCount: number }[],
+  accountType: number,
+) {
+  const combatMap = new Map(combatRows.map((r) => [r.id, r.completedCount]));
+  return COMBAT_ACHIEVEMENT_TIERS.map((tier) => ({
+    id: tier.id,
+    name: tier.name,
+    completed: combatMap.get(tier.id) ?? 0,
+    total: getCombatAchievementTierTaskCount(tier.id, accountType) ?? 0,
+  }));
+}
+
+function formatCollectionLog(itemRows: { id: number; quantity: number }[]) {
+  const itemMap = new Map(itemRows.map((i) => [i.id, i.quantity]));
+
+  const totalItems = COLLECTION_LOG_ITEM_IDS.length;
+  const totalObtained = COLLECTION_LOG_ITEM_IDS.filter(
+    (id) => (itemMap.get(id) ?? 0) > 0,
+  ).length;
+
+  const tabs = COLLECTION_LOG_TABS.map((tab) => {
+    const pages = tab.pages.map((page) => {
+      let pageObtained = 0;
+      const pageItems = page.items.map((itemId) => {
+        const quantity = itemMap.get(itemId) ?? 0;
+        if (quantity > 0) pageObtained++;
+        return {
+          id: itemId,
+          name: COLLECTION_LOG_ITEMS[itemId] ?? "Unknown",
+          quantity,
+        };
+      });
+      return {
+        name: page.name,
+        obtained: pageObtained,
+        total: page.items.length,
+        items: pageItems,
+      };
+    });
+    const tabObtained = pages.reduce((sum, p) => sum + p.obtained, 0);
+    const tabTotal = pages.reduce((sum, p) => sum + p.total, 0);
+    return { name: tab.name, obtained: tabObtained, total: tabTotal, pages };
+  });
+
+  return { obtained: totalObtained, total: totalItems, tabs };
 }
 
 // --- Route: GET /accounts/:username (summary) ---
@@ -239,6 +336,32 @@ const getCombatAchievementsRoute = createRoute({
         "application/json": { schema: CombatAchievementsResponseSchema },
       },
       description: "Account combat achievements",
+    },
+    400: BadRequestResponse,
+    404: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Account not found",
+    },
+    429: RateLimitResponse,
+    500: InternalErrorResponse,
+  },
+});
+
+// --- Route: GET /accounts/:username/full ---
+const getFullProfileRoute = createRoute({
+  method: "get",
+  path: "/accounts/{username}/full",
+  tags: ["Accounts"],
+  summary: "Full profile",
+  description:
+    "Returns the complete account profile including skills, quests, collection log, achievement diaries, and combat achievements in a single response. This is a heavy endpoint — prefer the individual endpoints unless you need all data at once.",
+  request: {
+    params: z.object({ username: UsernameParam }),
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: FullProfileSchema } },
+      description: "Full account profile",
     },
     400: BadRequestResponse,
     404: {
@@ -404,19 +527,7 @@ export const accountsRouter = createV1App()
       columns: { name: true, xp: true },
     });
 
-    const skillMap = new Map(skillRows.map((s) => [s.name, s.xp]));
-    const skills = SKILLS.map((name) => {
-      const xp = skillMap.get(name) ?? 0;
-      return {
-        name,
-        xp,
-        level: getLevelFromXP(xp),
-        virtualLevel: getVirtualLevelFromXP(xp),
-        xpToNextLevel: getXPUntilNextLevel(xp),
-      };
-    });
-
-    return c.json({ data: skills }, STATUS.OK, CACHE_HEADER);
+    return c.json({ data: formatSkills(skillRows) }, STATUS.OK, CACHE_HEADER);
   })
   // GET /accounts/:username/quests
   .openapi(getQuestsRoute, async (c) => {
@@ -436,18 +547,7 @@ export const accountsRouter = createV1App()
       columns: { id: true, state: true },
     });
 
-    const questMap = new Map(questRows.map((q) => [q.id, q.state]));
-    const quests = QUESTS.map((quest) => ({
-      id: quest.id,
-      name: quest.name,
-      points: quest.points,
-      type: questTypeToString(quest.type),
-      state: questStateToString(
-        questMap.get(quest.id) ?? QuestState.NOT_STARTED,
-      ),
-    }));
-
-    return c.json({ data: quests }, STATUS.OK, CACHE_HEADER);
+    return c.json({ data: formatQuests(questRows) }, STATUS.OK, CACHE_HEADER);
   })
   // GET /accounts/:username/achievement-diaries
   .openapi(getAchievementDiariesRoute, async (c) => {
@@ -467,23 +567,11 @@ export const accountsRouter = createV1App()
       columns: { areaId: true, tier: true, completedCount: true },
     });
 
-    const diaryMap = new Map<number, Map<number, number>>();
-    for (const row of diaryRows) {
-      if (!diaryMap.has(row.areaId)) diaryMap.set(row.areaId, new Map());
-      diaryMap.get(row.areaId)!.set(row.tier, row.completedCount);
-    }
-
-    const diaries = ACHIEVEMENT_DIARIES.map((area) => ({
-      areaId: area.id,
-      area: area.name,
-      tiers: area.tiers.map((taskCount, tierIdx) => ({
-        tier: ACHIEVEMENT_DIARY_TIER_NAMES[tierIdx] ?? "Unknown",
-        completed: diaryMap.get(area.id)?.get(tierIdx) ?? 0,
-        total: taskCount,
-      })),
-    }));
-
-    return c.json({ data: diaries }, STATUS.OK, CACHE_HEADER);
+    return c.json(
+      { data: formatAchievementDiaries(diaryRows) },
+      STATUS.OK,
+      CACHE_HEADER,
+    );
   })
   // GET /accounts/:username/combat-achievements
   .openapi(getCombatAchievementsRoute, async (c) => {
@@ -503,14 +591,71 @@ export const accountsRouter = createV1App()
       columns: { id: true, completedCount: true },
     });
 
-    const combatMap = new Map(combatRows.map((r) => [r.id, r.completedCount]));
-    const tiers = COMBAT_ACHIEVEMENT_TIERS.map((tier) => ({
-      id: tier.id,
-      name: tier.name,
-      completed: combatMap.get(tier.id) ?? 0,
-      total:
-        getCombatAchievementTierTaskCount(tier.id, account.accountType) ?? 0,
-    }));
-
-    return c.json({ data: tiers }, STATUS.OK, CACHE_HEADER);
+    return c.json(
+      { data: formatCombatAchievements(combatRows, account.accountType) },
+      STATUS.OK,
+      CACHE_HEADER,
+    );
   });
+
+// Separate router so it can be mounted last under the Accounts tag
+export const fullProfileRouter = createV1App().openapi(
+  getFullProfileRoute,
+  async (c) => {
+    const { username } = c.req.valid("param");
+    const db = drizzle(c.env.HYPERDRIVE);
+
+    const account = await getAccountByUsername(db, username);
+    if (!account) {
+      return c.json(
+        { error: "Account not found", code: "NOT_FOUND" },
+        STATUS.NOT_FOUND,
+      );
+    }
+
+    const [skillRows, questRows, itemRows, diaryRows, combatRows] =
+      await Promise.all([
+        db.query.skills.findMany({
+          where: eq(skillsTable.accountId, account.id),
+          columns: { name: true, xp: true },
+        }),
+        db.query.quests.findMany({
+          where: eq(questsTable.accountId, account.id),
+          columns: { id: true, state: true },
+        }),
+        db.query.items.findMany({
+          where: eq(items.accountId, account.id),
+          columns: { id: true, quantity: true },
+        }),
+        db.query.achievementDiaryTiers.findMany({
+          where: eq(achievementDiaryTiersTable.accountId, account.id),
+          columns: { areaId: true, tier: true, completedCount: true },
+        }),
+        db.query.combatAchievementTiers.findMany({
+          where: eq(combatAchievementTiersTable.accountId, account.id),
+          columns: { id: true, completedCount: true },
+        }),
+      ]);
+
+    return c.json(
+      {
+        username: account.username,
+        accountType: formatAccountType(account.accountType),
+        clan: formatClan(account),
+        groupName: account.groupName,
+        skills: formatSkills(skillRows),
+        quests: formatQuests(questRows),
+        collectionLog: formatCollectionLog(itemRows),
+        achievementDiaries: formatAchievementDiaries(diaryRows),
+        combatAchievements: formatCombatAchievements(
+          combatRows,
+          account.accountType,
+        ),
+        createdAt: account.createdAt,
+        updatedAt: account.updatedAt,
+      },
+      STATUS.OK,
+      CACHE_HEADER,
+    );
+  },
+);
