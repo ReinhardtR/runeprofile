@@ -1,13 +1,14 @@
 import { cors } from "hono/cors";
 
+import { clansRouter } from "~/internal/routes/clans";
+import { discordRouter } from "~/internal/routes/discord";
+import { groupsRouter } from "~/internal/routes/groups";
+import { hiscoresRouter } from "~/internal/routes/hiscores";
+import { manifestRouter } from "~/internal/routes/manifest";
+import { metricsRouter } from "~/internal/routes/metrics";
+import { profilesRouter } from "~/internal/routes/profiles";
 import { errorHandler, logger, newRouter } from "~/lib/helpers";
-import { clansRouter } from "~/routes/clans";
-import { discordRouter } from "~/routes/discord";
-import { groupsRouter } from "~/routes/groups";
-import { hiscoresRouter } from "~/routes/hiscores";
-import { manifestRouter } from "~/routes/manifest";
-import { metricsRouter } from "~/routes/metrics";
-import { profilesRouter } from "~/routes/profiles";
+import { v1 } from "~/public/v1/index";
 
 export default newRouter()
   .onError(errorHandler)
@@ -24,6 +25,7 @@ export default newRouter()
     }),
   )
   .use(logger)
+  .route("/v1", v1)
   .route("/profiles", profilesRouter)
   .route("/clans", clansRouter)
   .route("/groups", groupsRouter)

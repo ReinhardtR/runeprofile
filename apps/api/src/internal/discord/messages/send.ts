@@ -4,8 +4,8 @@ import { and, eq, or } from "drizzle-orm";
 import { Database, discordWatches } from "@runeprofile/db";
 import { AccountType, ActivityEvent } from "@runeprofile/runescape";
 
-import { createDiscordApi } from "~/discord/factory";
-import { createActivityEmbed } from "~/discord/messages/activity-embeds";
+import { createDiscordApi } from "~/internal/discord/factory";
+import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
 
 export async function sendActivityMessages(params: {
   db: Database;

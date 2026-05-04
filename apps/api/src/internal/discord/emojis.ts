@@ -1,6 +1,6 @@
 import { AccountType } from "@runeprofile/runescape";
 
-import { isProdDiscordBot } from "~/discord/constants";
+import { isProdDiscordBot } from "~/internal/discord/constants";
 
 type AccountTypeEmojiMap = Record<AccountType["id"], string>;
 

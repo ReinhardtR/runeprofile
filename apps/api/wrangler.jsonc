@@ -39,5 +39,31 @@
       "id": "c6de4480edb14f219ff7457341829941",
       "preview_id": "c6de4480edb14f219ff7457341829941"
     }
+  ],
+  "ratelimits": [
+    {
+      "name": "V1_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    },
+    {
+      "name": "V1_RATE_LIMIT_KEYED",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
+    },
+    {
+      "name": "V1_RATE_LIMIT_PARTNER",
+      "namespace_id": "1003",
+      "simple": {
+        "limit": 600,
+        "period": 60
+      }
+    }
   ]
 }

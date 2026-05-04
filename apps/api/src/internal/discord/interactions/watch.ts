@@ -15,12 +15,12 @@ import { drizzle } from "@runeprofile/db";
 import {
   getClanAutocomplete,
   getRsnAutocomplete,
-} from "~/discord/autocomplete";
-import { factory } from "~/discord/factory";
+} from "~/internal/discord/autocomplete";
+import { factory } from "~/internal/discord/factory";
 
 import { RuneProfileError } from "~/lib/errors";
-import { addPlayerWatch, getPlayerWatches, removePlayerWatch } from "~/discord/watch/player";
-import { addClanWatch, getClanWatches, removeClanWatch } from "~/discord/watch/clan";
+import { addPlayerWatch, getPlayerWatches, removePlayerWatch } from "~/internal/discord/watch/player";
+import { addClanWatch, getClanWatches, removeClanWatch } from "~/internal/discord/watch/clan";
 
 export const command_watch = factory.autocomplete(
   new Command(

@@ -12,7 +12,7 @@ import {
   getItemIconUrl,
   getItemName,
   numberWithDelimiter,
-} from "~/discord/helpers";
+} from "~/internal/discord/helpers";
 
 export function createActivityEmbed(params: {
   discordApplicationId: string;

@@ -20,13 +20,18 @@
     "test": "vitest --ui --watch"
   },
   "dependencies": {
+    "@hono/zod-openapi": "^0.18.4",
     "@hono/zod-validator": "^0.4.3",
     "@runeprofile/db": "workspace:*",
     "@runeprofile/runescape": "workspace:*",
+    "@scalar/client-side-rendering": "0.1.6",
+    "@scalar/hono-api-reference": "^0.10.13",
+    "@scalar/types": "^0.9.5",
     "discord-api-types": "^0.38.28",
     "discord-hono": "^0.20.1",
     "drizzle-orm": "^0.45.1",
-    "hono": "^4.7.2",
+    "hono": "^4.12.16",
+    "hono-rate-limiter": "^0.5.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {

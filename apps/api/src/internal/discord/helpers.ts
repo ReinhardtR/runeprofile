@@ -1,6 +1,6 @@
 import { AccountType, COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 
-import { getAccountTypeEmoji } from "~/discord/emojis";
+import { getAccountTypeEmoji } from "~/internal/discord/emojis";
 
 export function getItemName(itemId: number): string {
   return COLLECTION_LOG_ITEMS[itemId] ?? `Unknown Item (${itemId})`;
