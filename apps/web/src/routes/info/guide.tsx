@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import DefaultClogPage from "~/core/assets/guide/default-clog-page.png";
 import InstallPluginImage from "~/core/assets/guide/install-plugin.png";
@@ -6,6 +6,7 @@ import LogCommandImage from "~/core/assets/guide/log-command.png";
 import ProfileExampleImage from "~/core/assets/guide/profile-example.png";
 import UpdateModelImage from "~/core/assets/guide/update-model.png";
 import UpdateProfileImage from "~/core/assets/guide/update-profile.png";
+import { DISCORD_INVITE_INK } from "~/core/constants";
 import {
   GuideHeading,
   GuideImage,
@@ -236,6 +237,69 @@ function RouteComponent() {
               alt="Default Collection Log Page Screenshot"
             />
           </GuideSection>
+
+          <GuideSection>
+            <GuideHeading id="faq">FAQ</GuideHeading>
+
+            <div className="space-y-6">
+              <div>
+                <p className="font-semibold text-secondary-foreground">
+                  I swapped username with another account, and now updating my
+                  profile fails?
+                </p>
+                <GuideParagraph>
+                  Update your profile on the account that originally had the
+                  username that you swapped. If this is not possible for some
+                  reason, then ask for help in the{" "}
+                  <a
+                    href={DISCORD_INVITE_INK}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-secondary-foreground underline"
+                  >
+                    Discord
+                  </a>
+                  .
+                </GuideParagraph>
+              </div>
+
+              <div>
+                <p className="font-semibold text-secondary-foreground">
+                  What is the command for <i>this</i> collection log page?
+                </p>
+                <GuideParagraph>
+                  You can find all possible collection page names on this page:{" "}
+                  <Link
+                    to="/info/alias"
+                    className="text-secondary-foreground underline"
+                  >
+                    Aliases
+                  </Link>
+                  .
+                  <br />
+                  You can user either the full name or any of the aliases listed
+                  there.
+                </GuideParagraph>
+              </div>
+
+              <div>
+                <p className="font-semibold text-secondary-foreground">
+                  Is there a public RuneProfile API?
+                </p>
+                <GuideParagraph>
+                  Yes.{" "}
+                  <a
+                    href="https://api.runeprofile.com/v1/docs"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-secondary-foreground underline"
+                  >
+                    Docs
+                  </a>
+                </GuideParagraph>
+              </div>
+            </div>
+          </GuideSection>
         </article>
       </div>
       <Footer />
@@ -251,4 +315,5 @@ const tocItems = [
   { id: "viewing-profile", title: "Viewing your Profile" },
   { id: "log-command", title: "!log command" },
   { id: "default-clog-page", title: "Setting default Collection Log page" },
+  { id: "faq", title: "FAQ" },
 ];
