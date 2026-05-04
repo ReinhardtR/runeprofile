@@ -98,8 +98,9 @@ v1.get(
   "/docs",
   Scalar<V1Env>((c) => {
     return {
-      pageTitle: "RuneProfile API Docs",
+      pageTitle: "RuneProfile API",
       url: "/v1/openapi.json",
+      favicon: "https://runeprofile.com/favicon.ico",
       servers: [
         {
           url: "https://api.runeprofile.com/v1",
