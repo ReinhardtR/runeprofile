@@ -1,5 +1,6 @@
 "use client";
 
+import { CopyButton } from "@/components/copy-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +28,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CopyButton } from "@/components/copy-button";
 import { Check, Copy, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -81,9 +81,7 @@ export function ApiKeysClient({ keys }: { keys: ApiKey[] }) {
       router.refresh();
       toast.success(result.active ? "Key activated" : "Key deactivated");
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to toggle key",
-      );
+      toast.error(err instanceof Error ? err.message : "Failed to toggle key");
     } finally {
       setLoadingId(null);
     }
@@ -97,9 +95,7 @@ export function ApiKeysClient({ keys }: { keys: ApiKey[] }) {
       router.refresh();
       toast.success("API key deleted");
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to delete key",
-      );
+      toast.error(err instanceof Error ? err.message : "Failed to delete key");
     } finally {
       setLoadingId(null);
     }
@@ -162,10 +158,7 @@ export function ApiKeysClient({ keys }: { keys: ApiKey[] }) {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label
-                      htmlFor="key-name"
-                      className="text-sm font-medium"
-                    >
+                    <label htmlFor="key-name" className="text-sm font-medium">
                       Name
                     </label>
                     <Input
@@ -176,10 +169,7 @@ export function ApiKeysClient({ keys }: { keys: ApiKey[] }) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label
-                      htmlFor="key-tier"
-                      className="text-sm font-medium"
-                    >
+                    <label htmlFor="key-tier" className="text-sm font-medium">
                       Tier
                     </label>
                     <Select value={tier} onValueChange={setTier}>
@@ -227,7 +217,9 @@ export function ApiKeysClient({ keys }: { keys: ApiKey[] }) {
               <TableRow key={key.id}>
                 <TableCell className="font-medium">{key.name}</TableCell>
                 <TableCell>
-                  <Badge variant={key.tier === "partner" ? "default" : "secondary"}>
+                  <Badge
+                    variant={key.tier === "partner" ? "default" : "secondary"}
+                  >
                     {key.tier}
                   </Badge>
                 </TableCell>

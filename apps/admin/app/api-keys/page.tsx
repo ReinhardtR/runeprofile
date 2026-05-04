@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 
-import { getApiKeys } from "./actions";
 import { ApiKeysClient } from "./ApiKeysClient";
+import { getApiKeys } from "./actions";
 
 export default async function ApiKeysPage() {
   const keys = await getApiKeys();
