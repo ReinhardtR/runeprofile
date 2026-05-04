@@ -153,7 +153,7 @@ const RuneProfileApiErrorSchema = z.object({
 });
 
 async function getResponseData<TData>(
-  response: ClientResponse<TData>,
+  response: ClientResponse<TData, number, "json">,
 ): Promise<TData> {
   const unexpectedError = new RuneProfileApiError(
     "UnexpectedError",
