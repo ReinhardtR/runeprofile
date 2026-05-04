@@ -148,4 +148,4 @@ v1.notFound((c) => {
   return c.json({ error: "Not found", code: "NOT_FOUND" }, STATUS.NOT_FOUND);
 });
 
-export { v1 };
+export { v1 as publicApiV1 };

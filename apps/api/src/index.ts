@@ -8,7 +8,7 @@ import { manifestRouter } from "~/internal/routes/manifest";
 import { metricsRouter } from "~/internal/routes/metrics";
 import { profilesRouter } from "~/internal/routes/profiles";
 import { errorHandler, logger, newRouter } from "~/lib/helpers";
-import { v1 } from "~/public/v1/index";
+import { publicApiV1 } from "~/public/v1/index";
 
 export default newRouter()
   .onError(errorHandler)
@@ -25,7 +25,7 @@ export default newRouter()
     }),
   )
   .use(logger)
-  .route("/v1", v1)
+  .route("/v1", publicApiV1)
   .route("/profiles", profilesRouter)
   .route("/clans", clansRouter)
   .route("/groups", groupsRouter)
