@@ -11,6 +11,7 @@
     "start": "vite"
   },
   "dependencies": {
+    "@base-ui/react": "^1.4.1",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-popover": "^1.1.7",
     "@radix-ui/react-scroll-area": "^1.2.3",

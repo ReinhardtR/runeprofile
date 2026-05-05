@@ -86,6 +86,7 @@ export async function updateProfile(
       ? activitiesValues.map((activity) => ({
           activityId: activity.id,
           clanName: updates.clan?.name?.toLowerCase() ?? "",
+          activityType: activity.type,
         }))
       : [];
 

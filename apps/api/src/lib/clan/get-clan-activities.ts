@@ -1,4 +1,4 @@
-import { SQL, and, asc, desc, eq, sql } from "drizzle-orm";
+import { SQL, and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
 import {
   Database,
@@ -6,7 +6,11 @@ import {
   activities,
   clanActivities,
 } from "@runeprofile/db";
-import { AccountTypes, ActivityEvent } from "@runeprofile/runescape";
+import {
+  AccountTypes,
+  ActivityEvent,
+  ActivityEventTypeValue,
+} from "@runeprofile/runescape";
 
 import {
   CursorPaginationParams,
@@ -14,17 +18,29 @@ import {
   getCursorPaginationValues,
 } from "~/lib/helpers";
 
+export type ClanActivitiesFilters = CursorPaginationParams & {
+  activityTypes?: ActivityEventTypeValue[];
+};
+
 export async function getClanActivities(
   db: Database,
   clanName: string,
-  filters?: CursorPaginationParams,
+  filters?: ClanActivitiesFilters,
 ) {
   const { cursor, direction, limit } = getCursorPaginationValues(filters);
 
   // Fetch limit + 1 to determine if there are more results
   const fetchLimit = limit + 1;
 
-  const clanCondition = eq(clanActivities.clanName, clanName.toLowerCase());
+  const conditions: SQL[] = [
+    eq(clanActivities.clanName, clanName.toLowerCase()),
+  ];
+
+  if (filters?.activityTypes && filters.activityTypes.length > 0) {
+    conditions.push(
+      inArray(clanActivities.activityType, filters.activityTypes),
+    );
+  }
 
   // Add cursor condition based on direction
   let cursorCondition: SQL | undefined;
@@ -39,9 +55,11 @@ export async function getClanActivities(
     }
   }
 
-  const whereCondition = cursorCondition
-    ? and(clanCondition, cursorCondition)
-    : clanCondition;
+  if (cursorCondition) {
+    conditions.push(cursorCondition);
+  }
+
+  const whereCondition = and(...conditions);
 
   // Query with appropriate ordering
   const query = db

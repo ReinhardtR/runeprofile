@@ -9,6 +9,11 @@ import { Suspense } from "react";
 import { z } from "zod";
 
 import {
+  ActivityEventTypeSchema,
+  type ActivityEventTypeValue,
+} from "@runeprofile/runescape";
+
+import {
   ActivitiesList,
   ActivitiesListSkeleton,
   MembersList,
@@ -25,6 +30,20 @@ const clanSearchSchema = z.object({
   activityCursor: z.string().optional().catch(undefined),
   activityDir: z.enum(["next", "prev"]).optional().catch(undefined),
   activityPage: z.coerce.number().int().min(1).optional().catch(undefined),
+  activityTypes: z
+    .string()
+    .optional()
+    .catch(undefined)
+    .transform((val) => {
+      if (!val) return undefined;
+      const types = val
+        .split(",")
+        .filter(
+          (t): t is ActivityEventTypeValue =>
+            ActivityEventTypeSchema.safeParse(t).success,
+        );
+      return types.length > 0 ? types.join(",") : undefined;
+    }),
   membersCursor: z.string().optional().catch(undefined),
   membersDir: z.enum(["next", "prev"]).optional().catch(undefined),
   membersPage: z.coerce.number().int().min(1).optional().catch(undefined),
@@ -37,6 +56,7 @@ export const Route = createFileRoute("/clan/$name")({
   loaderDeps: ({ search }) => ({
     activityCursor: search.activityCursor,
     activityDir: search.activityDir,
+    activityTypes: search.activityTypes,
     membersCursor: search.membersCursor,
     membersDir: search.membersDir,
   }),
@@ -54,6 +74,9 @@ export const Route = createFileRoute("/clan/$name")({
         name: params.name,
         cursor: deps.activityCursor,
         direction: deps.activityDir,
+        activityTypes: deps.activityTypes?.split(",") as
+          | ActivityEventTypeValue[]
+          | undefined,
       }),
     );
   },

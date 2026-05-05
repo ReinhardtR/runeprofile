@@ -1,9 +1,26 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { SQL, and, asc, count, desc, eq, gt, lt, or, sql } from "drizzle-orm";
+import {
+  SQL,
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  inArray,
+  lt,
+  or,
+  sql,
+} from "drizzle-orm";
 
 import { accounts, activities, clanActivities, lower } from "@runeprofile/db";
 import { drizzle } from "@runeprofile/db";
-import { AccountTypes, type ActivityEvent } from "@runeprofile/runescape";
+import {
+  AccountTypes,
+  type ActivityEvent,
+  ActivityEventTypeSchema,
+  type ActivityEventTypeValue,
+} from "@runeprofile/runescape";
 
 import { decodeCursor, encodeCursor } from "~/lib/helpers";
 import { STATUS } from "~/lib/status";
@@ -54,6 +71,26 @@ const ActivitiesLimitQuery = z.coerce
     description: `Number of activities per page (max ${MAX_ACTIVITIES_LIMIT})`,
   });
 
+const ActivityTypesQuery = z
+  .string()
+  .optional()
+  .transform((val) => {
+    if (!val) return undefined;
+    const types = val
+      .split(",")
+      .filter(
+        (t): t is ActivityEventTypeValue =>
+          ActivityEventTypeSchema.safeParse(t).success,
+      );
+    return types.length > 0 ? types : undefined;
+  })
+  .openapi({
+    param: { name: "activityTypes", in: "query" },
+    description: "Comma-separated list of activity types to filter by.",
+    type: "string",
+    enum: ActivityEventTypeSchema.options,
+  });
+
 // --- Route: GET /clans/:name ---
 const getClanRoute = createRoute({
   method: "get",
@@ -97,6 +134,7 @@ const getClanActivitiesRoute = createRoute({
       cursor: CursorQuery,
       direction: DirectionQuery,
       limit: ActivitiesLimitQuery,
+      activityTypes: ActivityTypesQuery,
     }),
   },
   responses: {
@@ -260,7 +298,12 @@ export const clansRouter = createV1App()
   // GET /clans/:name/activities
   .openapi(getClanActivitiesRoute, async (c) => {
     const { name } = c.req.valid("param");
-    const { cursor: cursorStr, direction, limit } = c.req.valid("query");
+    const {
+      cursor: cursorStr,
+      direction,
+      limit,
+      activityTypes,
+    } = c.req.valid("query");
     const db = drizzle(c.env.HYPERDRIVE);
 
     // Verify clan exists
@@ -278,7 +321,12 @@ export const clansRouter = createV1App()
 
     const cursor = decodeCursor(cursorStr);
     const fetchLimit = limit + 1;
-    const clanCondition = eq(clanActivities.clanName, name.toLowerCase());
+
+    const conditions: SQL[] = [eq(clanActivities.clanName, name.toLowerCase())];
+
+    if (activityTypes && activityTypes.length > 0) {
+      conditions.push(inArray(clanActivities.activityType, activityTypes));
+    }
 
     let cursorCondition: SQL | undefined;
     if (cursor && cursor.createdAt && cursor.id) {
@@ -289,9 +337,11 @@ export const clansRouter = createV1App()
       }
     }
 
-    const whereCondition = cursorCondition
-      ? and(clanCondition, cursorCondition)
-      : clanCondition;
+    if (cursorCondition) {
+      conditions.push(cursorCondition);
+    }
+
+    const whereCondition = and(...conditions);
 
     let rows = await db
       .select({

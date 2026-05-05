@@ -11,6 +11,16 @@ export const ActivityEventType = {
   VALUABLE_DROP: "valuable_drop",
 } as const;
 
+export type ActivityEventTypeValue =
+  (typeof ActivityEventType)[keyof typeof ActivityEventType];
+
+const activityEventTypeValues = Object.values(ActivityEventType) as [
+  ActivityEventTypeValue,
+  ...ActivityEventTypeValue[],
+];
+
+export const ActivityEventTypeSchema = z.enum(activityEventTypeValues);
+
 export const LevelUpEventSchema = z.object({
   type: z.literal(ActivityEventType.LEVEL_UP),
   data: z.object({

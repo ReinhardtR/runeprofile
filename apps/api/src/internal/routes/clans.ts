@@ -5,8 +5,9 @@ import { drizzle } from "@runeprofile/db";
 
 import { getClanActivities } from "~/lib/clan/get-clan-activities";
 import { getClanMembersWithPagination } from "~/lib/clan/get-clan-members";
-import { decodeCursor, newRouter } from "~/lib/helpers";
+import { newRouter } from "~/lib/helpers";
 import {
+  activityTypesSchema,
   clanNameSchema,
   cursorSchema,
   directionSchema,
@@ -52,6 +53,7 @@ export const clansRouter = newRouter()
         cursor: cursorSchema,
         direction: directionSchema,
         limit: limitSchema,
+        activityTypes: activityTypesSchema,
       }),
     ),
     cache({
@@ -61,12 +63,13 @@ export const clansRouter = newRouter()
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
-      const { cursor, direction, limit } = c.req.valid("query");
+      const { cursor, direction, limit, activityTypes } = c.req.valid("query");
 
       const result = await getClanActivities(db, name, {
         cursor,
         direction,
         limit,
+        activityTypes,
       });
 
       return c.json(result);

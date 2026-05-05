@@ -4,7 +4,12 @@ import { db } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { accounts, activities, clanActivities, withValues } from "@runeprofile/db";
+import {
+  accounts,
+  activities,
+  clanActivities,
+  withValues,
+} from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
 export async function getAccountActivities(
@@ -197,6 +202,7 @@ export async function createActivity(
       await tx.insert(clanActivities).values({
         activityId,
         clanName: account.clanName.toLowerCase(),
+        activityType: activityData.type,
         createdAt: createdAtStr,
       });
     }

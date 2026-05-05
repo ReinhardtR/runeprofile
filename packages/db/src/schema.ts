@@ -185,12 +185,21 @@ export const clanActivities = t.pgTable(
       .primaryKey()
       .references(() => activities.id, { onDelete: "cascade" }),
     clanName: t.text().notNull(), // Stored in lowercase for case-insensitive searching
+    activityType: t.text().$type<ActivityEvent["type"]>(),
     createdAt,
   },
   (table) => [
     t
       .index("clan_activities_name_created_at_id_desc_index")
       .on(table.clanName, table.createdAt.desc(), table.activityId.desc()),
+    t
+      .index("clan_activities_name_type_created_at_id_desc_index")
+      .on(
+        table.clanName,
+        table.activityType,
+        table.createdAt.desc(),
+        table.activityId.desc(),
+      ),
   ],
 );
 

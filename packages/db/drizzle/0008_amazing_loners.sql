@@ -1,0 +1,2 @@
+ALTER TABLE "clan_activities" ADD COLUMN "activity_type" text;--> statement-breakpoint
+CREATE INDEX "clan_activities_name_type_created_at_id_desc_index" ON "clan_activities" USING btree ("clan_name","activity_type","created_at" DESC NULLS LAST,"activity_id" DESC NULLS LAST);
