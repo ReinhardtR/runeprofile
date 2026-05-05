@@ -1,9 +1,13 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { SQL, and, asc, desc, eq, sql } from "drizzle-orm";
+import { SQL, and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { accounts, activities, lower } from "@runeprofile/db";
 import { drizzle } from "@runeprofile/db";
-import { AccountTypes, type ActivityEvent } from "@runeprofile/runescape";
+import {
+  type ActivityEvent,
+  ActivityEventTypeSchema,
+  type ActivityEventTypeValue,
+} from "@runeprofile/runescape";
 
 import { decodeCursor, encodeCursor } from "~/lib/helpers";
 import { STATUS } from "~/lib/status";
@@ -36,6 +40,34 @@ const LimitQuery = z.coerce
     description: `Number of items per page (max ${MAX_LIMIT})`,
   });
 
+const ActivityTypesQuery = z
+  .string()
+  .optional()
+  .transform((val) => {
+    if (!val) return undefined;
+    const types = val
+      .split(",")
+      .filter(
+        (t): t is ActivityEventTypeValue =>
+          ActivityEventTypeSchema.safeParse(t).success,
+      );
+    return types.length > 0 ? types : undefined;
+  })
+  .openapi({
+    param: {
+      name: "activityTypes",
+      in: "query",
+      style: "form",
+      explode: false,
+    },
+    description: "Comma-separated list of activity types to filter by.",
+    type: "array",
+    items: {
+      type: "string",
+      enum: ActivityEventTypeSchema.options,
+    },
+  });
+
 const getActivitiesRoute = createRoute({
   method: "get",
   path: "/accounts/{username}/activities",
@@ -48,6 +80,7 @@ const getActivitiesRoute = createRoute({
       cursor: CursorQuery,
       direction: DirectionQuery,
       limit: LimitQuery,
+      activityTypes: ActivityTypesQuery,
     }),
   },
   responses: {
@@ -69,7 +102,12 @@ export const activitiesRouter = createV1App().openapi(
   getActivitiesRoute,
   async (c) => {
     const { username } = c.req.valid("param");
-    const { cursor: cursorStr, direction, limit } = c.req.valid("query");
+    const {
+      cursor: cursorStr,
+      direction,
+      limit,
+      activityTypes,
+    } = c.req.valid("query");
     const db = drizzle(c.env.HYPERDRIVE);
 
     const account = await db.query.accounts.findFirst({
@@ -86,7 +124,12 @@ export const activitiesRouter = createV1App().openapi(
 
     const cursor = decodeCursor(cursorStr);
     const fetchLimit = limit + 1;
-    const accountCondition = eq(activities.accountId, account.id);
+
+    const conditions: SQL[] = [eq(activities.accountId, account.id)];
+
+    if (activityTypes && activityTypes.length > 0) {
+      conditions.push(inArray(activities.type, activityTypes));
+    }
 
     let cursorCondition: SQL | undefined;
     if (cursor && cursor.createdAt && cursor.id) {
@@ -97,9 +140,11 @@ export const activitiesRouter = createV1App().openapi(
       }
     }
 
-    const whereCondition = cursorCondition
-      ? and(accountCondition, cursorCondition)
-      : accountCondition;
+    if (cursorCondition) {
+      conditions.push(cursorCondition);
+    }
+
+    const whereCondition = and(...conditions);
 
     let rows = await db
       .select({

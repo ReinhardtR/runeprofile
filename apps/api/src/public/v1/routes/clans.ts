@@ -85,10 +85,18 @@ const ActivityTypesQuery = z
     return types.length > 0 ? types : undefined;
   })
   .openapi({
-    param: { name: "activityTypes", in: "query" },
+    param: {
+      name: "activityTypes",
+      in: "query",
+      style: "form",
+      explode: false,
+    },
     description: "Comma-separated list of activity types to filter by.",
-    type: "string",
-    enum: ActivityEventTypeSchema.options,
+    type: "array",
+    items: {
+      type: "string",
+      enum: ActivityEventTypeSchema.options,
+    },
   });
 
 // --- Route: GET /clans/:name ---
