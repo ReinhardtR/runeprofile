@@ -51,9 +51,7 @@ function RouteComponent() {
       <div className="flex flex-col">
         <div className="relative flex min-h-[max(100vh,700px)] flex-col border-b border-primary bg-background shadow shadow-accent">
           {/* <EventHero /> */}
-          <DefaultHero
-            scrollToProfilePreview={scrollToProfilePreview}
-          />
+          <DefaultHero scrollToProfilePreview={scrollToProfilePreview} />
         </div>
 
         <ProfileExample ref={profilePreviewRef} />
