@@ -1,0 +1,1 @@
+ALTER TABLE "clan_activities" ALTER COLUMN "activity_type" SET NOT NULL;

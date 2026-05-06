@@ -64,6 +64,13 @@
       "when": 1777972576336,
       "tag": "0008_amazing_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778050238471,
+      "tag": "0009_fuzzy_zarda",
+      "breakpoints": true
     }
   ]
 }

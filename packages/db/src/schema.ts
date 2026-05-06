@@ -185,7 +185,7 @@ export const clanActivities = t.pgTable(
       .primaryKey()
       .references(() => activities.id, { onDelete: "cascade" }),
     clanName: t.text().notNull(), // Stored in lowercase for case-insensitive searching
-    activityType: t.text().$type<ActivityEvent["type"]>(),
+    activityType: t.text().notNull().$type<ActivityEvent["type"]>(),
     createdAt,
   },
   (table) => [
