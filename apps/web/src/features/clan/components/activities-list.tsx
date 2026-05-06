@@ -109,7 +109,6 @@ export function ActivitiesList() {
     <div className="relative flex flex-col">
       <div className="flex items-center justify-between mb-1">
         <p className="text-primary font-semibold">Activities</p>
-        {/* TODO: Unhide once backfill of clan_activities.activity_type is complete
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
             <Filter className="size-3.5" />
@@ -146,7 +145,6 @@ export function ActivitiesList() {
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-        */}
       </div>
       {activities.activities.map((event) => {
         const render =
