@@ -11,7 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useAtom } from "jotai";
-import { LoaderCircle, SearchIcon, X } from "lucide-react";
+import { Bot, LoaderCircle, SearchIcon, X } from "lucide-react";
 import React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { z } from "zod";
@@ -232,8 +232,17 @@ export function SidePanel({ username }: { username: string }) {
           <img src={HiscoresIcon} width={25} height={25} />
         </SidePanelButton>
 
+        <Link to="/info/discord-bot" className="mt-auto">
+          <SidePanelButton
+            className="group"
+            tooltip="Discord Bot"
+          >
+            <Bot className="size-6 group-hover:text-secondary-foreground" />
+          </SidePanelButton>
+        </Link>
+
         <SidePanelButton
-          className="bg-primary mt-auto group"
+          className="bg-primary group"
           tooltip="Join the Discord"
           onClick={() => window.open(DISCORD_INVITE_INK, "_blank")}
           role="link"

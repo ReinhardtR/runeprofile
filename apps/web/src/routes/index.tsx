@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
-import { Search } from "lucide-react";
+import { Bot, Search } from "lucide-react";
 import React from "react";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
@@ -103,7 +103,7 @@ function DefaultHero({
 
   return (
     <div className="flex flex-1 flex-col justify-between">
-      <div className="z-30 flex flex-1 flex-col items-center justify-center py-12">
+      <div className="z-30 flex flex-1 flex-col items-center justify-center py-12 gap-y-3">
         <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
           <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
             <span className="text-secondary-foreground/90 solid-text-shadow">
@@ -131,7 +131,7 @@ function DefaultHero({
         <Button
           variant="outline"
           className={cn(
-            "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75 mb-4",
+            "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75",
           )}
           onClick={() => setIsSearchDialogOpen(true)}
         >
@@ -140,10 +140,17 @@ function DefaultHero({
         </Button>
         <Link
           to="/info/guide"
-          className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+          className="flex h-12 transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
         >
           <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
           <span>Plugin Guide</span>
+        </Link>
+        <Link
+          to="/info/discord-bot"
+          className="flex h-12 transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+        >
+          <Bot className="h-5 w-5" />
+          <span>Discord Bot</span>
         </Link>
       </div>
 
@@ -163,14 +170,14 @@ function DefaultHero({
               : "opacity-0 pointer-events-none",
           )}
         >
-          <div className="flex flex-col gap-y-1 items-center justify-center w-32">
+          <div className="flex flex-col gap-y-1 items-center justify-center w-34">
             <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
               {numberWithDelimiter(metrics?.totalAccounts || 0)}
             </p>
             <p className="font-bold text-primary">Profiles</p>
           </div>
           <Separator className="h-14" orientation="vertical" />
-          <div className="flex flex-col gap-y-1 items-center justify-center w-32">
+          <div className="flex flex-col gap-y-1 items-center justify-center w-40">
             <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
               {numberWithDelimiter(metrics?.totalActivities || 0)}
             </p>

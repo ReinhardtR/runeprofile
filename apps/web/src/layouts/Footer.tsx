@@ -4,6 +4,7 @@ import React from "react";
 import Logo from "~/core/assets/misc/logo.png";
 import { DonateButton } from "~/shared/components/DonateButton";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
+import { DiscordBotButton } from "~/shared/components/AddDiscordBotButton";
 import { Button, buttonVariants } from "~/shared/components/ui/button";
 import { cn } from "~/shared/utils";
 
@@ -36,6 +37,7 @@ export const Footer: React.FC = () => {
 
           <JoinDiscordButton />
           <DonateButton />
+          <DiscordBotButton />
         </div>
 
         <div className="hidden col-span-1 lg:flex flex-col items-start space-y-2"></div>
