@@ -159,8 +159,7 @@ export const profilesRouter = newRouter()
           );
         }
 
-        // testing only for this clan for now
-        if (data.clan?.name === "The Pax" && activities.length > 0) {
+        if (activities.length > 0) {
           c.executionCtx.waitUntil(
             sendActivityMessages({
               db,
@@ -170,7 +169,7 @@ export const profilesRouter = newRouter()
               accountId: data.id,
               rsn: data.username,
               accountType: AccountTypes[data.accountType],
-              clanName: data.clan?.name,
+              clanName: data.clan?.name ?? null,
             }),
           );
         }
@@ -234,11 +233,6 @@ export const profilesRouter = newRouter()
             console.log(
               `Account with ID ${id} not found when sending activity messages`,
             );
-            return;
-          }
-
-          // testing only for this clan for now
-          if (account.clanName !== "The Pax") {
             return;
           }
 
