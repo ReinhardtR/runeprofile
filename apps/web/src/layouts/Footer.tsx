@@ -2,9 +2,9 @@ import { Link } from "@tanstack/react-router";
 import React from "react";
 
 import Logo from "~/core/assets/misc/logo.png";
+import { DiscordBotButton } from "~/shared/components/AddDiscordBotButton";
 import { DonateButton } from "~/shared/components/DonateButton";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
-import { DiscordBotButton } from "~/shared/components/AddDiscordBotButton";
 import { Button, buttonVariants } from "~/shared/components/ui/button";
 import { cn } from "~/shared/utils";
 

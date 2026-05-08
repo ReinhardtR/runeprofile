@@ -233,10 +233,7 @@ export function SidePanel({ username }: { username: string }) {
         </SidePanelButton>
 
         <Link to="/info/discord-bot" className="mt-auto">
-          <SidePanelButton
-            className="group"
-            tooltip="Discord Bot"
-          >
+          <SidePanelButton className="group" tooltip="Discord Bot">
             <Bot className="size-6 group-hover:text-secondary-foreground" />
           </SidePanelButton>
         </Link>
