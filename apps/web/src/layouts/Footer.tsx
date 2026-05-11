@@ -48,6 +48,9 @@ export const Footer: React.FC = () => {
             <Link to="/info/guide">Guide</Link>
           </FooterLink>
           <FooterLink>
+            <Link to="/info/discord-bot">Discord Bot</Link>
+          </FooterLink>
+          <FooterLink>
             <Link to="/info/alias">Log Aliases</Link>
           </FooterLink>
           <FooterLink>
