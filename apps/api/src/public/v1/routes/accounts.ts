@@ -438,7 +438,7 @@ export const accountsRouter = createV1App()
     }
     const totalPoints = QUESTS.reduce((sum, q) => sum + q.points, 0);
 
-    // Collection log summary (use unique item list to avoid double-counting items on multiple pages)
+    // Collection log summary
     const obtainedItemIds = new Set(itemRows.map((i) => i.id));
     const totalClogItems = COLLECTION_LOG_ITEM_IDS.length;
     const clogObtained = COLLECTION_LOG_ITEM_IDS.filter((id) =>
