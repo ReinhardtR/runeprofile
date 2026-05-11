@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 
-import { Database, discordWatches } from "@runeprofile/db";
+import { Database, discordWatches, lower } from "@runeprofile/db";
 
 export async function addClanWatch(params: {
   db: Database;
@@ -14,7 +14,7 @@ export async function addClanWatch(params: {
     .values({
       id: crypto.randomUUID(),
       channelId,
-      targetId: clanName,
+      targetId: clanName.toLowerCase(),
       targetType: "clan",
     })
     .onConflictDoNothing();
@@ -32,7 +32,7 @@ export async function removeClanWatch(params: {
     .where(
       and(
         eq(discordWatches.channelId, channelId),
-        eq(discordWatches.targetId, clanName),
+        eq(lower(discordWatches.targetId), clanName.toLowerCase()),
         eq(discordWatches.targetType, "clan"),
       ),
     );

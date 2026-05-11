@@ -1,7 +1,7 @@
 import { Embed } from "discord-hono";
 import { and, eq, or } from "drizzle-orm";
 
-import { Database, discordWatches } from "@runeprofile/db";
+import { Database, discordWatches, lower } from "@runeprofile/db";
 import { AccountType, ActivityEvent } from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/internal/discord/factory";
@@ -101,7 +101,7 @@ function getWatchCondition(params: {
     conditions.push(
       and(
         eq(discordWatches.targetType, "clan"),
-        eq(discordWatches.targetId, clanName),
+        eq(lower(discordWatches.targetId), clanName.toLowerCase()),
       ),
     );
   }
