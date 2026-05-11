@@ -1,5 +1,5 @@
 import { Autocomplete, AutocompleteContext } from "discord-hono";
-import { and, isNotNull, like } from "drizzle-orm";
+import { and, ilike, isNotNull } from "drizzle-orm";
 
 import { Database, accounts, lower } from "@runeprofile/db";
 
@@ -37,10 +37,7 @@ export async function getClanAutocomplete(
     .selectDistinct({ clanName: accounts.clanName })
     .from(accounts)
     .where(
-      and(
-        isNotNull(accounts.clanName),
-        like(lower(accounts.clanName), `${query.toLowerCase()}%`),
-      ),
+      and(isNotNull(accounts.clanName), ilike(accounts.clanName, `${query}%`)),
     )
     .orderBy(lower(accounts.clanName))
     .limit(10);
