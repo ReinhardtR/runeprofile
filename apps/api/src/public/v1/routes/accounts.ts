@@ -438,20 +438,12 @@ export const accountsRouter = createV1App()
     }
     const totalPoints = QUESTS.reduce((sum, q) => sum + q.points, 0);
 
-    // Collection log summary
+    // Collection log summary (use unique item list to avoid double-counting items on multiple pages)
     const obtainedItemIds = new Set(itemRows.map((i) => i.id));
-    const totalClogItems = COLLECTION_LOG_TABS.reduce(
-      (sum, tab) => sum + tab.pages.reduce((s, p) => s + p.items.length, 0),
-      0,
-    );
-    let clogObtained = 0;
-    for (const tab of COLLECTION_LOG_TABS) {
-      for (const page of tab.pages) {
-        for (const itemId of page.items) {
-          if (obtainedItemIds.has(itemId)) clogObtained++;
-        }
-      }
-    }
+    const totalClogItems = COLLECTION_LOG_ITEM_IDS.length;
+    const clogObtained = COLLECTION_LOG_ITEM_IDS.filter((id) =>
+      obtainedItemIds.has(id),
+    ).length;
 
     // Achievement diaries summary
     const diaryMap = new Map<number, Map<number, number>>();
