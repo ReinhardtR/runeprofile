@@ -1,6 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { DISCORD_INVITE_INK } from "~/core/constants";
 import { GuideHeading, GuideParagraph, GuideSection } from "~/features/info";
 import { Footer, Header } from "~/layouts";
 import { AddDiscordBotButton } from "~/shared/components/AddDiscordBotButton";
@@ -119,6 +118,44 @@ function RouteComponent() {
               join the Discord server.
             </GuideParagraph>
             <JoinDiscordButton />
+          </GuideSection>
+
+          <GuideSection>
+            <GuideHeading id="faq">FAQ</GuideHeading>
+            <div className="space-y-6">
+              <div>
+                <p className="font-medium text-secondary-foreground">
+                  I got a new collection log item, why is the bot not sending a
+                  message for it?
+                </p>
+                <GuideParagraph>
+                  The bot works as a side effect of your profile updates, so the
+                  bot will send the message once the new item is on your
+                  profile. Auto Sync helps with this, as new collection log
+                  items are updated instantly to your profile, assuming you have
+                  set it up correctly. Please read the{" "}
+                  <Link
+                    to="/info/guide"
+                    hash="updating-profile"
+                    className="underline underline-offset-4 text-secondary-foreground"
+                  >
+                    guide
+                  </Link>{" "}
+                  if you're experiencing this problem.
+                </GuideParagraph>
+              </div>
+              <div>
+                <p className="font-medium text-secondary-foreground">
+                  I did an activity and the bot is not sending a message for it?
+                </p>
+                <GuideParagraph>
+                  The bot requires a profile update to detect the changes. If
+                  you're playing on mobile these will be sent when you log in to
+                  RuneLite and the profile is updated (either manually or when
+                  Auto Sync triggers).
+                </GuideParagraph>
+              </div>
+            </div>
           </GuideSection>
         </article>
       </div>
