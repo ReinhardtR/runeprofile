@@ -125,6 +125,15 @@ function RouteComponent() {
             <div className="space-y-6">
               <div>
                 <p className="font-medium text-secondary-foreground">
+                  Why is the bot not sending any messages?
+                </p>
+                <GuideParagraph>
+                  Make sure the bot has permission to send messages in the
+                  channel.
+                </GuideParagraph>
+              </div>
+              <div>
+                <p className="font-medium text-secondary-foreground">
                   I got a new collection log item, why is the bot not sending a
                   message for it?
                 </p>
