@@ -39,13 +39,15 @@ export async function getClanAutocomplete(
     .where(
       and(isNotNull(accounts.clanName), ilike(accounts.clanName, `${query}%`)),
     )
-    .orderBy(lower(accounts.clanName))
+    .orderBy(accounts.clanName)
     .limit(10);
 
-  const options = clans.map((c) => ({
-    name: c.clanName!,
-    value: c.clanName!,
-  }));
+  const options = clans
+    .filter((c): c is { clanName: string } => c.clanName !== null)
+    .map((c) => ({
+      name: c.clanName,
+      value: c.clanName,
+    }));
 
   return new Autocomplete().choices(...options);
 }

@@ -7,6 +7,7 @@ import { hiscoresRouter } from "~/internal/routes/hiscores";
 import { manifestRouter } from "~/internal/routes/manifest";
 import { metricsRouter } from "~/internal/routes/metrics";
 import { profilesRouter } from "~/internal/routes/profiles";
+import { simulateRouter } from "~/internal/routes/simulate";
 import { errorHandler, logger, newRouter } from "~/lib/helpers";
 import { publicApiV1 } from "~/public/v1/index";
 
@@ -32,4 +33,5 @@ export default newRouter()
   .route("/hiscores", hiscoresRouter)
   .route("/manifest", manifestRouter)
   .route("/metrics", metricsRouter)
-  .route("/discord", discordRouter);
+  .route("/discord", discordRouter)
+  .route("/simulate", simulateRouter);
