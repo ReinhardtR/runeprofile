@@ -1,11 +1,20 @@
-import { Embed } from "discord-hono";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 
-import { Database, discordWatches, lower } from "@runeprofile/db";
-import { AccountType, ActivityEvent } from "@runeprofile/runescape";
+import {
+  Database,
+  discordWatchFilters,
+  discordWatches,
+  lower,
+} from "@runeprofile/db";
+import {
+  AccountType,
+  ActivityEvent,
+  type ActivityEventTypeValue,
+} from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/internal/discord/factory";
 import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
+import { filterActivityTypes } from "~/internal/discord/watch/filter";
 
 export async function sendActivityMessages(params: {
   db: Database;
@@ -30,18 +39,6 @@ export async function sendActivityMessages(params: {
 
   if (activities.length === 0) return;
 
-  // Build embeds for supported activity types
-  const embeds = activities
-    .map((activity) =>
-      createActivityEmbed({ activity, discordApplicationId, rsn, accountType }),
-    )
-    .filter((embed): embed is Embed => embed !== null);
-
-  if (embeds.length === 0) {
-    console.log("No supported activity embeds to send");
-    return;
-  }
-
   // Find channels watching this player or clan
   const condition = getWatchCondition({ accountId, clanName });
   if (!condition) {
@@ -57,28 +54,69 @@ export async function sendActivityMessages(params: {
     return;
   }
 
-  const discordApi = createDiscordApi(discordToken);
+  // Get unique channel IDs and fetch their filters
+  const channelIds = [...new Set(watches.map((w) => w.channelId))];
+  const allFilters =
+    channelIds.length > 0
+      ? await db.query.discordWatchFilters.findMany({
+          where: inArray(discordWatchFilters.channelId, channelIds),
+        })
+      : [];
 
-  // Send messages to all watching channels
+  // Group filters by channel
+  const filtersByChannel = new Map<
+    string,
+    { activityType: string; mode: string }[]
+  >();
+  for (const filter of allFilters) {
+    const existing = filtersByChannel.get(filter.channelId) ?? [];
+    existing.push(filter);
+    filtersByChannel.set(filter.channelId, existing);
+  }
+
+  const discordApi = createDiscordApi(discordToken);
+  const activityTypes = activities.map(
+    (a) => a.type,
+  ) as ActivityEventTypeValue[];
+
+  // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
-    watches.map(async (watch) => {
+    channelIds.map(async (channelId) => {
+      const channelFilters = filtersByChannel.get(channelId) ?? [];
+      const allowedTypes = filterActivityTypes(activityTypes, channelFilters);
+
+      if (allowedTypes.length === 0) return;
+
+      const embeds = activities
+        .filter((a) => allowedTypes.includes(a.type as ActivityEventTypeValue))
+        .map((activity) =>
+          createActivityEmbed({
+            activity,
+            discordApplicationId,
+            rsn,
+            accountType,
+          }),
+        );
+
+      if (embeds.length === 0) return;
+
+      // Discord allows max 10 embeds per message
       try {
-        await discordApi(
-          "POST",
-          "/channels/{channel.id}/messages",
-          [watch.channelId],
-          { embeds },
-        );
+        for (let i = 0; i < embeds.length; i += 10) {
+          await discordApi(
+            "POST",
+            "/channels/{channel.id}/messages",
+            [channelId],
+            { embeds: embeds.slice(i, i + 10) },
+          );
+        }
       } catch (error) {
-        console.error(
-          `Failed to send message to channel ${watch.channelId}:`,
-          error,
-        );
+        console.error(`Failed to send message to channel ${channelId}:`, error);
       }
     }),
   );
 
-  console.log(`Sent activity messages to ${watches.length} channels`);
+  console.log(`Sent activity messages to ${channelIds.length} channels`);
 }
 
 function getWatchCondition(params: {

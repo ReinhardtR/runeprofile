@@ -11,16 +11,32 @@ import {
 } from "discord-hono";
 
 import { drizzle } from "@runeprofile/db";
+import { type ActivityEventTypeValue } from "@runeprofile/runescape";
 
 import {
   getClanAutocomplete,
   getRsnAutocomplete,
 } from "~/internal/discord/autocomplete";
+import { ActivityEventChoices } from "~/internal/discord/constants";
 import { factory } from "~/internal/discord/factory";
-
+import {
+  addClanWatch,
+  getClanWatches,
+  removeClanWatch,
+} from "~/internal/discord/watch/clan";
+import {
+  addWatchFilter,
+  clearWatchFilters,
+  getActivityTypeLabel,
+  getWatchFilters,
+  removeWatchFilter,
+} from "~/internal/discord/watch/filter";
+import {
+  addPlayerWatch,
+  getPlayerWatches,
+  removePlayerWatch,
+} from "~/internal/discord/watch/player";
 import { RuneProfileError } from "~/lib/errors";
-import { addPlayerWatch, getPlayerWatches, removePlayerWatch } from "~/internal/discord/watch/player";
-import { addClanWatch, getClanWatches, removeClanWatch } from "~/internal/discord/watch/clan";
 
 export const command_watch = factory.autocomplete(
   new Command(
@@ -53,34 +69,50 @@ export const command_watch = factory.autocomplete(
         new SubCommand("list", "List all clans you're watching"),
       ),
 
-      // new SubGroup(
-      //   "filter",
-      //   "Manage activity filters for this channel",
-      // ).options(
-      //   new SubCommand("add", "Add an activity filter to this channel").options(
-      //     new Option("activity", "Activity to filter")
-      //       .choices(...ActivityEventChoices)
-      //       .required(),
-      //   ),
-      //   new SubCommand(
-      //     "remove",
-      //     "Remove an activity filter from this channel",
-      //   ).options(
-      //     new Option("activity", "Activity filter to remove")
-      //       .choices(...ActivityEventChoices)
-      //       .required(),
-      //   ),
-      //   new SubCommand("list", "List all activity filters for this channel"),
-      // ),
+      new SubGroup(
+        "filter",
+        "Manage activity filters for this channel",
+      ).options(
+        new SubCommand(
+          "allow",
+          "Only receive this activity type in this channel",
+        ).options(
+          new Option("activity", "Activity type to allow")
+            .choices(...ActivityEventChoices)
+            .required(),
+        ),
+        new SubCommand(
+          "block",
+          "Stop receiving this activity type in this channel",
+        ).options(
+          new Option("activity", "Activity type to block")
+            .choices(...ActivityEventChoices)
+            .required(),
+        ),
+        new SubCommand("remove", "Remove a filter from this channel").options(
+          new Option("activity", "Activity filter to remove")
+            .choices(...ActivityEventChoices)
+            .required(),
+        ),
+        new SubCommand("list", "List all activity filters for this channel"),
+        new SubCommand(
+          "clear",
+          "Remove all activity filters from this channel",
+        ),
+      ),
     ),
   async (c) => {
     const db = drizzle(c.env.HYPERDRIVE);
 
     let result = new Autocomplete();
-    if (c.focused?.name === "rsn") {
-      result = await getRsnAutocomplete(db, c.focused);
-    } else if (c.focused?.name === "clan") {
-      result = await getClanAutocomplete(db, c.focused);
+    try {
+      if (c.focused?.name === "rsn") {
+        result = await getRsnAutocomplete(db, c.focused);
+      } else if (c.focused?.name === "clan") {
+        result = await getClanAutocomplete(db, c.focused);
+      }
+    } catch (error) {
+      console.error("Autocomplete error:", error);
     }
 
     return c.resAutocomplete(result);
@@ -143,22 +175,99 @@ export const command_watch = factory.autocomplete(
             }
           }
         }
-        // case "filter": {
-        //   switch (c.sub.command) {
-        //     case "add": {
-        //       return c.res("Filter add: " + c.var.activity);
-        //     }
-        //     case "remove": {
-        //       return c.res("Filter remove: " + c.var.activity);
-        //     }
-        //     case "list": {
-        //       return c.res("Filter list");
-        //     }
-        //     default: {
-        //       return c.res("Unknown filter subcommand");
-        //     }
-        //   }
-        // }
+        case "filter": {
+          switch (c.sub.command) {
+            case "allow": {
+              const activityType = c.var.activity as ActivityEventTypeValue;
+              await addWatchFilter({
+                db,
+                channelId,
+                activityType,
+                mode: "allow",
+              });
+              return c.res(
+                `Added allow filter for: ${getActivityTypeLabel(activityType)}`,
+              );
+            }
+            case "block": {
+              const activityType = c.var.activity as ActivityEventTypeValue;
+              await addWatchFilter({
+                db,
+                channelId,
+                activityType,
+                mode: "block",
+              });
+              return c.res(
+                `Added block filter for: ${getActivityTypeLabel(activityType)}`,
+              );
+            }
+            case "remove": {
+              const activityType = c.var.activity as ActivityEventTypeValue;
+              const removed = await removeWatchFilter({
+                db,
+                channelId,
+                activityType,
+              });
+              if (!removed) {
+                return c.res(
+                  `No filter found for: ${getActivityTypeLabel(activityType)}`,
+                );
+              }
+              return c.res(
+                `Removed filter for: ${getActivityTypeLabel(activityType)}`,
+              );
+            }
+            case "list": {
+              const filters = await getWatchFilters({ db, channelId });
+              if (filters.length === 0) {
+                return c.res(
+                  "No activity filters set for this channel. All activity types will be sent.",
+                );
+              }
+
+              const allowFilters = filters.filter((f) => f.mode === "allow");
+              const blockFilters = filters.filter((f) => f.mode === "block");
+
+              let message = "**Activity Filters**\n";
+              if (allowFilters.length > 0) {
+                message += "\n✅ **Allowed:**\n";
+                message += allowFilters
+                  .map(
+                    (f) =>
+                      `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
+                  )
+                  .join("\n");
+              }
+              if (blockFilters.length > 0) {
+                message += "\n🚫 **Blocked:**\n";
+                message += blockFilters
+                  .map(
+                    (f) =>
+                      `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
+                  )
+                  .join("\n");
+              }
+
+              if (allowFilters.length > 0) {
+                message += "\n\n*Only allowed activity types will be sent.*";
+              } else {
+                message +=
+                  "\n\n*All activity types except blocked ones will be sent.*";
+              }
+
+              return c.res(message);
+            }
+            case "clear": {
+              await clearWatchFilters({ db, channelId });
+              return c.res(
+                "Cleared all activity filters. All activity types will be sent.",
+              );
+            }
+            default: {
+              return c.res("Unknown filter subcommand");
+            }
+          }
+        }
         default: {
           return c.res("Unknown sub group");
         }

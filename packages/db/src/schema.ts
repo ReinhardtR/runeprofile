@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 
-import { ActivityEvent } from "@runeprofile/runescape";
+import { ActivityEvent, ActivityEventTypeValue } from "@runeprofile/runescape";
 
 import { createdAt, lower, updatedAt } from "./helpers";
 
@@ -252,6 +252,23 @@ export const discordWatchesRelations = relations(discordWatches, ({ one }) => ({
     references: [accounts.id],
   }),
 }));
+
+export const discordWatchFilters = t.pgTable(
+  "discord_watch_filters",
+  {
+    id: t.text().notNull().primaryKey(),
+    channelId: t.text().notNull(),
+    activityType: t.text().notNull().$type<ActivityEventTypeValue>(),
+    mode: t.text().notNull().$type<"allow" | "block">(),
+    createdAt,
+  },
+  (table) => [
+    t
+      .uniqueIndex("discord_watch_filters_channel_activity_unique_index")
+      .on(table.channelId, table.activityType),
+    t.index("discord_watch_filters_channel_index").on(table.channelId),
+  ],
+);
 
 // API key management
 export const apiKeys = t.pgTable(

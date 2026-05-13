@@ -23,13 +23,9 @@ function RouteComponent() {
             <GuideHeading id="overview">Overview</GuideHeading>
             <GuideParagraph>
               The RuneProfile Discord bot sends activity messages directly to
-              your Discord server. For example, get notified when clan members
-              or tracked players receive valuable drops or new collection logs.
-            </GuideParagraph>
-            <GuideParagraph className="italic">
-              Note: The bot is currently under development with minimal
-              features. It only sends messages for valuable drops and collection
-              log items.
+              your Discord server. Get notified when clan members or tracked
+              players level up, receive valuable drops, complete quests, unlock
+              collection log items, and more.
             </GuideParagraph>
           </GuideSection>
 
@@ -54,49 +50,109 @@ function RouteComponent() {
                 </span>{" "}
                 — set up different watches in different channels.
               </li>
+              <li>
+                <span className="text-secondary-foreground font-medium">
+                  Activity filters
+                </span>{" "}
+                — allow or block specific activity types per channel.
+              </li>
             </ul>
           </GuideSection>
 
           <GuideSection>
             <GuideHeading id="commands">Commands</GuideHeading>
-            <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                  /watch player add [name]
-                </code>{" "}
-                — watch a player in the current channel.
-              </li>
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                  /watch player remove [name]
-                </code>{" "}
-                — stop watching a player.
-              </li>
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                  /watch player list
-                </code>{" "}
-                — list watched players in the current channel.
-              </li>
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                  /watch clan add [name]
-                </code>{" "}
-                — watch a clan in the current channel.
-              </li>
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                  /watch clan remove [name]
-                </code>{" "}
-                — stop watching a clan.
-              </li>
-              <li>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                  /watch clan list
-                </code>{" "}
-                — list watched clans in the current channel.
-              </li>
-            </ul>
+
+            <div className="space-y-6">
+              <div>
+                <p className="font-medium text-secondary-foreground mb-2">
+                  Player watches
+                </p>
+                <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch player add [name]
+                    </code>{" "}
+                    — watch a player in the current channel.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch player remove [name]
+                    </code>{" "}
+                    — stop watching a player.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch player list
+                    </code>{" "}
+                    — list watched players in the current channel.
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-medium text-secondary-foreground mb-2">
+                  Clan watches
+                </p>
+                <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch clan add [name]
+                    </code>{" "}
+                    — watch a clan in the current channel.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch clan remove [name]
+                    </code>{" "}
+                    — stop watching a clan.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch clan list
+                    </code>{" "}
+                    — list watched clans in the current channel.
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-medium text-secondary-foreground mb-2">
+                  Activity filters
+                </p>
+                <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter allow [activity]
+                    </code>{" "}
+                    — only receive this activity type.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter block [activity]
+                    </code>{" "}
+                    — stop receiving this activity type.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter remove [activity]
+                    </code>{" "}
+                    — remove an activity filter.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter list
+                    </code>{" "}
+                    — list active filters for this channel.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter clear
+                    </code>{" "}
+                    — remove all filters.
+                  </li>
+                </ul>
+              </div>
+            </div>
           </GuideSection>
 
           <GuideSection>

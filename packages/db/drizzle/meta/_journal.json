@@ -71,6 +71,13 @@
       "when": 1778050238471,
       "tag": "0009_fuzzy_zarda",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778533877848,
+      "tag": "0010_watery_weapon_omega",
+      "breakpoints": true
     }
   ]
 }
