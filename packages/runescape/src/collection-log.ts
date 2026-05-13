@@ -186,7 +186,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Giant Mole",
-        items: [12646, 7418, 7416],
+        items: [12646, 7418, 7416, 33382],
         hiscore: { "Giant Mole": "Giant Mole kills" },
         aliases: ["mole"],
       },
@@ -2866,6 +2866,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   33124: "Beef",
   33133: "Pristine spider silk",
   33143: "Ballistic attractor schematic",
+  33382: "Immaculate mole skin",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =

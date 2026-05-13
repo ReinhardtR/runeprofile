@@ -7,7 +7,7 @@
     "check-clog": "tsx check-clog.ts"
   },
   "devDependencies": {
-    "@abextm/cache2": "^0.1.3",
+    "@abextm/cache2": "^0.1.8",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",

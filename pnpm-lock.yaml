@@ -445,8 +445,8 @@ importers:
   scripts/ts-scripts:
     devDependencies:
       '@abextm/cache2':
-        specifier: ^0.1.3
-        version: 0.1.3
+        specifier: ^0.1.8
+        version: 0.1.8
       '@runeprofile/runescape':
         specifier: workspace:*
         version: link:../../packages/runescape
@@ -462,8 +462,8 @@ importers:
 
 packages:
 
-  '@abextm/cache2@0.1.3':
-    resolution: {integrity: sha512-A4JtFvrAOm155o0aIwyHHxQbFWvg7pkxXjBTp1G3H819nIXR1uYFoVPFGSRbSRbhrc/DKmz4K9vPHR01lYyrVA==}
+  '@abextm/cache2@0.1.8':
+    resolution: {integrity: sha512-DjvkoNkuamimx9CCWYqWUnlVu8sqYZqYWjWjV1/13/JBYfMY2NUXoWNaZIP4DcR1KjojoYUGKkHsj5JMeHLLxA==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -7691,7 +7691,7 @@ packages:
 
 snapshots:
 
-  '@abextm/cache2@0.1.3':
+  '@abextm/cache2@0.1.8':
     dependencies:
       base64-arraybuffer-es6: 3.1.0
       fflate: 0.8.2
