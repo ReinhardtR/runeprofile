@@ -12,7 +12,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { AlertTriangle, Home, KeyRound, ListChecks, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  Home,
+  KeyRound,
+  ListChecks,
+  MessageSquare,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -25,6 +32,11 @@ const items = [
     title: "Item Discrepancies",
     url: "/item-discrepancies",
     icon: AlertTriangle,
+  },
+  {
+    title: "Discord Simulator",
+    url: "/discord-simulator",
+    icon: MessageSquare,
   },
 ];
 
