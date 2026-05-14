@@ -28,7 +28,9 @@ import {
   numberWithDelimiter,
 } from "~/shared/utils";
 
-type ProfileRecentActivity = Profile["recentActivities"][number];
+type ProfileRecentActivity = Profile["recentActivities"][number] & {
+  createdAt: string;
+};
 
 const ActivityRenderMap = {
   [ActivityEventType.LEVEL_UP]: RenderLevelUpEvent,
@@ -37,6 +39,8 @@ const ActivityRenderMap = {
     RenderAchievementDiaryTierCompletedEvent,
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]:
     RenderCombatAchievementTierCompletedEvent,
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]:
+    RenderCombatAchievementTierReachedEvent,
   [ActivityEventType.QUEST_COMPLETED]: RenderQuestCompletedEvent,
   [ActivityEventType.MAXED]: RenderMaxedEvent,
   [ActivityEventType.VALUABLE_DROP]: RenderValuableDropEvent,
@@ -54,6 +58,7 @@ export function RecentActivities({
       </p>
       {events.map((event, idx) => {
         const Renderer = ActivityRenderMap[event.type];
+        if (!Renderer) return null;
         return (
           <Renderer
             key={idx}
@@ -234,6 +239,49 @@ function RenderCombatAchievementTierCompletedEvent({
       <TooltipContent className="w-78">
         <p className="font-semibold text-sm">
           Completed all tasks in the{" "}
+          <span className="text-secondary-foreground">{tierName}</span> Combat
+          Achievement Tier
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatRelativeTime(event.createdAt)}
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function RenderCombatAchievementTierReachedEvent({
+  event,
+}: {
+  event: Extract<
+    ProfileRecentActivity,
+    { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED }
+  >;
+}) {
+  const tierIcon =
+    CombatAchievementTierIcons[
+      event.data.tierId as unknown as keyof typeof CombatAchievementTierIcons
+    ];
+  const tierName = getCombatAchievementTierName(event.data.tierId) ?? "Unknown";
+  const shortTierName = tierName === "Grandmaster" ? "GM" : tierName;
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex flex-col items-center justify-center col-span-1">
+          <GameIcon
+            src={tierIcon}
+            alt={tierName}
+            size={36}
+            className="drop-shadow-solid-xs"
+          />
+          <p className="font-runescape text-osrs-orange solid-text-shadow">
+            {shortTierName}
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent className="w-78">
+        <p className="font-semibold text-sm">
+          Reached the{" "}
           <span className="text-secondary-foreground">{tierName}</span> Combat
           Achievement Tier
         </p>
