@@ -141,6 +141,49 @@ export const CombatAchievementsResponseSchema = z
   .object({ data: z.array(CombatAchievementTierSchema) })
   .openapi("CombatAchievementsResponse");
 
+export const CombatAchievementTaskSchema = z
+  .object({
+    index: z
+      .number()
+      .openapi({ description: "Unique task index used for varp tracking" }),
+    tierId: z.number().openapi({ description: "Tier ID (1-6)" }),
+    tierName: z
+      .enum(["Easy", "Medium", "Hard", "Elite", "Master", "Grandmaster"])
+      .openapi({ description: "Tier name" }),
+    name: z.string().openapi({ description: "Task name" }),
+    description: z.string().openapi({ description: "Task description" }),
+    type: z
+      .enum([
+        "Kill Count",
+        "Mechanical",
+        "Perfection",
+        "Restriction",
+        "Speed",
+        "Stamina",
+      ])
+      .openapi({ description: "Task type" }),
+    monster: z.string().openapi({ description: "Monster or boss name" }),
+    completed: z
+      .boolean()
+      .openapi({ description: "Whether the task is completed" }),
+  })
+  .openapi("CombatAchievementTask");
+
+export const CombatAchievementTasksResponseSchema = z
+  .object({
+    totalPoints: z
+      .number()
+      .openapi({ description: "Total combat achievement points earned" }),
+    tierReached: z
+      .string()
+      .nullable()
+      .openapi({
+        description: "Highest tier name where points threshold is met",
+      }),
+    data: z.array(CombatAchievementTaskSchema),
+  })
+  .openapi("CombatAchievementTasksResponse");
+
 export const FullProfileSchema = z
   .object({
     username: z.string(),

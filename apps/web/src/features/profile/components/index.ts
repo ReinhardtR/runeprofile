@@ -1,6 +1,7 @@
 export { Character, PlayerModel } from "./character";
 export { Card } from "./card";
 export { CollectionLog } from "./collection-log";
+export { CombatAchievementsPanel } from "./combat-achievements-panel";
 export { DataTabsCard } from "./tabs-card";
 export { RecentActivities } from "./recent-activities";
 export { RecentCollections } from "./recent-collections";

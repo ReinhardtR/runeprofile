@@ -1,8 +1,9 @@
-import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
+import { COLLECTION_LOG_TABS, COMBAT_ACHIEVEMENT_VARPS } from "@runeprofile/runescape";
 
 export type Manifest = {
   version: number;
   pages: Record<string, string[]>;
+  combatAchievementVarps: number[];
 };
 
 export function getManifest(): Manifest {
@@ -17,5 +18,6 @@ export function getManifest(): Manifest {
   return {
     version: 1,
     pages,
+    combatAchievementVarps: [...COMBAT_ACHIEVEMENT_VARPS],
   };
 }

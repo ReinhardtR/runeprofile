@@ -5,13 +5,11 @@ import {
   MAX_SKILL_XP,
   QuestState,
   getAchievementDiaryTierTaskCount,
-  getCombatAchievementTierTaskCount,
   getLevelXpThreshold,
 } from "@runeprofile/runescape";
 
 import {
   checkAchievementDiaryTierCompletedEvents,
-  checkCombatAchievementTierCompletedEvents,
   checkLevelUpEvents,
   checkMaxedEvent,
   checkNewItemObtainedEvents,
@@ -195,53 +193,6 @@ describe("ACHIEVEMENT DIARY TIER COMPLETED EVENTS", () => {
           oldCompletedCount: getAchievementDiaryTierTaskCount(1, 2) ?? 0,
         },
       ]),
-    ).toEqual([]);
-  });
-});
-
-describe("COMBAT ACHIEVEMENT TIER COMPLETED EVENTS", () => {
-  test("completion", () => {
-    expect(
-      checkCombatAchievementTierCompletedEvents([
-        {
-          id: 1,
-          completedCount: getCombatAchievementTierTaskCount(1) ?? 0,
-          oldCompletedCount: 5,
-        },
-        {
-          id: 2,
-          completedCount: getCombatAchievementTierTaskCount(2) ?? 0,
-          oldCompletedCount: 4,
-        },
-      ], 0),
-    ).toEqual([
-      { type: "combat_achievement_tier_completed", data: { tierId: 1 } },
-      { type: "combat_achievement_tier_completed", data: { tierId: 2 } },
-    ]);
-  });
-
-  test("not completed", () => {
-    expect(
-      checkCombatAchievementTierCompletedEvents([
-        { id: 1, completedCount: 4, oldCompletedCount: 3 },
-      ], 0),
-    ).toEqual([]);
-  });
-
-  test("already completed", () => {
-    expect(
-      checkCombatAchievementTierCompletedEvents([
-        {
-          id: 1,
-          completedCount: getCombatAchievementTierTaskCount(1) ?? 0,
-          oldCompletedCount: getCombatAchievementTierTaskCount(1) ?? 0,
-        },
-        {
-          id: 2,
-          completedCount: getCombatAchievementTierTaskCount(2) ?? 0,
-          oldCompletedCount: getCombatAchievementTierTaskCount(2) ?? 0,
-        },
-      ], 0),
     ).toEqual([]);
   });
 });

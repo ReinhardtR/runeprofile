@@ -32,8 +32,10 @@ export type UpdateProfileInput = {
     tierIndex: number;
     completedCount: number;
   }>;
-  // id -> completedCount
-  combatAchievementTiers: Record<number, number>;
+  // id -> completedCount (legacy, from old plugin clients)
+  combatAchievementTiers?: Record<number, number>;
+  // varp id -> raw 32-bit value (new plugin clients)
+  combatAchievementVarps?: Record<number, number>;
   // id -> quantity
   items: Record<number, number>;
   // id -> state
@@ -66,6 +68,10 @@ export type ProfileUpdates = {
     completedCount: number;
     oldCompletedCount: number;
   }>;
+  combatAchievementVarps: {
+    newVarps: Record<string, number> | null;
+    oldVarps: Record<string, number> | null;
+  };
   items: Array<{
     id: number;
     quantity: number;
@@ -97,6 +103,9 @@ async function getProfileForDiff(
       combatAchievementTiers: {
         columns: { id: true, completedCount: true },
       },
+      combatAchievementVarps: {
+        columns: { varps: true },
+      },
       items: { columns: { id: true, quantity: true } },
       quests: { columns: { id: true, state: true } },
       skills: { columns: { name: true, xp: true } },
@@ -115,6 +124,7 @@ async function getProfileForDiff(
         completedCount: t.completedCount,
       })),
       combatAchievementTiers: result.combatAchievementTiers,
+      combatAchievementVarps: result.combatAchievementVarps?.varps ?? null,
       items: result.items,
       quests: result.quests,
       skills: result.skills,
@@ -200,10 +210,18 @@ export async function getProfileUpdates(
       forceResync,
     }),
     combatAchievementTiers: getCombatAchievementTierUpdates({
-      newData: input.combatAchievementTiers,
+      newData: input.combatAchievementTiers ?? {},
       oldData: diffProfile?.combatAchievementTiers || [],
       forceResync,
     }),
+    combatAchievementVarps: {
+      newVarps: input.combatAchievementVarps
+        ? Object.fromEntries(
+            Object.entries(input.combatAchievementVarps).map(([k, v]) => [String(k), v]),
+          )
+        : null,
+      oldVarps: diffProfile?.combatAchievementVarps ?? null,
+    },
     items: getItemUpdates({
       newData: input.items,
       oldData: diffProfile?.items || [],
@@ -277,6 +295,7 @@ export function getCombatAchievementTierUpdates({
   forceResync?: boolean;
 }): ProfileUpdates["combatAchievementTiers"] {
   const updates: ProfileUpdates["combatAchievementTiers"] = [];
+  if (!newData) return updates;
 
   for (const tier of COMBAT_ACHIEVEMENT_TIERS) {
     const newCompletedCount = newData[tier.id];

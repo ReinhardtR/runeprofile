@@ -11,6 +11,7 @@ const ACTIVITY_TYPE_LABELS: Record<ActivityEventTypeValue, string> = {
   [ActivityEventType.NEW_ITEM_OBTAINED]: "New Item Obtained",
   [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]: "Achievement Diary",
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: "Combat Achievement",
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]: "Combat Achievement Tier Reached",
   [ActivityEventType.QUEST_COMPLETED]: "Quest Completed",
   [ActivityEventType.MAXED]: "Maxed",
   [ActivityEventType.XP_MILESTONE]: "XP Milestone",

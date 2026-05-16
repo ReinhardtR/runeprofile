@@ -5,6 +5,7 @@ import {
   AchievementDiaryTierCompletedEvent,
   ActivityEvent,
   CombatAchievementTierCompletedEvent,
+  CombatAchievementTierReachedEvent,
   LevelUpEvent,
   MaxedEvent,
   NewItemObtainedEvent,
@@ -53,6 +54,8 @@ export function createActivityEmbed(params: {
     case "achievement_diary_tier_completed":
       return createAchievementDiaryEmbed({ ...common, event: activity });
     case "combat_achievement_tier_completed":
+      return createCombatAchievementEmbed({ ...common, event: activity });
+    case "combat_achievement_tier_reached":
       return createCombatAchievementEmbed({ ...common, event: activity });
     case "maxed":
       return createMaxedEmbed({ ...common, event: activity });
@@ -152,17 +155,33 @@ function createAchievementDiaryEmbed(
     .color(0xf59e0b); // Amber
 }
 
+// TODO: Remove after 2026-05-22
+const CA_TIER_REACHED_FOOTNOTE_UNTIL = new Date("2026-05-22T00:00:00Z");
+
 function createCombatAchievementEmbed(
-  params: EmbedParams<CombatAchievementTierCompletedEvent>,
+  params: EmbedParams<
+    CombatAchievementTierCompletedEvent | CombatAchievementTierReachedEvent
+  >,
 ): Embed {
   const { discordApplicationId, event, rsn, accountType } = params;
   const tierName = getCombatAchievementTierName(event.data.tierId) ?? "Unknown";
+  const isReached = event.type === "combat_achievement_tier_reached";
+
+  let description = isReached
+    ? `Reached the **${tierName}** Combat Achievement Tier`
+    : `Completed all **${tierName}** Combat Achievements`;
+
+  // Add a footnote for 3 days after tier-reached events are enabled
+  if (isReached && new Date() < CA_TIER_REACHED_FOOTNOTE_UNTIL) {
+    description +=
+      "\n\n-# RuneProfile recently changed how it tracks CA Tiers. This activity might be inaccurate for the first profile update.";
+  }
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
-    .description(`Completed all **${tierName}** Combat Achievements`)
-    .thumbnail({ url: getCombatAchievementIconUrl() })
-    .footer({ text: "Combat Achievement" })
+    .description(description)
+    .thumbnail({ url: getCombatAchievementIconUrl(tierName) })
+    .footer({ text: "Combat Achievement Tier" })
     .color(0xef4444); // Red
 }
 

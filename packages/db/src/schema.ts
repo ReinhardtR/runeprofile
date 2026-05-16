@@ -32,9 +32,10 @@ export const accounts = t.pgTable(
       .on(lower(table.clanName), table.clanRank, lower(table.username)),
   ],
 );
-export const accountsRelations = relations(accounts, ({ many }) => ({
+export const accountsRelations = relations(accounts, ({ many, one }) => ({
   achievementDiaryTiers: many(achievementDiaryTiers),
   combatAchievementTiers: many(combatAchievementTiers),
+  combatAchievementVarps: one(combatAchievementVarps),
   items: many(items),
   quests: many(quests),
   skills: many(skills),
@@ -83,6 +84,23 @@ export const combatAchievementTiersRelations = relations(
   ({ one }) => ({
     account: one(accounts, {
       fields: [combatAchievementTiers.accountId],
+      references: [accounts.id],
+    }),
+  }),
+);
+
+export const combatAchievementVarps = t.pgTable(
+  "combat_achievement_varps",
+  {
+    accountId: t.text().notNull().primaryKey().references(account),
+    varps: t.jsonb().notNull().$type<Record<string, number>>(),
+  },
+);
+export const combatAchievementVarpsRelations = relations(
+  combatAchievementVarps,
+  ({ one }) => ({
+    account: one(accounts, {
+      fields: [combatAchievementVarps.accountId],
       references: [accounts.id],
     }),
   }),

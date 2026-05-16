@@ -109,7 +109,12 @@ export const profilesRouter = newRouter()
             completedCount: z.number(),
           }),
         ),
-        combatAchievementTiers: z.record(z.coerce.number(), z.number()),
+        combatAchievementTiers: z
+          .record(z.coerce.number(), z.number())
+          .optional(),
+        combatAchievementVarps: z
+          .record(z.coerce.number(), z.number())
+          .optional(),
         items: z.record(z.coerce.number(), z.number()),
         quests: z.record(z.coerce.number(), z.number()),
         skills: z.record(z.string(), z.number()),
@@ -140,7 +145,10 @@ export const profilesRouter = newRouter()
           setDiffProfileCache(
             kv,
             data.id,
-            buildUpdatedDiffProfile(updates.currentProfile, updatedAt, updates),
+            buildUpdatedDiffProfile(updates.currentProfile, updatedAt, {
+              ...updates,
+              combatAchievementVarps: updates.combatAchievementVarps.newVarps,
+            }),
           ).catch((err) => {
             console.error("Failed to update diff cache:", err);
           }),

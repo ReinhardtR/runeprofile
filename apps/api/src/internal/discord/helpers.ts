@@ -33,10 +33,8 @@ export function getAchievementDiaryIconUrl(): string {
 }
 
 // TODO: Replace with self-hosted asset URL (e.g. R2 bucket)
-const COMBAT_ACHIEVEMENT_ICON_URL =
-  "https://oldschool.runescape.wiki/images/Combat_Achievements_icon.png";
-export function getCombatAchievementIconUrl(): string {
-  return COMBAT_ACHIEVEMENT_ICON_URL;
+export function getCombatAchievementIconUrl(tierName: string): string {
+  return `https://oldschool.runescape.wiki/images/Combat_Achievements_-_${tierName.toLowerCase()}_tier_icon.png`;
 }
 
 // TODO: Replace with self-hosted asset URL (e.g. R2 bucket)

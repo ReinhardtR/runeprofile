@@ -5,6 +5,7 @@ import {
   accounts,
   achievementDiaryTiers as achievementDiaryTiersTable,
   combatAchievementTiers as combatAchievementTiersTable,
+  combatAchievementVarps as combatAchievementVarpsTable,
   items,
   lower,
   quests as questsTable,
@@ -18,11 +19,15 @@ import {
   COLLECTION_LOG_ITEMS,
   COLLECTION_LOG_ITEM_IDS,
   COLLECTION_LOG_TABS,
+  COMBAT_ACHIEVEMENT_TASKS,
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
   QuestState,
   QuestType,
   SKILLS,
+  calculateCombatAchievementPoints,
+  decodeCombatAchievements,
+  getCombatAchievementTierReached,
   getCombatAchievementTierTaskCount,
   getLevelFromXP,
   getVirtualLevelFromXP,
@@ -35,6 +40,7 @@ import { createV1App } from "../app";
 import {
   AccountSummarySchema,
   AchievementDiariesResponseSchema,
+  CombatAchievementTasksResponseSchema,
   CombatAchievementsResponseSchema,
   FullProfileSchema,
   QuestsResponseSchema,
@@ -347,6 +353,34 @@ const getCombatAchievementsRoute = createRoute({
   },
 });
 
+// --- Route: GET /accounts/:username/combat-achievements/tasks ---
+const getCombatAchievementTasksRoute = createRoute({
+  method: "get",
+  path: "/accounts/{username}/combat-achievements/tasks",
+  tags: ["Accounts"],
+  summary: "Combat achievement tasks",
+  description:
+    "Returns all individual combat achievement tasks with completion status, type, and monster information.",
+  request: {
+    params: z.object({ username: UsernameParam }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": { schema: CombatAchievementTasksResponseSchema },
+      },
+      description: "Account combat achievement tasks",
+    },
+    400: BadRequestResponse,
+    404: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Account not found",
+    },
+    429: RateLimitResponse,
+    500: InternalErrorResponse,
+  },
+});
+
 // --- Route: GET /accounts/:username/full ---
 const getFullProfileRoute = createRoute({
   method: "get",
@@ -588,6 +622,53 @@ export const accountsRouter = createV1App()
       STATUS.OK,
       CACHE_HEADER,
     );
+  })
+  // GET /accounts/:username/combat-achievements/tasks
+  .openapi(getCombatAchievementTasksRoute, async (c) => {
+    const { username } = c.req.valid("param");
+    const db = drizzle(c.env.HYPERDRIVE);
+
+    const account = await getAccountByUsername(db, username);
+    if (!account) {
+      return c.json(
+        { error: "Account not found", code: "NOT_FOUND" },
+        STATUS.NOT_FOUND,
+      );
+    }
+
+    const varpRow = await db.query.combatAchievementVarps.findFirst({
+      where: eq(combatAchievementVarpsTable.accountId, account.id),
+      columns: { varps: true },
+    });
+
+    const completedSet = new Set(
+      varpRow ? decodeCombatAchievements(varpRow.varps) : [],
+    );
+    const totalPoints = varpRow
+      ? calculateCombatAchievementPoints([...completedSet])
+      : 0;
+    const tierReachedId = getCombatAchievementTierReached(totalPoints);
+    const tierReached =
+      COMBAT_ACHIEVEMENT_TIERS.find((t) => t.id === tierReachedId)?.name ??
+      null;
+
+    const tierNameMap = new Map<
+      number,
+      (typeof COMBAT_ACHIEVEMENT_TIERS)[number]["name"]
+    >(COMBAT_ACHIEVEMENT_TIERS.map((t) => [t.id, t.name]));
+
+    const data = COMBAT_ACHIEVEMENT_TASKS.map((task) => ({
+      index: task.index,
+      tierId: task.tierId,
+      tierName: tierNameMap.get(task.tierId)!,
+      name: task.name,
+      description: task.description,
+      type: task.type,
+      monster: task.monster,
+      completed: completedSet.has(task.index),
+    }));
+
+    return c.json({ totalPoints, tierReached, data }, STATUS.OK, CACHE_HEADER);
   });
 
 // Separate router so it can be mounted last under the Accounts tag

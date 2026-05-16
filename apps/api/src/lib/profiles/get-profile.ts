@@ -11,6 +11,10 @@ import {
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
   SKILLS,
+  calculateCombatAchievementPoints,
+  decodeCombatAchievements,
+  deriveCombatAchievementTierCounts,
+  getCombatAchievementTierReached,
   getCombatAchievementTierTaskCount,
 } from "@runeprofile/runescape";
 
@@ -41,6 +45,11 @@ async function getProfile(db: Database, condition: SQL) {
         columns: {
           id: true,
           completedCount: true,
+        },
+      },
+      combatAchievementVarps: {
+        columns: {
+          varps: true,
         },
       },
       items: {
@@ -77,7 +86,7 @@ async function getProfile(db: Database, condition: SQL) {
           eq(table.type, "new_item_obtained"),
         ),
       orderBy: (table) => [desc(table.createdAt), desc(table.id)],
-      limit: 10,
+      limit: 12,
       columns: {
         type: true,
         data: true,
@@ -91,7 +100,7 @@ async function getProfile(db: Database, condition: SQL) {
           not(eq(table.type, "new_item_obtained")),
         ),
       orderBy: (table) => [desc(table.createdAt), desc(table.type)],
-      limit: 10,
+      limit: 12,
       columns: {
         type: true,
         data: true,
@@ -130,23 +139,56 @@ async function getProfile(db: Database, condition: SQL) {
     },
   );
 
-  const combatAchievementTiers = profile.combatAchievementTiers.map(
-    (profileTier) => {
-      const tier = COMBAT_ACHIEVEMENT_TIERS.find(
-        (tier) => tier.id === profileTier.id,
-      );
+  // Combat achievement tiers: derive from varps if available, otherwise use legacy table
+  const varpData = profile.combatAchievementVarps?.varps ?? null;
+  let totalCombatAchievementPoints: number | null = null;
+  let combatAchievementTierReached: number | null = null;
+
+  let combatAchievementTiers: Array<{
+    id: number;
+    name: string;
+    completedCount: number;
+    tasksCount: number;
+  }>;
+
+  if (varpData) {
+    const completedIndices = decodeCombatAchievements(varpData);
+    totalCombatAchievementPoints =
+      calculateCombatAchievementPoints(completedIndices);
+    combatAchievementTierReached = getCombatAchievementTierReached(
+      totalCombatAchievementPoints,
+    );
+    const derivedCounts = deriveCombatAchievementTierCounts(completedIndices);
+    combatAchievementTiers = derivedCounts.map((derived) => {
+      const tier = COMBAT_ACHIEVEMENT_TIERS.find((t) => t.id === derived.id);
       return {
-        id: profileTier.id,
+        id: derived.id,
         name: tier?.name || "Unknown",
-        completedCount: profileTier.completedCount,
+        completedCount: derived.completedCount,
         tasksCount:
-          getCombatAchievementTierTaskCount(
-            profileTier.id,
-            profile.accountType,
-          ) ?? 0,
+          getCombatAchievementTierTaskCount(derived.id, profile.accountType) ??
+          0,
       };
-    },
-  );
+    });
+  } else {
+    combatAchievementTiers = profile.combatAchievementTiers.map(
+      (profileTier) => {
+        const tier = COMBAT_ACHIEVEMENT_TIERS.find(
+          (tier) => tier.id === profileTier.id,
+        );
+        return {
+          id: profileTier.id,
+          name: tier?.name || "Unknown",
+          completedCount: profileTier.completedCount,
+          tasksCount:
+            getCombatAchievementTierTaskCount(
+              profileTier.id,
+              profile.accountType,
+            ) ?? 0,
+        };
+      },
+    );
+  }
 
   const quests = profile.quests.map((profileQuest) => {
     const quest = QUESTS.find((quest) => quest.id === profileQuest.id);
@@ -195,13 +237,13 @@ async function getProfile(db: Database, condition: SQL) {
       Extract<
         ActivityEvent,
         { type: typeof ActivityEventType.NEW_ITEM_OBTAINED }
-      >
+      > & { createdAt: string }
     >,
     recentActivities: recentActivities as Array<
       Exclude<
         ActivityEvent,
         { type: typeof ActivityEventType.NEW_ITEM_OBTAINED }
-      >
+      > & { createdAt: string }
     >,
 
     skills,
@@ -209,6 +251,9 @@ async function getProfile(db: Database, condition: SQL) {
     items,
     achievementDiaryTiers,
     combatAchievementTiers,
+    combatAchievementVarps: varpData,
+    totalCombatAchievementPoints,
+    combatAchievementTierReached,
 
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,

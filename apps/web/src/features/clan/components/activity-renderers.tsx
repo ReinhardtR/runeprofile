@@ -19,6 +19,7 @@ import ITEM_ICONS from "~/core/assets/item-icons.json";
 import MiscIcons from "~/core/assets/misc-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
+import { ClanActivityEvent } from "~/features/clan";
 import { GameIcon } from "~/shared/components/icons";
 import {
   cn,
@@ -27,8 +28,6 @@ import {
   numberWithAbbreviation,
   numberWithDelimiter,
 } from "~/shared/utils";
-
-import type { ClanActivityEvent } from "../hooks";
 
 export function ActivityContent(props: {
   children: React.ReactNode;
@@ -218,10 +217,10 @@ export const ActivityRenderMap = {
       </>
     );
   },
-  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: (
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]: (
     event: Extract<
       ClanActivityEvent,
-      { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED }
+      { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED }
     >,
   ) => {
     const tierIcon =
@@ -242,9 +241,14 @@ export const ActivityRenderMap = {
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
-          <span>completed all</span>
-          <span className="text-secondary-foreground">
-            {tierName} Combat Achievements
+          <span>reached the</span>
+          <span
+            className={cn(
+              "text-secondary-foreground",
+              event.data.tierId === 6 && "shimmer-text",
+            )}
+          >
+            {tierName} Combat Achievement Tier
           </span>
         </ActivityContent>
       </>

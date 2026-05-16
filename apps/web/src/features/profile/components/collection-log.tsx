@@ -7,10 +7,12 @@ import {
   COLLECTION_LOG_ITEMS,
   COLLECTION_LOG_ITEM_IDS,
   COLLECTION_LOG_TABS,
+  COLLECTION_LOG_TO_CA_BOSS_MAP,
+  COMBAT_ACHIEVEMENT_BOSSES,
 } from "@runeprofile/runescape";
 
 import { Profile } from "~/core/api";
-import CollectionLogIcon from "~/core/assets/icons/collection-log.png";
+import CombatAchievementsSmallIcon from "~/core/assets/icons/combat-achievements-small.png";
 import ITEM_ICONS from "~/core/assets/item-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import { Card } from "~/features/profile/components/card";
@@ -46,6 +48,7 @@ export function CollectionLog({
   username,
   page,
   onPageChange,
+  onNavigateToCaBoss,
   data,
   mode = "single",
   itemDistribution,
@@ -54,6 +57,7 @@ export function CollectionLog({
   username?: string;
   page: string;
   onPageChange: (page: string) => void;
+  onNavigateToCaBoss?: (bossName: string) => void;
   data: Profile["items"];
   mode?: "single" | "group";
   itemDistribution?: Map<number, { username: string; quantity: number }[]>;
@@ -148,6 +152,12 @@ export function CollectionLog({
       };
     });
   }, [hiscoresQuery.data, currentPage.hiscore, killCountDistribution]);
+
+  const caBossName =
+    COLLECTION_LOG_TO_CA_BOSS_MAP[currentPage.name] ?? currentPage.name;
+  const hasCombatAchievements = (
+    COMBAT_ACHIEVEMENT_BOSSES as readonly string[]
+  ).includes(caBossName);
 
   return (
     <Card
@@ -247,6 +257,24 @@ export function CollectionLog({
                   <p className="text-2xl font-bold leading-none solid-text-shadow">
                     {currentPage.name}
                   </p>
+                  {hasCombatAchievements && onNavigateToCaBoss && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => onNavigateToCaBoss(caBossName)}
+                          className="runescape-corners-border absolute right-1 top-1 flex items-center justify-center h-7 w-16 bg-white/5 hover:brightness-90 transition-colors cursor-pointer"
+                        >
+                          <img
+                            src={CombatAchievementsSmallIcon}
+                            alt="Combat Achievements"
+                            className="size-5"
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>View Combat Achievements</TooltipContent>
+                    </Tooltip>
+                  )}
                   <CollectionLogPageKillCounts killCounts={killCounts} />
                   <CollectionLogPageObtainedCount
                     obtainedCount={currentPageObtainedCount}

@@ -37,8 +37,6 @@ const ActivityRenderMap = {
   [ActivityEventType.XP_MILESTONE]: RenderXpMilestoneEvent,
   [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]:
     RenderAchievementDiaryTierCompletedEvent,
-  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]:
-    RenderCombatAchievementTierCompletedEvent,
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]:
     RenderCombatAchievementTierReachedEvent,
   [ActivityEventType.QUEST_COMPLETED]: RenderQuestCompletedEvent,
@@ -52,17 +50,18 @@ export function RecentActivities({
   events: Profile["recentActivities"];
 }) {
   return (
-    <Card className="xl:w-full xl:h-24 items-start xl:items-end pb-3 grid grid-cols-3 xl:grid-cols-10 px-3 py-6 xl:pt-5">
+    <Card className="xl:w-full xl:h-24 items-start xl:items-end pb-3 grid grid-cols-3 xl:grid-cols-10 px-3 py-6 xl:pt-5 xl:[&>:nth-child(n+12)]:hidden">
       <p className="font-runescape text-osrs-orange text-lg absolute -top-4 text-center inset-x-0 font-bold solid-text-shadow">
         Latest Activities
       </p>
       {events.map((event, idx) => {
-        const Renderer = ActivityRenderMap[event.type];
+        const Renderer =
+          ActivityRenderMap[event.type as keyof typeof ActivityRenderMap];
         if (!Renderer) return null;
         return (
           <Renderer
             key={idx}
-            // @ts-expect-error event type is unknown here
+            // @ts-expect-error event type is narrowed per renderer
             event={event}
           />
         );
@@ -207,49 +206,6 @@ function RenderAchievementDiaryTierCompletedEvent({
   );
 }
 
-function RenderCombatAchievementTierCompletedEvent({
-  event,
-}: {
-  event: Extract<
-    ProfileRecentActivity,
-    { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED }
-  >;
-}) {
-  const tierIcon =
-    CombatAchievementTierIcons[
-      event.data.tierId as unknown as keyof typeof CombatAchievementTierIcons
-    ];
-  const tierName = getCombatAchievementTierName(event.data.tierId) ?? "Unknown";
-  const shortTierName = tierName === "Grandmaster" ? "GM" : tierName;
-  return (
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="flex flex-col items-center justify-center col-span-1">
-          <GameIcon
-            src={tierIcon}
-            alt={tierName}
-            size={36}
-            className="drop-shadow-solid-xs"
-          />
-          <p className="font-runescape text-osrs-orange solid-text-shadow">
-            {shortTierName}
-          </p>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent className="w-78">
-        <p className="font-semibold text-sm">
-          Completed all tasks in the{" "}
-          <span className="text-secondary-foreground">{tierName}</span> Combat
-          Achievement Tier
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          {formatRelativeTime(event.createdAt)}
-        </p>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
 function RenderCombatAchievementTierReachedEvent({
   event,
 }: {
@@ -274,7 +230,12 @@ function RenderCombatAchievementTierReachedEvent({
             size={36}
             className="drop-shadow-solid-xs"
           />
-          <p className="font-runescape text-osrs-orange solid-text-shadow">
+          <p
+            className={cn(
+              "font-runescape text-osrs-orange solid-text-shadow",
+              event.data.tierId === 6 && "shimmer-text",
+            )}
+          >
             {shortTierName}
           </p>
         </div>

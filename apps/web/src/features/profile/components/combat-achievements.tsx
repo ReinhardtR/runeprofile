@@ -1,4 +1,7 @@
-import { COMBAT_ACHIEVEMENT_TIERS } from "@runeprofile/runescape";
+import {
+  COMBAT_ACHIEVEMENT_TIERS,
+  getCombatAchievementTierTaskCount,
+} from "@runeprofile/runescape";
 
 import { Profile } from "~/core/api";
 import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-icons.json";
@@ -7,8 +10,14 @@ import { cn } from "~/shared/utils";
 
 export function CombatAchievements({
   data,
+  accountTypeId,
+  selectedTierId,
+  onTierClick,
 }: {
   data: Profile["combatAchievementTiers"];
+  accountTypeId: number;
+  selectedTierId: number;
+  onTierClick: (tierId: number) => void;
 }) {
   const tiers: Array<{
     id: number;
@@ -22,10 +31,17 @@ export function CombatAchievements({
     tiers.push({
       id: tier.id,
       name: tier.name,
-      tasksCount: tierData?.tasksCount ?? tier.tasksCount,
+      tasksCount:
+        tierData?.tasksCount ??
+        getCombatAchievementTierTaskCount(tier.id, accountTypeId) ??
+        0,
       completedCount: tierData?.completedCount ?? 0,
     });
   }
+
+  const allCompleted =
+    tiers.length > 0 &&
+    tiers.every((t) => t.tasksCount > 0 && t.completedCount >= t.tasksCount);
 
   return (
     <div className="grid h-full grid-cols-2 grid-rows-3 gap-1 p-1 shadow">
@@ -47,12 +63,24 @@ export function CombatAchievements({
             tier.id as unknown as keyof typeof CombatAchievementTierIcons
           ];
 
+        const isSelected = selectedTierId === tier.id;
+
         return (
-          <div
+          <button
             key={tier.name}
-            className="runescape-corners-border flex flex-col items-center justify-center bg-white/3 font-runescape"
+            type="button"
+            onClick={() => onTierClick(isSelected ? 0 : tier.id)}
+            className={cn(
+              "runescape-corners-border flex flex-col items-center justify-center font-runescape cursor-pointer transition-colors",
+              isSelected ? "bg-white/15" : "bg-white/3 hover:bg-white/8",
+            )}
           >
-            <p className="text-lg leading-none text-osrs-orange solid-text-shadow">
+            <p
+              className={cn(
+                "text-lg leading-none text-osrs-orange solid-text-shadow",
+                allCompleted && "shimmer-text",
+              )}
+            >
               {tier.name}
             </p>
             <div className="relative my-[1px]">
@@ -66,7 +94,7 @@ export function CombatAchievements({
             <p
               className={cn(
                 "text-sm leading-none solid-text-shadow",
-                tierColor,
+                allCompleted ? "shimmer-text" : tierColor,
               )}
             >
               {tier.completedCount}/{tier.tasksCount}
@@ -80,16 +108,18 @@ export function CombatAchievements({
               <div
                 className={cn(
                   "z-10 h-full",
-                  percentageCompleted == 100
-                    ? "bg-osrs-green"
-                    : "bg-osrs-yellow",
+                  allCompleted
+                    ? "shimmer-bar"
+                    : percentageCompleted == 100
+                      ? "bg-osrs-green"
+                      : "bg-osrs-yellow",
                 )}
                 style={{
                   width: `${percentageCompleted}%`,
                 }}
               />
             </div>
-          </div>
+          </button>
         );
       })}
     </div>

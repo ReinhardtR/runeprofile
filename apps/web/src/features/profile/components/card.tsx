@@ -32,7 +32,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div className={cn(cardVariants({ size }), className)} {...props}>
       {icon && (
-        <div className="absolute inset-x-0 -top-[14px] drop-shadow-solid">
+        <div className="absolute inset-x-0 -top-[14px] drop-shadow-solid z-30">
           <img src={icon} width={28} height={28} alt="" className="mx-auto" />
         </div>
       )}

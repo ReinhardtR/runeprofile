@@ -7,6 +7,7 @@ import {
   activities,
   clanActivities,
   combatAchievementTiers,
+  combatAchievementVarps,
   items,
   quests,
   skills,
@@ -140,6 +141,21 @@ export async function updateProfile(
             ]),
           }),
       ),
+      // Upsert combat achievement varps if present (new plugin clients)
+      ...(updates.combatAchievementVarps.newVarps
+        ? [
+            tx
+              .insert(combatAchievementVarps)
+              .values({
+                accountId,
+                varps: updates.combatAchievementVarps.newVarps,
+              })
+              .onConflictDoUpdate({
+                target: combatAchievementVarps.accountId,
+                set: { varps: updates.combatAchievementVarps.newVarps },
+              }),
+          ]
+        : []),
       withValues(itemsValues, (values) =>
         tx
           .insert(items)

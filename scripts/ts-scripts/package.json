@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check-clog": "tsx check-clog.ts"
+    "check-clog": "tsx check-clog.ts",
+    "scrape-ca": "tsx scrape-combat-achievements.ts"
   },
   "devDependencies": {
     "@abextm/cache2": "^0.1.8",
