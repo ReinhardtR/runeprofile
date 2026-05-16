@@ -92,6 +92,8 @@ const profileSearchSchema = z.object({
   "ca-panel": z.enum(VALID_PANELS).optional().catch(undefined),
 });
 
+export type ProfileSearch = z.infer<typeof profileSearchSchema>;
+
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
@@ -162,8 +164,8 @@ export function ProfileContent({
 }: {
   profile: Profile;
   page: string;
-  search: z.infer<typeof profileSearchSchema>;
-  updateSearch: (updates: Partial<z.infer<typeof profileSearchSchema>>) => void;
+  search: ProfileSearch;
+  updateSearch: (updates: Partial<ProfileSearch>) => void;
 }) {
   const defaultCaTierId = React.useMemo(() => {
     const firstIncomplete = profile.combatAchievementTiers.find(

@@ -20,7 +20,7 @@ import RuneLiteLogo from "~/core/assets/misc/runelite-logo.png";
 import PgnProfileSnapshot from "~/core/assets/pgn-profile-snapshot.json";
 import { isSearchDialogOpenAtom } from "~/features/search";
 import { Footer } from "~/layouts";
-import { ProfileContent, SidePanel } from "~/routes/$username";
+import { ProfileContent, ProfileSearch, SidePanel } from "~/routes/$username";
 import { Button } from "~/shared/components/ui/button";
 import { Separator } from "~/shared/components/ui/separator";
 import { cn, numberWithDelimiter } from "~/shared/utils";
@@ -67,7 +67,16 @@ function ProfileExample({
 }: React.HTMLProps<HTMLDivElement>) {
   const profile = PgnProfileSnapshot as Profile;
 
-  const [page, setPage] = React.useState(COLLECTION_LOG_TABS[0].pages[0].name);
+  const [search, setSearch] = React.useState<ProfileSearch>({});
+
+  const page = search.page || COLLECTION_LOG_TABS[0].pages[0].name;
+
+  const updateSearch = React.useCallback(
+    (updates: Partial<ProfileSearch>) => {
+      setSearch((prev) => ({ ...prev, ...updates }));
+    },
+    [],
+  );
 
   return (
     <div
@@ -77,7 +86,12 @@ function ProfileExample({
       )}
       {...props}
     >
-      <ProfileContent profile={profile} page={page} onPageChange={setPage} />
+      <ProfileContent
+        profile={profile}
+        page={page}
+        search={search}
+        updateSearch={updateSearch}
+      />
       <SidePanel username={profile.username} />
     </div>
   );
