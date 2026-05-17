@@ -10,6 +10,8 @@ import {
 
 import {
   checkAchievementDiaryTierCompletedEvents,
+  checkCombatAchievementEvents,
+  checkCombatAchievementTierReachedEvents,
   checkLevelUpEvents,
   checkMaxedEvent,
   checkNewItemObtainedEvents,
@@ -409,5 +411,41 @@ describe("MAXED EVENT", () => {
         ],
       ),
     ).toEqual(undefined);
+  });
+});
+
+describe("COMBAT ACHIEVEMENT TIER REACHED EVENTS", () => {
+  test("should not fire when newVarps is null", () => {
+    expect(
+      checkCombatAchievementEvents(
+        { newVarps: null, oldVarps: null },
+        [],
+      ),
+    ).toEqual([]);
+  });
+
+  test("should not fire when newVarps is null and oldVarps exist", () => {
+    expect(
+      checkCombatAchievementEvents(
+        { newVarps: null, oldVarps: { "1": 123 } },
+        [],
+      ),
+    ).toEqual([]);
+  });
+
+  test("should not fire when old and new varps decode to same tier", () => {
+    const varps = { "4138": 0, "4139": 0, "4140": 0 };
+    expect(
+      checkCombatAchievementTierReachedEvents(varps, varps),
+    ).toEqual([]);
+  });
+
+  test("should not fire when points decrease (regression)", () => {
+    expect(
+      checkCombatAchievementTierReachedEvents(
+        { "4138": 255, "4139": 255, "4140": 255 },
+        { "4138": 0, "4139": 0, "4140": 0 },
+      ),
+    ).toEqual([]);
   });
 });

@@ -215,12 +215,21 @@ export async function getProfileUpdates(
       forceResync,
     }),
     combatAchievementVarps: {
-      newVarps: input.combatAchievementVarps
-        ? Object.fromEntries(
-            Object.entries(input.combatAchievementVarps).map(([k, v]) => [String(k), v]),
-          )
-        : null,
-      oldVarps: diffProfile?.combatAchievementVarps ?? null,
+      newVarps:
+        input.combatAchievementVarps &&
+        Object.keys(input.combatAchievementVarps).length > 0
+          ? Object.fromEntries(
+              Object.entries(input.combatAchievementVarps).map(([k, v]) => [
+                String(k),
+                v,
+              ]),
+            )
+          : null,
+      oldVarps:
+        diffProfile?.combatAchievementVarps &&
+        Object.keys(diffProfile.combatAchievementVarps).length > 0
+          ? diffProfile.combatAchievementVarps
+          : null,
     },
     items: getItemUpdates({
       newData: input.items,
