@@ -1,4 +1,4 @@
-import { InferInsertModel, eq } from "drizzle-orm";
+import { InferInsertModel, eq, sql } from "drizzle-orm";
 
 import {
   Database,
@@ -106,6 +106,7 @@ export async function updateProfile(
           clanTitle: updates.clan?.title ?? null,
           groupName: updates.groupName ?? null,
           forceResync: false,
+          updatedAt: sql`now()`,
         })
         .where(eq(accounts.id, accountId))
         .returning({ updatedAt: accounts.updatedAt })
