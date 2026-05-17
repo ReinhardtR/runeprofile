@@ -107,8 +107,8 @@ function RouteComponent() {
               have Auto Sync enabled (enabled by default), the plugin will
               automatically create/update your profile every 60 minutes. Note,
               since the plugin can only read your Collection Log data when it is
-              open, the Collection Log items will only be included if you have
-              opened it before Auto Sync triggers.
+              open, the Collection Log items will only be included if you use
+              the manual update button.
             </GuideParagraph>
 
             <GuideParagraph>
@@ -117,8 +117,7 @@ function RouteComponent() {
             </GuideParagraph>
             <ol className="ml-6 mt-3 list-decimal space-y-2 text-muted-foreground">
               <li>Open your Collection Log.</li>
-              <li>Open the menu at the top left.</li>
-              <li>Click the "RuneProfile"-button.</li>
+              <li>Click the "RuneProfile"-button in the top left.</li>
             </ol>
             <GuideParagraph className="italic text-sm">
               The update button is inside the Collection Log window, to allow

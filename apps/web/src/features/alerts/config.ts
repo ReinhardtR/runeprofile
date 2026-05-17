@@ -21,23 +21,14 @@ export interface GlobalAlert {
  * }
  */
 export const ACTIVE_ALERTS: GlobalAlert[] = [
-  // {
-  //   id: "combat-achievement-tracking-2026-05",
-  //   type: "info",
-  //   title: "Improved Combat Achievement Tracking",
-  //   message:
-  //     "RuneProfile now tracks all combat achievement tasks individually, and calculates your tier based on points. Click the CA tab on a profile to see all tasks.",
-  //   startDate: "2026-05-14",
-  //   endDate: "2026-05-28",
-  // },
   {
-    id: "plugin-broken-2026-05",
+    id: "combat-achievement-tracking-2026-05",
     type: "info",
-    title: "RuneLite Plugin Issue",
+    title: "Improved Combat Achievement Tracking",
     message:
-      "Updating your profile through the collection log is currently broken. Working on a fix.",
-    startDate: "2026-05-10",
-    endDate: "2026-05-24",
+      "RuneProfile now tracks all combat achievement tasks individually, and calculates your tier based on points. Click the CA tab on a profile to see all tasks.",
+    startDate: "2026-05-14",
+    endDate: "2026-05-28",
   },
 ];
 
