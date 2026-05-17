@@ -100,10 +100,12 @@ export async function updateProfile(
         .set({
           username: updates.username,
           accountType: updates.accountType,
-          clanName: updates.clan?.name ?? null,
-          clanRank: updates.clan?.rank ?? null,
-          clanIcon: updates.clan?.icon ?? null,
-          clanTitle: updates.clan?.title ?? null,
+          ...(updates.clan !== undefined && {
+            clanName: updates.clan?.name ?? null,
+            clanRank: updates.clan?.rank ?? null,
+            clanIcon: updates.clan?.icon ?? null,
+            clanTitle: updates.clan?.title ?? null,
+          }),
           groupName: updates.groupName ?? null,
           forceResync: false,
           updatedAt: sql`now()`,
