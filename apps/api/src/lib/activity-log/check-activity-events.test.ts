@@ -417,10 +417,7 @@ describe("MAXED EVENT", () => {
 describe("COMBAT ACHIEVEMENT TIER REACHED EVENTS", () => {
   test("should not fire when newVarps is null", () => {
     expect(
-      checkCombatAchievementEvents(
-        { newVarps: null, oldVarps: null },
-        [],
-      ),
+      checkCombatAchievementEvents({ newVarps: null, oldVarps: null }, []),
     ).toEqual([]);
   });
 
@@ -435,9 +432,7 @@ describe("COMBAT ACHIEVEMENT TIER REACHED EVENTS", () => {
 
   test("should not fire when old and new varps decode to same tier", () => {
     const varps = { "4138": 0, "4139": 0, "4140": 0 };
-    expect(
-      checkCombatAchievementTierReachedEvents(varps, varps),
-    ).toEqual([]);
+    expect(checkCombatAchievementTierReachedEvents(varps, varps)).toEqual([]);
   });
 
   test("should not fire when points decrease (regression)", () => {

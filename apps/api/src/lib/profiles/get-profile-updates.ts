@@ -156,7 +156,10 @@ export async function getProfileUpdates(
     // Validate cache against DB timestamp and check forceResync flag
     try {
       const row = await db
-        .select({ updatedAt: accounts.updatedAt, forceResync: accounts.forceResync })
+        .select({
+          updatedAt: accounts.updatedAt,
+          forceResync: accounts.forceResync,
+        })
         .from(accounts)
         .where(eq(accounts.id, input.id))
         .limit(1);
@@ -319,11 +322,7 @@ export function getCombatAchievementTierUpdates({
     if (oldTier && oldTier.completedCount === newCompletedCount) {
       continue;
     }
-    if (
-      oldTier &&
-      oldTier.completedCount > newCompletedCount &&
-      !forceResync
-    ) {
+    if (oldTier && oldTier.completedCount > newCompletedCount && !forceResync) {
       continue;
     }
 
