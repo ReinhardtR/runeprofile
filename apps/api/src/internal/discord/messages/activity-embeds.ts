@@ -155,9 +155,6 @@ function createAchievementDiaryEmbed(
     .color(0xf59e0b); // Amber
 }
 
-// TODO: Remove after 2026-05-22
-const CA_TIER_REACHED_FOOTNOTE_UNTIL = new Date("2026-05-22T00:00:00Z");
-
 function createCombatAchievementEmbed(
   params: EmbedParams<
     CombatAchievementTierCompletedEvent | CombatAchievementTierReachedEvent
@@ -170,12 +167,6 @@ function createCombatAchievementEmbed(
   let description = isReached
     ? `Reached the **${tierName}** Combat Achievement Tier`
     : `Completed all **${tierName}** Combat Achievements`;
-
-  // Add a footnote for 3 days after tier-reached events are enabled
-  if (isReached && new Date() < CA_TIER_REACHED_FOOTNOTE_UNTIL) {
-    description +=
-      "\n\n-# RuneProfile recently changed how it tracks CA Tiers. This activity might be inaccurate for the first profile update.";
-  }
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
