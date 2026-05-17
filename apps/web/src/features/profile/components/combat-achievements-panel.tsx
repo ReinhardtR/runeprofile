@@ -531,22 +531,33 @@ function TasksView({
               No tasks found
             </div>
           ) : (
-            <div className="flex flex-col w-full">
-              {filteredTasks.map((task, index) => (
-                <TaskRow
-                  key={task.index}
-                  task={task}
-                  virtualIndex={index}
-                  measureRef={() => {}}
-                  isCompleted={completedSet.has(task.index)}
-                  isExpanded={expandedTask === task.index}
-                  onToggle={() =>
-                    setExpandedTask(
-                      expandedTask === task.index ? null : task.index,
-                    )
-                  }
-                />
-              ))}
+            <div
+              className="relative w-full"
+              style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+            >
+              {virtualItems.map((virtualItem) => {
+                const task = filteredTasks[virtualItem.index];
+                return (
+                  <div
+                    key={task.index}
+                    className="absolute left-0 w-full"
+                    style={{ top: `${virtualItem.start}px` }}
+                  >
+                    <TaskRow
+                      task={task}
+                      virtualIndex={virtualItem.index}
+                      measureRef={rowVirtualizer.measureElement}
+                      isCompleted={completedSet.has(task.index)}
+                      isExpanded={expandedTask === task.index}
+                      onToggle={() =>
+                        setExpandedTask(
+                          expandedTask === task.index ? null : task.index,
+                        )
+                      }
+                    />
+                  </div>
+                );
+              })}
             </div>
           )}
         </RuneScapeScrollArea>

@@ -167,17 +167,8 @@ export function ProfileContent({
   search: ProfileSearch;
   updateSearch: (updates: Partial<ProfileSearch>) => void;
 }) {
-  const defaultCaTierId = React.useMemo(() => {
-    const firstIncomplete = profile.combatAchievementTiers.find(
-      (t) => t.completedCount < t.tasksCount,
-    );
-    return (
-      firstIncomplete?.id ?? profile.combatAchievementTiers.at(-1)?.id ?? 1
-    );
-  }, [profile.combatAchievementTiers]);
-
   const activeTab = search.tab ?? "skills";
-  const selectedCaTierId = search["ca-tier"] ?? defaultCaTierId;
+  const selectedCaTierId = search["ca-tier"] ?? 0;
   const showCaPanel =
     search["ca-panel"] === "cas" ||
     (search["ca-panel"] == null && activeTab === "cas");
@@ -244,11 +235,11 @@ export function ProfileContent({
                       : (caType as (typeof search)["ca-type"]),
                 })
               }
-              completionFilter={search["ca-completed"] ?? "incomplete"}
+              completionFilter={search["ca-completed"] ?? "all"}
               onCompletionFilterChange={(caCompleted) =>
                 updateSearch({
                   "ca-completed":
-                    caCompleted === "incomplete" ? undefined : caCompleted,
+                    caCompleted === "all" ? undefined : caCompleted,
                 })
               }
             />
