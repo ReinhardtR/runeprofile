@@ -451,7 +451,7 @@ function TasksView({
   const rowVirtualizer = useVirtualizer({
     count: filteredTasks.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 48,
+    estimateSize: () => 52,
     overscan: 15,
   });
 
