@@ -9,6 +9,7 @@ import {
   achievementDiaryTiers,
   activities,
   combatAchievementTiers,
+  combatAchievementVarps,
   items,
   lower,
   quests,
@@ -31,6 +32,9 @@ export async function deleteAccount(id: string) {
     db
       .delete(combatAchievementTiers)
       .where(eq(combatAchievementTiers.accountId, id)),
+    db
+      .delete(combatAchievementVarps)
+      .where(eq(combatAchievementVarps.accountId, id)),
     db.delete(items).where(eq(items.accountId, id)),
     db.delete(quests).where(eq(quests.accountId, id)),
     db.delete(skills).where(eq(skills.accountId, id)),
