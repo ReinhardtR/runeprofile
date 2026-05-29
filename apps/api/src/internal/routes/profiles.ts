@@ -231,7 +231,7 @@ export const profilesRouter = newRouter()
       });
 
       c.executionCtx.waitUntil(
-        new Promise<void>(async () => {
+        (async () => {
           const account = await db.query.accounts.findFirst({
             where: eq(accounts.id, id),
             columns: { username: true, accountType: true, clanName: true },
@@ -254,7 +254,7 @@ export const profilesRouter = newRouter()
             accountType: AccountTypes[account.accountType],
             clanName: account.clanName,
           });
-        }),
+        })(),
       );
 
       return c.json({ message: "Activities added successfully" });
