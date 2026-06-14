@@ -27,19 +27,23 @@ import {
 import { ActivitiesListSkeleton } from "./activities-list-skeleton";
 import { ActivityRenderMap } from "./activity-renderers";
 
-const ACTIVITY_TYPE_LABELS: Record<ActivityEventTypeValue, string> = {
+const ACTIVITY_TYPE_LABELS: Partial<Record<ActivityEventTypeValue, string>> = {
   [ActivityEventType.LEVEL_UP]: "Level Up",
   [ActivityEventType.NEW_ITEM_OBTAINED]: "New Item Obtained",
   [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]: "Achievement Diary",
-  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: "Combat Achievement",
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]: "Combat Achievement",
   [ActivityEventType.QUEST_COMPLETED]: "Quest Completed",
   [ActivityEventType.MAXED]: "Maxed",
   [ActivityEventType.XP_MILESTONE]: "XP Milestone",
   [ActivityEventType.VALUABLE_DROP]: "Valuable Drop",
 };
 
-const ALL_ACTIVITY_TYPES: ActivityEventTypeValue[] =
-  Object.values(ActivityEventType);
+// Only surface activity types that the feed can actually render. This excludes
+// the legacy `COMBAT_ACHIEVEMENT_TIER_COMPLETED` event, which is superseded by
+// `COMBAT_ACHIEVEMENT_TIER_REACHED`.
+const ALL_ACTIVITY_TYPES = Object.keys(
+  ActivityRenderMap,
+) as ActivityEventTypeValue[];
 
 export function ActivitiesList() {
   const params = useParams({ from: "/clan/$name" });
