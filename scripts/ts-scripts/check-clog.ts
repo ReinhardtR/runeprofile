@@ -1,8 +1,8 @@
+import * as cache from "@abextm/cache2";
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as cache from "@abextm/cache2";
 import { Project, SyntaxKind } from "ts-morph";
 
 import {
@@ -50,9 +50,23 @@ const COLLECTION_LOG_PATH = path.resolve(
 
 const writeMode = process.argv.includes("--write");
 
+type PageChange = {
+  tab: string;
+  page: CollectionLogPage;
+  isNew: boolean;
+  addedItems: number[];
+  removedItems: number[];
+  reordered: boolean;
+};
+
 checkClog()
   .then(() => console.log("Finished checking collection log."))
-  .catch((error) => console.error("Error:", error));
+  .catch((error) => {
+    // Fail loudly so the GitHub Action surfaces the error instead of
+    // silently exiting 0 and opening no PR.
+    console.error("Error:", error);
+    process.exitCode = 1;
+  });
 
 async function checkClog() {
   const provider = new cache.FlatCacheProvider({
@@ -74,11 +88,7 @@ async function checkClog() {
   // tabs enum map values to an array of tab IDs
   const tabIds = [...tabsEnum.map.values()];
 
-  const pagesWithChanges: {
-    tab: string;
-    page: CollectionLogPage;
-    isNew: boolean;
-  }[] = [];
+  const pagesWithChanges: PageChange[] = [];
 
   const newItems: Record<number, string> = {};
   const changedItemNames: Array<{
@@ -146,6 +156,10 @@ async function checkClog() {
 
       const itemIds = [...itemIdsEnum.map.values()];
 
+      // The page's items in runeprofile's ID convention (dummy IDs where
+      // applicable), preserving the cache's in-game ordering.
+      const expectedItems: number[] = [];
+
       // Check for new items and name changes
       for (const itemId of itemIds) {
         const realItemId = CLOG_DUMMY_ITEM_ID_MAP[itemId as number] || itemId;
@@ -160,6 +174,8 @@ async function checkClog() {
         const itemIdToCheck = dummyIdForRealItem
           ? Number(dummyIdForRealItem)
           : runeprofileItemId;
+
+        expectedItems.push(itemIdToCheck);
 
         // Get item name from cache (use real item ID for cache lookup)
         const itemDef = await cache.Item.load(provider, realItemId as number);
@@ -195,48 +211,54 @@ async function checkClog() {
           tab: tabName as string,
           page: {
             name: pageName as string,
-            items: itemIds as number[],
+            items: expectedItems,
           },
           isNew: true,
+          addedItems: expectedItems,
+          removedItems: [],
+          reordered: false,
         });
       } else {
-        // Check for new items in existing page
-        const newItems = itemIds.filter((newItemId) => {
-          // Check if this item (or its real/dummy counterpart) already exists
-          const realItemId =
-            CLOG_DUMMY_ITEM_ID_MAP[newItemId as number] || newItemId;
-          const dummyItemId = Object.keys(CLOG_DUMMY_ITEM_ID_MAP).find(
-            (dummyId) => CLOG_DUMMY_ITEM_ID_MAP[Number(dummyId)] === newItemId,
-          );
+        // Compare the existing page against the cache, order-sensitively.
+        // expectedItems already uses runeprofile's ID convention, so a plain
+        // index-by-index comparison catches added items, removed items and
+        // pure reorderings.
+        const currentItems = existingPage.items ?? [];
+        const addedItems = expectedItems.filter(
+          (id) => !currentItems.includes(id),
+        );
+        const removedItems = currentItems.filter(
+          (id) => !expectedItems.includes(id),
+        );
+        const sameOrder =
+          currentItems.length === expectedItems.length &&
+          expectedItems.every((id, i) => id === currentItems[i]);
+        // Same set of items, different order.
+        const reordered =
+          !sameOrder && addedItems.length === 0 && removedItems.length === 0;
 
-          return !existingPage.items?.some((existingItemId) => {
-            // An item is considered "existing" if either:
-            // 1. The exact ID matches
-            // 2. The real item ID matches (for dummy items)
-            // 3. The dummy item ID matches (for real items)
-            return (
-              existingItemId === newItemId ||
-              existingItemId === realItemId ||
-              (dummyItemId && existingItemId === Number(dummyItemId))
-            );
-          });
-        });
-
-        if (newItems.length > 0) {
+        if (!sameOrder) {
+          const details: string[] = [];
+          if (addedItems.length > 0)
+            details.push(`added: ${addedItems.join(", ")}`);
+          if (removedItems.length > 0)
+            details.push(`removed: ${removedItems.join(", ")}`);
+          if (reordered) details.push("reordered");
           console.log(
-            `New collection log items found in page ${pageName} (ID: ${pageId}) of tab ${tabName} (ID: ${tabId}): ${newItems.join(", ")}`,
+            `Collection log page changed: ${pageName} (ID: ${pageId}) in tab ${tabName} (ID: ${tabId}) [${details.join("; ")}]`,
           );
 
           pagesWithChanges.push({
             tab: tabName as string,
             page: {
               ...existingPage,
-              items: [
-                ...(existingPage.items || []),
-                ...(newItems as number[]),
-              ].sort((a, b) => a - b),
+              // Write the cache's ordering verbatim.
+              items: expectedItems,
             },
             isNew: false,
+            addedItems,
+            removedItems,
+            reordered,
           });
         }
       }
@@ -294,12 +316,8 @@ async function checkClog() {
       }
 
       if (changedItemNames.length > 0) {
-        console.log(
-          "// NAME CHANGES - Update these in COLLECTION_LOG_ITEMS:",
-        );
-        const sortedChangedItems = changedItemNames.sort(
-          (a, b) => a.id - b.id,
-        );
+        console.log("// NAME CHANGES - Update these in COLLECTION_LOG_ITEMS:");
+        const sortedChangedItems = changedItemNames.sort((a, b) => a.id - b.id);
         for (const { id, oldName, newName } of sortedChangedItems) {
           console.log(`  ${id}: "${newName}", // was: "${oldName}"`);
         }
@@ -310,7 +328,7 @@ async function checkClog() {
 }
 
 function buildChangeSummary(
-  pagesWithChanges: { tab: string; page: CollectionLogPage; isNew: boolean }[],
+  pagesWithChanges: PageChange[],
   newItems: Record<number, string>,
   changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
 ): string {
@@ -334,8 +352,26 @@ function buildChangeSummary(
 
   if (updatedPages.length > 0) {
     lines.push(`### Updated Pages (${updatedPages.length})\n`);
-    for (const { tab, page } of updatedPages) {
-      lines.push(`- **${page.name}** in tab *${tab}*`);
+    for (const {
+      tab,
+      page,
+      addedItems,
+      removedItems,
+      reordered,
+    } of updatedPages) {
+      const details: string[] = [];
+      if (addedItems.length > 0)
+        details.push(
+          `+${addedItems.length} item${addedItems.length > 1 ? "s" : ""}`,
+        );
+      if (removedItems.length > 0)
+        details.push(
+          `-${removedItems.length} item${removedItems.length > 1 ? "s" : ""}`,
+        );
+      if (reordered) details.push("reordered");
+      lines.push(
+        `- **${page.name}** in tab *${tab}*${details.length > 0 ? ` (${details.join(", ")})` : ""}`,
+      );
     }
     lines.push("");
   }
@@ -364,16 +400,16 @@ function buildChangeSummary(
 }
 
 function writeChanges(
-  pagesWithChanges: { tab: string; page: CollectionLogPage; isNew: boolean }[],
+  pagesWithChanges: PageChange[],
   newItems: Record<number, string>,
   changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
 ) {
   console.log(`\nWriting changes to ${COLLECTION_LOG_PATH}...`);
 
-  const project = new Project({
-    tsConfigFilePath: path.resolve(__dirname, "../../tsconfig.json"),
-    skipAddingFilesFromTsConfig: true,
-  });
+  // No tsconfig is needed: we only parse, mutate and re-save a single source
+  // file's AST, which doesn't depend on compiler options. (There is no
+  // tsconfig at the repo root anyway.)
+  const project = new Project();
   const sourceFile = project.addSourceFileAtPath(COLLECTION_LOG_PATH);
 
   // --- Update COLLECTION_LOG_ITEMS ---
@@ -474,9 +510,7 @@ function writeChanges(
         !pageElement ||
         !pageElement.isKind(SyntaxKind.ObjectLiteralExpression)
       ) {
-        console.warn(
-          `Could not find page "${page.name}" in tab "${tabName}"`,
-        );
+        console.warn(`Could not find page "${page.name}" in tab "${tabName}"`);
         continue;
       }
 

@@ -38,5 +38,10 @@
     "plugins": [
       "@trivago/prettier-plugin-sort-imports"
     ]
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@abextm/cache2@0.1.8": "patches/@abextm__cache2@0.1.8.patch"
+    }
   }
 }

@@ -2,7 +2,7 @@ name: Update Collection Log
 
 on:
   schedule:
-    # Every Wednesday at 11:35 and 12:00 UTC
+    # Every Wednesday at 11:35 UTC (after the weekly OSRS game update)
     - cron: "35 11 * * 3"
   workflow_dispatch:
 
