@@ -11,7 +11,11 @@
     "clean:modules": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "clean:wrangler": "pnpm -r exec rm -rf .wrangler",
     "script:check-clog": "pnpm --filter ts-scripts run check-clog",
-    "script:update-clog": "pnpm --filter ts-scripts run update-clog"
+    "script:update-clog": "pnpm --filter ts-scripts run update-clog",
+    "script:check-ca": "pnpm --filter ts-scripts run check-ca",
+    "script:update-ca": "pnpm --filter ts-scripts run update-ca",
+    "script:check-quests": "pnpm --filter ts-scripts run check-quests",
+    "script:update-quests": "pnpm --filter ts-scripts run update-quests"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
