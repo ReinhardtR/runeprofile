@@ -1,5 +1,6 @@
 // The constants in these files determine what content is displayed on the website.
 export * from "./activities";
+export * from "./activity-filters";
 export * from "./account-types";
 export * from "./achievement-diaries";
 export * from "./collection-log";

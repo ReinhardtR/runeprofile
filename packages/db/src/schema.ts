@@ -277,7 +277,12 @@ export const discordWatchFilters = t.pgTable(
     id: t.text().notNull().primaryKey(),
     channelId: t.text().notNull(),
     activityType: t.text().notNull().$type<ActivityEventTypeValue>(),
-    mode: t.text().notNull().$type<"allow" | "block">(),
+    // Allow/block mode for the activity type. Nullable so a row can carry only
+    // a threshold (no allow/block dimension).
+    mode: t.text().$type<"allow" | "block">(),
+    // Minimum threshold for the activity type (e.g. minimum level). Nullable
+    // when the type isn't threshold-able or no threshold is set.
+    threshold: t.integer(),
     createdAt,
   },
   (table) => [

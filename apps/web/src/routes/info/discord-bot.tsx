@@ -1,5 +1,13 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import {
+  ACTIVITY_FILTER_META,
+  DEFAULT_FILTERS,
+  THRESHOLD_ACTIVITY_TYPES,
+  getActivityThresholdConfig,
+  getActivityTypeLabel,
+} from "@runeprofile/runescape";
+
 import { GuideHeading, GuideParagraph, GuideSection } from "~/features/info";
 import { Footer, Header } from "~/layouts";
 import { AddDiscordBotButton } from "~/shared/components/AddDiscordBotButton";
@@ -10,6 +18,24 @@ export const Route = createFileRoute("/info/discord-bot")({
 });
 
 function RouteComponent() {
+  const thresholdActivities = THRESHOLD_ACTIVITY_TYPES.map((type) => ({
+    label: getActivityTypeLabel(type),
+    unit: ACTIVITY_FILTER_META[type].threshold?.unit ?? "",
+  }));
+
+  const defaultFilters = DEFAULT_FILTERS.map((filter) => {
+    const config = getActivityThresholdConfig(filter.activityType);
+    const parts: string[] = [];
+    if (filter.threshold !== undefined && config) {
+      parts.push(`minimum ${config.format(filter.threshold)}`);
+    }
+    if (filter.mode) parts.push(filter.mode);
+    return {
+      label: getActivityTypeLabel(filter.activityType),
+      detail: parts.join(", "),
+    };
+  });
+
   return (
     <>
       <Header />
@@ -54,7 +80,8 @@ function RouteComponent() {
                 <span className="text-secondary-foreground font-medium">
                   Activity filters
                 </span>{" "}
-                — allow or block specific activity types per channel.
+                — allow or block specific activity types per channel, or set
+                minimum thresholds (e.g. only level-ups at 50+).
               </li>
             </ul>
           </GuideSection>
@@ -134,15 +161,28 @@ function RouteComponent() {
                   </li>
                   <li>
                     <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter threshold [activity] [value]
+                    </code>{" "}
+                    — only send an activity when it meets a minimum value (e.g.
+                    level 50+).
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
                       /watch filter remove [activity]
                     </code>{" "}
-                    — remove an activity filter.
+                    — remove all filters for an activity type.
                   </li>
                   <li>
                     <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
                       /watch filter list
                     </code>{" "}
                     — list active filters for this channel.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                      /watch filter reset
+                    </code>{" "}
+                    — reset to the default filters.
                   </li>
                   <li>
                     <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
@@ -153,6 +193,77 @@ function RouteComponent() {
                 </ul>
               </div>
             </div>
+          </GuideSection>
+
+          <GuideSection>
+            <GuideHeading id="filters">Activity filters</GuideHeading>
+            <GuideParagraph>
+              Each channel decides which activities it receives. There are two
+              kinds of filter, and they work together:
+            </GuideParagraph>
+            <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
+              <li>
+                <span className="text-secondary-foreground font-medium">
+                  Allow / block
+                </span>{" "}
+                — control which activity types are sent. If you add any{" "}
+                <span className="text-secondary-foreground">allow</span> filter,
+                only those types are sent. Otherwise every type is sent except
+                the ones you{" "}
+                <span className="text-secondary-foreground">block</span>.
+              </li>
+              <li>
+                <span className="text-secondary-foreground font-medium">
+                  Thresholds
+                </span>{" "}
+                — for activity types with a meaningful value, set a{" "}
+                <span className="text-secondary-foreground">minimum</span> so
+                only activities at or above it are sent. For example, a level-up
+                threshold of 50 hides level-ups below level 50.
+              </li>
+            </ul>
+
+            <GuideParagraph>
+              Thresholds can be set on these activity types (other types, like
+              new collection log items, support allow/block only):
+            </GuideParagraph>
+            <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
+              {thresholdActivities.map((activity) => (
+                <li key={activity.label}>
+                  <span className="text-secondary-foreground font-medium">
+                    {activity.label}
+                  </span>{" "}
+                  — minimum {activity.unit}.
+                </li>
+              ))}
+            </ul>
+
+            <GuideParagraph>
+              When you add the first watch to a channel, these{" "}
+              <span className="text-secondary-foreground">default filters</span>{" "}
+              are applied automatically:
+            </GuideParagraph>
+            <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
+              {defaultFilters.map((filter) => (
+                <li key={filter.label}>
+                  <span className="text-secondary-foreground font-medium">
+                    {filter.label}
+                  </span>
+                  {filter.detail ? ` — ${filter.detail}` : null}
+                </li>
+              ))}
+            </ul>
+            <GuideParagraph>
+              Run{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                /watch filter reset
+              </code>{" "}
+              at any time to return to these defaults, or{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+                /watch filter clear
+              </code>{" "}
+              to remove all filters and receive everything.
+            </GuideParagraph>
           </GuideSection>
 
           <GuideSection>

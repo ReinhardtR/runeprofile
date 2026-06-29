@@ -11,13 +11,19 @@ import {
 } from "discord-hono";
 
 import { drizzle } from "@runeprofile/db";
-import { type ActivityEventTypeValue } from "@runeprofile/runescape";
+import {
+  type ActivityEventTypeValue,
+  getActivityThresholdConfig,
+} from "@runeprofile/runescape";
 
 import {
   getClanAutocomplete,
   getRsnAutocomplete,
 } from "~/internal/discord/autocomplete";
-import { ActivityEventChoices } from "~/internal/discord/constants";
+import {
+  ActivityEventChoices,
+  ThresholdActivityChoices,
+} from "~/internal/discord/constants";
 import { factory } from "~/internal/discord/factory";
 import {
   addClanWatch,
@@ -30,6 +36,9 @@ import {
   getActivityTypeLabel,
   getWatchFilters,
   removeWatchFilter,
+  resetWatchFilters,
+  seedDefaultFiltersIfNew,
+  setWatchThreshold,
 } from "~/internal/discord/watch/filter";
 import {
   addPlayerWatch,
@@ -89,12 +98,32 @@ export const command_watch = factory.autocomplete(
             .choices(...ActivityEventChoices)
             .required(),
         ),
+        new SubCommand(
+          "threshold",
+          "Only send an activity when it meets a minimum value (e.g. level 50+)",
+        ).options(
+          new Option("activity", "Activity type to set a minimum for")
+            .choices(...ThresholdActivityChoices)
+            .required(),
+          new Option(
+            "value",
+            "Minimum value — pick a suggestion or type your own",
+            "Integer",
+          )
+            .min_value(0)
+            .autocomplete()
+            .required(),
+        ),
         new SubCommand("remove", "Remove a filter from this channel").options(
           new Option("activity", "Activity filter to remove")
             .choices(...ActivityEventChoices)
             .required(),
         ),
         new SubCommand("list", "List all activity filters for this channel"),
+        new SubCommand(
+          "reset",
+          "Reset this channel back to the default filters",
+        ),
         new SubCommand(
           "clear",
           "Remove all activity filters from this channel",
@@ -110,6 +139,10 @@ export const command_watch = factory.autocomplete(
         result = await getRsnAutocomplete(db, c.focused);
       } else if (c.focused?.name === "clan") {
         result = await getClanAutocomplete(db, c.focused);
+      } else if (c.focused?.name === "value") {
+        result = getThresholdValueAutocomplete(
+          c.var.activity as ActivityEventTypeValue | undefined,
+        );
       }
     } catch (error) {
       console.error("Autocomplete error:", error);
@@ -128,6 +161,7 @@ export const command_watch = factory.autocomplete(
           switch (c.sub.command) {
             case "add": {
               await addPlayerWatch({ db, channelId, rsn });
+              await seedDefaultFiltersIfNew({ db, channelId });
               return c.res(`Added player watch for: ${rsn}`);
             }
             case "remove": {
@@ -154,6 +188,7 @@ export const command_watch = factory.autocomplete(
           switch (c.sub.command) {
             case "add": {
               await addClanWatch({ db, channelId, clanName });
+              await seedDefaultFiltersIfNew({ db, channelId });
               return c.res(`Added clan watch for: ${clanName}`);
             }
             case "remove": {
@@ -201,6 +236,32 @@ export const command_watch = factory.autocomplete(
                 `Added block filter for: ${getActivityTypeLabel(activityType)}`,
               );
             }
+            case "threshold": {
+              const activityType = c.var.activity as ActivityEventTypeValue;
+              const value = c.var.value as number;
+              const config = getActivityThresholdConfig(activityType);
+
+              if (!config) {
+                return c.res(
+                  `${getActivityTypeLabel(activityType)} doesn't support a threshold.`,
+                );
+              }
+              if (value < config.min || value > config.max) {
+                return c.res(
+                  `Threshold for ${getActivityTypeLabel(activityType)} must be between ${config.min} and ${config.max}.`,
+                );
+              }
+
+              await setWatchThreshold({
+                db,
+                channelId,
+                activityType,
+                threshold: value,
+              });
+              return c.res(
+                `Set ${getActivityTypeLabel(activityType)} threshold to **${config.format(value)}** — only activities at or above this will be sent.`,
+              );
+            }
             case "remove": {
               const activityType = c.var.activity as ActivityEventTypeValue;
               const removed = await removeWatchFilter({
@@ -214,7 +275,7 @@ export const command_watch = factory.autocomplete(
                 );
               }
               return c.res(
-                `Removed filter for: ${getActivityTypeLabel(activityType)}`,
+                `Removed all filters for: ${getActivityTypeLabel(activityType)}`,
               );
             }
             case "list": {
@@ -225,37 +286,14 @@ export const command_watch = factory.autocomplete(
                 );
               }
 
-              const allowFilters = filters.filter((f) => f.mode === "allow");
-              const blockFilters = filters.filter((f) => f.mode === "block");
-
-              let message = "**Activity Filters**\n";
-              if (allowFilters.length > 0) {
-                message += "\n✅ **Allowed:**\n";
-                message += allowFilters
-                  .map(
-                    (f) =>
-                      `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
-                  )
-                  .join("\n");
-              }
-              if (blockFilters.length > 0) {
-                message += "\n🚫 **Blocked:**\n";
-                message += blockFilters
-                  .map(
-                    (f) =>
-                      `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
-                  )
-                  .join("\n");
-              }
-
-              if (allowFilters.length > 0) {
-                message += "\n\n*Only allowed activity types will be sent.*";
-              } else {
-                message +=
-                  "\n\n*All activity types except blocked ones will be sent.*";
-              }
-
-              return c.res(message);
+              return c.res(formatFilterList(filters));
+            }
+            case "reset": {
+              await resetWatchFilters({ db, channelId });
+              const filters = await getWatchFilters({ db, channelId });
+              return c.res(
+                `Reset to the default filters.\n\n${formatFilterList(filters)}`,
+              );
             }
             case "clear": {
               await clearWatchFilters({ db, channelId });
@@ -280,3 +318,77 @@ export const command_watch = factory.autocomplete(
     }
   },
 );
+
+function getThresholdValueAutocomplete(
+  activityType: ActivityEventTypeValue | undefined,
+): Autocomplete {
+  if (!activityType) return new Autocomplete();
+  const config = getActivityThresholdConfig(activityType);
+  if (!config) return new Autocomplete();
+
+  return new Autocomplete().choices(
+    ...config.suggestions.map((value) => ({
+      name: config.format(value),
+      value,
+    })),
+  );
+}
+
+function formatFilterList(
+  filters: {
+    activityType: string;
+    mode: "allow" | "block" | null;
+    threshold: number | null;
+  }[],
+): string {
+  const allowFilters = filters.filter((f) => f.mode === "allow");
+  const blockFilters = filters.filter((f) => f.mode === "block");
+  const thresholdFilters = filters.filter((f) => f.threshold !== null);
+
+  let message = "**Activity Filters**\n";
+
+  if (allowFilters.length > 0) {
+    message += "\n✅ **Allowed:**\n";
+    message += allowFilters
+      .map(
+        (f) =>
+          `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
+      )
+      .join("\n");
+  }
+
+  if (blockFilters.length > 0) {
+    message += "\n🚫 **Blocked:**\n";
+    message += blockFilters
+      .map(
+        (f) =>
+          `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
+      )
+      .join("\n");
+  }
+
+  if (thresholdFilters.length > 0) {
+    message += "\n📊 **Thresholds:**\n";
+    message += thresholdFilters
+      .map((f) => {
+        const type = f.activityType as ActivityEventTypeValue;
+        const config = getActivityThresholdConfig(type);
+        const value =
+          config && f.threshold !== null
+            ? config.format(f.threshold)
+            : String(f.threshold);
+        return `- ${getActivityTypeLabel(type)} — minimum ${value}`;
+      })
+      .join("\n");
+  }
+
+  if (allowFilters.length > 0) {
+    message += "\n\n*Only allowed activity types will be sent";
+    message += thresholdFilters.length > 0 ? ", subject to thresholds.*" : ".*";
+  } else if (blockFilters.length > 0 || thresholdFilters.length > 0) {
+    message += "\n\n*All activity types except blocked ones will be sent";
+    message += thresholdFilters.length > 0 ? ", subject to thresholds.*" : ".*";
+  }
+
+  return message;
+}

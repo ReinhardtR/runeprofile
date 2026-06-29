@@ -6,15 +6,11 @@ import {
   discordWatches,
   lower,
 } from "@runeprofile/db";
-import {
-  AccountType,
-  ActivityEvent,
-  type ActivityEventTypeValue,
-} from "@runeprofile/runescape";
+import { AccountType, ActivityEvent } from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/internal/discord/factory";
 import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
-import { filterActivityTypes } from "~/internal/discord/watch/filter";
+import { filterActivities } from "~/internal/discord/watch/filter";
 
 export async function sendActivityMessages(params: {
   db: Database;
@@ -64,10 +60,7 @@ export async function sendActivityMessages(params: {
       : [];
 
   // Group filters by channel
-  const filtersByChannel = new Map<
-    string,
-    { activityType: string; mode: string }[]
-  >();
+  const filtersByChannel = new Map<string, typeof allFilters>();
   for (const filter of allFilters) {
     const existing = filtersByChannel.get(filter.channelId) ?? [];
     existing.push(filter);
@@ -75,28 +68,23 @@ export async function sendActivityMessages(params: {
   }
 
   const discordApi = createDiscordApi(discordToken);
-  const activityTypes = activities.map(
-    (a) => a.type,
-  ) as ActivityEventTypeValue[];
 
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
     channelIds.map(async (channelId) => {
       const channelFilters = filtersByChannel.get(channelId) ?? [];
-      const allowedTypes = filterActivityTypes(activityTypes, channelFilters);
+      const allowedActivities = filterActivities(activities, channelFilters);
 
-      if (allowedTypes.length === 0) return;
+      if (allowedActivities.length === 0) return;
 
-      const embeds = activities
-        .filter((a) => allowedTypes.includes(a.type as ActivityEventTypeValue))
-        .map((activity) =>
-          createActivityEmbed({
-            activity,
-            discordApplicationId,
-            rsn,
-            accountType,
-          }),
-        );
+      const embeds = allowedActivities.map((activity) =>
+        createActivityEmbed({
+          activity,
+          discordApplicationId,
+          rsn,
+          accountType,
+        }),
+      );
 
       if (embeds.length === 0) return;
 

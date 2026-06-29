@@ -85,6 +85,13 @@
       "when": 1778765630628,
       "tag": "0011_combat_achievement_varps",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1780228734393,
+      "tag": "0012_harsh_infant_terrible",
+      "breakpoints": true
     }
   ]
 }

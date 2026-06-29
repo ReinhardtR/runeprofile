@@ -1,26 +1,15 @@
 import { and, eq } from "drizzle-orm";
 
-import { Database, discordWatchFilters } from "@runeprofile/db";
+import { Database, discordWatchFilters, discordWatches } from "@runeprofile/db";
 import {
-  ActivityEventType,
+  type ActivityEvent,
   type ActivityEventTypeValue,
+  DEFAULT_FILTERS,
+  getActivityThresholdConfig,
+  getActivityTypeLabel,
 } from "@runeprofile/runescape";
 
-const ACTIVITY_TYPE_LABELS: Record<ActivityEventTypeValue, string> = {
-  [ActivityEventType.LEVEL_UP]: "Level Up",
-  [ActivityEventType.NEW_ITEM_OBTAINED]: "New Item Obtained",
-  [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]: "Achievement Diary",
-  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: "Combat Achievement",
-  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]: "Combat Achievement Tier Reached",
-  [ActivityEventType.QUEST_COMPLETED]: "Quest Completed",
-  [ActivityEventType.MAXED]: "Maxed",
-  [ActivityEventType.XP_MILESTONE]: "XP Milestone",
-  [ActivityEventType.VALUABLE_DROP]: "Valuable Drop",
-};
-
-export function getActivityTypeLabel(type: ActivityEventTypeValue): string {
-  return ACTIVITY_TYPE_LABELS[type] ?? type;
-}
+export { getActivityTypeLabel };
 
 export async function addWatchFilter(params: {
   db: Database;
@@ -40,7 +29,31 @@ export async function addWatchFilter(params: {
     })
     .onConflictDoUpdate({
       target: [discordWatchFilters.channelId, discordWatchFilters.activityType],
+      // Only touch the mode — preserve any existing threshold on the row.
       set: { mode },
+    });
+}
+
+export async function setWatchThreshold(params: {
+  db: Database;
+  channelId: string;
+  activityType: ActivityEventTypeValue;
+  threshold: number;
+}) {
+  const { db, channelId, activityType, threshold } = params;
+
+  await db
+    .insert(discordWatchFilters)
+    .values({
+      id: crypto.randomUUID(),
+      channelId,
+      activityType,
+      threshold,
+    })
+    .onConflictDoUpdate({
+      target: [discordWatchFilters.channelId, discordWatchFilters.activityType],
+      // Only touch the threshold — preserve any existing allow/block mode.
+      set: { threshold },
     });
 }
 
@@ -86,20 +99,88 @@ export async function clearWatchFilters(params: {
     .where(eq(discordWatchFilters.channelId, channelId));
 }
 
+async function insertDefaultFilters(db: Database, channelId: string) {
+  if (DEFAULT_FILTERS.length === 0) return;
+
+  await db
+    .insert(discordWatchFilters)
+    .values(
+      DEFAULT_FILTERS.map((f) => ({
+        id: crypto.randomUUID(),
+        channelId,
+        activityType: f.activityType,
+        mode: f.mode ?? null,
+        threshold: f.threshold ?? null,
+      })),
+    )
+    .onConflictDoNothing();
+}
+
 /**
- * Given a set of activities and the channel's filters, returns only the
- * activity types that should be sent.
+ * Resets a channel to the default filter set: removes all existing filters and
+ * installs `DEFAULT_FILTERS`.
+ */
+export async function resetWatchFilters(params: {
+  db: Database;
+  channelId: string;
+}) {
+  const { db, channelId } = params;
+
+  await db
+    .delete(discordWatchFilters)
+    .where(eq(discordWatchFilters.channelId, channelId));
+  await insertDefaultFilters(db, channelId);
+}
+
+/**
+ * Seeds `DEFAULT_FILTERS` into a channel when its first watch is added.
+ *
+ * Call this *after* a successful watch insert. It only seeds when the channel
+ * has no existing filters and the just-added watch is its first, so existing
+ * channels and customised channels are left untouched.
+ */
+export async function seedDefaultFiltersIfNew(params: {
+  db: Database;
+  channelId: string;
+}) {
+  const { db, channelId } = params;
+
+  const existingFilters = await db.query.discordWatchFilters.findMany({
+    where: eq(discordWatchFilters.channelId, channelId),
+    columns: { id: true },
+    limit: 1,
+  });
+  if (existingFilters.length > 0) return;
+
+  const watches = await db.query.discordWatches.findMany({
+    where: eq(discordWatches.channelId, channelId),
+    columns: { id: true },
+    limit: 2,
+  });
+  if (watches.length !== 1) return;
+
+  await insertDefaultFilters(db, channelId);
+}
+
+/**
+ * Given a channel's activities and filters, returns only the activities that
+ * should be sent.
  *
  * Precedence:
- * - If any `allow` entries exist → only those types pass
- * - Else if any `block` entries exist → everything except blocked types passes
- * - No filters → everything passes
+ * - allow/block on the activity type (allow wins: only allowed types pass;
+ *   else blocked types are dropped; else all types pass)
+ * - per-type threshold: an activity is dropped when its extracted value is
+ *   below the configured minimum.
  */
-export function filterActivityTypes(
-  activityTypes: ActivityEventTypeValue[],
-  filters: { activityType: string; mode: string }[],
-): ActivityEventTypeValue[] {
-  if (filters.length === 0) return activityTypes;
+export function filterActivities(
+  activities: ActivityEvent[],
+  filters: {
+    activityType: string;
+    mode: "allow" | "block" | null;
+    threshold: number | null;
+  }[],
+): ActivityEvent[] {
+  if (filters.length === 0) return activities;
 
   const allowSet = new Set(
     filters.filter((f) => f.mode === "allow").map((f) => f.activityType),
@@ -107,14 +188,28 @@ export function filterActivityTypes(
   const blockSet = new Set(
     filters.filter((f) => f.mode === "block").map((f) => f.activityType),
   );
-
-  if (allowSet.size > 0) {
-    return activityTypes.filter((type) => allowSet.has(type));
+  const thresholdByType = new Map<string, number>();
+  for (const f of filters) {
+    if (f.threshold !== null) {
+      thresholdByType.set(f.activityType, f.threshold);
+    }
   }
 
-  if (blockSet.size > 0) {
-    return activityTypes.filter((type) => !blockSet.has(type));
-  }
+  return activities.filter((activity) => {
+    const type = activity.type;
 
-  return activityTypes;
+    if (allowSet.size > 0) {
+      if (!allowSet.has(type)) return false;
+    } else if (blockSet.size > 0) {
+      if (blockSet.has(type)) return false;
+    }
+
+    const threshold = thresholdByType.get(type);
+    if (threshold !== undefined) {
+      const config = getActivityThresholdConfig(type as ActivityEventTypeValue);
+      if (config && config.getValue(activity) < threshold) return false;
+    }
+
+    return true;
+  });
 }
