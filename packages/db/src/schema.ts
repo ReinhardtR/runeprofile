@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 
-import { ActivityEvent } from "@runeprofile/runescape";
+import { ActivityEvent, ActivityEventTypeValue } from "@runeprofile/runescape";
 
 import { createdAt, lower, updatedAt } from "./helpers";
 
@@ -32,9 +32,10 @@ export const accounts = t.pgTable(
       .on(lower(table.clanName), table.clanRank, lower(table.username)),
   ],
 );
-export const accountsRelations = relations(accounts, ({ many }) => ({
+export const accountsRelations = relations(accounts, ({ many, one }) => ({
   achievementDiaryTiers: many(achievementDiaryTiers),
   combatAchievementTiers: many(combatAchievementTiers),
+  combatAchievementVarps: one(combatAchievementVarps),
   items: many(items),
   quests: many(quests),
   skills: many(skills),
@@ -83,6 +84,23 @@ export const combatAchievementTiersRelations = relations(
   ({ one }) => ({
     account: one(accounts, {
       fields: [combatAchievementTiers.accountId],
+      references: [accounts.id],
+    }),
+  }),
+);
+
+export const combatAchievementVarps = t.pgTable(
+  "combat_achievement_varps",
+  {
+    accountId: t.text().notNull().primaryKey().references(account),
+    varps: t.jsonb().notNull().$type<Record<string, number>>(),
+  },
+);
+export const combatAchievementVarpsRelations = relations(
+  combatAchievementVarps,
+  ({ one }) => ({
+    account: one(accounts, {
+      fields: [combatAchievementVarps.accountId],
       references: [accounts.id],
     }),
   }),
@@ -185,12 +203,21 @@ export const clanActivities = t.pgTable(
       .primaryKey()
       .references(() => activities.id, { onDelete: "cascade" }),
     clanName: t.text().notNull(), // Stored in lowercase for case-insensitive searching
+    activityType: t.text().notNull().$type<ActivityEvent["type"]>(),
     createdAt,
   },
   (table) => [
     t
       .index("clan_activities_name_created_at_id_desc_index")
       .on(table.clanName, table.createdAt.desc(), table.activityId.desc()),
+    t
+      .index("clan_activities_name_type_created_at_id_desc_index")
+      .on(
+        table.clanName,
+        table.activityType,
+        table.createdAt.desc(),
+        table.activityId.desc(),
+      ),
   ],
 );
 
@@ -243,3 +270,36 @@ export const discordWatchesRelations = relations(discordWatches, ({ one }) => ({
     references: [accounts.id],
   }),
 }));
+
+export const discordWatchFilters = t.pgTable(
+  "discord_watch_filters",
+  {
+    id: t.text().notNull().primaryKey(),
+    channelId: t.text().notNull(),
+    activityType: t.text().notNull().$type<ActivityEventTypeValue>(),
+    mode: t.text().notNull().$type<"allow" | "block">(),
+    createdAt,
+  },
+  (table) => [
+    t
+      .uniqueIndex("discord_watch_filters_channel_activity_unique_index")
+      .on(table.channelId, table.activityType),
+    t.index("discord_watch_filters_channel_index").on(table.channelId),
+  ],
+);
+
+// API key management
+export const apiKeys = t.pgTable(
+  "api_keys",
+  {
+    id: t.text().notNull().primaryKey(),
+    keyHash: t.text().notNull(),
+    name: t.text().notNull(),
+    tier: t.text().notNull().default("standard"),
+    active: t.boolean().notNull().default(true),
+    createdAt,
+  },
+  (table) => [
+    t.uniqueIndex("api_keys_key_hash_unique_index").on(table.keyHash),
+  ],
+);

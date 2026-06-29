@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import React from "react";
 
 import Logo from "~/core/assets/misc/logo.png";
+import { DiscordBotButton } from "~/shared/components/AddDiscordBotButton";
 import { DonateButton } from "~/shared/components/DonateButton";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
 import { Button, buttonVariants } from "~/shared/components/ui/button";
@@ -36,6 +37,7 @@ export const Footer: React.FC = () => {
 
           <JoinDiscordButton />
           <DonateButton />
+          <DiscordBotButton />
         </div>
 
         <div className="hidden col-span-1 lg:flex flex-col items-start space-y-2"></div>
@@ -46,7 +48,19 @@ export const Footer: React.FC = () => {
             <Link to="/info/guide">Guide</Link>
           </FooterLink>
           <FooterLink>
-            <Link to="/info/alias">Aliases</Link>
+            <Link to="/info/discord-bot">Discord Bot</Link>
+          </FooterLink>
+          <FooterLink>
+            <Link to="/info/alias">Log Aliases</Link>
+          </FooterLink>
+          <FooterLink>
+            <a
+              href="https://api.runeprofile.com/v1/docs"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <p>Public API</p>
+            </a>
           </FooterLink>
         </div>
 

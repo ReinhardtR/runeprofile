@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
-import { Search } from "lucide-react";
+import { Bot, Search } from "lucide-react";
 import React from "react";
 
 import Logo from "~/core/assets/misc/logo.png";
@@ -82,7 +82,20 @@ export const Header: React.FC = () => {
               </kbd>
             </Button>
           </div>
-          <nav>
+          <nav className="flex items-center">
+            <Link to="/info/discord-bot" title="Discord Bot">
+              <div
+                className={cn(
+                  buttonVariants({
+                    variant: "ghost",
+                  }),
+                  "w-9 px-0",
+                )}
+              >
+                <Bot className="h-4 w-4" />
+                <span className="sr-only">Discord Bot</span>
+              </div>
+            </Link>
             <a href={DISCORD_INVITE_INK} target="_blank" rel="noreferrer">
               <div
                 className={cn(

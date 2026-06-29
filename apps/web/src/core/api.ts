@@ -2,7 +2,10 @@ import { ClientResponse, hc } from "hono/client";
 import { z } from "zod";
 
 import type { Client } from "@runeprofile/api/client";
-import { HiscoreLeaderboardKey } from "@runeprofile/runescape";
+import {
+  type ActivityEventTypeValue,
+  HiscoreLeaderboardKey,
+} from "@runeprofile/runescape";
 
 // @ts-expect-error
 const api: Client = hc(import.meta.env.VITE_API_URL);
@@ -79,6 +82,7 @@ export async function getClanActivities(params: {
   cursor?: string;
   direction?: "next" | "prev";
   limit?: number;
+  activityTypes?: ActivityEventTypeValue[];
 }) {
   const response = await api.clans[":name"].activities.$get({
     param: {
@@ -88,6 +92,7 @@ export async function getClanActivities(params: {
       cursor: params.cursor,
       direction: params.direction,
       limit: params.limit?.toString(),
+      activityTypes: params.activityTypes?.join(","),
     },
   });
   return await getResponseData(response);
@@ -153,7 +158,7 @@ const RuneProfileApiErrorSchema = z.object({
 });
 
 async function getResponseData<TData>(
-  response: ClientResponse<TData>,
+  response: ClientResponse<TData, number, "json">,
 ): Promise<TData> {
   const unexpectedError = new RuneProfileApiError(
     "UnexpectedError",

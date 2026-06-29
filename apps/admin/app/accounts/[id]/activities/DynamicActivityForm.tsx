@@ -18,6 +18,7 @@ import {
   ActivityEvent,
   ActivityEventType,
   CombatAchievementTierCompletedEventSchema,
+  CombatAchievementTierReachedEventSchema,
   LevelUpEventSchema,
   MaxedEventSchema,
   NewItemObtainedEventSchema,
@@ -33,6 +34,8 @@ const ActivitySchemas = {
     AchievementDiaryTierCompletedEventSchema,
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]:
     CombatAchievementTierCompletedEventSchema,
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]:
+    CombatAchievementTierReachedEventSchema,
   [ActivityEventType.QUEST_COMPLETED]: QuestCompletedEventSchema,
   [ActivityEventType.MAXED]: MaxedEventSchema,
   [ActivityEventType.XP_MILESTONE]: XpMilestoneEventSchema,

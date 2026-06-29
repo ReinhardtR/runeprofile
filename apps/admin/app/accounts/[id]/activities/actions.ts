@@ -4,7 +4,12 @@ import { db } from "@/lib/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { accounts, activities, withValues } from "@runeprofile/db";
+import {
+  accounts,
+  activities,
+  clanActivities,
+  withValues,
+} from "@runeprofile/db";
 import { ActivityEvent } from "@runeprofile/runescape";
 
 export async function getAccountActivities(
@@ -159,10 +164,10 @@ export async function createActivity(
   activityData: ActivityEvent,
   createdAt?: string,
 ) {
-  // Verify the account exists
+  // Verify the account exists and get clan info
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, accountId),
-    columns: { id: true },
+    columns: { id: true, clanName: true },
   });
 
   if (!account) {
@@ -182,13 +187,25 @@ export async function createActivity(
 
   // Generate a UUID for the activity
   const activityId = crypto.randomUUID();
+  const createdAtStr = timestamp.toISOString().slice(0, 19).replace("T", " ");
 
-  await db.insert(activities).values({
-    id: activityId,
-    accountId,
-    type: activityData.type,
-    data: activityData.data,
-    createdAt: timestamp.toISOString().slice(0, 19).replace("T", " "),
+  await db.transaction(async (tx) => {
+    await tx.insert(activities).values({
+      id: activityId,
+      accountId,
+      type: activityData.type,
+      data: activityData.data,
+      createdAt: createdAtStr,
+    });
+
+    if (account.clanName) {
+      await tx.insert(clanActivities).values({
+        activityId,
+        clanName: account.clanName.toLowerCase(),
+        activityType: activityData.type,
+        createdAt: createdAtStr,
+      });
+    }
   });
 
   revalidatePath(`/accounts/${accountId}/activities`);

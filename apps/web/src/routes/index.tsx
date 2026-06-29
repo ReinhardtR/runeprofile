@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSetAtom } from "jotai";
-import { Search } from "lucide-react";
+import { Bot, Search } from "lucide-react";
 import React from "react";
 
 import { COLLECTION_LOG_TABS } from "@runeprofile/runescape";
@@ -20,7 +20,7 @@ import RuneLiteLogo from "~/core/assets/misc/runelite-logo.png";
 import PgnProfileSnapshot from "~/core/assets/pgn-profile-snapshot.json";
 import { isSearchDialogOpenAtom } from "~/features/search";
 import { Footer } from "~/layouts";
-import { ProfileContent, SidePanel } from "~/routes/$username";
+import { ProfileContent, ProfileSearch, SidePanel } from "~/routes/$username";
 import { Button } from "~/shared/components/ui/button";
 import { Separator } from "~/shared/components/ui/separator";
 import { cn, numberWithDelimiter } from "~/shared/utils";
@@ -49,17 +49,9 @@ function RouteComponent() {
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex min-h-screen flex-col justify-between border-b border-primary bg-background shadow shadow-accent">
+        <div className="relative flex min-h-[max(100vh,700px)] flex-col border-b border-primary bg-background shadow shadow-accent">
           {/* <EventHero /> */}
-          <DefaultHero />
-
-          <Button
-            className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 text-foreground animate-in fade-in-10 duration-[2000ms]"
-            onClick={scrollToProfilePreview}
-            variant="link"
-          >
-            Scroll to Profile Example
-          </Button>
+          <DefaultHero scrollToProfilePreview={scrollToProfilePreview} />
         </div>
 
         <ProfileExample ref={profilePreviewRef} />
@@ -75,7 +67,16 @@ function ProfileExample({
 }: React.HTMLProps<HTMLDivElement>) {
   const profile = PgnProfileSnapshot as Profile;
 
-  const [page, setPage] = React.useState(COLLECTION_LOG_TABS[0].pages[0].name);
+  const [search, setSearch] = React.useState<ProfileSearch>({});
+
+  const page = search.page || COLLECTION_LOG_TABS[0].pages[0].name;
+
+  const updateSearch = React.useCallback(
+    (updates: Partial<ProfileSearch>) => {
+      setSearch((prev) => ({ ...prev, ...updates }));
+    },
+    [],
+  );
 
   return (
     <div
@@ -85,13 +86,22 @@ function ProfileExample({
       )}
       {...props}
     >
-      <ProfileContent profile={profile} page={page} onPageChange={setPage} />
+      <ProfileContent
+        profile={profile}
+        page={page}
+        search={search}
+        updateSearch={updateSearch}
+      />
       <SidePanel username={profile.username} />
     </div>
   );
 }
 
-function DefaultHero() {
+function DefaultHero({
+  scrollToProfilePreview,
+}: {
+  scrollToProfilePreview: () => void;
+}) {
   const setIsSearchDialogOpen = useSetAtom(isSearchDialogOpenAtom);
 
   const { data: metrics } = useQuery(metricsQueryOptions());
@@ -106,8 +116,8 @@ function DefaultHero() {
   ];
 
   return (
-    <>
-      <div className="z-30 flex flex-1 flex-col items-center pt-[20vh]">
+    <div className="flex flex-1 flex-col justify-between">
+      <div className="z-30 flex flex-1 flex-col items-center justify-center py-12 gap-y-3">
         <div className="mb-16 mt-12 flex flex-col items-center justify-center space-y-2">
           <h1 className="text-5xl font-extrabold drop-shadow-solid md:text-6xl lg:text-7xl">
             <span className="text-secondary-foreground/90 solid-text-shadow">
@@ -135,7 +145,7 @@ function DefaultHero() {
         <Button
           variant="outline"
           className={cn(
-            "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75 mb-4",
+            "flex h-12 transform items-center justify-center gap-x-2 rounded-full border border-primary bg-black/75 px-4 py-1.5 text-base font-medium shadow transition-all hover:scale-110 hover:bg-black/75",
           )}
           onClick={() => setIsSearchDialogOpen(true)}
         >
@@ -144,43 +154,60 @@ function DefaultHero() {
         </Button>
         <Link
           to="/info/guide"
-          className="flex transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+          className="flex h-12 transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
         >
           <img src={RuneLiteLogo} alt="RuneLite" width={32} height={32} />
           <span>Plugin Guide</span>
         </Link>
+        <Link
+          to="/info/discord-bot"
+          className="flex h-12 transform items-center justify-center space-x-2 rounded-full border border-secondary-foreground bg-black/75 px-4 py-1.5 font-medium shadow transition-all hover:scale-110"
+        >
+          <Bot className="h-5 w-5" />
+          <span>Discord Bot</span>
+        </Link>
       </div>
 
-      <div className="absolute z-20 bg-primary/90">
+      <div className="absolute inset-0 z-20 bg-primary/90">
         <img
           src={HeroImage}
-          className="h-screen w-screen object-cover mix-blend-multiply"
+          className="h-full w-full object-cover mix-blend-multiply"
         />
       </div>
 
-      <div
-        className={cn(
-          "z-30 flex-row items-center justify-center gap-x-6 bg-background/80 py-3 px-6 rounded-3xl transition-opacity duration-700 flex absolute bottom-28 left-1/2 -translate-x-1/2",
-          !!metrics
-            ? "opacity-100 animate-in fade-in"
-            : "opacity-0 pointer-events-none",
-        )}
-      >
-        <div className="flex flex-col gap-y-1 items-center justify-center w-32">
-          <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-            {numberWithDelimiter(metrics?.totalAccounts || 0)}
-          </p>
-          <p className="font-bold text-primary">Profiles</p>
+      <div className="z-30 flex flex-col items-center gap-y-4 pb-8">
+        <div
+          className={cn(
+            "flex-row items-center justify-center gap-x-6 bg-background/80 py-3 px-6 rounded-3xl transition-opacity duration-700 flex",
+            !!metrics
+              ? "opacity-100 animate-in fade-in"
+              : "opacity-0 pointer-events-none",
+          )}
+        >
+          <div className="flex flex-col gap-y-1 items-center justify-center w-34">
+            <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+              {numberWithDelimiter(metrics?.totalAccounts || 0)}
+            </p>
+            <p className="font-bold text-primary">Profiles</p>
+          </div>
+          <Separator className="h-14" orientation="vertical" />
+          <div className="flex flex-col gap-y-1 items-center justify-center w-40">
+            <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
+              {numberWithDelimiter(metrics?.totalActivities || 0)}
+            </p>
+            <p className="font-bold text-primary">Activities</p>
+          </div>
         </div>
-        <Separator className="h-14" orientation="vertical" />
-        <div className="flex flex-col gap-y-1 items-center justify-center w-32">
-          <p className="text-secondary-foreground font-bold text-3xl solid-text-shadow">
-            {numberWithDelimiter(metrics?.totalActivities || 0)}
-          </p>
-          <p className="font-bold text-primary">Activities</p>
-        </div>
+
+        <Button
+          className="text-foreground animate-in fade-in-10 duration-[2000ms]"
+          onClick={scrollToProfilePreview}
+          variant="link"
+        >
+          Scroll to Profile Example
+        </Button>
       </div>
-    </>
+    </div>
   );
 }
 

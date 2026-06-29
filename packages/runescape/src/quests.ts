@@ -284,6 +284,7 @@ export const QUESTS = [
   { id: 116, name: "Ratcatchers", points: 2, type: QuestType.MEMBERS },
   { id: 117, name: "Recipe for Disaster", points: 10, type: QuestType.MEMBERS },
   { id: 118, name: "Recruitment Drive", points: 1, type: QuestType.MEMBERS },
+  {id: 7107, name: "The Red Reef", points: 1, type: QuestType.MEMBERS },
   { id: 119, name: "Regicide", points: 3, type: QuestType.MEMBERS },
   {
     id: 3515,

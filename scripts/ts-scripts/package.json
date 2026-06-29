@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "check-clog": "tsx check-clog.ts",
-    "update-clog": "tsx check-clog.ts --write"
+    "update-clog": "tsx check-clog.ts --write",
+    "scrape-ca": "tsx scrape-combat-achievements.ts"
   },
   "devDependencies": {
-    "@abextm/cache2": "^0.1.7",
+    "@abextm/cache2": "^0.1.8",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",

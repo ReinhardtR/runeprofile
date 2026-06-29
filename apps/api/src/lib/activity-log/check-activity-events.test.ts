@@ -5,13 +5,13 @@ import {
   MAX_SKILL_XP,
   QuestState,
   getAchievementDiaryTierTaskCount,
-  getCombatAchievementTierTaskCount,
   getLevelXpThreshold,
 } from "@runeprofile/runescape";
 
 import {
   checkAchievementDiaryTierCompletedEvents,
-  checkCombatAchievementTierCompletedEvents,
+  checkCombatAchievementEvents,
+  checkCombatAchievementTierReachedEvents,
   checkLevelUpEvents,
   checkMaxedEvent,
   checkNewItemObtainedEvents,
@@ -193,53 +193,6 @@ describe("ACHIEVEMENT DIARY TIER COMPLETED EVENTS", () => {
           tier: 2,
           completedCount: getAchievementDiaryTierTaskCount(1, 2) ?? 0,
           oldCompletedCount: getAchievementDiaryTierTaskCount(1, 2) ?? 0,
-        },
-      ]),
-    ).toEqual([]);
-  });
-});
-
-describe("COMBAT ACHIEVEMENT TIER COMPLETED EVENTS", () => {
-  test("completion", () => {
-    expect(
-      checkCombatAchievementTierCompletedEvents([
-        {
-          id: 1,
-          completedCount: getCombatAchievementTierTaskCount(1) ?? 0,
-          oldCompletedCount: 5,
-        },
-        {
-          id: 2,
-          completedCount: getCombatAchievementTierTaskCount(2) ?? 0,
-          oldCompletedCount: 4,
-        },
-      ]),
-    ).toEqual([
-      { type: "combat_achievement_tier_completed", data: { tierId: 1 } },
-      { type: "combat_achievement_tier_completed", data: { tierId: 2 } },
-    ]);
-  });
-
-  test("not completed", () => {
-    expect(
-      checkCombatAchievementTierCompletedEvents([
-        { id: 1, completedCount: 4, oldCompletedCount: 3 },
-      ]),
-    ).toEqual([]);
-  });
-
-  test("already completed", () => {
-    expect(
-      checkCombatAchievementTierCompletedEvents([
-        {
-          id: 1,
-          completedCount: getCombatAchievementTierTaskCount(1) ?? 0,
-          oldCompletedCount: getCombatAchievementTierTaskCount(1) ?? 0,
-        },
-        {
-          id: 2,
-          completedCount: getCombatAchievementTierTaskCount(2) ?? 0,
-          oldCompletedCount: getCombatAchievementTierTaskCount(2) ?? 0,
         },
       ]),
     ).toEqual([]);
@@ -458,5 +411,36 @@ describe("MAXED EVENT", () => {
         ],
       ),
     ).toEqual(undefined);
+  });
+});
+
+describe("COMBAT ACHIEVEMENT TIER REACHED EVENTS", () => {
+  test("should not fire when newVarps is null", () => {
+    expect(
+      checkCombatAchievementEvents({ newVarps: null, oldVarps: null }, []),
+    ).toEqual([]);
+  });
+
+  test("should not fire when newVarps is null and oldVarps exist", () => {
+    expect(
+      checkCombatAchievementEvents(
+        { newVarps: null, oldVarps: { "1": 123 } },
+        [],
+      ),
+    ).toEqual([]);
+  });
+
+  test("should not fire when old and new varps decode to same tier", () => {
+    const varps = { "4138": 0, "4139": 0, "4140": 0 };
+    expect(checkCombatAchievementTierReachedEvents(varps, varps)).toEqual([]);
+  });
+
+  test("should not fire when points decrease (regression)", () => {
+    expect(
+      checkCombatAchievementTierReachedEvents(
+        { "4138": 255, "4139": 255, "4140": 255 },
+        { "4138": 0, "4139": 0, "4140": 0 },
+      ),
+    ).toEqual([]);
   });
 });

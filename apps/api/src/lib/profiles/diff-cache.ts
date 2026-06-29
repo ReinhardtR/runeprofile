@@ -14,6 +14,7 @@ export type DiffProfile = {
     id: number;
     completedCount: number;
   }>;
+  combatAchievementVarps: Record<string, number> | null;
   items: Array<{
     id: number;
     quantity: number;
@@ -74,6 +75,7 @@ export function buildUpdatedDiffProfile(
       id: number;
       completedCount: number;
     }>;
+    combatAchievementVarps?: Record<string, number> | null;
     items: Array<{
       id: number;
       quantity: number;
@@ -98,6 +100,7 @@ export function buildUpdatedDiffProfile(
         completedCount: t.completedCount,
       })),
       combatAchievementTiers: updates.combatAchievementTiers,
+      combatAchievementVarps: updates.combatAchievementVarps ?? null,
       items: updates.items,
       quests: updates.quests,
       skills: updates.skills,
@@ -150,6 +153,7 @@ export function buildUpdatedDiffProfile(
     updatedAt,
     achievementDiaryTiers: [...diaryMap.values()],
     combatAchievementTiers: [...combatMap.values()],
+    combatAchievementVarps: updates.combatAchievementVarps ?? current.combatAchievementVarps ?? null,
     items: [...itemsMap.values()],
     quests: [...questsMap.values()],
     skills: [...skillsMap.values()],

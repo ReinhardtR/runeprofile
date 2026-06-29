@@ -6,20 +6,26 @@ interface CustomScrollbarProps {
   children: React.ReactNode;
   className?: string;
   contentClassName?: string;
+  scrollRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export function RuneScapeScrollArea({
   children,
   className,
   contentClassName,
+  scrollRef,
 }: CustomScrollbarProps) {
-  const contentRef = React.useRef<HTMLDivElement>(null);
+  const internalRef = React.useRef<HTMLDivElement>(null);
+  const contentRef = scrollRef ?? internalRef;
   const scrollTrackRef = React.useRef<HTMLDivElement>(null);
   const scrollThumbRef = React.useRef<HTMLDivElement>(null);
 
   const [isDragging, setIsDragging] = React.useState(false);
   const [startY, setStartY] = React.useState(0);
   const [scrollStartPosition, setScrollStartPosition] = React.useState(0);
+  const [dragScrollHeight, setDragScrollHeight] = React.useState(0);
+  const lastScrollHeightRef = React.useRef(0);
+  const lastThumbHeightRef = React.useRef(0);
 
   const calculateThumb = React.useCallback(() => {
     if (
@@ -35,11 +41,15 @@ export function RuneScapeScrollArea({
     if (scrollHeight <= clientHeight) {
       scrollThumbRef.current.style.height = `100%`;
       scrollThumbRef.current.style.transform = `translateY(0px)`;
+      lastScrollHeightRef.current = scrollHeight;
+      lastThumbHeightRef.current = trackHeight;
       return;
     }
 
     const thumbRatio = clientHeight / scrollHeight;
     const thumbHeight = Math.max(thumbRatio * trackHeight, 40);
+    lastScrollHeightRef.current = scrollHeight;
+    lastThumbHeightRef.current = thumbHeight;
     scrollThumbRef.current.style.height = `${thumbHeight}px`;
 
     updateThumbPosition();
@@ -55,8 +65,22 @@ export function RuneScapeScrollArea({
 
     const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
     const trackHeight = scrollTrackRef.current.clientHeight;
-    const thumbHeight = scrollThumbRef.current.offsetHeight;
 
+    // Recalculate thumb size only if scrollHeight changed meaningfully
+    if (Math.abs(scrollHeight - lastScrollHeightRef.current) > 5) {
+      lastScrollHeightRef.current = scrollHeight;
+      if (scrollHeight <= clientHeight) {
+        scrollThumbRef.current.style.height = `100%`;
+        lastThumbHeightRef.current = trackHeight;
+      } else {
+        const thumbRatio = clientHeight / scrollHeight;
+        const thumbHeight = Math.max(thumbRatio * trackHeight, 40);
+        lastThumbHeightRef.current = thumbHeight;
+        scrollThumbRef.current.style.height = `${thumbHeight}px`;
+      }
+    }
+
+    const thumbHeight = lastThumbHeightRef.current;
     const scrollRatio = scrollTop / (scrollHeight - clientHeight);
     const thumbOffset = scrollRatio * (trackHeight - thumbHeight);
 
@@ -70,6 +94,7 @@ export function RuneScapeScrollArea({
     setStartY(e.clientY);
     if (contentRef.current) {
       setScrollStartPosition(contentRef.current.scrollTop);
+      setDragScrollHeight(contentRef.current.scrollHeight);
     }
   };
 
@@ -86,10 +111,10 @@ export function RuneScapeScrollArea({
     const thumbHeight = scrollThumbRef.current.offsetHeight;
     const deltaY = e.clientY - startY;
     const scrollRatio = deltaY / (trackHeight - thumbHeight);
-    const { scrollHeight, clientHeight } = contentRef.current;
+    const { clientHeight } = contentRef.current;
 
     contentRef.current.scrollTop =
-      scrollStartPosition + scrollRatio * (scrollHeight - clientHeight);
+      scrollStartPosition + scrollRatio * (dragScrollHeight - clientHeight);
   };
 
   const handleMouseUp = () => {
@@ -122,28 +147,35 @@ export function RuneScapeScrollArea({
       clickY < thumbTop ? -pageScroll : pageScroll;
   };
 
-  // Lifecycle
+  // ResizeObserver + scroll listener (stable — only depends on refs)
   React.useEffect(() => {
     if (!contentRef.current) return;
 
-    const observer = new ResizeObserver(() => {
+    const resizeObserver = new ResizeObserver(() => {
       calculateThumb();
     });
 
-    observer.observe(contentRef.current);
-    if (scrollTrackRef.current) observer.observe(scrollTrackRef.current);
+    resizeObserver.observe(contentRef.current);
+    if (scrollTrackRef.current) resizeObserver.observe(scrollTrackRef.current);
 
     contentRef.current.addEventListener("scroll", updateThumbPosition);
+
+    return () => {
+      resizeObserver.disconnect();
+      contentRef.current?.removeEventListener("scroll", updateThumbPosition);
+    };
+  }, [calculateThumb]);
+
+  // Drag handlers (re-attached when drag state changes)
+  React.useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      observer.disconnect();
-      contentRef.current?.removeEventListener("scroll", updateThumbPosition);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [calculateThumb, isDragging, startY, scrollStartPosition]);
+  }, [isDragging, startY, scrollStartPosition]);
 
   return (
     <div className={cn("flex flex-grow max-h-full overflow-hidden", className)}>

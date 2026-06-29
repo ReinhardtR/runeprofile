@@ -50,6 +50,41 @@
       "when": 1774520389043,
       "tag": "0006_flawless_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777900595060,
+      "tag": "0007_strange_klaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1777972576336,
+      "tag": "0008_amazing_loners",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778050238471,
+      "tag": "0009_fuzzy_zarda",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778533877848,
+      "tag": "0010_watery_weapon_omega",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778765630628,
+      "tag": "0011_combat_achievement_varps",
+      "breakpoints": true
     }
   ]
 }

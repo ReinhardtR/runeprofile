@@ -63,7 +63,18 @@ export function decodeCursor(
   cursor: string | undefined,
 ): CursorFields | undefined {
   if (!cursor) return undefined;
-  return decodeCursorPayload(cursor);
+  try {
+    return decodeCursorPayload(cursor);
+  } catch {
+    throw new InvalidCursorError();
+  }
+}
+
+export class InvalidCursorError extends Error {
+  constructor() {
+    super("Invalid cursor");
+    this.name = "InvalidCursorError";
+  }
 }
 
 const cursorKeyMap: Record<string, string> = {
@@ -152,7 +163,9 @@ function uuidToBase62(uuid: string): string {
 function base62ToUuid(b62: string): string {
   let num = 0n;
   for (const c of b62) {
-    num = num * 62n + BigInt(BASE62.indexOf(c));
+    const idx = BASE62.indexOf(c);
+    if (idx === -1) throw new Error("Invalid base62 character");
+    num = num * 62n + BigInt(idx);
   }
   const hex = num.toString(16).padStart(32, "0");
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;

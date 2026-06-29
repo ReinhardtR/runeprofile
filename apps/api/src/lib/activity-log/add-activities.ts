@@ -36,6 +36,7 @@ export async function addActivities(
         ? activitiesValues.map((activity) => ({
             activityId: activity.id,
             clanName: account.clanName?.toLowerCase() ?? "",
+            activityType: activity.type,
           }))
         : [];
 

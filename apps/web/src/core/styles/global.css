@@ -62,6 +62,7 @@
   --osrs-red: oklch(0.57 0.28 30);
   --osrs-green: oklch(0.73 0.24 145);
   --osrs-gray: oklch(0.53 0.01 85);
+  --osrs-light-gray: oklch(0.69 0 0);
   --osrs-white: oklch(0.9 0 0);
   --osrs-tab: oklch(0.2 0 0);
   --osrs-tab-selected: oklch(0.25 0 0);
@@ -110,6 +111,7 @@
   --color-osrs-red: var(--osrs-red);
   --color-osrs-green: var(--osrs-green);
   --color-osrs-gray: var(--osrs-gray);
+  --color-osrs-light-gray: var(--osrs-light-gray);
   --color-osrs-white: var(--osrs-white);
   --color-osrs-tab: var(--osrs-tab);
   --color-osrs-tab-selected: var(--osrs-tab-selected);
@@ -168,8 +170,8 @@
 }
 
 .runescape-stats-tile {
-  border-image: url("~/core/assets/skill-tile.png") 10 10 10 10 fill / 10px 10px 10px
-    10px;
+  border-image: url("~/core/assets/skill-tile.png") 10 10 10 10 fill / 10px 10px
+    10px 10px;
   border-image-repeat: round;
 }
 
@@ -186,13 +188,29 @@
   border-image-source: url("~/core/assets/card/square.png");
 }
 
+.runescape-select-trigger {
+  background-image: url("~/core/assets/card/background-noshadow.png");
+  background-size: auto;
+  background-repeat: repeat;
+  border: 1px solid var(--osrs-border);
+  padding: 3px 0 3px 8px;
+}
+
+.runescape-select-trigger > .runescape-select-chevron {
+  margin: -3px 0 -3px 0;
+  height: calc(100% + 6px);
+  object-fit: fill;
+}
+
 .runescape-corners-border {
   border-style: solid;
   border-width: 12px 12px 12px 12px;
-  -moz-border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9 round round;
-  -webkit-border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9 round
+  -moz-border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9 round
     round;
-  -o-border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9 round round;
+  -webkit-border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9
+    round round;
+  -o-border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9 round
+    round;
   border-image: url("~/core/assets/osrs-border-corners.png") 9 9 9 9 round round;
 }
 
@@ -210,11 +228,13 @@
   border-image-slice: 7;
   border-image-width: 16px;
   border-image-repeat: stretch;
+  image-rendering: pixelated;
 }
 
 .runescape-scroll-up {
   background-image: url("~/core/assets/scrollbar/arrow_up.png");
   background-size: contain;
+  image-rendering: pixelated;
   height: 22px;
   width: 22px;
 }
@@ -222,6 +242,7 @@
 .runescape-scroll-down {
   background-image: url("~/core/assets/scrollbar/arrow_down.png");
   background-size: contain;
+  image-rendering: pixelated;
   height: 22px;
   width: 22px;
 }
@@ -238,8 +259,7 @@
 }
 
 .shimmer-text {
-  z-index: 1;
-  position: relative;
+  isolation: isolate;
   background: linear-gradient(
     120deg,
     #ffffff,
@@ -270,4 +290,33 @@
   100% {
     background-position: 0% 50%;
   }
+}
+
+.shimmer-bar,
+.shimmer-bar-progress {
+  background: linear-gradient(
+    120deg,
+    #ffffff,
+    #e0c3fc,
+    #8ec5fc,
+    #f9f9f9,
+    #ffdde1
+  );
+  background-size: 300% 300%;
+  animation: shimmer 3s infinite linear;
+}
+
+.shimmer-bar-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.2) 20%,
+    transparent 45%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.2) 80%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
 }

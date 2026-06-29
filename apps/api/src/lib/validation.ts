@@ -2,7 +2,11 @@ import { zValidator as zv } from "@hono/zod-validator";
 import { ValidationTargets } from "hono/types";
 import { ZodSchema, z } from "zod";
 
-import { AccountTypes, COLLECTION_LOG_TABS } from "@runeprofile/runescape";
+import {
+  AccountTypes,
+  ActivityEventTypeSchema,
+  COLLECTION_LOG_TABS,
+} from "@runeprofile/runescape";
 
 export const accountIdSchema = z.string().trim().length(28);
 
@@ -60,6 +64,20 @@ export const limitSchema = z.coerce
   .max(100)
   .optional()
   .default(10);
+
+export const activityTypesSchema = z
+  .string()
+  .optional()
+  .transform((val) => {
+    if (!val) return undefined;
+    const types = val
+      .split(",")
+      .filter(
+        (t): t is z.infer<typeof ActivityEventTypeSchema> =>
+          ActivityEventTypeSchema.safeParse(t).success,
+      );
+    return types.length > 0 ? types : undefined;
+  });
 
 export const validator = <
   T extends ZodSchema,

@@ -1,5 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { ChevronRight, ImageIcon, Users } from "lucide-react";
+import {
+  ChevronRight,
+  ImageIcon,
+  KeyRound,
+  MessageSquare,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 
 type Tool = {
@@ -17,11 +23,24 @@ const tools: Tool[] = [
     icon: Users,
   },
   {
+    name: "API Keys",
+    href: "/api-keys",
+    description: "Create, view, and manage API keys.",
+    icon: KeyRound,
+  },
+  {
     name: "Icons",
     href: "/icons",
     description:
       "View and download icons from JSON files in the assets folder.",
     icon: ImageIcon,
+  },
+  {
+    name: "Discord Simulator",
+    href: "/discord-simulator",
+    description:
+      "Send activity embed messages to a Discord channel for testing.",
+    icon: MessageSquare,
   },
 ];
 

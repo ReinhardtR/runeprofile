@@ -5,11 +5,22 @@ export const ActivityEventType = {
   NEW_ITEM_OBTAINED: "new_item_obtained",
   ACHIEVEMENT_DIARY_TIER_COMPLETED: "achievement_diary_tier_completed",
   COMBAT_ACHIEVEMENT_TIER_COMPLETED: "combat_achievement_tier_completed",
+  COMBAT_ACHIEVEMENT_TIER_REACHED: "combat_achievement_tier_reached",
   QUEST_COMPLETED: "quest_completed",
   MAXED: "maxed",
   XP_MILESTONE: "xp_milestone",
   VALUABLE_DROP: "valuable_drop",
 } as const;
+
+export type ActivityEventTypeValue =
+  (typeof ActivityEventType)[keyof typeof ActivityEventType];
+
+const activityEventTypeValues = Object.values(ActivityEventType) as [
+  ActivityEventTypeValue,
+  ...ActivityEventTypeValue[],
+];
+
+export const ActivityEventTypeSchema = z.enum(activityEventTypeValues);
 
 export const LevelUpEventSchema = z.object({
   type: z.literal(ActivityEventType.LEVEL_UP),
@@ -47,6 +58,16 @@ export const CombatAchievementTierCompletedEventSchema = z.object({
 });
 export type CombatAchievementTierCompletedEvent = z.infer<
   typeof CombatAchievementTierCompletedEventSchema
+>;
+
+export const CombatAchievementTierReachedEventSchema = z.object({
+  type: z.literal(ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED),
+  data: z.object({
+    tierId: z.number(),
+  }),
+});
+export type CombatAchievementTierReachedEvent = z.infer<
+  typeof CombatAchievementTierReachedEventSchema
 >;
 
 export const QuestCompletedEventSchema = z.object({
@@ -87,6 +108,7 @@ export const ActivityEventSchema = z.discriminatedUnion("type", [
   NewItemObtainedEventSchema,
   AchievementDiaryTierCompletedEventSchema,
   CombatAchievementTierCompletedEventSchema,
+  CombatAchievementTierReachedEventSchema,
   QuestCompletedEventSchema,
   MaxedEventSchema,
   XpMilestoneEventSchema,

@@ -44,7 +44,7 @@ export const GlobalAlertBanner: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col gap-2 p-2 sm:p-4">
+    <div className="fixed bottom-3 right-18 z-[60] flex flex-col gap-2 max-w-md">
       {visibleAlerts.map((alert) => {
         const Icon = ALERT_ICONS[alert.type];
 
@@ -54,7 +54,7 @@ export const GlobalAlertBanner: React.FC = () => {
             variant={alert.type}
             className="relative pr-10 animate-in fade-in slide-in-from-top-2 duration-300"
           >
-            <Icon className="size-4" />
+            <Icon className="size-5 shrink-0 stroke-2.5" />
             <AlertTitle>{alert.title}</AlertTitle>
             <AlertDescription>{alert.message}</AlertDescription>
             <button
@@ -63,7 +63,7 @@ export const GlobalAlertBanner: React.FC = () => {
               className="absolute right-2 top-2 rounded-md p-1 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               aria-label="Dismiss alert"
             >
-              <X className="size-4" />
+              <X className="size-5" />
             </button>
           </Alert>
         );

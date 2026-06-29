@@ -5,6 +5,8 @@ const schema = z.object({
   D1_DATABASE_ID: z.string().min(1),
   CF_API_TOKEN: z.string().min(1),
   MODE: z.string().default("local"),
+  API_URL: z.string().optional(),
+  DISCORD_CHANNEL_ID: z.string().optional(),
 });
 
 let _env: z.infer<typeof schema> | null = null;

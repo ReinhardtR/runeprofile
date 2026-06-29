@@ -1,7 +1,7 @@
 import {
   AchievementDiaryTierCompletedEvent,
   ActivityEvent,
-  CombatAchievementTierCompletedEvent,
+  CombatAchievementTierReachedEvent,
   LevelUpEvent,
   MAX_SKILL_LEVEL,
   MAX_TOTAL_LEVEL,
@@ -11,9 +11,12 @@ import {
   QuestState,
   SKILLS,
   XpMilestoneEvent,
+  calculateCombatAchievementPoints,
+  decodeCombatAchievements,
   getAchievementDiaryTierTaskCount,
-  getCombatAchievementTierTaskCount,
+  getCombatAchievementTierReached,
   getLevelFromXP,
+  legacy_calculateCombatAchievementPoints,
 } from "@runeprofile/runescape";
 
 import type { DiffProfile } from "~/lib/profiles/diff-cache";
@@ -29,8 +32,9 @@ export function checkActivityEvents(updates: ProfileUpdates) {
     ...checkXpMilestoneEvents(updates.skills),
     ...checkNewItemObtainedEvents(updates.currentProfile.items, updates.items),
     ...checkAchievementDiaryTierCompletedEvents(updates.achievementDiaryTiers),
-    ...checkCombatAchievementTierCompletedEvents(
-      updates.combatAchievementTiers,
+    ...checkCombatAchievementEvents(
+      updates.combatAchievementVarps,
+      updates.currentProfile.combatAchievementTiers,
     ),
     ...checkQuestCompletedEvents(updates.quests),
 
@@ -161,24 +165,68 @@ export function checkAchievementDiaryTierCompletedEvents(
   return events;
 }
 
-export function checkCombatAchievementTierCompletedEvents(
-  combatAchievementTierUpdates: ProfileUpdates["combatAchievementTiers"],
-) {
-  const events: CombatAchievementTierCompletedEvent[] = [];
+/**
+ * Generates tier-reached events when varps are available.
+ * When oldVarps is null (first update after plugin upgrade), estimates the
+ * player's previous tier from legacy per-tier completion counts to avoid
+ * false tier-reached events.
+ */
+export function checkCombatAchievementEvents(
+  varps: ProfileUpdates["combatAchievementVarps"],
+  legacyTiers: DiffProfile["combatAchievementTiers"],
+): Array<CombatAchievementTierReachedEvent> {
+  if (!varps.newVarps) return [];
 
-  for (const tierUpdate of combatAchievementTierUpdates) {
-    const tierTaskCount = getCombatAchievementTierTaskCount(tierUpdate.id);
-    if (tierTaskCount === undefined) continue;
-    // already completed
-    if (tierUpdate.oldCompletedCount >= tierTaskCount) continue;
-    // not completed
-    if (tierUpdate.completedCount < tierTaskCount) continue;
+  // If we have old varps, use exact comparison
+  if (varps.oldVarps) {
+    return checkCombatAchievementTierReachedEvents(
+      varps.oldVarps,
+      varps.newVarps,
+    );
+  }
 
-    events.push({
-      type: "combat_achievement_tier_completed",
-      data: {
-        tierId: tierUpdate.id,
+  // First update with varps — estimate old tier from legacy completion counts
+  const oldEstimatedPoints =
+    legacy_calculateCombatAchievementPoints(legacyTiers);
+  const oldTier = getCombatAchievementTierReached(oldEstimatedPoints);
+
+  const newCompleted = decodeCombatAchievements(varps.newVarps);
+  const newPoints = calculateCombatAchievementPoints(newCompleted);
+  const newTier = getCombatAchievementTierReached(newPoints);
+
+  if (newTier !== null && newTier !== oldTier) {
+    return [
+      {
+        type: "combat_achievement_tier_reached",
+        data: { tierId: newTier },
       },
+    ];
+  }
+
+  return [];
+}
+
+export function checkCombatAchievementTierReachedEvents(
+  oldVarps: Record<string, number> | null,
+  newVarps: Record<string, number>,
+): CombatAchievementTierReachedEvent[] {
+  const events: CombatAchievementTierReachedEvent[] = [];
+
+  const oldCompleted = oldVarps ? decodeCombatAchievements(oldVarps) : [];
+  const newCompleted = decodeCombatAchievements(newVarps);
+
+  const oldPoints = calculateCombatAchievementPoints(oldCompleted);
+  const newPoints = calculateCombatAchievementPoints(newCompleted);
+
+  if (newPoints <= oldPoints) return events;
+
+  const oldTier = getCombatAchievementTierReached(oldPoints);
+  const newTier = getCombatAchievementTierReached(newPoints);
+
+  if (newTier !== null && newTier !== oldTier) {
+    events.push({
+      type: "combat_achievement_tier_reached",
+      data: { tierId: newTier },
     });
   }
 

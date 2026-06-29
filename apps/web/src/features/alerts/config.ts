@@ -20,7 +20,17 @@ export interface GlobalAlert {
  *   endDate: "2026-01-21",
  * }
  */
-export const ACTIVE_ALERTS: GlobalAlert[] = [];
+export const ACTIVE_ALERTS: GlobalAlert[] = [
+  {
+    id: "combat-achievement-tracking-2026-05",
+    type: "info",
+    title: "Improved Combat Achievement Tracking",
+    message:
+      "RuneProfile now tracks all combat achievement tasks individually, and calculates your tier based on points. Click the CA tab on a profile to see all tasks.",
+    startDate: "2026-05-14",
+    endDate: "2026-05-28",
+  },
+];
 
 export function getActiveAlerts(): GlobalAlert[] {
   const now = new Date();
