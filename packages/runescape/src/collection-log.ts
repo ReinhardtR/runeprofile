@@ -253,6 +253,10 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["leviathan", "levi", "lev"],
       },
       {
+        name: "Maggot King",
+        items: [33642, 33631, 33634],
+      },
+      {
         name: "Moons of Peril",
         items: [
           29004, 29007, 29010, 29000, 29013, 29016, 29019, 28988, 29022, 29025,
@@ -927,7 +931,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           19730, 12703, 13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665,
           21509, 13071, 23495, 23760, 23757, 24491, 25348, 25602, 26348, 26901,
           27352, 27590, 28246, 28250, 28248, 28252, 28801, 28960, 28962, 29836,
-          30152, 30154, 30622, 30888, 31130, 31283, 31285, 33124,
+          30152, 30154, 30622, 30888, 31130, 31283, 31285, 33124, 33642,
         ],
         aliases: ["all pets", "pets", "pet"],
       },
@@ -1148,6 +1152,10 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "TzHaar",
         items: [6568, 6524, 6528, 6523, 6525, 6526, 6522, 21298, 21301, 21304],
         aliases: ["tz haar", "tz", "tzh"],
+      },
+      {
+        name: "Venators",
+        items: [33663, 33661],
       },
       {
         name: "Miscellaneous",
@@ -2693,7 +2701,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   29684: "Guthixian temple teleport",
   29781: "Coagulated venom",
   29782: "Spider cave teleport",
-  29784: "Araxyte venom sack",
+  29784: "Araxyte venom sac",
   29786: "Jar of venom",
   29788: "Araxyte head",
   29790: "Noxious point",
@@ -2868,6 +2876,11 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   33143: "Ballistic attractor schematic",
   33382: "Immaculate mole skin",
   33423: "Bosun's workbench schematic",
+  33631: "Crimson kisten",
+  33634: "Elder venator fang",
+  33642: "Maggot marquess",
+  33661: "Venator fang",
+  33663: "Venator tooth",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
