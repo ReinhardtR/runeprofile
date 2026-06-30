@@ -13,7 +13,7 @@
     "update-quests": "tsx check-quests.ts --write"
   },
   "devDependencies": {
-    "@abextm/cache2": "^0.1.8",
+    "@abextm/cache2": "^0.1.9",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",

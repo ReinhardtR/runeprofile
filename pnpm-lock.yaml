@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@abextm/cache2@0.1.8':
-    hash: zieivuqjd6752rt2iwutrqc2zu
-    path: patches/@abextm__cache2@0.1.8.patch
-
 importers:
 
   .:
@@ -453,8 +448,8 @@ importers:
   scripts/ts-scripts:
     devDependencies:
       '@abextm/cache2':
-        specifier: ^0.1.8
-        version: 0.1.8(patch_hash=zieivuqjd6752rt2iwutrqc2zu)
+        specifier: ^0.1.9
+        version: 0.1.9
       '@runeprofile/runescape':
         specifier: workspace:*
         version: link:../../packages/runescape
@@ -473,8 +468,8 @@ importers:
 
 packages:
 
-  '@abextm/cache2@0.1.8':
-    resolution: {integrity: sha512-DjvkoNkuamimx9CCWYqWUnlVu8sqYZqYWjWjV1/13/JBYfMY2NUXoWNaZIP4DcR1KjojoYUGKkHsj5JMeHLLxA==}
+  '@abextm/cache2@0.1.9':
+    resolution: {integrity: sha512-+IkaOnwtRLQqafm3+ss8+86tz3hpXZwSeem7T018s2ZQ/Kyz19w89BCGBsga/dbcSw/A3al05dAnlDUGUhvwsQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -7740,7 +7735,7 @@ packages:
 
 snapshots:
 
-  '@abextm/cache2@0.1.8(patch_hash=zieivuqjd6752rt2iwutrqc2zu)':
+  '@abextm/cache2@0.1.9':
     dependencies:
       base64-arraybuffer-es6: 3.1.0
       fflate: 0.8.2
