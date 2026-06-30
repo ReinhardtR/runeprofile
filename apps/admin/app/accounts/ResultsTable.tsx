@@ -25,6 +25,7 @@ interface AccountRow {
   clanRank: number | null;
   clanIcon: number | null;
   clanTitle: string | null;
+  groupName: string | null;
   forceResync: boolean;
   updatedAt: string;
 }

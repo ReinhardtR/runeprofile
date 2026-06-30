@@ -68,6 +68,7 @@ export async function updateAccount(
     clanRank?: number | null;
     clanIcon?: number | null;
     clanTitle?: string | null;
+    groupName?: string | null;
     banned?: boolean;
   },
 ) {
@@ -141,6 +142,7 @@ export async function searchAccounts(q: string) {
     clanRank: accounts.clanRank,
     clanIcon: accounts.clanIcon,
     clanTitle: accounts.clanTitle,
+    groupName: accounts.groupName,
     forceResync: accounts.forceResync,
     updatedAt: accounts.updatedAt,
   };

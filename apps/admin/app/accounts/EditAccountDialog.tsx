@@ -27,6 +27,7 @@ interface Account {
   clanRank: number | null;
   clanIcon: number | null;
   clanTitle: string | null;
+  groupName: string | null;
 }
 
 export function EditAccountDialog({ account }: { account: Account }) {
@@ -41,6 +42,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
   const [clanRank, setClanRank] = useState(account.clanRank?.toString() || "");
   const [clanIcon, setClanIcon] = useState(account.clanIcon?.toString() || "");
   const [clanTitle, setClanTitle] = useState(account.clanTitle || "");
+  const [groupName, setGroupName] = useState(account.groupName || "");
 
   const handleClose = () => {
     setOpen(false);
@@ -52,6 +54,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
     setClanRank(account.clanRank?.toString() || "");
     setClanIcon(account.clanIcon?.toString() || "");
     setClanTitle(account.clanTitle || "");
+    setGroupName(account.groupName || "");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,6 +98,11 @@ export function EditAccountDialog({ account }: { account: Account }) {
       const newClanTitle = clanTitle.trim() || null;
       if (newClanTitle !== account.clanTitle) {
         updates.clanTitle = newClanTitle;
+      }
+
+      const newGroupName = groupName.trim() || null;
+      if (newGroupName !== account.groupName) {
+        updates.groupName = newGroupName;
       }
 
       // Only make the update if there are actual changes
@@ -196,6 +204,22 @@ export function EditAccountDialog({ account }: { account: Account }) {
                 placeholder="Enter clan title"
                 value={clanTitle}
                 onChange={(e) => setClanTitle(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Group Information</h4>
+
+            <div className="space-y-2">
+              <Label htmlFor="group-name">Group Name</Label>
+              <Input
+                id="group-name"
+                type="text"
+                placeholder="Enter group name"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
                 disabled={isLoading}
               />
             </div>
