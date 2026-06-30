@@ -90,6 +90,12 @@ async function checkClog() {
 
   const pagesWithChanges: PageChange[] = [];
 
+  // The cache's canonical page order for each tab (page names in game order).
+  // Used to insert new pages at the right index and to detect when existing
+  // pages have drifted out of order.
+  const tabPageOrder = new Map<string, string[]>();
+  const reorderedTabs: string[] = [];
+
   const newItems: Record<number, string> = {};
   const changedItemNames: Array<{
     id: number;
@@ -124,6 +130,9 @@ async function checkClog() {
 
     const existingTab = COLLECTION_LOG_TABS.find((tab) => tab.name === tabName);
 
+    // Page names in the cache's (game) order, collected as we walk the pages.
+    const expectedPageNames: string[] = [];
+
     const pageIds = [...tabValues.map.values()];
     for (const pageId of pageIds) {
       const pageStruct = await cache.Struct.load(provider, pageId);
@@ -153,6 +162,8 @@ async function checkClog() {
           `Failed to load collection log item IDs for enum ID: ${itemsEnum}`,
         );
       }
+
+      expectedPageNames.push(pageName as string);
 
       const itemIds = [...itemIdsEnum.map.values()];
 
@@ -263,10 +274,36 @@ async function checkClog() {
         }
       }
     }
+
+    // Record the cache's page order so writeChanges can lay the pages out
+    // correctly (new pages get inserted in the right place, not appended).
+    tabPageOrder.set(tabName as string, expectedPageNames);
+
+    // Detect a pure reordering of existing pages: compare the current file
+    // order against the cache order, restricted to pages present in both.
+    // (New pages are handled separately and would also trigger a reorder.)
+    if (existingTab) {
+      const currentNames = existingTab.pages.map((page) => page.name);
+      const currentInCache = currentNames.filter((name) =>
+        expectedPageNames.includes(name),
+      );
+      const expectedInFile = expectedPageNames.filter((name) =>
+        currentNames.includes(name),
+      );
+      const orderMatches =
+        currentInCache.length === expectedInFile.length &&
+        currentInCache.every((name, i) => name === expectedInFile[i]);
+
+      if (!orderMatches) {
+        console.log(`Collection log page order changed in tab ${tabName}`);
+        reorderedTabs.push(tabName as string);
+      }
+    }
   }
 
   const hasChanges =
     pagesWithChanges.length > 0 ||
+    reorderedTabs.length > 0 ||
     Object.keys(newItems).length > 0 ||
     changedItemNames.length > 0;
 
@@ -278,13 +315,20 @@ async function checkClog() {
   // Build change summary
   const summary = buildChangeSummary(
     pagesWithChanges,
+    reorderedTabs,
     newItems,
     changedItemNames,
   );
   console.log(summary);
 
   if (writeMode) {
-    writeChanges(pagesWithChanges, newItems, changedItemNames);
+    writeChanges(
+      pagesWithChanges,
+      tabPageOrder,
+      reorderedTabs,
+      newItems,
+      changedItemNames,
+    );
 
     // Write summary file for GitHub Actions
     const summaryPath = path.join("/tmp", "clog-changes-summary.txt");
@@ -299,6 +343,18 @@ async function checkClog() {
         console.log(JSON.stringify(page, null, 2) + ",");
         console.log("");
       }
+    }
+
+    if (reorderedTabs.length > 0) {
+      console.log("\n=== PAGES OUT OF ORDER ===\n");
+      console.log(
+        "// Re-run with --write to reorder pages to match the cache, or",
+      );
+      console.log("// fix the page order manually in these tabs:");
+      for (const tab of reorderedTabs) {
+        console.log(`//   - ${tab}: ${tabPageOrder.get(tab)?.join(", ")}`);
+      }
+      console.log("");
     }
 
     if (Object.keys(newItems).length > 0 || changedItemNames.length > 0) {
@@ -329,6 +385,7 @@ async function checkClog() {
 
 function buildChangeSummary(
   pagesWithChanges: PageChange[],
+  reorderedTabs: string[],
   newItems: Record<number, string>,
   changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
 ): string {
@@ -376,6 +433,19 @@ function buildChangeSummary(
     lines.push("");
   }
 
+  // Tabs whose pages were out of order (and not already listed above because
+  // of a new/updated page) — the write reorders them to match the cache.
+  const reorderedOnly = reorderedTabs.filter(
+    (tab) => !pagesWithChanges.some((p) => p.tab === tab),
+  );
+  if (reorderedOnly.length > 0) {
+    lines.push(`### Reordered Pages (${reorderedOnly.length})\n`);
+    for (const tab of reorderedOnly) {
+      lines.push(`- Pages reordered in tab *${tab}*`);
+    }
+    lines.push("");
+  }
+
   const newItemEntries = Object.entries(newItems).sort(
     ([a], [b]) => Number(a) - Number(b),
   );
@@ -401,6 +471,8 @@ function buildChangeSummary(
 
 function writeChanges(
   pagesWithChanges: PageChange[],
+  tabPageOrder: Map<string, string[]>,
+  reorderedTabs: string[],
   newItems: Record<number, string>,
   changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
 ) {
@@ -518,6 +590,79 @@ function writeChanges(
       if (!itemsProp.isKind(SyntaxKind.PropertyAssignment)) continue;
       const itemsStr = `[${page.items.join(", ")}]`;
       itemsProp.setInitializer(itemsStr);
+    }
+  }
+
+  // --- Reorder pages to match the cache's order ---
+  // Reorder any tab that drifted out of order or just had a new page appended,
+  // so new pages land in their correct position instead of at the end.
+  const tabsWithNewPages = pagesWithChanges
+    .filter((p) => p.isNew)
+    .map((p) => p.tab);
+  const tabsToReorder = [...new Set([...reorderedTabs, ...tabsWithNewPages])];
+
+  for (const tabName of tabsToReorder) {
+    const desiredOrder = tabPageOrder.get(tabName);
+    if (!desiredOrder) continue;
+
+    const tabElement = tabsArray.getElements().find((el) => {
+      if (!el.isKind(SyntaxKind.ObjectLiteralExpression)) return false;
+      const nameProp = el.getProperty("name");
+      if (!nameProp || !nameProp.isKind(SyntaxKind.PropertyAssignment))
+        return false;
+      return nameProp.getInitializer()?.getText() === `"${tabName}"`;
+    });
+
+    if (!tabElement || !tabElement.isKind(SyntaxKind.ObjectLiteralExpression)) {
+      console.warn(`Could not find tab "${tabName}" to reorder`);
+      continue;
+    }
+
+    const pagesProp = tabElement.getPropertyOrThrow("pages");
+    if (!pagesProp.isKind(SyntaxKind.PropertyAssignment)) continue;
+    const pagesArray = pagesProp.getInitializerIfKindOrThrow(
+      SyntaxKind.ArrayLiteralExpression,
+    );
+
+    // Capture each page element's source text keyed by its name.
+    const elements = pagesArray.getElements();
+    const textByName = new Map<string, string>();
+    const unknownTexts: string[] = []; // pages not in the cache order
+    for (const el of elements) {
+      let name: string | undefined;
+      if (el.isKind(SyntaxKind.ObjectLiteralExpression)) {
+        const nameProp = el.getProperty("name");
+        if (nameProp && nameProp.isKind(SyntaxKind.PropertyAssignment)) {
+          name = nameProp.getInitializer()?.getText().replace(/^"|"$/g, "");
+        }
+      }
+      if (name) textByName.set(name, el.getText());
+      else unknownTexts.push(el.getText());
+    }
+
+    // Rebuild the array: cache order first, then any pages not in the cache
+    // (kept at the end, preserving their relative order).
+    const orderedTexts: string[] = [];
+    for (const name of desiredOrder) {
+      const text = textByName.get(name);
+      if (text) {
+        orderedTexts.push(text);
+        textByName.delete(name);
+      }
+    }
+    orderedTexts.push(...textByName.values(), ...unknownTexts);
+
+    // Skip the rewrite if the order is already correct.
+    const alreadyOrdered =
+      orderedTexts.length === elements.length &&
+      orderedTexts.every((text, i) => text === elements[i].getText());
+    if (alreadyOrdered) continue;
+
+    for (let i = pagesArray.getElements().length - 1; i >= 0; i--) {
+      pagesArray.removeElement(i);
+    }
+    for (const text of orderedTexts) {
+      pagesArray.addElement(text);
     }
   }
 
