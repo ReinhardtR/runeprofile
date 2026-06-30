@@ -210,6 +210,7 @@ export const COMBAT_ACHIEVEMENT_BOSSES = [
   'Kraken',
   "Kree'arra",
   "K'ril Tsutsaroth",
+  'Maggot King',
   'Mimic',
   'Moons of Peril',
   'Nex',
