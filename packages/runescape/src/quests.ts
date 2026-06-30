@@ -82,6 +82,12 @@ export const QUESTS = [
     type: QuestType.MEMBERS,
   },
   { id: 9, name: "Biohazard", points: 3, type: QuestType.MEMBERS },
+  {
+    id: 16414,
+    name: "The Blood Moon Rises",
+    points: 4,
+    type: QuestType.MEMBERS,
+  },
   { id: 11, name: "Bone Voyage", points: 1, type: QuestType.MEMBERS },
   { id: 12, name: "Cabin Fever", points: 2, type: QuestType.MEMBERS },
   { id: 3450, name: "Children of the Sun", points: 1, type: QuestType.MEMBERS },
@@ -376,6 +382,4 @@ export const QUESTS = [
   { id: 90, name: "Mage Arena II", points: 0, type: QuestType.MINI },
   { id: 135, name: "Skippy and the Mogres", points: 0, type: QuestType.MINI },
   { id: 5194, name: "Vale Totems", points: 0, type: QuestType.MINI },
-  // Auto-detected new quests — verify points & type, then move into the correct section.
-  { id: 16414, name: "The Blood Moon Rises", points: 0, type: QuestType.MEMBERS }, // TODO: verify points & type
 ] as const satisfies Quest[];
