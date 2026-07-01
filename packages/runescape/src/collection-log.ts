@@ -255,6 +255,8 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Maggot King",
         items: [33642, 33631, 33634],
+        hiscore: { "Maggot King": "Maggot King kills" },
+        aliases: ["maggot"],
       },
       {
         name: "Moons of Peril",
