@@ -149,20 +149,43 @@ export function RuneScapeScrollArea({
 
   // ResizeObserver + scroll listener (stable — only depends on refs)
   React.useEffect(() => {
-    if (!contentRef.current) return;
+    const content = contentRef.current;
+    if (!content) return;
 
     const resizeObserver = new ResizeObserver(() => {
       calculateThumb();
     });
 
-    resizeObserver.observe(contentRef.current);
+    resizeObserver.observe(content);
     if (scrollTrackRef.current) resizeObserver.observe(scrollTrackRef.current);
 
-    contentRef.current.addEventListener("scroll", updateThumbPosition);
+    // Also observe the scrollable content itself. The container has a fixed
+    // height, so growing/shrinking the content (e.g. a virtualized list whose
+    // total size changes when filters change) never resizes the container —
+    // only its children. Observing them keeps the thumb size in sync without
+    // waiting for a scroll event. A MutationObserver re-syncs the observed
+    // children when the content swaps them out (e.g. empty ↔ populated list).
+    const observedChildren = new Set<Element>();
+    const syncChildren = () => {
+      for (const child of Array.from(content.children)) {
+        if (!observedChildren.has(child)) {
+          resizeObserver.observe(child);
+          observedChildren.add(child);
+        }
+      }
+      calculateThumb();
+    };
+    syncChildren();
+
+    const mutationObserver = new MutationObserver(syncChildren);
+    mutationObserver.observe(content, { childList: true });
+
+    content.addEventListener("scroll", updateThumbPosition);
 
     return () => {
       resizeObserver.disconnect();
-      contentRef.current?.removeEventListener("scroll", updateThumbPosition);
+      mutationObserver.disconnect();
+      content.removeEventListener("scroll", updateThumbPosition);
     };
   }, [calculateThumb]);
 
