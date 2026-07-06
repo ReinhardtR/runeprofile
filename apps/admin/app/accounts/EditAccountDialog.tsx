@@ -140,16 +140,31 @@ export function EditAccountDialog({ account }: { account: Account }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-                setError("");
-              }}
-              disabled={isLoading}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setError("");
+                }}
+                disabled={isLoading}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+                onClick={() => {
+                  setUsername(
+                    `archive_${Math.floor(Math.random() * 9000) + 1000}`,
+                  );
+                  setError("");
+                }}
+              >
+                Archive
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4">
