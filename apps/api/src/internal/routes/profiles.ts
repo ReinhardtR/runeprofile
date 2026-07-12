@@ -54,6 +54,40 @@ export const profilesRouter = newRouter()
     return c.json(profiles, STATUS.OK);
   })
   .get(
+    "/accounts/:id",
+    validator("param", z.object({ id: accountIdSchema })),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id } = c.req.valid("param");
+
+      const account = await db.query.accounts.findFirst({
+        where: eq(accounts.id, id),
+        columns: {
+          username: true,
+          accountType: true,
+          clanName: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!account) {
+        throw RuneProfileAccountNotFoundError;
+      }
+
+      return c.json(
+        {
+          username: account.username,
+          accountType: AccountTypes[account.accountType]?.name ?? "Normal",
+          clanName: account.clanName,
+          createdAt: account.createdAt,
+          updatedAt: account.updatedAt,
+        },
+        STATUS.OK,
+      );
+    },
+  )
+  .get(
     "/accounts/:id/activities",
     validator("param", z.object({ id: accountIdSchema })),
     validator(
