@@ -215,8 +215,11 @@ export const profilesRouter = newRouter()
 
       console.log({ EventSource: data.eventSource ?? "unknown", Data: data });
 
+      let created = false;
+
       try {
         const updates = await getProfileUpdates(db, kv, data);
+        created = updates.currentProfile === null;
         const activities = updates.forceResync
           ? []
           : checkActivityEvents(updates);
@@ -273,7 +276,7 @@ export const profilesRouter = newRouter()
         throw error;
       }
 
-      return c.json({ message: "Profile updated" }, STATUS.OK);
+      return c.json({ message: "Profile updated", created }, STATUS.OK);
     },
   )
   .post(
