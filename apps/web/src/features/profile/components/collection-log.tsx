@@ -40,6 +40,7 @@ import {
 } from "~/shared/components/ui/tooltip";
 import {
   cn,
+  formatRelativeTime,
   getCollectionLogRankIcon,
   numberWithDelimiter,
 } from "~/shared/utils";
@@ -53,6 +54,7 @@ export function CollectionLog({
   mode = "single",
   itemDistribution,
   killCountDistribution,
+  accountCreatedAt,
 }: {
   username?: string;
   page: string;
@@ -62,6 +64,7 @@ export function CollectionLog({
   mode?: "single" | "group";
   itemDistribution?: Map<number, { username: string; quantity: number }[]>;
   killCountDistribution?: Map<string, { username: string; count: number }[]>;
+  accountCreatedAt?: string;
 }) {
   const [isPageSelectOpen, setIsPageSelectOpen] = React.useState(false);
 
@@ -87,14 +90,30 @@ export function CollectionLog({
     }
   }
 
-  const items: { id: number; name: string; quantity: number }[] = [];
+  const IMPORT_BUFFER_MS = 3_600_000;
+  const accountCreatedAtMs = accountCreatedAt
+    ? new Date(accountCreatedAt).getTime()
+    : 0;
+
+  const items: {
+    id: number;
+    name: string;
+    quantity: number;
+    createdAt?: string;
+  }[] = [];
   for (const id of COLLECTION_LOG_ITEM_IDS) {
     const itemData = data.find((i) => i.id === id);
     const name = COLLECTION_LOG_ITEMS[id] ?? "Unknown";
+    const createdAt = itemData?.createdAt;
+    const isLikelyBulkImport =
+      !!createdAt &&
+      !!accountCreatedAt &&
+      new Date(createdAt).getTime() - accountCreatedAtMs < IMPORT_BUFFER_MS;
     items.push({
       id,
       name,
       quantity: itemData?.quantity || 0,
+      createdAt: !isLikelyBulkImport ? createdAt : undefined,
     });
   }
 
@@ -296,6 +315,7 @@ export function CollectionLog({
                         name={item.name}
                         quantity={item.quantity}
                         distribution={distribution}
+                        obtainedAt={item.createdAt}
                       />
                     ) : null;
                   })}
@@ -376,6 +396,7 @@ export function CollectionLog({
                 name={item.name}
                 quantity={item.quantity}
                 distribution={distribution}
+                obtainedAt={item.createdAt}
               />
             ) : null;
           })}
@@ -390,12 +411,14 @@ function CollectionLogItem({
   name,
   quantity,
   distribution,
+  obtainedAt,
   className,
 }: {
   id: number;
   name: string;
   quantity: number;
   distribution?: { username: string; quantity: number }[];
+  obtainedAt?: string;
   className?: string;
 }) {
   const wikiUrlName = name.replaceAll(" ", "_");
@@ -424,9 +447,28 @@ function CollectionLogItem({
           </div>
         </React.Fragment>
       ))}
+      {obtainedAt && (
+        <>
+          <Separator className="my-1" />
+          <p className="text-xs text-muted-foreground mt-1">
+            {quantity > 1
+              ? `Last obtained ${formatRelativeTime(obtainedAt)}`
+              : formatRelativeTime(obtainedAt)}
+          </p>
+        </>
+      )}
     </div>
   ) : (
-    <p className="font-semibold text-sm">{name}</p>
+    <div>
+      <p className="font-semibold text-sm">{name}</p>
+      {obtainedAt && (
+        <p className="text-xs text-muted-foreground mt-1">
+          {quantity > 1
+            ? `Last obtained ${formatRelativeTime(obtainedAt)}`
+            : formatRelativeTime(obtainedAt)}
+        </p>
+      )}
+    </div>
   );
 
   return (
