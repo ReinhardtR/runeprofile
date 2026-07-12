@@ -8,6 +8,8 @@ import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 import { sendActivityMessages } from "~/internal/discord/messages/send";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
+import { deleteActivity } from "~/lib/activity-log/delete-activity";
+import { getActivities } from "~/lib/activity-log/get-activities";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
@@ -33,7 +35,14 @@ import { searchProfiles } from "~/lib/profiles/search-profiles";
 import { setDefaultClogPage } from "~/lib/profiles/set-default-clog-page";
 import { updateProfile } from "~/lib/profiles/update-profile";
 import { STATUS } from "~/lib/status";
-import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
+import {
+  accountIdSchema,
+  activityTypesSchema,
+  cursorSchema,
+  limitSchema,
+  usernameSchema,
+  validator,
+} from "~/lib/validation";
 
 export const profilesRouter = newRouter()
   .get("/", validator("query", z.object({ q: z.string() })), async (c) => {
@@ -44,6 +53,50 @@ export const profilesRouter = newRouter()
 
     return c.json(profiles, STATUS.OK);
   })
+  .get(
+    "/accounts/:id/activities",
+    validator("param", z.object({ id: accountIdSchema })),
+    validator(
+      "query",
+      z.object({
+        activityTypes: activityTypesSchema,
+        limit: limitSchema,
+        cursor: cursorSchema,
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id } = c.req.valid("param");
+      const { activityTypes, limit, cursor } = c.req.valid("query");
+
+      const result = await getActivities(db, {
+        accountId: id,
+        activityTypes,
+        limit,
+        cursor,
+      });
+
+      return c.json(result, STATUS.OK);
+    },
+  )
+  .delete(
+    "/accounts/:id/activities/:activityId",
+    validator(
+      "param",
+      z.object({
+        id: accountIdSchema,
+        activityId: z.string().uuid(),
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id, activityId } = c.req.valid("param");
+
+      await deleteActivity(db, { accountId: id, activityId });
+
+      return c.json({ message: "Activity deleted successfully" }, STATUS.OK);
+    },
+  )
   .get(
     "/:username",
     validator("param", z.object({ username: usernameSchema })),
