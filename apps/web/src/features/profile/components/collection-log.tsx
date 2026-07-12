@@ -452,7 +452,7 @@ function CollectionLogItem({
           <Separator className="my-1" />
           <p className="text-xs text-muted-foreground mt-1">
             {quantity > 1
-              ? `Last obtained ${formatRelativeTime(obtainedAt)}`
+              ? `First obtained ${formatRelativeTime(obtainedAt)}`
               : formatRelativeTime(obtainedAt)}
           </p>
         </>
@@ -464,7 +464,7 @@ function CollectionLogItem({
       {obtainedAt && (
         <p className="text-xs text-muted-foreground mt-1">
           {quantity > 1
-            ? `Last obtained ${formatRelativeTime(obtainedAt)}`
+            ? `First obtained ${formatRelativeTime(obtainedAt)}`
             : formatRelativeTime(obtainedAt)}
         </p>
       )}
