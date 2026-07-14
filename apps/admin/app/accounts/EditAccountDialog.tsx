@@ -1,6 +1,7 @@
 "use client";
 
 import { updateAccount } from "@/app/accounts/actions";
+import { placeholderUsername } from "@runeprofile/runescape";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -156,9 +157,12 @@ export function EditAccountDialog({ account }: { account: Account }) {
                 variant="outline"
                 disabled={isLoading}
                 onClick={() => {
-                  setUsername(
-                    `archive_${Math.floor(Math.random() * 9000) + 1000}`,
-                  );
+                  setUsername(placeholderUsername());
+                  setClanName("");
+                  setClanRank("");
+                  setClanIcon("");
+                  setClanTitle("");
+                  setGroupName("");
                   setError("");
                 }}
               >

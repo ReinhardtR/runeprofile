@@ -10,6 +10,7 @@ export const accounts = t.pgTable(
   (t) => ({
     id: t.text().notNull().primaryKey(),
     username: t.text().notNull(),
+    pendingUsername: t.text(),
     accountType: t.integer().notNull(),
     banned: t.boolean().notNull().default(false),
     clanName: t.text(),
@@ -24,6 +25,9 @@ export const accounts = t.pgTable(
   }),
   (table) => [
     t.uniqueIndex("accounts_username_unique_index").on(lower(table.username)),
+    t
+      .index("accounts_pending_username_index")
+      .on(lower(table.pendingUsername)),
     t.index("accounts_clan_name_index").on(lower(table.clanName)),
     t.index("accounts_clan_name_id_index").on(lower(table.clanName), table.id),
     t.index("accounts_group_name_index").on(lower(table.groupName)),

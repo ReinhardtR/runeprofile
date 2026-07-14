@@ -31,6 +31,11 @@ import {
 } from "~/lib/profiles/diff-cache";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
 import { getProfileUpdates } from "~/lib/profiles/get-profile-updates";
+import {
+  cascadeFreedName,
+  isUsernameUniqueViolation,
+  resolveUsername,
+} from "~/lib/profiles/resolve-username";
 import { searchProfiles } from "~/lib/profiles/search-profiles";
 import { setDefaultClogPage } from "~/lib/profiles/set-default-clog-page";
 import { updateProfile } from "~/lib/profiles/update-profile";
@@ -217,9 +222,18 @@ export const profilesRouter = newRouter()
 
       let created = false;
 
-      try {
-        const updates = await getProfileUpdates(db, kv, data);
-        created = updates.currentProfile === null;
+      const runUpdate = async () => {
+        const profileUpdates = await getProfileUpdates(db, kv, data);
+        const resolution = await resolveUsername(db, bucket, kv, {
+          id: data.id,
+          reportedUsername: data.username,
+          currentUsername: profileUpdates.currentProfile?.username ?? null,
+        });
+        const updates = {
+          ...profileUpdates,
+          username: resolution.username,
+          pendingUsername: resolution.pendingUsername,
+        };
         const activities = updates.forceResync
           ? []
           : checkActivityEvents(updates);
@@ -229,6 +243,33 @@ export const profilesRouter = newRouter()
           updates,
           activities,
         );
+        return { updates, resolution, activities, updatedAt };
+      };
+
+      try {
+        let result;
+        try {
+          result = await runUpdate();
+        } catch (error) {
+          if (!isUsernameUniqueViolation(error)) throw error;
+          // Lost a race for the name to a concurrent request — re-resolve
+          // against fresh state, which parks the name as pending instead.
+          console.log("Username conflict race detected, retrying update");
+          await deleteDiffProfileCache(kv, data.id);
+          result = await runUpdate();
+        }
+        const { updates, resolution, activities, updatedAt } = result;
+        created = updates.currentProfile === null;
+
+        // Grant the name this profile moved off of to any row waiting on it
+        if (resolution.freedName) {
+          const freedName = resolution.freedName;
+          c.executionCtx.waitUntil(
+            cascadeFreedName(db, bucket, kv, freedName).catch((err) => {
+              console.error("Failed to cascade freed name:", err);
+            }),
+          );
+        }
 
         // Update diff cache after successful write
         c.executionCtx.waitUntil(
@@ -265,7 +306,7 @@ export const profilesRouter = newRouter()
               discordApplicationId: c.env.DISCORD_APPLICATION_ID,
               activities,
               accountId: data.id,
-              rsn: data.username,
+              rsn: updates.username,
               accountType: AccountTypes[data.accountType],
               clanName: data.clan?.name ?? null,
             }),
