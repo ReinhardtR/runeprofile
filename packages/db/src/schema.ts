@@ -77,10 +77,7 @@ export const combatAchievementTiers = t.pgTable(
     id: t.integer().notNull(),
     completedCount: t.integer().notNull(),
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.id] }),
-    t.index("combat_achievement_tiers_account_id_index").on(table.accountId),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
 );
 export const combatAchievementTiersRelations = relations(
   combatAchievementTiers,
@@ -117,10 +114,7 @@ export const items = t.pgTable(
     quantity: t.integer().notNull(),
     createdAt,
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.id] }),
-    t.index("items_account_id_index").on(table.accountId),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
 );
 export const itemsRelations = relations(items, ({ one }) => ({
   account: one(accounts, {
@@ -136,10 +130,7 @@ export const quests = t.pgTable(
     id: t.integer().notNull(),
     state: t.integer().notNull(),
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.id] }),
-    t.index("quests_account_id_index").on(table.accountId),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
 );
 export const questsRelations = relations(quests, ({ one }) => ({
   account: one(accounts, {
@@ -155,10 +146,7 @@ export const skills = t.pgTable(
     name: t.text().notNull(),
     xp: t.integer().notNull(),
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.name] }),
-    t.index("skills_account_id_index").on(table.accountId),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.name] })],
 );
 export const skillsRelations = relations(skills, ({ one }) => ({
   account: one(accounts, {
@@ -177,7 +165,6 @@ export const activities = t.pgTable(
     createdAt,
   },
   (table) => [
-    t.index("activities_account_id_index").on(table.accountId),
     t
       .index("activities_account_id_created_at_id_desc_index")
       .on(table.accountId, table.createdAt.desc(), table.id.desc()),
@@ -259,7 +246,6 @@ export const discordWatches = t.pgTable(
     t
       .uniqueIndex("discord_watches_channel_target_unique_index")
       .on(table.channelId, table.targetType, table.targetId),
-    t.index("discord_watches_channel_index").on(table.channelId),
     t
       .index("discord_watches_target_index")
       .on(table.targetType, table.targetId),
@@ -287,7 +273,6 @@ export const discordWatchFilters = t.pgTable(
     t
       .uniqueIndex("discord_watch_filters_channel_activity_unique_index")
       .on(table.channelId, table.activityType),
-    t.index("discord_watch_filters_channel_index").on(table.channelId),
   ],
 );
 
