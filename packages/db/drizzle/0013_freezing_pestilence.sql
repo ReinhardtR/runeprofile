@@ -1,0 +1,1 @@
+DROP INDEX "achievement_diary_tiers_account_id_index";

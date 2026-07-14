@@ -58,7 +58,6 @@ export const achievementDiaryTiers = t.pgTable(
   },
   (table) => [
     t.primaryKey({ columns: [table.accountId, table.areaId, table.tier] }),
-    t.index("achievement_diary_tiers_account_id_index").on(table.accountId),
   ],
 );
 export const achievementDiariesRelations = relations(
