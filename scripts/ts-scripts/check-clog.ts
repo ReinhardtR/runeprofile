@@ -96,6 +96,10 @@ async function checkClog() {
   const tabPageOrder = new Map<string, string[]>();
   const reorderedTabs: string[] = [];
 
+  // Pages present in the file but gone from the cache (e.g. a page that was
+  // merged away or renamed upstream). These get deleted from the file.
+  const removedPages: Array<{ tab: string; pageName: string }> = [];
+
   const newItems: Record<number, string> = {};
   const changedItemNames: Array<{
     id: number;
@@ -279,6 +283,20 @@ async function checkClog() {
     // correctly (new pages get inserted in the right place, not appended).
     tabPageOrder.set(tabName as string, expectedPageNames);
 
+    // Detect pages that exist in the file but are no longer in the cache.
+    // These are removed from the file so stale pages (e.g. Venators) don't
+    // linger after being dropped upstream.
+    if (existingTab) {
+      for (const page of existingTab.pages) {
+        if (!expectedPageNames.includes(page.name)) {
+          console.log(
+            `Collection log page removed: ${page.name} in tab ${tabName}`,
+          );
+          removedPages.push({ tab: tabName as string, pageName: page.name });
+        }
+      }
+    }
+
     // Detect a pure reordering of existing pages: compare the current file
     // order against the cache order, restricted to pages present in both.
     // (New pages are handled separately and would also trigger a reorder.)
@@ -304,6 +322,7 @@ async function checkClog() {
   const hasChanges =
     pagesWithChanges.length > 0 ||
     reorderedTabs.length > 0 ||
+    removedPages.length > 0 ||
     Object.keys(newItems).length > 0 ||
     changedItemNames.length > 0;
 
@@ -316,6 +335,7 @@ async function checkClog() {
   const summary = buildChangeSummary(
     pagesWithChanges,
     reorderedTabs,
+    removedPages,
     newItems,
     changedItemNames,
   );
@@ -326,6 +346,7 @@ async function checkClog() {
       pagesWithChanges,
       tabPageOrder,
       reorderedTabs,
+      removedPages,
       newItems,
       changedItemNames,
     );
@@ -343,6 +364,16 @@ async function checkClog() {
         console.log(JSON.stringify(page, null, 2) + ",");
         console.log("");
       }
+    }
+
+    if (removedPages.length > 0) {
+      console.log("\n=== REMOVED PAGES ===\n");
+      console.log("// Re-run with --write to delete these stale pages, or");
+      console.log("// remove them manually from COLLECTION_LOG_TABS:");
+      for (const { tab, pageName } of removedPages) {
+        console.log(`//   - ${pageName} (tab: ${tab})`);
+      }
+      console.log("");
     }
 
     if (reorderedTabs.length > 0) {
@@ -386,6 +417,7 @@ async function checkClog() {
 function buildChangeSummary(
   pagesWithChanges: PageChange[],
   reorderedTabs: string[],
+  removedPages: Array<{ tab: string; pageName: string }>,
   newItems: Record<number, string>,
   changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
 ): string {
@@ -433,6 +465,17 @@ function buildChangeSummary(
     lines.push("");
   }
 
+  if (removedPages.length > 0) {
+    lines.push(`### Removed Pages (${removedPages.length})\n`);
+    for (const { tab, pageName } of removedPages) {
+      lines.push(`- **${pageName}** in tab *${tab}*`);
+    }
+    lines.push("");
+    lines.push(
+      "> **Note:** These pages are gone from the cache and have been deleted. Their items remain in `COLLECTION_LOG_ITEMS` in case they are shared with other pages — remove any now-orphaned entries manually.\n",
+    );
+  }
+
   // Tabs whose pages were out of order (and not already listed above because
   // of a new/updated page) — the write reorders them to match the cache.
   const reorderedOnly = reorderedTabs.filter(
@@ -473,6 +516,7 @@ function writeChanges(
   pagesWithChanges: PageChange[],
   tabPageOrder: Map<string, string[]>,
   reorderedTabs: string[],
+  removedPages: Array<{ tab: string; pageName: string }>,
   newItems: Record<number, string>,
   changedItemNames: Array<{ id: number; oldName: string; newName: string }>,
 ) {
@@ -591,6 +635,43 @@ function writeChanges(
       const itemsStr = `[${page.items.join(", ")}]`;
       itemsProp.setInitializer(itemsStr);
     }
+  }
+
+  // --- Remove pages no longer in the cache ---
+  for (const { tab: tabName, pageName } of removedPages) {
+    const tabElement = tabsArray.getElements().find((el) => {
+      if (!el.isKind(SyntaxKind.ObjectLiteralExpression)) return false;
+      const nameProp = el.getProperty("name");
+      if (!nameProp || !nameProp.isKind(SyntaxKind.PropertyAssignment))
+        return false;
+      return nameProp.getInitializer()?.getText() === `"${tabName}"`;
+    });
+
+    if (!tabElement || !tabElement.isKind(SyntaxKind.ObjectLiteralExpression)) {
+      console.warn(`Could not find tab "${tabName}" to remove page from`);
+      continue;
+    }
+
+    const pagesProp = tabElement.getPropertyOrThrow("pages");
+    if (!pagesProp.isKind(SyntaxKind.PropertyAssignment)) continue;
+    const pagesArray = pagesProp.getInitializerIfKindOrThrow(
+      SyntaxKind.ArrayLiteralExpression,
+    );
+
+    const pageIndex = pagesArray.getElements().findIndex((el) => {
+      if (!el.isKind(SyntaxKind.ObjectLiteralExpression)) return false;
+      const nameProp = el.getProperty("name");
+      if (!nameProp || !nameProp.isKind(SyntaxKind.PropertyAssignment))
+        return false;
+      return nameProp.getInitializer()?.getText() === `"${pageName}"`;
+    });
+
+    if (pageIndex === -1) {
+      console.warn(`Could not find page "${pageName}" in tab "${tabName}"`);
+      continue;
+    }
+
+    pagesArray.removeElement(pageIndex);
   }
 
   // --- Reorder pages to match the cache's order ---
