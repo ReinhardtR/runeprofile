@@ -19,6 +19,7 @@ import {
 } from "@runeprofile/runescape";
 
 import {
+  buildActivityUrl,
   buildPlayerTitle,
   getAchievementDiaryIconUrl,
   getCombatAchievementIconUrl,
@@ -38,7 +39,8 @@ export function createActivityEmbed(params: {
   accountType?: AccountType;
 }): Embed {
   const { discordApplicationId, activity, rsn, accountType } = params;
-  const common = { discordApplicationId, rsn, accountType };
+  const url = buildActivityUrl({ rsn, activity });
+  const common = { discordApplicationId, rsn, accountType, url };
 
   switch (activity.type) {
     case "new_item_obtained":
@@ -67,16 +69,18 @@ type EmbedParams<T> = {
   event: T;
   rsn: string;
   accountType?: AccountType;
+  url: string;
 };
 
 function createNewItemObtainedEmbed(
   params: EmbedParams<NewItemObtainedEvent>,
 ): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const itemName = getItemName(event.data.itemId);
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(`**${itemName}**`)
     .thumbnail({ url: getItemIconUrl(event.data.itemId) })
     .footer({ text: "Collection Log" })
@@ -86,7 +90,7 @@ function createNewItemObtainedEmbed(
 function createValuableDropEmbed(
   params: EmbedParams<ValuableDropEvent>,
 ): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const { itemId, value } = event.data;
 
   const color =
@@ -96,6 +100,7 @@ function createValuableDropEmbed(
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(`**${numberWithDelimiter(value)} gp**`)
     .thumbnail({ url: getItemIconUrl(itemId) })
     .footer({ text: "Valuable Drop" })
@@ -103,11 +108,12 @@ function createValuableDropEmbed(
 }
 
 function createLevelUpEmbed(params: EmbedParams<LevelUpEvent>): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const { name, level } = event.data;
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(`Reached level **${level}** in **${name}**`)
     .thumbnail({ url: getSkillIconUrl(name) })
     .footer({ text: "Level Up" })
@@ -115,11 +121,12 @@ function createLevelUpEmbed(params: EmbedParams<LevelUpEvent>): Embed {
 }
 
 function createXpMilestoneEmbed(params: EmbedParams<XpMilestoneEvent>): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const { name, xp } = event.data;
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(`Reached **${numberWithAbbreviation(xp)} XP** in **${name}**`)
     .thumbnail({ url: getSkillIconUrl(name) })
     .footer({ text: "XP Milestone" })
@@ -129,11 +136,12 @@ function createXpMilestoneEmbed(params: EmbedParams<XpMilestoneEvent>): Embed {
 function createQuestCompletedEmbed(
   params: EmbedParams<QuestCompletedEvent>,
 ): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const quest = getQuestById(event.data.questId);
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(`Completed **${quest?.name ?? "Unknown Quest"}**`)
     .thumbnail({ url: getQuestIconUrl() })
     .footer({ text: "Quest" })
@@ -143,12 +151,13 @@ function createQuestCompletedEmbed(
 function createAchievementDiaryEmbed(
   params: EmbedParams<AchievementDiaryTierCompletedEvent>,
 ): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const areaName = getAchievementDiaryAreaName(event.data.areaId) ?? "Unknown";
   const tierName = getAchievementDiaryTierName(event.data.tier) ?? "Unknown";
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(`Completed the **${tierName}** diary in **${areaName}**`)
     .thumbnail({ url: getAchievementDiaryIconUrl() })
     .footer({ text: "Achievement Diary" })
@@ -160,7 +169,7 @@ function createCombatAchievementEmbed(
     CombatAchievementTierCompletedEvent | CombatAchievementTierReachedEvent
   >,
 ): Embed {
-  const { discordApplicationId, event, rsn, accountType } = params;
+  const { discordApplicationId, event, rsn, accountType, url } = params;
   const tierName = getCombatAchievementTierName(event.data.tierId) ?? "Unknown";
   const isReached = event.type === "combat_achievement_tier_reached";
 
@@ -170,6 +179,7 @@ function createCombatAchievementEmbed(
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description(description)
     .thumbnail({ url: getCombatAchievementIconUrl(tierName) })
     .footer({ text: "Combat Achievement Tier" })
@@ -177,10 +187,11 @@ function createCombatAchievementEmbed(
 }
 
 function createMaxedEmbed(params: EmbedParams<MaxedEvent>): Embed {
-  const { discordApplicationId, rsn, accountType } = params;
+  const { discordApplicationId, rsn, accountType, url } = params;
 
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
     .description("Has **Maxed** all skills! 🎉")
     .thumbnail({ url: getMaxCapeIconUrl() })
     .footer({ text: "Maxed" })
