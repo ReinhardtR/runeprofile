@@ -44,6 +44,30 @@ export const DirectionQuery = z
     description: "Pagination direction relative to cursor",
   });
 
+export const FromQuery = z.coerce
+  .date()
+  .optional()
+  .openapi({
+    param: { name: "from", in: "query" },
+    type: "string",
+    format: "date-time",
+    example: "2026-06-01T00:00:00Z",
+    description:
+      "Only include activities at or after this time (inclusive). ISO 8601.",
+  });
+
+export const ToQuery = z.coerce
+  .date()
+  .optional()
+  .openapi({
+    param: { name: "to", in: "query" },
+    type: "string",
+    format: "date-time",
+    example: "2026-06-19T00:00:00Z",
+    description:
+      "Only include activities at or before this time (inclusive). ISO 8601.",
+  });
+
 export const AccountTypeSchema = z
   .object({
     id: z.number(),

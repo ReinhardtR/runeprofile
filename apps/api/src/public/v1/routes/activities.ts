@@ -1,5 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { SQL, and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { SQL, and, asc, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 
 import { accounts, activities, lower } from "@runeprofile/db";
 import { drizzle } from "@runeprofile/db";
@@ -19,8 +19,10 @@ import {
   CursorQuery,
   DirectionQuery,
   ErrorSchema,
+  FromQuery,
   InternalErrorResponse,
   RateLimitResponse,
+  ToQuery,
   UsernameParam,
 } from "../schemas/shared";
 import { CACHE_HEADER, enrichActivity } from "../shared";
@@ -81,6 +83,8 @@ const getActivitiesRoute = createRoute({
       direction: DirectionQuery,
       limit: LimitQuery,
       activityTypes: ActivityTypesQuery,
+      from: FromQuery,
+      to: ToQuery,
     }),
   },
   responses: {
@@ -107,6 +111,8 @@ export const activitiesRouter = createV1App().openapi(
       direction,
       limit,
       activityTypes,
+      from,
+      to,
     } = c.req.valid("query");
     const db = drizzle(c.env.HYPERDRIVE);
 
@@ -129,6 +135,14 @@ export const activitiesRouter = createV1App().openapi(
 
     if (activityTypes && activityTypes.length > 0) {
       conditions.push(inArray(activities.type, activityTypes));
+    }
+
+    if (from) {
+      conditions.push(gte(activities.createdAt, from.toISOString()));
+    }
+
+    if (to) {
+      conditions.push(lte(activities.createdAt, to.toISOString()));
     }
 
     let cursorCondition: SQL | undefined;
