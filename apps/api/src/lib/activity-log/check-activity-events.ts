@@ -106,6 +106,10 @@ export function checkXpMilestoneEvents(skillUpdates: ProfileUpdates["skills"]) {
   return events;
 }
 
+// NOTE: mirrored on the client in getBulkImportTimestamps
+// (apps/web/src/features/profile/components/collection-log.tsx) so that
+// displayed obtained dates match the activities recorded here. Keep both in
+// sync if these thresholds change.
 const LATE_CLOG_INIT_MIN_CURRENT_THRESHOLD = 10;
 const LATE_CLOG_INIT_MAX_NEW_THRESHOLD = 10;
 export function checkNewItemObtainedEvents(

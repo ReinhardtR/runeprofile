@@ -173,8 +173,6 @@ export function ProfileContent({
     search["ca-panel"] === "cas" ||
     (search["ca-panel"] == null && activeTab === "cas");
 
-  const accountCreatedAt = profile.createdAt;
-
   const clogRankIcon = React.useMemo(() => {
     const obtainedCount = COLLECTION_LOG_ITEM_IDS.filter((id) =>
       profile.items.some((item) => item.id === id && item.quantity > 0),
@@ -259,7 +257,6 @@ export function ProfileContent({
                 })
               }
               data={profile.items}
-              accountCreatedAt={accountCreatedAt}
             />
           )}
           <button

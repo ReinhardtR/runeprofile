@@ -45,6 +45,50 @@ import {
   numberWithDelimiter,
 } from "~/shared/utils";
 
+// Kept in sync with checkNewItemObtainedEvents in the API
+// (apps/api/src/lib/activity-log/check-activity-events.ts): a sync batch is a
+// "late clog init" — items imported wholesale rather than genuinely obtained —
+// only when the profile had almost no items before it AND the batch itself is
+// large. Both sides must use the same values so the displayed obtained dates
+// match the activities the server actually recorded.
+const LATE_CLOG_INIT_MIN_CURRENT_THRESHOLD = 10;
+const LATE_CLOG_INIT_MAX_NEW_THRESHOLD = 10;
+
+// Returns the timestamps of bulk collection log imports. A bulk sync writes
+// every item in one transaction, so each distinct `createdAt` is one sync
+// batch. Walking batches oldest-first reconstructs the API's per-update view
+// (currentItems.length / itemUpdates.length) and flags a batch as an import
+// only when the profile was near-empty before it — so a large catch-up sync on
+// an established account is still treated as genuine obtains, not an import.
+function getBulkImportTimestamps(items: Profile["items"]) {
+  const batchSizeByCreatedAt = new Map<string, number>();
+  for (const item of items) {
+    if (!item.createdAt) continue;
+    batchSizeByCreatedAt.set(
+      item.createdAt,
+      (batchSizeByCreatedAt.get(item.createdAt) ?? 0) + 1,
+    );
+  }
+
+  const batches = [...batchSizeByCreatedAt.entries()].sort(([a], [b]) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  );
+
+  const bulkImportTimestamps = new Set<string>();
+  let currentItemCount = 0;
+  for (const [createdAt, batchSize] of batches) {
+    const isLateClogInit =
+      currentItemCount < LATE_CLOG_INIT_MIN_CURRENT_THRESHOLD &&
+      batchSize > LATE_CLOG_INIT_MAX_NEW_THRESHOLD;
+    if (isLateClogInit) {
+      bulkImportTimestamps.add(createdAt);
+    }
+    currentItemCount += batchSize;
+  }
+
+  return bulkImportTimestamps;
+}
+
 export function CollectionLog({
   username,
   page,
@@ -54,7 +98,6 @@ export function CollectionLog({
   mode = "single",
   itemDistribution,
   killCountDistribution,
-  accountCreatedAt,
 }: {
   username?: string;
   page: string;
@@ -64,7 +107,6 @@ export function CollectionLog({
   mode?: "single" | "group";
   itemDistribution?: Map<number, { username: string; quantity: number }[]>;
   killCountDistribution?: Map<string, { username: string; count: number }[]>;
-  accountCreatedAt?: string;
 }) {
   const [isPageSelectOpen, setIsPageSelectOpen] = React.useState(false);
 
@@ -90,30 +132,31 @@ export function CollectionLog({
     }
   }
 
-  const IMPORT_BUFFER_MS = 3_600_000;
-  const accountCreatedAtMs = accountCreatedAt
-    ? new Date(accountCreatedAt).getTime()
-    : 0;
+  // A bulk collection log sync writes every already-obtained item in a single
+  // transaction, so they all share the exact same `createdAt`. Any item stamped
+  // with such a shared instant is treated as imported (no date), while items
+  // with their own timestamp are genuine obtains — regardless of whether they
+  // landed before or after the bulk import. Group mode has no per-item date.
+  const bulkImportTimestamps =
+    mode === "single" ? getBulkImportTimestamps(data) : null;
 
   const items: {
     id: number;
     name: string;
     quantity: number;
-    createdAt?: string;
+    obtainedAt?: string;
   }[] = [];
   for (const id of COLLECTION_LOG_ITEM_IDS) {
     const itemData = data.find((i) => i.id === id);
     const name = COLLECTION_LOG_ITEMS[id] ?? "Unknown";
     const createdAt = itemData?.createdAt;
-    const isLikelyBulkImport =
-      !!createdAt &&
-      !!accountCreatedAt &&
-      new Date(createdAt).getTime() - accountCreatedAtMs < IMPORT_BUFFER_MS;
+    const isGenuineObtain =
+      !!createdAt && !!bulkImportTimestamps && !bulkImportTimestamps.has(createdAt);
     items.push({
       id,
       name,
       quantity: itemData?.quantity || 0,
-      createdAt: !isLikelyBulkImport ? createdAt : undefined,
+      obtainedAt: isGenuineObtain ? createdAt : undefined,
     });
   }
 
@@ -315,7 +358,7 @@ export function CollectionLog({
                         name={item.name}
                         quantity={item.quantity}
                         distribution={distribution}
-                        obtainedAt={item.createdAt}
+                        obtainedAt={item.obtainedAt}
                       />
                     ) : null;
                   })}
@@ -396,7 +439,7 @@ export function CollectionLog({
                 name={item.name}
                 quantity={item.quantity}
                 distribution={distribution}
-                obtainedAt={item.createdAt}
+                obtainedAt={item.obtainedAt}
               />
             ) : null;
           })}
@@ -425,6 +468,12 @@ function CollectionLogItem({
 
   const itemIcon = ITEM_ICONS[id as unknown as keyof typeof ITEM_ICONS];
 
+  const obtainedLabel = obtainedAt ? (
+    <p className="text-xs text-muted-foreground mt-1">
+      Obtained {formatRelativeTime(obtainedAt)}
+    </p>
+  ) : null;
+
   const tooltipContent = distribution ? (
     <div className="flex flex-col min-w-[160px]">
       <div className="flex flex-row items-center justify-between text-sm gap-x-6">
@@ -447,27 +496,17 @@ function CollectionLogItem({
           </div>
         </React.Fragment>
       ))}
-      {obtainedAt && (
+      {obtainedLabel && (
         <>
           <Separator className="my-1" />
-          <p className="text-xs text-muted-foreground mt-1">
-            {quantity > 1
-              ? `First obtained ${formatRelativeTime(obtainedAt)}`
-              : formatRelativeTime(obtainedAt)}
-          </p>
+          {obtainedLabel}
         </>
       )}
     </div>
   ) : (
     <div>
       <p className="font-semibold text-sm">{name}</p>
-      {obtainedAt && (
-        <p className="text-xs text-muted-foreground mt-1">
-          {quantity > 1
-            ? `First obtained ${formatRelativeTime(obtainedAt)}`
-            : formatRelativeTime(obtainedAt)}
-        </p>
-      )}
+      {obtainedLabel}
     </div>
   );
 
