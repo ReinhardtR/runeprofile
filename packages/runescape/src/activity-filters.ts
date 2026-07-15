@@ -61,6 +61,34 @@ function abbreviate(value: number): string {
 }
 
 /**
+ * Parses user-typed threshold input into a number — the inverse of
+ * `abbreviate`. Accepts plain integers ("5000000"), digit separators
+ * ("5,000,000", "5 000 000"), and k/m/b shorthand ("750k", "5m", "1.5b").
+ * Returns `undefined` for anything else (including fractions without a
+ * suffix, where rounding would silently change the user's value).
+ */
+export function parseThresholdInput(input: string): number | undefined {
+  const cleaned = input.trim().toLowerCase().replace(/[,_\s]/g, "");
+  const match = /^(\d+(?:\.\d+)?)([kmb])?$/.exec(cleaned);
+  if (!match) return undefined;
+
+  const digits = match[1] ?? "";
+  const suffix = match[2];
+  if (!suffix && digits.includes(".")) return undefined;
+
+  const multiplier =
+    suffix === "k"
+      ? 1_000
+      : suffix === "m"
+        ? 1_000_000
+        : suffix === "b"
+          ? 1_000_000_000
+          : 1;
+  const value = Math.round(Number(digits) * multiplier);
+  return Number.isSafeInteger(value) ? value : undefined;
+}
+
+/**
  * Single source of truth for activity-type labels and threshold behaviour.
  *
  * To make a new activity type threshold-able, add a `threshold` config here —

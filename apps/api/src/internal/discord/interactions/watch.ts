@@ -13,9 +13,11 @@ import {
 import { drizzle } from "@runeprofile/db";
 import {
   type ActivityEventTypeValue,
+  type ActivityThresholdConfig,
   type ChannelActivityFilters,
   PASS_EVERYTHING_CHANNEL_SETTINGS,
   getActivityThresholdConfig,
+  parseThresholdInput,
 } from "@runeprofile/runescape";
 
 import {
@@ -109,10 +111,9 @@ export const command_watch = factory.autocomplete(
             .required(),
           new Option(
             "value",
-            "Minimum value — pick a suggestion or type your own",
-            "Integer",
+            "Minimum value — pick a suggestion or type your own (e.g. 50, 750k, 5m)",
+            "String",
           )
-            .min_value(0)
             .autocomplete()
             .required(),
         ),
@@ -150,6 +151,7 @@ export const command_watch = factory.autocomplete(
       } else if (c.focused?.name === "value") {
         result = getThresholdValueAutocomplete(
           c.var.activity as ActivityEventTypeValue | undefined,
+          String(c.focused.value ?? ""),
         );
       }
     } catch (error) {
@@ -242,7 +244,7 @@ export const command_watch = factory.autocomplete(
             }
             case "threshold": {
               const activityType = c.var.activity as ActivityEventTypeValue;
-              const value = c.var.value as number;
+              const rawValue = c.var.value as string;
               const config = getActivityThresholdConfig(activityType);
 
               if (!config) {
@@ -250,9 +252,15 @@ export const command_watch = factory.autocomplete(
                   `${getActivityTypeLabel(activityType)} doesn't support a threshold.`,
                 );
               }
+              const value = parseThresholdValue(config, rawValue);
+              if (value === undefined) {
+                return c.res(
+                  `Couldn't read "${rawValue}" as a value — use a number like 5000000, shorthand like 750k / 5m, or pick a suggestion.`,
+                );
+              }
               if (value < config.min || value > config.max) {
                 return c.res(
-                  `Threshold for ${getActivityTypeLabel(activityType)} must be between ${config.min} and ${config.max}.`,
+                  `Threshold for ${getActivityTypeLabel(activityType)} must be between ${config.format(config.min)} and ${config.format(config.max)}.`,
                 );
               }
 
@@ -337,19 +345,63 @@ export const command_watch = factory.autocomplete(
   },
 );
 
+/**
+ * Parses the threshold `value` input: numbers and k/m/b shorthand via
+ * `parseThresholdInput`, plus formatted names (e.g. "Experienced", "Hard")
+ * for tier-like types with a small value range.
+ */
+function parseThresholdValue(
+  config: ActivityThresholdConfig,
+  raw: string,
+): number | undefined {
+  const parsed = parseThresholdInput(raw);
+  if (parsed !== undefined) return parsed;
+
+  const needle = raw.trim().toLowerCase();
+  if (!needle || config.max - config.min > 20) return undefined;
+  for (let value = config.min; value <= config.max; value++) {
+    if (config.format(value).toLowerCase() === needle) return value;
+  }
+  return undefined;
+}
+
 function getThresholdValueAutocomplete(
   activityType: ActivityEventTypeValue | undefined,
+  typed: string,
 ): Autocomplete {
   if (!activityType) return new Autocomplete();
   const config = getActivityThresholdConfig(activityType);
   if (!config) return new Autocomplete();
 
-  return new Autocomplete().choices(
-    ...config.suggestions.map((value) => ({
-      name: config.format(value),
-      value,
-    })),
+  const choices: { name: string; value: string }[] = [];
+  const needle = typed.trim().toLowerCase();
+
+  // Echo the user's own (parsed) input first, so typing "7m" shows "7M gp"
+  // as live confirmation of what will be set.
+  const typedValue = needle ? parseThresholdValue(config, typed) : undefined;
+  if (
+    typedValue !== undefined &&
+    typedValue >= config.min &&
+    typedValue <= config.max
+  ) {
+    choices.push({ name: config.format(typedValue), value: String(typedValue) });
+  }
+
+  // Suggestions, narrowed by name while the user types (e.g. "gr" ->
+  // "Grandmaster"). If nothing matches, fall back to the full list.
+  const matching = config.suggestions.filter(
+    (suggestion) =>
+      suggestion !== typedValue &&
+      (!needle || config.format(suggestion).toLowerCase().includes(needle)),
   );
+  const rest = matching.length
+    ? matching
+    : config.suggestions.filter((suggestion) => suggestion !== typedValue);
+  for (const suggestion of rest) {
+    choices.push({ name: config.format(suggestion), value: String(suggestion) });
+  }
+
+  return new Autocomplete().choices(...choices);
 }
 
 function formatFilters(filters: ChannelActivityFilters): string {

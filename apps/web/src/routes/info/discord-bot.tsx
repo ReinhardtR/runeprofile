@@ -267,7 +267,7 @@ const COMMAND_GROUPS: { title: string; commands: CommandItem[] }[] = [
       {
         command: "/watch filter threshold [activity] [value]",
         description:
-          "only send an activity when it meets a minimum value (e.g. level 50+, or quest difficulty Experienced+).",
+          "only send an activity when it meets a minimum value (e.g. level 50+, or quest difficulty Experienced+). Values accept shorthand like 750k or 5m.",
       },
       {
         command: "/watch filter remove [activity] [filter]",

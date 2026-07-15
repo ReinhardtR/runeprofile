@@ -6,6 +6,7 @@ import {
   type ChannelActivityFilters,
   DEFAULT_CHANNEL_SETTINGS,
   type DiscordChannelSettings,
+  parseThresholdInput,
 } from "@runeprofile/runescape";
 
 import {
@@ -209,6 +210,35 @@ describe("applyThreshold", () => {
     expect(second.settings.filters.thresholds).toEqual({
       [ActivityEventType.LEVEL_UP]: 70,
     });
+  });
+});
+
+describe("parseThresholdInput", () => {
+  test("plain integers", () => {
+    expect(parseThresholdInput("50")).toBe(50);
+    expect(parseThresholdInput("5000000")).toBe(5_000_000);
+  });
+
+  test("digit separators", () => {
+    expect(parseThresholdInput("5,000,000")).toBe(5_000_000);
+    expect(parseThresholdInput("5 000 000")).toBe(5_000_000);
+  });
+
+  test("k/m/b shorthand, case-insensitive", () => {
+    expect(parseThresholdInput("750k")).toBe(750_000);
+    expect(parseThresholdInput("5m")).toBe(5_000_000);
+    expect(parseThresholdInput("5M")).toBe(5_000_000);
+    expect(parseThresholdInput("1.5b")).toBe(1_500_000_000);
+    expect(parseThresholdInput(" 25m ")).toBe(25_000_000);
+  });
+
+  test("rejects invalid input", () => {
+    expect(parseThresholdInput("")).toBeUndefined();
+    expect(parseThresholdInput("abc")).toBeUndefined();
+    expect(parseThresholdInput("5mm")).toBeUndefined();
+    expect(parseThresholdInput("-5")).toBeUndefined();
+    expect(parseThresholdInput("1.5")).toBeUndefined(); // fraction without suffix
+    expect(parseThresholdInput("m")).toBeUndefined();
   });
 });
 
