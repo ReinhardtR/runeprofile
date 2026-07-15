@@ -160,7 +160,10 @@ export const command_watch = factory.autocomplete(
           const rsn = c.var.rsn;
           switch (c.sub.command) {
             case "add": {
-              await addPlayerWatch({ db, channelId, rsn });
+              const added = await addPlayerWatch({ db, channelId, rsn });
+              if (!added) {
+                return c.res(`Already watching player: ${rsn}`);
+              }
               await seedDefaultFiltersIfNew({ db, channelId });
               return c.res(`Added player watch for: ${rsn}`);
             }
@@ -187,7 +190,10 @@ export const command_watch = factory.autocomplete(
           const clanName = c.var.clan;
           switch (c.sub.command) {
             case "add": {
-              await addClanWatch({ db, channelId, clanName });
+              const added = await addClanWatch({ db, channelId, clanName });
+              if (!added) {
+                return c.res(`Already watching clan: ${clanName}`);
+              }
               await seedDefaultFiltersIfNew({ db, channelId });
               return c.res(`Added clan watch for: ${clanName}`);
             }

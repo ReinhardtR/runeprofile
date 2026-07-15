@@ -38,6 +38,11 @@ export type ActivityFilterMeta = {
   label: string;
   /** Threshold configuration, or `undefined` if the type isn't threshold-able. */
   threshold?: ActivityThresholdConfig;
+  /**
+   * Legacy types are no longer generated — they exist only to render old
+   * activity log rows, and are hidden from the filter commands and guide.
+   */
+  legacy?: boolean;
 };
 
 /** Formats a large number into an abbreviated string, e.g. `50_000_000` -> "50M". */
@@ -132,17 +137,7 @@ export const ACTIVITY_FILTER_META: Record<
   },
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: {
     label: "Combat Achievement",
-    threshold: {
-      unit: "tier",
-      min: 1,
-      max: 6,
-      suggestions: [1, 2, 3, 4, 5, 6],
-      getValue: (a) =>
-        a.type === ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED
-          ? a.data.tierId
-          : 0,
-      format: (v) => getCombatAchievementTierName(v) ?? `tier ${v}`,
-    },
+    legacy: true,
   },
   [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]: {
     label: "Achievement Diary",
@@ -178,10 +173,15 @@ export function getActivityThresholdConfig(
   return ACTIVITY_FILTER_META[type]?.threshold;
 }
 
-/** Activity types that support a threshold, in registry order. */
-export const THRESHOLD_ACTIVITY_TYPES = (
+/** Activity types users can filter on (excludes legacy types), in registry order. */
+export const FILTERABLE_ACTIVITY_TYPES = (
   Object.keys(ACTIVITY_FILTER_META) as ActivityEventTypeValue[]
-).filter((type) => ACTIVITY_FILTER_META[type].threshold !== undefined);
+).filter((type) => !ACTIVITY_FILTER_META[type].legacy);
+
+/** Activity types that support a threshold, in registry order. */
+export const THRESHOLD_ACTIVITY_TYPES = FILTERABLE_ACTIVITY_TYPES.filter(
+  (type) => ACTIVITY_FILTER_META[type].threshold !== undefined,
+);
 
 export type DefaultFilter = {
   activityType: ActivityEventTypeValue;

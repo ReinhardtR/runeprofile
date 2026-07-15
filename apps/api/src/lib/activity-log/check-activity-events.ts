@@ -16,6 +16,7 @@ import {
   getAchievementDiaryTierTaskCount,
   getCombatAchievementTierReached,
   getLevelFromXP,
+  getQuestById,
   legacy_calculateCombatAchievementPoints,
 } from "@runeprofile/runescape";
 
@@ -246,6 +247,9 @@ export function checkQuestCompletedEvents(
     if (TEMP_IGNORED_QUEST_COMPLETION_ACTIVITY_IDS.has(questUpdate.id)) {
       continue;
     }
+    // Quests not in our registry (e.g. brand-new releases before the quest
+    // data is synced) shouldn't produce activities.
+    if (getQuestById(questUpdate.id) === undefined) continue;
 
     events.push({
       type: "quest_completed",

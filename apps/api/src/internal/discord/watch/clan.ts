@@ -9,7 +9,7 @@ export async function addClanWatch(params: {
 }) {
   const { db, clanName, channelId } = params;
 
-  await db
+  const inserted = await db
     .insert(discordWatches)
     .values({
       id: crypto.randomUUID(),
@@ -17,7 +17,11 @@ export async function addClanWatch(params: {
       targetId: clanName.toLowerCase(),
       targetType: "clan",
     })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .returning({ id: discordWatches.id });
+
+  // false when the watch already existed
+  return inserted.length > 0;
 }
 
 export async function removeClanWatch(params: {
