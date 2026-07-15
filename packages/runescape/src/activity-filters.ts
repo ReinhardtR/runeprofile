@@ -8,7 +8,11 @@ import {
   ValuableDropThreshold,
 } from "./activities";
 import { getCombatAchievementTierName } from "./combat-achievements";
-import { getQuestById } from "./quests";
+import {
+  QuestDifficulty,
+  getQuestById,
+  getQuestDifficultyName,
+} from "./quests";
 
 /**
  * Configuration describing the numeric "threshold" an activity type supports.
@@ -110,17 +114,23 @@ export const ACTIVITY_FILTER_META: Record<
   [ActivityEventType.QUEST_COMPLETED]: {
     label: "Quest Completed",
     threshold: {
-      unit: "quest points",
-      min: 1,
-      // Combo quests (e.g. Recipe for Disaster) award more than a single
-      // quest's usual 1-6 points.
-      max: 10,
-      suggestions: [1, 2, 3, 5, 10],
+      unit: "difficulty",
+      min: QuestDifficulty.INTERMEDIATE,
+      // SPECIAL (Recipe for Disaster) sits above GRANDMASTER, so it passes
+      // any settable threshold.
+      max: QuestDifficulty.GRANDMASTER,
+      suggestions: [
+        QuestDifficulty.INTERMEDIATE,
+        QuestDifficulty.EXPERIENCED,
+        QuestDifficulty.MASTER,
+        QuestDifficulty.GRANDMASTER,
+      ],
       getValue: (a) =>
         a.type === ActivityEventType.QUEST_COMPLETED
-          ? (getQuestById(a.data.questId)?.points ?? 0)
+          ? (getQuestById(a.data.questId)?.difficulty ?? 0)
           : 0,
-      format: (v) => `${v} quest points`,
+      format: (v) =>
+        getQuestDifficultyName(v as QuestDifficulty) ?? `difficulty ${v}`,
     },
   },
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]: {
@@ -229,7 +239,7 @@ export const DEFAULT_CHANNEL_SETTINGS: DiscordChannelSettings = {
     types: [],
     thresholds: {
       [ActivityEventType.LEVEL_UP]: 50,
-      [ActivityEventType.QUEST_COMPLETED]: 3,
+      [ActivityEventType.QUEST_COMPLETED]: QuestDifficulty.EXPERIENCED,
     },
   },
 };

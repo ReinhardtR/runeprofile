@@ -30,6 +30,14 @@ const maxed = (): ActivityEvent => ({
   data: {},
 });
 
+const questCompleted = (questId: number): ActivityEvent => ({
+  type: ActivityEventType.QUEST_COMPLETED,
+  data: { questId },
+});
+
+const COOKS_ASSISTANT_ID = 17; // Novice
+const DRAGON_SLAYER_II_ID = 32; // Grandmaster
+
 const filters = (
   overrides: Partial<ChannelActivityFilters> = {},
 ): ChannelActivityFilters => ({
@@ -101,13 +109,37 @@ describe("filterActivities", () => {
     expect(result).toEqual([levelUp(60)]);
   });
 
-  test("default settings pass big level-ups and drop small ones", () => {
-    const activities = [levelUp(40), levelUp(50), valuableDrop(1_500_000)];
+  test("quest threshold filters by difficulty", () => {
+    const activities = [
+      questCompleted(COOKS_ASSISTANT_ID),
+      questCompleted(DRAGON_SLAYER_II_ID),
+    ];
+    const result = filterActivities(
+      activities,
+      filters({
+        thresholds: { [ActivityEventType.QUEST_COMPLETED]: 2 }, // Experienced+
+      }),
+    );
+    expect(result).toEqual([questCompleted(DRAGON_SLAYER_II_ID)]);
+  });
+
+  test("default settings pass big level-ups and hard quests, drop the rest", () => {
+    const activities = [
+      levelUp(40),
+      levelUp(50),
+      valuableDrop(1_500_000),
+      questCompleted(COOKS_ASSISTANT_ID),
+      questCompleted(DRAGON_SLAYER_II_ID),
+    ];
     const result = filterActivities(
       activities,
       DEFAULT_CHANNEL_SETTINGS.filters,
     );
-    expect(result).toEqual([levelUp(50), valuableDrop(1_500_000)]);
+    expect(result).toEqual([
+      levelUp(50),
+      valuableDrop(1_500_000),
+      questCompleted(DRAGON_SLAYER_II_ID),
+    ]);
   });
 });
 
