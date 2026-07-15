@@ -10,6 +10,7 @@ import {
   getActivityTypeLabel,
 } from "@runeprofile/runescape";
 
+import ACCOUNT_TYPE_ICONS from "~/core/assets/account-type-icons.json";
 import ITEM_ICONS from "~/core/assets/item-icons.json";
 import QuestIcon from "~/core/assets/icons/quest.png";
 import Logo from "~/core/assets/misc/logo.png";
@@ -50,24 +51,25 @@ interface Section {
 /*  Discord message mock                                                      */
 /* -------------------------------------------------------------------------- */
 
+// Colors sampled from a real Discord screenshot of the bot's messages.
 const DiscordMock: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
-    <div className="my-6 rounded-lg border border-border bg-[#313338] px-4 py-3.5 shadow-md">
+    <div className="my-6 rounded-lg border border-border bg-[#1a1a1e] px-4 py-3.5 shadow-md">
       <div className="flex gap-3.5">
         <img
           src={Logo}
           alt="RuneProfile bot avatar"
-          className="mt-0.5 size-10 shrink-0 rounded-full bg-[#1e1f22] object-contain p-1"
+          className="mt-0.5 size-10 shrink-0 rounded-full bg-[#242429] object-contain p-1"
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2">
-            <span className="font-medium text-[#f2f3f5]">RuneProfile</span>
+            <span className="font-medium text-[#ad1457]">RuneProfile</span>
             <span className="rounded-sm bg-[#5865f2] px-1 py-px text-[10px] font-semibold text-white">
               APP
             </span>
-            <span className="text-xs text-[#949ba4]">Today at 6:24 PM</span>
+            <span className="text-xs text-[#82838b]">12/07/2026, 18:24</span>
           </div>
           <div className="mt-1.5 space-y-2">{children}</div>
         </div>
@@ -78,21 +80,27 @@ const DiscordMock: React.FC<{ children: React.ReactNode }> = ({
 
 const DiscordEmbedMock: React.FC<{
   color: string;
-  rsn: string;
   footer: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
-}> = ({ color, rsn, footer, icon, children }) => {
+}> = ({ color, footer, icon, children }) => {
   return (
     <div
-      className="max-w-md rounded border-l-4 bg-[#2b2d31] py-2.5 pl-3.5 pr-4"
+      className="max-w-md rounded border-l-4 bg-[#242429] py-2.5 pl-3.5 pr-4"
       style={{ borderLeftColor: color }}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 text-sm">
-          <p className="font-semibold text-[#00a8fc]">{rsn}</p>
+          <p className="flex items-center gap-1.5 font-semibold text-[#efeff1]">
+            <GameIcon
+              src={ACCOUNT_TYPE_ICONS.ironman}
+              alt="Ironman"
+              size={14}
+            />
+            pgn
+          </p>
           <p className="mt-1.5 text-[#dbdee1]">{children}</p>
-          <p className="mt-2 text-xs text-[#949ba4]">{footer}</p>
+          <p className="mt-2 text-xs text-[#a1a1a4]">{footer}</p>
         </div>
         {icon && <div className="mt-1 shrink-0">{icon}</div>}
       </div>
@@ -100,23 +108,19 @@ const DiscordEmbedMock: React.FC<{
   );
 };
 
-const EXAMPLE_RSN = "PGN";
-
 // Colors and copy mirror the real activity embeds sent by the bot.
 const DiscordPreview: React.FC = () => (
   <DiscordMock>
     <DiscordEmbedMock
       color="#00ff00"
-      rsn={EXAMPLE_RSN}
       footer="Level Up"
       icon={<GameIcon src={SKILL_ICONS.slayer} alt="Slayer" size={36} />}
     >
-      Reached level <b className="text-[#f2f3f5]">99</b> in{" "}
-      <b className="text-[#f2f3f5]">Slayer</b>
+      Reached level <b className="text-[#efeff1]">99</b> in{" "}
+      <b className="text-[#efeff1]">Slayer</b>
     </DiscordEmbedMock>
     <DiscordEmbedMock
       color="#ff006e"
-      rsn={EXAMPLE_RSN}
       footer="Valuable Drop"
       icon={
         <GameIcon
@@ -126,18 +130,17 @@ const DiscordPreview: React.FC = () => (
         />
       }
     >
-      <b className="text-[#f2f3f5]">1,412,006,319 gp</b>
+      <b className="text-[#efeff1]">1,412,006,319 gp</b>
     </DiscordEmbedMock>
     <DiscordEmbedMock
       color="#00ced1"
-      rsn={EXAMPLE_RSN}
       footer="Quest"
       icon={
         <GameIcon src={QuestIcon} alt="Quest" size={32} isBase64={false} />
       }
     >
       Completed{" "}
-      <b className="text-[#f2f3f5]">Desert Treasure II - The Fallen Empire</b>
+      <b className="text-[#efeff1]">Desert Treasure II - The Fallen Empire</b>
     </DiscordEmbedMock>
   </DiscordMock>
 );
