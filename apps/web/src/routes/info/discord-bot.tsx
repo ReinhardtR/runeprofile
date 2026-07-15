@@ -370,7 +370,7 @@ const SECTIONS: Section[] = [
         <GuideParagraph>
           The RuneProfile Discord bot sends activity messages directly to your
           Discord server. Get notified when clan members or tracked players
-          level up, receive valuable drops, complete quests, unlock collection
+          level up, receive valuable drops, complete quests, obtain collection
           log items, and more.
         </GuideParagraph>
         <DiscordPreview />
@@ -528,7 +528,7 @@ function RouteComponent() {
           </h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
             Get RuneProfile activity - level ups, drops, quests and collection
-            log unlocks - posted straight to your Discord server.
+            log items - posted straight to your Discord server.
           </p>
         </header>
 
