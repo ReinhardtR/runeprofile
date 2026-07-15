@@ -76,16 +76,18 @@ const COMMAND_GROUPS = [
     commands: [
       {
         command: "/watch filter allow [activity]",
-        description: "only receive this activity type.",
+        description:
+          "add an activity type to the allow list — only allowed types are sent.",
       },
       {
         command: "/watch filter block [activity]",
-        description: "stop receiving this activity type.",
+        description:
+          "add an activity type to the block list — everything except blocked types is sent.",
       },
       {
         command: "/watch filter threshold [activity] [value]",
         description:
-          "only send an activity when it meets a minimum value (e.g. level 50+).",
+          "only send an activity when it meets a minimum value (e.g. level 50+, or quest difficulty Experienced+).",
       },
       {
         command: "/watch filter remove [activity] [filter]",
@@ -238,7 +240,9 @@ const SECTIONS: Section[] = [
             <b className="text-secondary-foreground">Thresholds</b> - for
             activity types with a meaningful value, set a minimum so only
             activities at or above it are sent. For example, a level-up
-            threshold of 50 hides level-ups below level 50.
+            threshold of 50 hides level-ups below level 50, and a quest
+            threshold of Experienced hides Novice and Intermediate quests.
+            Thresholds apply on top of the allow/block filters.
           </li>
         </GuideList>
 
