@@ -82,6 +82,7 @@ export const QUESTS = [
     type: QuestType.MEMBERS,
   },
   { id: 9, name: "Biohazard", points: 3, type: QuestType.MEMBERS },
+  { id: 16414, name: "The Blood Moon Rises", points: 4, type: QuestType.MEMBERS },
   { id: 11, name: "Bone Voyage", points: 1, type: QuestType.MEMBERS },
   { id: 12, name: "Cabin Fever", points: 2, type: QuestType.MEMBERS },
   { id: 3450, name: "Children of the Sun", points: 1, type: QuestType.MEMBERS },

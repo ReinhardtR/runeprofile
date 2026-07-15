@@ -455,9 +455,23 @@ function TasksView({
     overscan: 15,
   });
 
+  // Scroll back to the top of the list whenever a filter changes, so the user
+  // starts at the first result rather than mid-list. Not tied to completedSet
+  // (that updates from data, not a filter action).
   React.useEffect(() => {
-    rowVirtualizer.measure();
-  }, [expandedTask, rowVirtualizer]);
+    rowVirtualizer.scrollToOffset(0);
+  }, [
+    selectedTierId,
+    typeFilter,
+    monsterFilter,
+    completionFilter,
+    rowVirtualizer,
+  ]);
+
+  // Note: no manual measure() on expand/collapse. Each row is measured via
+  // measureElement (ref on TaskRow), so react-virtual re-measures a row on its
+  // own the moment it grows/shrinks. Calling measure() here would reset the
+  // whole size cache to estimateSize for a frame, making rows overlap/jump.
 
   // Re-measure when container resizes (e.g. mobile text wrapping)
   React.useEffect(() => {
@@ -532,7 +546,7 @@ function TasksView({
             </div>
           ) : (
             <div
-              className="relative w-full"
+              className="relative w-full shrink-0"
               style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
             >
               {virtualItems.map((virtualItem) => {

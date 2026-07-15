@@ -1,6 +1,7 @@
 "use client";
 
 import { updateAccount } from "@/app/accounts/actions";
+import { placeholderUsername } from "@runeprofile/runescape";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -27,6 +28,7 @@ interface Account {
   clanRank: number | null;
   clanIcon: number | null;
   clanTitle: string | null;
+  groupName: string | null;
 }
 
 export function EditAccountDialog({ account }: { account: Account }) {
@@ -41,6 +43,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
   const [clanRank, setClanRank] = useState(account.clanRank?.toString() || "");
   const [clanIcon, setClanIcon] = useState(account.clanIcon?.toString() || "");
   const [clanTitle, setClanTitle] = useState(account.clanTitle || "");
+  const [groupName, setGroupName] = useState(account.groupName || "");
 
   const handleClose = () => {
     setOpen(false);
@@ -52,6 +55,7 @@ export function EditAccountDialog({ account }: { account: Account }) {
     setClanRank(account.clanRank?.toString() || "");
     setClanIcon(account.clanIcon?.toString() || "");
     setClanTitle(account.clanTitle || "");
+    setGroupName(account.groupName || "");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,6 +101,11 @@ export function EditAccountDialog({ account }: { account: Account }) {
         updates.clanTitle = newClanTitle;
       }
 
+      const newGroupName = groupName.trim() || null;
+      if (newGroupName !== account.groupName) {
+        updates.groupName = newGroupName;
+      }
+
       // Only make the update if there are actual changes
       if (Object.keys(updates).length > 0) {
         await updateAccount(account.id, updates);
@@ -132,16 +141,34 @@ export function EditAccountDialog({ account }: { account: Account }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-                setError("");
-              }}
-              disabled={isLoading}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setError("");
+                }}
+                disabled={isLoading}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+                onClick={() => {
+                  setUsername(placeholderUsername());
+                  setClanName("");
+                  setClanRank("");
+                  setClanIcon("");
+                  setClanTitle("");
+                  setGroupName("");
+                  setError("");
+                }}
+              >
+                Archive
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -196,6 +223,22 @@ export function EditAccountDialog({ account }: { account: Account }) {
                 placeholder="Enter clan title"
                 value={clanTitle}
                 onChange={(e) => setClanTitle(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Group Information</h4>
+
+            <div className="space-y-2">
+              <Label htmlFor="group-name">Group Name</Label>
+              <Input
+                id="group-name"
+                type="text"
+                placeholder="Enter group name"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
                 disabled={isLoading}
               />
             </div>

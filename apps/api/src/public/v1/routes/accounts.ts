@@ -27,6 +27,7 @@ import {
   SKILLS,
   calculateCombatAchievementPoints,
   decodeCombatAchievements,
+  deriveCombatAchievementTierCounts,
   getCombatAchievementTierReached,
   getCombatAchievementTierTaskCount,
   getLevelFromXP,
@@ -177,8 +178,14 @@ function formatAchievementDiaries(
 function formatCombatAchievements(
   combatRows: { id: number; completedCount: number }[],
   accountType: number,
+  varpData: Record<string, number> | null,
 ) {
-  const combatMap = new Map(combatRows.map((r) => [r.id, r.completedCount]));
+  // Prefer the new varp-based data when available; fall back to the legacy
+  // per-tier counts table otherwise. Mirrors get-profile.ts.
+  const tierCounts = varpData
+    ? deriveCombatAchievementTierCounts(decodeCombatAchievements(varpData))
+    : combatRows;
+  const combatMap = new Map(tierCounts.map((r) => [r.id, r.completedCount]));
   return COMBAT_ACHIEVEMENT_TIERS.map((tier) => ({
     id: tier.id,
     name: tier.name,
@@ -422,7 +429,7 @@ export const accountsRouter = createV1App()
       );
     }
 
-    const [skillRows, questRows, itemRows, diaryRows, combatRows] =
+    const [skillRows, questRows, itemRows, diaryRows, combatRows, varpRow] =
       await Promise.all([
         db.query.skills.findMany({
           where: eq(skillsTable.accountId, account.id),
@@ -443,6 +450,10 @@ export const accountsRouter = createV1App()
         db.query.combatAchievementTiers.findMany({
           where: eq(combatAchievementTiersTable.accountId, account.id),
           columns: { id: true, completedCount: true },
+        }),
+        db.query.combatAchievementVarps.findFirst({
+          where: eq(combatAchievementVarpsTable.accountId, account.id),
+          columns: { varps: true },
         }),
       ]);
 
@@ -501,14 +512,11 @@ export const accountsRouter = createV1App()
     });
 
     // Combat achievements
-    const combatMap = new Map(combatRows.map((r) => [r.id, r.completedCount]));
-    const combatAchievements = COMBAT_ACHIEVEMENT_TIERS.map((tier) => ({
-      id: tier.id,
-      name: tier.name,
-      completed: combatMap.get(tier.id) ?? 0,
-      total:
-        getCombatAchievementTierTaskCount(tier.id, account.accountType) ?? 0,
-    }));
+    const combatAchievements = formatCombatAchievements(
+      combatRows,
+      account.accountType,
+      varpRow?.varps ?? null,
+    );
 
     return c.json(
       {
@@ -612,13 +620,25 @@ export const accountsRouter = createV1App()
       );
     }
 
-    const combatRows = await db.query.combatAchievementTiers.findMany({
-      where: eq(combatAchievementTiersTable.accountId, account.id),
-      columns: { id: true, completedCount: true },
-    });
+    const [combatRows, varpRow] = await Promise.all([
+      db.query.combatAchievementTiers.findMany({
+        where: eq(combatAchievementTiersTable.accountId, account.id),
+        columns: { id: true, completedCount: true },
+      }),
+      db.query.combatAchievementVarps.findFirst({
+        where: eq(combatAchievementVarpsTable.accountId, account.id),
+        columns: { varps: true },
+      }),
+    ]);
 
     return c.json(
-      { data: formatCombatAchievements(combatRows, account.accountType) },
+      {
+        data: formatCombatAchievements(
+          combatRows,
+          account.accountType,
+          varpRow?.varps ?? null,
+        ),
+      },
       STATUS.OK,
       CACHE_HEADER,
     );
@@ -686,7 +706,7 @@ export const fullProfileRouter = createV1App().openapi(
       );
     }
 
-    const [skillRows, questRows, itemRows, diaryRows, combatRows] =
+    const [skillRows, questRows, itemRows, diaryRows, combatRows, varpRow] =
       await Promise.all([
         db.query.skills.findMany({
           where: eq(skillsTable.accountId, account.id),
@@ -708,6 +728,10 @@ export const fullProfileRouter = createV1App().openapi(
           where: eq(combatAchievementTiersTable.accountId, account.id),
           columns: { id: true, completedCount: true },
         }),
+        db.query.combatAchievementVarps.findFirst({
+          where: eq(combatAchievementVarpsTable.accountId, account.id),
+          columns: { varps: true },
+        }),
       ]);
 
     return c.json(
@@ -723,6 +747,7 @@ export const fullProfileRouter = createV1App().openapi(
         combatAchievements: formatCombatAchievements(
           combatRows,
           account.accountType,
+          varpRow?.varps ?? null,
         ),
         createdAt: account.createdAt,
         updatedAt: account.updatedAt,

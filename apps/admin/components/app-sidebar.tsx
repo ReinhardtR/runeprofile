@@ -15,6 +15,7 @@ import {
 import {
   AlertTriangle,
   Home,
+  Hourglass,
   KeyRound,
   ListChecks,
   MessageSquare,
@@ -26,6 +27,7 @@ import { usePathname } from "next/navigation";
 const items = [
   { title: "Home", url: "/", icon: Home },
   { title: "Accounts", url: "/accounts", icon: Users },
+  { title: "Pending Names", url: "/pending-names", icon: Hourglass },
   { title: "API Keys", url: "/api-keys", icon: KeyRound },
   { title: "Dup Activities", url: "/dup-activities", icon: ListChecks },
   {

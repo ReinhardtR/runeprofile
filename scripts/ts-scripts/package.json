@@ -5,13 +5,19 @@
   "type": "module",
   "scripts": {
     "check-clog": "tsx check-clog.ts",
-    "scrape-ca": "tsx scrape-combat-achievements.ts"
+    "update-clog": "tsx check-clog.ts --write",
+    "scrape-ca": "tsx scrape-combat-achievements.ts",
+    "check-ca": "tsx check-combat-achievements.ts",
+    "update-ca": "tsx check-combat-achievements.ts --write",
+    "check-quests": "tsx check-quests.ts",
+    "update-quests": "tsx check-quests.ts --write"
   },
   "devDependencies": {
-    "@abextm/cache2": "^0.1.8",
+    "@abextm/cache2": "^0.1.9",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",
+    "ts-morph": "^27.0.2",
     "tsx": "^4.19.3"
   }
 }

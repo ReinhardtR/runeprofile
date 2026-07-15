@@ -1,6 +1,6 @@
 {
-  "id": "58c94711-4d30-4dbb-9e8a-6e6effcabd90",
-  "prevId": "7c5d8468-0a6e-4bed-b84a-328930ce9a54",
+  "id": "2da9f990-d8ee-465d-b387-4bc4b49fc51b",
+  "prevId": "58c94711-4d30-4dbb-9e8a-6e6effcabd90",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -243,23 +243,7 @@
           "notNull": true
         }
       },
-      "indexes": {
-        "achievement_diary_tiers_account_id_index": {
-          "name": "achievement_diary_tiers_account_id_index",
-          "columns": [
-            {
-              "expression": "account_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "achievement_diary_tiers_account_id_accounts_id_fk": {
           "name": "achievement_diary_tiers_account_id_accounts_id_fk",
