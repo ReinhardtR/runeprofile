@@ -98,6 +98,25 @@ export async function getClanActivities(params: {
   return await getResponseData(response);
 }
 
+export async function getProfileActivities(params: {
+  username: string;
+  cursor?: string;
+  limit?: number;
+  activityTypes?: ActivityEventTypeValue[];
+}) {
+  const response = await api.profiles[":username"].activities.$get({
+    param: {
+      username: params.username,
+    },
+    query: {
+      cursor: params.cursor,
+      limit: params.limit?.toString(),
+      activityTypes: params.activityTypes?.join(","),
+    },
+  });
+  return await getResponseData(response);
+}
+
 export async function getMetrics() {
   const response = await api.metrics.$get();
   return await getResponseData(response);

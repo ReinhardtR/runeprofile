@@ -11,7 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { useAtom } from "jotai";
-import { Bot, LoaderCircle, SearchIcon, X } from "lucide-react";
+import { Activity, Bot, LoaderCircle, SearchIcon, X } from "lucide-react";
 import React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { z } from "zod";
@@ -34,6 +34,7 @@ import {
   CombatAchievementsPanel,
   DataTabsCard,
   Hiscores,
+  ProfileActivities,
   RecentActivities,
   RecentCollections,
   hiscoresQueryOptions,
@@ -318,6 +319,7 @@ export function SidePanel({ username }: { username: string }) {
     isSearchDialogOpenAtom,
   );
   const [isHiscoresOpen, setIsHiscoresOpen] = React.useState(false);
+  const [isActivitiesOpen, setIsActivitiesOpen] = React.useState(false);
 
   const hiscoresQuery = useQuery(
     hiscoresQueryOptions({
@@ -343,7 +345,10 @@ export function SidePanel({ username }: { username: string }) {
           <SearchIcon className="stroke-secondary-foreground" />
         </SidePanelButton>
         <SidePanelButton
-          onClick={() => setIsHiscoresOpen((v) => !v)}
+          onClick={() => {
+            setIsHiscoresOpen((v) => !v);
+            setIsActivitiesOpen(false);
+          }}
           isActive={isHiscoresOpen}
           isLoading={hiscoresQuery.isPending}
           isError={hiscoresQuery.isError}
@@ -356,6 +361,20 @@ export function SidePanel({ username }: { username: string }) {
           }
         >
           <img src={HiscoresIcon} width={25} height={25} />
+        </SidePanelButton>
+        <SidePanelButton
+          onClick={() => {
+            setIsActivitiesOpen((v) => !v);
+            setIsHiscoresOpen(false);
+          }}
+          isActive={isActivitiesOpen}
+          tooltip={
+            isActivitiesOpen
+              ? "Close Activities panel"
+              : "Open Activities panel"
+          }
+        >
+          <Activity className="size-6 stroke-secondary-foreground" />
         </SidePanelButton>
 
         <Link to="/info/discord-bot" className="mt-auto">
@@ -387,6 +406,19 @@ export function SidePanel({ username }: { username: string }) {
           <SheetContent className="absolute p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
             <ScrollArea className="h-full shadow-2xl">
               <Hiscores username={username} className="pr-2" />
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
+      </ErrorBoundary>
+      <ErrorBoundary fallback={null}>
+        <Sheet modal={false} open={isActivitiesOpen}>
+          <SheetContent className="absolute p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
+            <ScrollArea className="h-full shadow-2xl">
+              <ProfileActivities
+                username={username}
+                enabled={isActivitiesOpen}
+                className="p-4"
+              />
             </ScrollArea>
           </SheetContent>
         </Sheet>

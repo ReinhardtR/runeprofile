@@ -4,6 +4,10 @@ export { CollectionLog } from "./collection-log";
 export { CombatAchievementsPanel } from "./combat-achievements-panel";
 export { DataTabsCard } from "./tabs-card";
 export { RecentActivities } from "./recent-activities";
+export {
+  ProfileActivities,
+  profileActivitiesInfiniteQueryOptions,
+} from "./profile-activities";
 export { RecentCollections } from "./recent-collections";
 export { Hiscores, hiscoresQueryOptions } from "./hiscores";
 export { Skills } from "./skills";
