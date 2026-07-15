@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { getAchievementDiaryTierName } from "./achievement-diaries";
 import {
   type ActivityEvent,
@@ -183,17 +185,61 @@ export const THRESHOLD_ACTIVITY_TYPES = FILTERABLE_ACTIVITY_TYPES.filter(
   (type) => ACTIVITY_FILTER_META[type].threshold !== undefined,
 );
 
-export type DefaultFilter = {
-  activityType: ActivityEventTypeValue;
-  mode?: "allow" | "block";
-  threshold?: number;
-};
+/**
+ * A channel's activity filter configuration.
+ *
+ * - `mode: "blocklist"` — every activity type is sent except those in `types`.
+ * - `mode: "allowlist"` — only the activity types in `types` are sent.
+ * - `thresholds` — per-type minimums; an activity is dropped when its value is
+ *   below the configured minimum (independent of the mode/types check).
+ *
+ * `types` and `thresholds` keys are activity type values, kept as plain
+ * strings so settings written by a newer deploy (with new activity types)
+ * still parse on older code.
+ */
+export const ChannelActivityFiltersSchema = z.object({
+  mode: z.enum(["blocklist", "allowlist"]),
+  types: z.array(z.string()),
+  thresholds: z.record(z.string(), z.number()),
+});
+export type ChannelActivityFilters = z.infer<
+  typeof ChannelActivityFiltersSchema
+>;
 
 /**
- * The default ("Light") filter set. Seeded into a channel the first time a
- * watch is added, and re-installed by `/watch filter reset`.
+ * Per-channel Discord bot settings, stored as a single JSONB document.
+ * Bump `version` (and migrate on read) when the shape changes.
  */
-export const DEFAULT_FILTERS: readonly DefaultFilter[] = [
-  { activityType: ActivityEventType.LEVEL_UP, threshold: 50 },
-  { activityType: ActivityEventType.QUEST_COMPLETED, threshold: 3 },
-];
+export const DiscordChannelSettingsSchema = z.object({
+  version: z.literal(1),
+  filters: ChannelActivityFiltersSchema,
+});
+export type DiscordChannelSettings = z.infer<
+  typeof DiscordChannelSettingsSchema
+>;
+
+/**
+ * The default ("Light") settings. Channels without a settings row use these —
+ * `/watch filter reset` returns a channel to them.
+ */
+export const DEFAULT_CHANNEL_SETTINGS: DiscordChannelSettings = {
+  version: 1,
+  filters: {
+    mode: "blocklist",
+    types: [],
+    thresholds: {
+      [ActivityEventType.LEVEL_UP]: 50,
+      [ActivityEventType.QUEST_COMPLETED]: 3,
+    },
+  },
+};
+
+/** Settings that pass every activity through — used by `/watch filter clear`. */
+export const PASS_EVERYTHING_CHANNEL_SETTINGS: DiscordChannelSettings = {
+  version: 1,
+  filters: {
+    mode: "blocklist",
+    types: [],
+    thresholds: {},
+  },
+};

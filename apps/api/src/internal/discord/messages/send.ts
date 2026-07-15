@@ -2,11 +2,17 @@ import { and, eq, inArray, or } from "drizzle-orm";
 
 import {
   Database,
-  discordWatchFilters,
+  discordChannelSettings,
   discordWatches,
   lower,
 } from "@runeprofile/db";
-import { AccountType, ActivityEvent } from "@runeprofile/runescape";
+import {
+  AccountType,
+  ActivityEvent,
+  type ChannelActivityFilters,
+  DEFAULT_CHANNEL_SETTINGS,
+  DiscordChannelSettingsSchema,
+} from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/internal/discord/factory";
 import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
@@ -50,21 +56,21 @@ export async function sendActivityMessages(params: {
     return;
   }
 
-  // Get unique channel IDs and fetch their filters
+  // Get unique channel IDs and fetch their settings; channels without a
+  // settings row (or with an invalid one) use the defaults.
   const channelIds = [...new Set(watches.map((w) => w.channelId))];
-  const allFilters =
-    channelIds.length > 0
-      ? await db.query.discordWatchFilters.findMany({
-          where: inArray(discordWatchFilters.channelId, channelIds),
-        })
-      : [];
+  const settingsRows = await db.query.discordChannelSettings.findMany({
+    where: inArray(discordChannelSettings.channelId, channelIds),
+  });
 
-  // Group filters by channel
-  const filtersByChannel = new Map<string, typeof allFilters>();
-  for (const filter of allFilters) {
-    const existing = filtersByChannel.get(filter.channelId) ?? [];
-    existing.push(filter);
-    filtersByChannel.set(filter.channelId, existing);
+  const filtersByChannel = new Map<string, ChannelActivityFilters>();
+  for (const row of settingsRows) {
+    const parsed = DiscordChannelSettingsSchema.safeParse(row.settings);
+    if (!parsed.success) {
+      console.error(`Invalid channel settings for ${row.channelId}`);
+      continue;
+    }
+    filtersByChannel.set(row.channelId, parsed.data.filters);
   }
 
   const discordApi = createDiscordApi(discordToken);
@@ -72,7 +78,8 @@ export async function sendActivityMessages(params: {
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
     channelIds.map(async (channelId) => {
-      const channelFilters = filtersByChannel.get(channelId) ?? [];
+      const channelFilters =
+        filtersByChannel.get(channelId) ?? DEFAULT_CHANNEL_SETTINGS.filters;
       const allowedActivities = filterActivities(activities, channelFilters);
 
       if (allowedActivities.length === 0) return;

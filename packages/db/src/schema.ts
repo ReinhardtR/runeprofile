@@ -1,7 +1,11 @@
 import { relations } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 
-import { ActivityEvent, ActivityEventTypeValue } from "@runeprofile/runescape";
+import {
+  ActivityEvent,
+  ActivityEventTypeValue,
+  DiscordChannelSettings,
+} from "@runeprofile/runescape";
 
 import { createdAt, lower, updatedAt } from "./helpers";
 
@@ -274,27 +278,14 @@ export const discordWatchesRelations = relations(discordWatches, ({ one }) => ({
   }),
 }));
 
-export const discordWatchFilters = t.pgTable(
-  "discord_watch_filters",
-  {
-    id: t.text().notNull().primaryKey(),
-    channelId: t.text().notNull(),
-    activityType: t.text().notNull().$type<ActivityEventTypeValue>(),
-    // Allow/block mode for the activity type. Nullable so a row can carry only
-    // a threshold (no allow/block dimension).
-    mode: t.text().$type<"allow" | "block">(),
-    // Minimum threshold for the activity type (e.g. minimum level). Nullable
-    // when the type isn't threshold-able or no threshold is set.
-    threshold: t.integer(),
-    createdAt,
-  },
-  (table) => [
-    t
-      .uniqueIndex("discord_watch_filters_channel_activity_unique_index")
-      .on(table.channelId, table.activityType),
-    t.index("discord_watch_filters_channel_index").on(table.channelId),
-  ],
-);
+export const discordChannelSettings = t.pgTable("discord_channel_settings", {
+  channelId: t.text().notNull().primaryKey(),
+  // Full per-channel settings document, validated against
+  // DiscordChannelSettingsSchema (@runeprofile/runescape) on read/write.
+  settings: t.jsonb().notNull().$type<DiscordChannelSettings>(),
+  updatedAt,
+  createdAt,
+});
 
 // API key management
 export const apiKeys = t.pgTable(

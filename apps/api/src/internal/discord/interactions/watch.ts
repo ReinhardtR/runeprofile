@@ -13,6 +13,8 @@ import {
 import { drizzle } from "@runeprofile/db";
 import {
   type ActivityEventTypeValue,
+  type ChannelActivityFilters,
+  PASS_EVERYTHING_CHANNEL_SETTINGS,
   getActivityThresholdConfig,
 } from "@runeprofile/runescape";
 
@@ -31,14 +33,14 @@ import {
   removeClanWatch,
 } from "~/internal/discord/watch/clan";
 import {
-  addWatchFilter,
-  clearWatchFilters,
+  type RemoveFilterKind,
+  applyListFilter,
+  applyThreshold,
   getActivityTypeLabel,
-  getWatchFilters,
-  removeWatchFilter,
-  resetWatchFilters,
-  seedDefaultFiltersIfNew,
-  setWatchThreshold,
+  getChannelSettings,
+  removeFilter,
+  resetChannelSettings,
+  saveChannelSettings,
 } from "~/internal/discord/watch/filter";
 import {
   addPlayerWatch,
@@ -118,6 +120,12 @@ export const command_watch = factory.autocomplete(
           new Option("activity", "Activity filter to remove")
             .choices(...ActivityEventChoices)
             .required(),
+          new Option("filter", "Which filter to remove (default: everything)")
+            .choices(
+              { name: "Everything", value: "all" },
+              { name: "Allow/Block", value: "list" },
+              { name: "Threshold", value: "threshold" },
+            ),
         ),
         new SubCommand("list", "List all activity filters for this channel"),
         new SubCommand(
@@ -164,7 +172,6 @@ export const command_watch = factory.autocomplete(
               if (!added) {
                 return c.res(`Already watching player: ${rsn}`);
               }
-              await seedDefaultFiltersIfNew({ db, channelId });
               return c.res(`Added player watch for: ${rsn}`);
             }
             case "remove": {
@@ -194,7 +201,6 @@ export const command_watch = factory.autocomplete(
               if (!added) {
                 return c.res(`Already watching clan: ${clanName}`);
               }
-              await seedDefaultFiltersIfNew({ db, channelId });
               return c.res(`Added clan watch for: ${clanName}`);
             }
             case "remove": {
@@ -218,29 +224,21 @@ export const command_watch = factory.autocomplete(
         }
         case "filter": {
           switch (c.sub.command) {
-            case "allow": {
-              const activityType = c.var.activity as ActivityEventTypeValue;
-              await addWatchFilter({
-                db,
-                channelId,
-                activityType,
-                mode: "allow",
-              });
-              return c.res(
-                `Added allow filter for: ${getActivityTypeLabel(activityType)}`,
-              );
-            }
+            case "allow":
             case "block": {
               const activityType = c.var.activity as ActivityEventTypeValue;
-              await addWatchFilter({
-                db,
-                channelId,
+              const mode =
+                c.sub.command === "allow" ? "allowlist" : "blocklist";
+              const current = await getChannelSettings({ db, channelId });
+              const { settings, notice } = applyListFilter(
+                current.settings,
                 activityType,
-                mode: "block",
-              });
-              return c.res(
-                `Added block filter for: ${getActivityTypeLabel(activityType)}`,
+                mode,
               );
+              await saveChannelSettings({ db, channelId, settings });
+
+              const reply = `Added ${c.sub.command} filter for: ${getActivityTypeLabel(activityType)}`;
+              return c.res(notice ? `${reply}\n\n${notice}` : reply);
             }
             case "threshold": {
               const activityType = c.var.activity as ActivityEventTypeValue;
@@ -258,51 +256,65 @@ export const command_watch = factory.autocomplete(
                 );
               }
 
-              await setWatchThreshold({
-                db,
-                channelId,
+              const current = await getChannelSettings({ db, channelId });
+              const { settings } = applyThreshold(
+                current.settings,
                 activityType,
-                threshold: value,
-              });
+                value,
+              );
+              await saveChannelSettings({ db, channelId, settings });
               return c.res(
                 `Set ${getActivityTypeLabel(activityType)} threshold to **${config.format(value)}** — only activities at or above this will be sent.`,
               );
             }
             case "remove": {
               const activityType = c.var.activity as ActivityEventTypeValue;
-              const removed = await removeWatchFilter({
-                db,
-                channelId,
+              const kind = (c.var.filter ?? "all") as RemoveFilterKind;
+              const current = await getChannelSettings({ db, channelId });
+              const { settings, removed, notice } = removeFilter(
+                current.settings,
                 activityType,
-              });
+                kind,
+              );
               if (!removed) {
                 return c.res(
-                  `No filter found for: ${getActivityTypeLabel(activityType)}`,
+                  `No matching filter found for: ${getActivityTypeLabel(activityType)}`,
                 );
               }
-              return c.res(
-                `Removed all filters for: ${getActivityTypeLabel(activityType)}`,
-              );
+              await saveChannelSettings({ db, channelId, settings });
+
+              const what =
+                kind === "all"
+                  ? "all filters"
+                  : kind === "list"
+                    ? "the allow/block filter"
+                    : "the threshold";
+              const reply = `Removed ${what} for: ${getActivityTypeLabel(activityType)}`;
+              return c.res(notice ? `${reply}\n\n${notice}` : reply);
             }
             case "list": {
-              const filters = await getWatchFilters({ db, channelId });
-              if (filters.length === 0) {
-                return c.res(
-                  "No activity filters set for this channel. All activity types will be sent.",
-                );
-              }
-
-              return c.res(formatFilterList(filters));
+              const { settings, isDefault } = await getChannelSettings({
+                db,
+                channelId,
+              });
+              const prefix = isDefault
+                ? "This channel uses the default filters.\n\n"
+                : "";
+              return c.res(prefix + formatFilters(settings.filters));
             }
             case "reset": {
-              await resetWatchFilters({ db, channelId });
-              const filters = await getWatchFilters({ db, channelId });
+              await resetChannelSettings({ db, channelId });
+              const { settings } = await getChannelSettings({ db, channelId });
               return c.res(
-                `Reset to the default filters.\n\n${formatFilterList(filters)}`,
+                `Reset to the default filters.\n\n${formatFilters(settings.filters)}`,
               );
             }
             case "clear": {
-              await clearWatchFilters({ db, channelId });
+              await saveChannelSettings({
+                db,
+                channelId,
+                settings: structuredClone(PASS_EVERYTHING_CHANNEL_SETTINGS),
+              });
               return c.res(
                 "Cleared all activity filters. All activity types will be sent.",
               );
@@ -340,61 +352,41 @@ function getThresholdValueAutocomplete(
   );
 }
 
-function formatFilterList(
-  filters: {
-    activityType: string;
-    mode: "allow" | "block" | null;
-    threshold: number | null;
-  }[],
-): string {
-  const allowFilters = filters.filter((f) => f.mode === "allow");
-  const blockFilters = filters.filter((f) => f.mode === "block");
-  const thresholdFilters = filters.filter((f) => f.threshold !== null);
+function formatFilters(filters: ChannelActivityFilters): string {
+  const thresholds = Object.entries(filters.thresholds);
+  const isAllowlist = filters.mode === "allowlist";
+
+  if (filters.types.length === 0 && thresholds.length === 0) {
+    return "No activity filters set for this channel. All activity types will be sent.";
+  }
 
   let message = "**Activity Filters**\n";
 
-  if (allowFilters.length > 0) {
-    message += "\n✅ **Allowed:**\n";
-    message += allowFilters
-      .map(
-        (f) =>
-          `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
-      )
+  if (filters.types.length > 0) {
+    message += isAllowlist ? "\n✅ **Allowed:**\n" : "\n🚫 **Blocked:**\n";
+    message += filters.types
+      .map((type) => `- ${getActivityTypeLabel(type as ActivityEventTypeValue)}`)
       .join("\n");
   }
 
-  if (blockFilters.length > 0) {
-    message += "\n🚫 **Blocked:**\n";
-    message += blockFilters
-      .map(
-        (f) =>
-          `- ${getActivityTypeLabel(f.activityType as ActivityEventTypeValue)}`,
-      )
-      .join("\n");
-  }
-
-  if (thresholdFilters.length > 0) {
+  if (thresholds.length > 0) {
     message += "\n📊 **Thresholds:**\n";
-    message += thresholdFilters
-      .map((f) => {
-        const type = f.activityType as ActivityEventTypeValue;
-        const config = getActivityThresholdConfig(type);
-        const value =
-          config && f.threshold !== null
-            ? config.format(f.threshold)
-            : String(f.threshold);
-        return `- ${getActivityTypeLabel(type)} — minimum ${value}`;
+    message += thresholds
+      .map(([type, threshold]) => {
+        const activityType = type as ActivityEventTypeValue;
+        const config = getActivityThresholdConfig(activityType);
+        const value = config ? config.format(threshold) : String(threshold);
+        return `- ${getActivityTypeLabel(activityType)} — minimum ${value}`;
       })
       .join("\n");
   }
 
-  if (allowFilters.length > 0) {
+  if (isAllowlist) {
     message += "\n\n*Only allowed activity types will be sent";
-    message += thresholdFilters.length > 0 ? ", subject to thresholds.*" : ".*";
-  } else if (blockFilters.length > 0 || thresholdFilters.length > 0) {
+  } else {
     message += "\n\n*All activity types except blocked ones will be sent";
-    message += thresholdFilters.length > 0 ? ", subject to thresholds.*" : ".*";
   }
+  message += thresholds.length > 0 ? ", subject to thresholds.*" : ".*";
 
   return message;
 }

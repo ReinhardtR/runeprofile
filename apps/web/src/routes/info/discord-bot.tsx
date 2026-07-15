@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import {
   ACTIVITY_FILTER_META,
-  DEFAULT_FILTERS,
+  type ActivityEventTypeValue,
+  DEFAULT_CHANNEL_SETTINGS,
   THRESHOLD_ACTIVITY_TYPES,
   getActivityThresholdConfig,
   getActivityTypeLabel,
@@ -87,8 +88,9 @@ const COMMAND_GROUPS = [
           "only send an activity when it meets a minimum value (e.g. level 50+).",
       },
       {
-        command: "/watch filter remove [activity]",
-        description: "remove all filters for an activity type.",
+        command: "/watch filter remove [activity] [filter]",
+        description:
+          "remove filters for an activity type — everything, or just its allow/block or threshold.",
       },
       {
         command: "/watch filter list",
@@ -111,16 +113,14 @@ const THRESHOLD_ACTIVITIES = THRESHOLD_ACTIVITY_TYPES.map((type) => ({
   unit: ACTIVITY_FILTER_META[type].threshold?.unit ?? "",
 }));
 
-const DEFAULT_FILTER_ITEMS = DEFAULT_FILTERS.map((filter) => {
-  const config = getActivityThresholdConfig(filter.activityType);
-  const parts: string[] = [];
-  if (filter.threshold !== undefined && config) {
-    parts.push(`minimum ${config.format(filter.threshold)}`);
-  }
-  if (filter.mode) parts.push(filter.mode);
+const DEFAULT_FILTER_ITEMS = Object.entries(
+  DEFAULT_CHANNEL_SETTINGS.filters.thresholds,
+).map(([type, threshold]) => {
+  const activityType = type as ActivityEventTypeValue;
+  const config = getActivityThresholdConfig(activityType);
   return {
-    label: getActivityTypeLabel(filter.activityType),
-    detail: parts.join(", "),
+    label: getActivityTypeLabel(activityType),
+    detail: config ? `minimum ${config.format(threshold)}` : "",
   };
 });
 
@@ -229,9 +229,10 @@ const SECTIONS: Section[] = [
         <GuideList>
           <li>
             <b className="text-secondary-foreground">Allow / block</b> -
-            control which activity types are sent. If you add any allow
-            filter, only those types are sent. Otherwise every type is sent
-            except the ones you block.
+            control which activity types are sent. A channel is either a block
+            list (every type is sent except the ones you block) or an allow
+            list (only the types you allow are sent). Adding the other kind of
+            filter switches the channel over and clears the old list.
           </li>
           <li>
             <b className="text-secondary-foreground">Thresholds</b> - for
@@ -255,8 +256,7 @@ const SECTIONS: Section[] = [
         </GuideList>
 
         <GuideParagraph>
-          When you add the first watch to a channel, these default filters are
-          applied automatically:
+          Until you customize a channel's filters, these defaults apply:
         </GuideParagraph>
         <GuideList>
           {DEFAULT_FILTER_ITEMS.map((filter) => (

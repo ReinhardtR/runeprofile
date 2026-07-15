@@ -1,212 +1,206 @@
-import { and, eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
-import { Database, discordWatchFilters, discordWatches } from "@runeprofile/db";
+import { Database, discordChannelSettings } from "@runeprofile/db";
 import {
   type ActivityEvent,
   type ActivityEventTypeValue,
-  DEFAULT_FILTERS,
+  type ChannelActivityFilters,
+  DEFAULT_CHANNEL_SETTINGS,
+  type DiscordChannelSettings,
+  DiscordChannelSettingsSchema,
   getActivityThresholdConfig,
   getActivityTypeLabel,
 } from "@runeprofile/runescape";
 
 export { getActivityTypeLabel };
 
-export async function addWatchFilter(params: {
+// ---------------------------------------------------------------------------
+// Settings storage
+// ---------------------------------------------------------------------------
+
+/**
+ * Loads a channel's settings document. A missing or invalid row yields the
+ * default settings (`isDefault: true`), so callers can mutate a copy and save
+ * it back without special-casing new channels.
+ */
+export async function getChannelSettings(params: {
   db: Database;
   channelId: string;
-  activityType: ActivityEventTypeValue;
-  mode: "allow" | "block";
+}): Promise<{ settings: DiscordChannelSettings; isDefault: boolean }> {
+  const { db, channelId } = params;
+
+  const row = await db.query.discordChannelSettings.findFirst({
+    where: eq(discordChannelSettings.channelId, channelId),
+  });
+  if (!row) {
+    return { settings: structuredClone(DEFAULT_CHANNEL_SETTINGS), isDefault: true };
+  }
+
+  const parsed = DiscordChannelSettingsSchema.safeParse(row.settings);
+  if (!parsed.success) {
+    console.error(
+      `Invalid channel settings for ${channelId}, falling back to defaults:`,
+      parsed.error,
+    );
+    return { settings: structuredClone(DEFAULT_CHANNEL_SETTINGS), isDefault: true };
+  }
+
+  return { settings: parsed.data, isDefault: false };
+}
+
+export async function saveChannelSettings(params: {
+  db: Database;
+  channelId: string;
+  settings: DiscordChannelSettings;
 }) {
-  const { db, channelId, activityType, mode } = params;
+  const { db, channelId, settings } = params;
 
   await db
-    .insert(discordWatchFilters)
-    .values({
-      id: crypto.randomUUID(),
-      channelId,
-      activityType,
-      mode,
-    })
+    .insert(discordChannelSettings)
+    .values({ channelId, settings })
     .onConflictDoUpdate({
-      target: [discordWatchFilters.channelId, discordWatchFilters.activityType],
-      // Only touch the mode — preserve any existing threshold on the row.
-      set: { mode },
+      target: discordChannelSettings.channelId,
+      set: { settings, updatedAt: sql`now()` },
     });
 }
 
-export async function setWatchThreshold(params: {
-  db: Database;
-  channelId: string;
-  activityType: ActivityEventTypeValue;
-  threshold: number;
-}) {
-  const { db, channelId, activityType, threshold } = params;
-
-  await db
-    .insert(discordWatchFilters)
-    .values({
-      id: crypto.randomUUID(),
-      channelId,
-      activityType,
-      threshold,
-    })
-    .onConflictDoUpdate({
-      target: [discordWatchFilters.channelId, discordWatchFilters.activityType],
-      // Only touch the threshold — preserve any existing allow/block mode.
-      set: { threshold },
-    });
-}
-
-export async function removeWatchFilter(params: {
-  db: Database;
-  channelId: string;
-  activityType: ActivityEventTypeValue;
-}) {
-  const { db, channelId, activityType } = params;
-
-  const result = await db
-    .delete(discordWatchFilters)
-    .where(
-      and(
-        eq(discordWatchFilters.channelId, channelId),
-        eq(discordWatchFilters.activityType, activityType),
-      ),
-    )
-    .returning({ id: discordWatchFilters.id });
-
-  return result.length > 0;
-}
-
-export async function getWatchFilters(params: {
-  db: Database;
-  channelId: string;
-}) {
-  const { db, channelId } = params;
-
-  return db.query.discordWatchFilters.findMany({
-    where: eq(discordWatchFilters.channelId, channelId),
-  });
-}
-
-export async function clearWatchFilters(params: {
+/** Deletes the settings row — the channel falls back to the defaults. */
+export async function resetChannelSettings(params: {
   db: Database;
   channelId: string;
 }) {
   const { db, channelId } = params;
 
   await db
-    .delete(discordWatchFilters)
-    .where(eq(discordWatchFilters.channelId, channelId));
+    .delete(discordChannelSettings)
+    .where(eq(discordChannelSettings.channelId, channelId));
 }
 
-async function insertDefaultFilters(db: Database, channelId: string) {
-  if (DEFAULT_FILTERS.length === 0) return;
+// ---------------------------------------------------------------------------
+// Pure settings mutations (each returns a new document, never mutates input)
+// ---------------------------------------------------------------------------
 
-  await db
-    .insert(discordWatchFilters)
-    .values(
-      DEFAULT_FILTERS.map((f) => ({
-        id: crypto.randomUUID(),
-        channelId,
-        activityType: f.activityType,
-        mode: f.mode ?? null,
-        threshold: f.threshold ?? null,
-      })),
-    )
-    .onConflictDoNothing();
-}
+export type SettingsMutation = {
+  settings: DiscordChannelSettings;
+  /** Extra context for the reply, e.g. when the mode implicitly switched. */
+  notice?: string;
+};
 
 /**
- * Resets a channel to the default filter set: removes all existing filters and
- * installs `DEFAULT_FILTERS`.
- */
-export async function resetWatchFilters(params: {
-  db: Database;
-  channelId: string;
-}) {
-  const { db, channelId } = params;
-
-  await db
-    .delete(discordWatchFilters)
-    .where(eq(discordWatchFilters.channelId, channelId));
-  await insertDefaultFilters(db, channelId);
-}
-
-/**
- * Seeds `DEFAULT_FILTERS` into a channel when its first watch is added.
+ * Adds an activity type to the channel's list, switching the mode when needed.
  *
- * Call this *after* a successful watch insert. It only seeds when the channel
- * has no existing filters and the just-added watch is its first, so existing
- * channels and customised channels are left untouched.
+ * Allow and block lists are mutually exclusive: adding an allow filter to a
+ * blocklist channel switches it to an allowlist (discarding the blocked
+ * types) and vice versa — the returned notice explains what happened.
  */
-export async function seedDefaultFiltersIfNew(params: {
-  db: Database;
-  channelId: string;
-}) {
-  const { db, channelId } = params;
+export function applyListFilter(
+  current: DiscordChannelSettings,
+  activityType: ActivityEventTypeValue,
+  mode: "allowlist" | "blocklist",
+): SettingsMutation {
+  const settings = structuredClone(current);
+  const filters = settings.filters;
+  let notice: string | undefined;
 
-  const existingFilters = await db.query.discordWatchFilters.findMany({
-    where: eq(discordWatchFilters.channelId, channelId),
-    columns: { id: true },
-    limit: 1,
-  });
-  if (existingFilters.length > 0) return;
+  if (filters.mode !== mode) {
+    if (filters.types.length > 0) {
+      const kind = filters.mode === "allowlist" ? "allow" : "block";
+      notice = `This channel now uses ${mode === "allowlist" ? "an allow list" : "a block list"} — removed ${filters.types.length} ${kind} filter${filters.types.length === 1 ? "" : "s"}.`;
+    }
+    filters.mode = mode;
+    filters.types = [];
+  }
 
-  const watches = await db.query.discordWatches.findMany({
-    where: eq(discordWatches.channelId, channelId),
-    columns: { id: true },
-    limit: 2,
-  });
-  if (watches.length !== 1) return;
+  if (!filters.types.includes(activityType)) {
+    filters.types.push(activityType);
+  }
 
-  await insertDefaultFilters(db, channelId);
+  return { settings, notice };
 }
 
+/** Sets the minimum threshold for an activity type. */
+export function applyThreshold(
+  current: DiscordChannelSettings,
+  activityType: ActivityEventTypeValue,
+  threshold: number,
+): SettingsMutation {
+  const settings = structuredClone(current);
+  settings.filters.thresholds[activityType] = threshold;
+  return { settings, notice: undefined };
+}
+
+export type RemoveFilterKind = "all" | "list" | "threshold";
+
 /**
- * Given a channel's activities and filters, returns only the activities that
- * should be sent.
+ * Removes an activity type's filters. `kind` selects what to remove: its
+ * allow/block list entry, its threshold, or both (`all`).
  *
- * Precedence:
- * - allow/block on the activity type (allow wins: only allowed types pass;
- *   else blocked types are dropped; else all types pass)
- * - per-type threshold: an activity is dropped when its extracted value is
- *   below the configured minimum.
+ * When the last entry of an allow list is removed the mode switches back to
+ * an (empty) block list, so the channel receives everything again instead of
+ * silently receiving nothing.
+ */
+export function removeFilter(
+  current: DiscordChannelSettings,
+  activityType: ActivityEventTypeValue,
+  kind: RemoveFilterKind,
+): SettingsMutation & { removed: boolean } {
+  const settings = structuredClone(current);
+  const filters = settings.filters;
+  let removed = false;
+  let notice: string | undefined;
+
+  if (kind === "all" || kind === "list") {
+    const index = filters.types.indexOf(activityType);
+    if (index !== -1) {
+      filters.types.splice(index, 1);
+      removed = true;
+
+      if (filters.mode === "allowlist" && filters.types.length === 0) {
+        filters.mode = "blocklist";
+        notice =
+          "No allowed activity types left — this channel now receives every type again.";
+      }
+    }
+  }
+
+  if (kind === "all" || kind === "threshold") {
+    if (filters.thresholds[activityType] !== undefined) {
+      delete filters.thresholds[activityType];
+      removed = true;
+    }
+  }
+
+  return { settings, removed, notice };
+}
+
+// ---------------------------------------------------------------------------
+// Filtering engine
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns only the activities a channel should receive.
+ *
+ * - `allowlist` mode: only listed types pass; `blocklist` mode: listed types
+ *   are dropped.
+ * - Thresholds: an activity is dropped when its extracted value is below the
+ *   configured minimum for its type.
  */
 export function filterActivities(
   activities: ActivityEvent[],
-  filters: {
-    activityType: string;
-    mode: "allow" | "block" | null;
-    threshold: number | null;
-  }[],
+  filters: ChannelActivityFilters,
 ): ActivityEvent[] {
-  if (filters.length === 0) return activities;
-
-  const allowSet = new Set(
-    filters.filter((f) => f.mode === "allow").map((f) => f.activityType),
-  );
-  const blockSet = new Set(
-    filters.filter((f) => f.mode === "block").map((f) => f.activityType),
-  );
-  const thresholdByType = new Map<string, number>();
-  for (const f of filters) {
-    if (f.threshold !== null) {
-      thresholdByType.set(f.activityType, f.threshold);
-    }
-  }
+  const types = new Set(filters.types);
 
   return activities.filter((activity) => {
     const type = activity.type;
 
-    if (allowSet.size > 0) {
-      if (!allowSet.has(type)) return false;
-    } else if (blockSet.size > 0) {
-      if (blockSet.has(type)) return false;
+    if (filters.mode === "allowlist" ? !types.has(type) : types.has(type)) {
+      return false;
     }
 
-    const threshold = thresholdByType.get(type);
+    const threshold = filters.thresholds[type];
     if (threshold !== undefined) {
-      const config = getActivityThresholdConfig(type as ActivityEventTypeValue);
+      const config = getActivityThresholdConfig(type);
       if (config && config.getValue(activity) < threshold) return false;
     }
 
