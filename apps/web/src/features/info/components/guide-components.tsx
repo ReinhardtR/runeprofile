@@ -129,6 +129,90 @@ export const GuideList: React.FC<React.HTMLAttributes<HTMLUListElement>> = ({
 };
 
 /* -------------------------------------------------------------------------- */
+/*  Command reference                                                         */
+/* -------------------------------------------------------------------------- */
+
+export interface CommandItem {
+  command: string;
+  description: React.ReactNode;
+}
+
+/**
+ * Scannable command reference: one bordered card per group, command syntax in
+ * a fixed-width column with its description beside it (stacked on mobile).
+ */
+export const GuideCommandList: React.FC<{
+  items: CommandItem[];
+  className?: string;
+}> = ({ items, className }) => {
+  return (
+    <div
+      className={cn(
+        "mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card",
+        className,
+      )}
+    >
+      {items.map((item) => (
+        <div
+          key={item.command}
+          className="gap-x-6 gap-y-1 px-4 py-3 sm:grid sm:grid-cols-[minmax(0,20rem)_1fr] sm:items-baseline"
+        >
+          <code className="font-mono text-[0.85rem] font-medium text-secondary-foreground">
+            {item.command}
+          </code>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground sm:mt-0">
+            {item.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Table                                                                     */
+/* -------------------------------------------------------------------------- */
+
+interface GuideTableProps {
+  headers: React.ReactNode[];
+  children: React.ReactNode; // <tr> rows
+  className?: string;
+}
+
+export const GuideTable: React.FC<GuideTableProps> = ({
+  headers,
+  children,
+  className,
+}) => {
+  return (
+    <div
+      className={cn(
+        "mt-4 overflow-x-auto rounded-lg border border-border bg-card",
+        className,
+      )}
+    >
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/40">
+            {headers.map((header, index) => (
+              <th
+                key={index}
+                className="px-4 py-2.5 text-left font-semibold text-secondary-foreground"
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border text-muted-foreground [&_td]:px-4 [&_td]:py-2.5">
+          {children}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
 /*  Inline elements                                                           */
 /* -------------------------------------------------------------------------- */
 

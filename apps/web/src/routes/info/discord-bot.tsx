@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Check, X } from "lucide-react";
 
 import {
   ACTIVITY_FILTER_META,
@@ -9,9 +10,15 @@ import {
   getActivityTypeLabel,
 } from "@runeprofile/runescape";
 
+import ITEM_ICONS from "~/core/assets/item-icons.json";
+import QuestIcon from "~/core/assets/icons/quest.png";
+import Logo from "~/core/assets/misc/logo.png";
+import SKILL_ICONS from "~/core/assets/skill-icons-large.json";
 import {
+  type CommandItem,
   type FaqItem,
   GuideCode,
+  GuideCommandList,
   GuideFaq,
   GuideHeading,
   GuideLink,
@@ -19,12 +26,15 @@ import {
   GuideParagraph,
   GuideSection,
   GuideSubheading,
+  GuideTable,
   GuideTableOfContents,
   useActiveSection,
 } from "~/features/info";
 import { Footer, Header } from "~/layouts";
 import { AddDiscordBotButton } from "~/shared/components/AddDiscordBotButton";
+import { GameIcon } from "~/shared/components/icons";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
+import { cn } from "~/shared/utils";
 
 export const Route = createFileRoute("/info/discord-bot")({
   component: RouteComponent,
@@ -36,7 +46,177 @@ interface Section {
   content: React.ReactNode;
 }
 
-const COMMAND_GROUPS = [
+/* -------------------------------------------------------------------------- */
+/*  Discord message mock                                                      */
+/* -------------------------------------------------------------------------- */
+
+const DiscordMock: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <div className="my-6 rounded-lg border border-border bg-[#313338] px-4 py-3.5 shadow-md">
+      <div className="flex gap-3.5">
+        <img
+          src={Logo}
+          alt="RuneProfile bot avatar"
+          className="mt-0.5 size-10 shrink-0 rounded-full bg-[#1e1f22] object-contain p-1"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-2">
+            <span className="font-medium text-[#f2f3f5]">RuneProfile</span>
+            <span className="rounded-sm bg-[#5865f2] px-1 py-px text-[10px] font-semibold text-white">
+              APP
+            </span>
+            <span className="text-xs text-[#949ba4]">Today at 6:24 PM</span>
+          </div>
+          <div className="mt-1.5 space-y-2">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DiscordEmbedMock: React.FC<{
+  color: string;
+  rsn: string;
+  footer: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ color, rsn, footer, icon, children }) => {
+  return (
+    <div
+      className="max-w-md rounded border-l-4 bg-[#2b2d31] py-2.5 pl-3.5 pr-4"
+      style={{ borderLeftColor: color }}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 text-sm">
+          <p className="font-semibold text-[#00a8fc]">{rsn}</p>
+          <p className="mt-1.5 text-[#dbdee1]">{children}</p>
+          <p className="mt-2 text-xs text-[#949ba4]">{footer}</p>
+        </div>
+        {icon && <div className="mt-1 shrink-0">{icon}</div>}
+      </div>
+    </div>
+  );
+};
+
+const EXAMPLE_RSN = "PGN";
+
+// Colors and copy mirror the real activity embeds sent by the bot.
+const DiscordPreview: React.FC = () => (
+  <DiscordMock>
+    <DiscordEmbedMock
+      color="#00ff00"
+      rsn={EXAMPLE_RSN}
+      footer="Level Up"
+      icon={<GameIcon src={SKILL_ICONS.slayer} alt="Slayer" size={36} />}
+    >
+      Reached level <b className="text-[#f2f3f5]">99</b> in{" "}
+      <b className="text-[#f2f3f5]">Slayer</b>
+    </DiscordEmbedMock>
+    <DiscordEmbedMock
+      color="#ff006e"
+      rsn={EXAMPLE_RSN}
+      footer="Valuable Drop"
+      icon={
+        <GameIcon
+          src={ITEM_ICONS["20997" as keyof typeof ITEM_ICONS]}
+          alt="Twisted bow"
+          size={36}
+        />
+      }
+    >
+      <b className="text-[#f2f3f5]">1,412,006,319 gp</b>
+    </DiscordEmbedMock>
+    <DiscordEmbedMock
+      color="#00ced1"
+      rsn={EXAMPLE_RSN}
+      footer="Quest"
+      icon={
+        <GameIcon src={QuestIcon} alt="Quest" size={32} isBase64={false} />
+      }
+    >
+      Completed{" "}
+      <b className="text-[#f2f3f5]">Desert Treasure II - The Fallen Empire</b>
+    </DiscordEmbedMock>
+  </DiscordMock>
+);
+
+/* -------------------------------------------------------------------------- */
+/*  Worked filter example                                                     */
+/* -------------------------------------------------------------------------- */
+
+type FilterOutcome = {
+  activity: React.ReactNode;
+  sent: boolean;
+  reason: string;
+};
+
+const FILTER_EXAMPLE_OUTCOMES: FilterOutcome[] = [
+  {
+    activity: "Level 92 in Slayer",
+    sent: true,
+    reason: "at or above the level 50 threshold",
+  },
+  {
+    activity: "Level 47 in Fishing",
+    sent: false,
+    reason: "below the level 50 threshold",
+  },
+  {
+    activity: "Completed Desert Treasure II (Grandmaster)",
+    sent: true,
+    reason: "at or above the Experienced threshold",
+  },
+  {
+    activity: "Completed Cook's Assistant (Novice)",
+    sent: false,
+    reason: "below the Experienced threshold",
+  },
+  {
+    activity: "New collection log item",
+    sent: true,
+    reason: "no filter set for this type",
+  },
+];
+
+const FilterExample: React.FC = () => (
+  <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
+    <p className="border-b border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-secondary-foreground">
+      Example — a channel with the default filters
+    </p>
+    <ul className="divide-y divide-border">
+      {FILTER_EXAMPLE_OUTCOMES.map((outcome, index) => (
+        <li
+          key={index}
+          className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm"
+        >
+          <span
+            className={cn(
+              "inline-flex w-20 items-center gap-1 font-medium",
+              outcome.sent ? "text-green-500" : "text-muted-foreground",
+            )}
+          >
+            {outcome.sent ? (
+              <Check className="size-3.5" />
+            ) : (
+              <X className="size-3.5" />
+            )}
+            {outcome.sent ? "Sent" : "Hidden"}
+          </span>
+          <span className="text-secondary-foreground">{outcome.activity}</span>
+          <span className="text-muted-foreground">— {outcome.reason}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+/* -------------------------------------------------------------------------- */
+/*  Content                                                                   */
+/* -------------------------------------------------------------------------- */
+
+const COMMAND_GROUPS: { title: string; commands: CommandItem[] }[] = [
   {
     title: "Player watches",
     commands: [
@@ -110,10 +290,27 @@ const COMMAND_GROUPS = [
   },
 ];
 
-const THRESHOLD_ACTIVITIES = THRESHOLD_ACTIVITY_TYPES.map((type) => ({
-  label: getActivityTypeLabel(type),
-  unit: ACTIVITY_FILTER_META[type].threshold?.unit ?? "",
-}));
+// Registry-driven: label, unit and example values come from the threshold
+// configs, so this table stays correct as activity types evolve.
+const THRESHOLD_ROWS = THRESHOLD_ACTIVITY_TYPES.flatMap((type) => {
+  const config = ACTIVITY_FILTER_META[type].threshold;
+  if (!config) return [];
+  const { suggestions } = config;
+  const samples = [
+    suggestions[0],
+    suggestions[Math.floor(suggestions.length / 2)],
+    suggestions[suggestions.length - 1],
+  ]
+    .filter((value, index, arr) => arr.indexOf(value) === index)
+    .map((value) => config.format(value));
+  return [
+    {
+      label: getActivityTypeLabel(type),
+      unit: config.unit,
+      examples: samples.join(", "),
+    },
+  ];
+});
 
 const DEFAULT_FILTER_ITEMS = Object.entries(
   DEFAULT_CHANNEL_SETTINGS.filters.thresholds,
@@ -166,12 +363,15 @@ const SECTIONS: Section[] = [
     id: "overview",
     title: "Overview",
     content: (
-      <GuideParagraph>
-        The RuneProfile Discord bot sends activity messages directly to your
-        Discord server. Get notified when clan members or tracked players level
-        up, receive valuable drops, complete quests, unlock collection log
-        items, and more.
-      </GuideParagraph>
+      <>
+        <GuideParagraph>
+          The RuneProfile Discord bot sends activity messages directly to your
+          Discord server. Get notified when clan members or tracked players
+          level up, receive valuable drops, complete quests, unlock collection
+          log items, and more.
+        </GuideParagraph>
+        <DiscordPreview />
+      </>
     ),
   },
   {
@@ -207,13 +407,7 @@ const SECTIONS: Section[] = [
         {COMMAND_GROUPS.map((group) => (
           <div key={group.title}>
             <GuideSubheading>{group.title}</GuideSubheading>
-            <GuideList>
-              {group.commands.map((entry) => (
-                <li key={entry.command}>
-                  <GuideCode>{entry.command}</GuideCode> - {entry.description}
-                </li>
-              ))}
-            </GuideList>
+            <GuideCommandList items={group.commands} />
           </div>
         ))}
       </>
@@ -239,25 +433,28 @@ const SECTIONS: Section[] = [
           <li>
             <b className="text-secondary-foreground">Thresholds</b> - for
             activity types with a meaningful value, set a minimum so only
-            activities at or above it are sent. For example, a level-up
-            threshold of 50 hides level-ups below level 50, and a quest
-            threshold of Experienced hides Novice and Intermediate quests.
-            Thresholds apply on top of the allow/block filters.
+            activities at or above it are sent. Thresholds apply on top of the
+            allow/block filters.
           </li>
         </GuideList>
+
+        <FilterExample />
 
         <GuideParagraph>
           Thresholds can be set on these activity types (other types, like new
           collection log items, support allow/block only):
         </GuideParagraph>
-        <GuideList>
-          {THRESHOLD_ACTIVITIES.map((activity) => (
-            <li key={activity.label}>
-              <b className="text-secondary-foreground">{activity.label}</b> -
-              minimum {activity.unit}.
-            </li>
+        <GuideTable headers={["Activity", "Threshold", "Example values"]}>
+          {THRESHOLD_ROWS.map((row) => (
+            <tr key={row.label}>
+              <td className="font-medium text-secondary-foreground">
+                {row.label}
+              </td>
+              <td>minimum {row.unit}</td>
+              <td>{row.examples}</td>
+            </tr>
           ))}
-        </GuideList>
+        </GuideTable>
 
         <GuideParagraph>
           Until you customize a channel's filters, these defaults apply:
