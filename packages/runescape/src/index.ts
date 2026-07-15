@@ -9,4 +9,5 @@ export * from "./hiscores";
 export * from "./quests";
 export * from "./skills";
 export * from "./usernames";
+export * from "./valuable-drops";
 export * from "./xp";
