@@ -22,10 +22,7 @@ import ITEM_ICONS from "~/core/assets/item-icons.json";
 import MiscIcons from "~/core/assets/misc-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
-import {
-  ActivityContent,
-  ActivityIcon,
-} from "~/features/clan/components/activity-renderers";
+import { ActivityIcon } from "~/features/clan/components/activity-renderers";
 import { GameIcon } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
@@ -40,6 +37,7 @@ import {
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import {
   cn,
+  formatRelativeTime,
   itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
@@ -183,7 +181,7 @@ export function ProfileActivities({
                 key={event.id}
                 className="pt-3 overflow-hidden flex flex-row"
               >
-                <div className="bg-card border rounded-md min-h-16 lg:h-16 px-4 py-2 lg:py-0 flex flex-row items-center gap-x-2 flex-1">
+                <div className="bg-card border rounded-md min-h-16 px-4 py-2.5 flex flex-row items-center gap-x-2 flex-1">
                   {render(event as any)}
                 </div>
               </div>
@@ -221,16 +219,38 @@ function ProfileActivitiesSkeleton() {
     <>
       {Array.from({ length: 8 }).map((_, index) => (
         <div key={index} className="pt-3 overflow-hidden flex flex-row">
-          <div className="bg-card border rounded-md min-h-16 lg:h-16 px-4 py-2 lg:py-0 flex flex-row items-center gap-x-2 flex-1">
+          <div className="bg-card border rounded-md min-h-16 px-4 py-2.5 flex flex-row items-center gap-x-2 flex-1">
             <Skeleton className="size-9 rounded-sm shrink-0" />
-            <div className="flex flex-col lg:flex-row lg:items-center flex-1 gap-x-1 gap-y-1">
+            <div className="flex flex-col flex-1 gap-y-1.5">
               <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-3 w-16 lg:ml-auto" />
+              <Skeleton className="h-3 w-16" />
             </div>
           </div>
         </div>
       ))}
     </>
+  );
+}
+
+// Activity text with the timestamp stacked underneath (rather than pushed to the
+// right like the clan feed) so long descriptions don't get squeezed in the
+// narrow side panel.
+function ProfileActivityContent({
+  children,
+  createdAt,
+}: {
+  children: React.ReactNode;
+  createdAt: string;
+}) {
+  return (
+    <div className="flex flex-col flex-1 min-w-0 gap-y-0.5">
+      <div className="flex flex-wrap items-center font-runescape text-lg gap-x-1 leading-tight">
+        {children}
+      </div>
+      <span className="text-xs text-muted-foreground">
+        {formatRelativeTime(createdAt)}
+      </span>
+    </div>
   );
 }
 
@@ -262,10 +282,10 @@ const ProfileActivityRenderMap = {
             />
           )}
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Obtained</span>
           <span className="text-secondary-foreground">{itemName}</span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -289,12 +309,12 @@ const ProfileActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Reached level</span>
           <span className="text-secondary-foreground">
             {event.data.level} in {event.data.name}
           </span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -318,7 +338,7 @@ const ProfileActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Reached</span>
           <span
             className={cn("text-secondary-foreground", {
@@ -327,7 +347,7 @@ const ProfileActivityRenderMap = {
           >
             {numberWithAbbreviation(event.data.xp)} XP in {event.data.name}
           </span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -348,12 +368,12 @@ const ProfileActivityRenderMap = {
             className="size-7 object-contain drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Completed the</span>
           <span className="text-secondary-foreground">
             {tierName} diary in {areaName}
           </span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -379,7 +399,7 @@ const ProfileActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Reached the</span>
           <span
             className={cn(
@@ -389,7 +409,7 @@ const ProfileActivityRenderMap = {
           >
             {tierName} Combat Achievement Tier
           </span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -409,12 +429,12 @@ const ProfileActivityRenderMap = {
             className="size-6.5 object-contain drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Completed</span>
           <span className="text-secondary-foreground">
             {quest?.name ?? "Unknown"}
           </span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -434,10 +454,10 @@ const ProfileActivityRenderMap = {
             className="drop-shadow-solid-sm"
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span className="shimmer-text">Maxed</span>
           <span>all skills.</span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },
@@ -455,12 +475,12 @@ const ProfileActivityRenderMap = {
             className={cn("z-10 drop-shadow-2xl object-contain mx-auto")}
           />
         </ActivityIcon>
-        <ActivityContent createdAt={event.createdAt}>
+        <ProfileActivityContent createdAt={event.createdAt}>
           <span>Received a valuable drop worth</span>
           <span className="text-secondary-foreground">
             {numberWithDelimiter(event.data.value)} gp
           </span>
-        </ActivityContent>
+        </ProfileActivityContent>
       </>
     );
   },

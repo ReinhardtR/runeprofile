@@ -24,7 +24,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
-import { cn, numberWithDelimiter } from "~/shared/utils";
+import {
+  cn,
+  numberWithAbbreviation,
+  numberWithDelimiter,
+} from "~/shared/utils";
 
 export function hiscoresQueryOptions(params: {
   leaderboard: HiscoreLeaderboardKey;
@@ -61,69 +65,120 @@ export function Hiscores({
   const overall = skills.find((skill) => skill.name === "Overall");
   const combatLevel = getCombatLevelFromSkills(skills);
 
-  // Show every boss/activity/clue that has an icon (RuneLite-style). Restricting to
-  // entries with an icon drops the non-gameplay noise the raw hiscore feed carries
-  // (e.g. "Grid Points", "Deadman Points", legacy Bounty Hunter), leaving the curated
-  // set RuneLite shows.
-  const visibleActivities = activities
-    .map((activity) => ({ ...activity, icon: activityIcon(activity.name) }))
-    .filter((activity) => activity.icon !== null);
+  // The hiscore activity feed is ordered [minigames/clues/misc..., bosses...],
+  // with bosses starting at "Abyssal Sire". Split there so we can group them into
+  // separate "Activities" and "Bosses" sections like RuneLite. Only entries with an
+  // icon are shown, which drops the non-gameplay noise the raw feed carries (e.g.
+  // "Grid Points", "Deadman Points", legacy Bounty Hunter).
+  const bossesStartIndex = activities.findIndex(
+    (activity) => activity.name === "Abyssal Sire",
+  );
+  const withIcons = activities.map((activity) => ({
+    ...activity,
+    icon: activityIcon(activity.name),
+  }));
+  const activityTiles = (
+    bossesStartIndex >= 0 ? withIcons.slice(0, bossesStartIndex) : withIcons
+  ).filter((activity) => activity.icon !== null);
+  const bossTiles =
+    bossesStartIndex >= 0
+      ? withIcons.slice(bossesStartIndex).filter((a) => a.icon !== null)
+      : [];
 
   return (
     <TooltipProvider delayDuration={100} skipDelayDuration={0}>
-      <div className={cn("flex flex-col gap-y-2 p-1", className)}>
-        <div className="grid grid-cols-3 gap-[1px]">
-          {skillTiles.map((skill) => (
-            <SkillTile
-              key={skill.id}
-              name={skill.name}
-              level={skill.level}
-              xp={skill.xp}
-              rank={skill.rank}
-            />
-          ))}
-        </div>
+      <div className={cn("flex flex-col gap-y-4 p-1 pt-4", className)}>
+        <Section label="Skills">
+          <div className="grid grid-cols-3 gap-1">
+            {skillTiles.map((skill) => (
+              <SkillTile
+                key={skill.id}
+                name={skill.name}
+                level={skill.level}
+                xp={skill.xp}
+                rank={skill.rank}
+              />
+            ))}
+          </div>
 
-        <div className="flex items-center justify-center gap-[1px]">
-          <SummaryTile
-            icon={MiscIcons["combat"]}
-            label="Combat Level"
-            value={combatLevel}
-            isMax={combatLevel === MAX_COMBAT_LEVEL}
-          />
-          <SummaryTile
-            icon={TotalLevelIcon}
-            isBase64={false}
-            label="Total Level"
-            value={overall?.level ?? 0}
-            isMax={(overall?.level ?? 0) === MAX_TOTAL_LEVEL}
-            extra={
-              overall ? (
-                <>
-                  <Separator className="my-1" />
-                  <TooltipRow
-                    label="Overall XP"
-                    value={numberWithDelimiter(overall.xp)}
-                  />
-                </>
-              ) : undefined
-            }
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-[1px]">
-          {visibleActivities.map((activity) => (
-            <ActivityTile
-              key={activity.id}
-              name={activity.name}
-              icon={activity.icon!}
-              score={activity.score}
-              rank={activity.rank}
+          <div className="grid grid-cols-2 gap-1">
+            <SummaryTile
+              icon={MiscIcons["combat"]}
+              label="Combat Level"
+              value={combatLevel}
+              isMax={combatLevel === MAX_COMBAT_LEVEL}
             />
-          ))}
-        </div>
+            <SummaryTile
+              icon={TotalLevelIcon}
+              isBase64={false}
+              label="Total Level"
+              value={overall?.level ?? 0}
+              isMax={(overall?.level ?? 0) === MAX_TOTAL_LEVEL}
+              extra={
+                overall ? (
+                  <>
+                    <Separator className="my-1" />
+                    <TooltipRow
+                      label="Overall XP"
+                      value={numberWithDelimiter(overall.xp)}
+                    />
+                  </>
+                ) : undefined
+              }
+            />
+          </div>
+        </Section>
+
+        {activityTiles.length > 0 && (
+          <Section label="Activities">
+            <div className="grid grid-cols-3 gap-1">
+              {activityTiles.map((activity) => (
+                <ActivityTile
+                  key={activity.id}
+                  name={activity.name}
+                  icon={activity.icon!}
+                  score={activity.score}
+                  rank={activity.rank}
+                />
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {bossTiles.length > 0 && (
+          <Section label="Bosses">
+            <div className="grid grid-cols-3 gap-1">
+              {bossTiles.map((activity) => (
+                <ActivityTile
+                  key={activity.id}
+                  name={activity.name}
+                  icon={activity.icon!}
+                  score={activity.score}
+                  rank={activity.rank}
+                />
+              ))}
+            </div>
+          </Section>
+        )}
       </div>
     </TooltipProvider>
+  );
+}
+
+function Section({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-y-1.5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+      {children}
+    </div>
   );
 }
 
@@ -143,28 +198,26 @@ function SkillTile({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="runescape-stats-tile flex h-full w-full items-center justify-between px-3">
+        <div className="bg-card hover:border-primary flex h-full w-full items-center justify-between gap-x-1 rounded-md border px-2 py-1 transition-colors">
           {icon ? (
             <GameIcon
               src={icon}
               alt={name}
-              size={24}
-              className="flex-1 drop-shadow-solid-sm"
+              size={22}
+              className="shrink-0 drop-shadow-solid-sm"
             />
           ) : (
             <img
               src={QuestionMarkImage}
               alt={name}
-              className="size-6 flex-1 object-contain"
+              className="size-5 shrink-0 object-contain"
             />
           )}
           <p
             className={cn(
-              "ml-1 flex-1 select-none text-center font-runescape text-lg font-bold leading-none text-osrs-yellow solid-text-shadow",
+              "select-none text-sm font-semibold tabular-nums leading-none text-secondary-foreground",
               {
                 "text-osrs-green": level === MAX_SKILL_LEVEL,
-                "text-osrs-red":
-                  level === 1 || (name === "Hitpoints" && level === 10),
                 "shimmer-text": xp >= MAX_SKILL_XP,
               },
             )}
@@ -196,23 +249,24 @@ function ActivityTile({
 }) {
   // Unranked entries come back with rank -1 (and score 0), so rank is the signal.
   // Some activities (LMS, PvP Arena) carry a real score but no rank, so the score
-  // itself decides whether we show a value; rank is reported separately.
-  const scoreLabel = score > 0 ? numberWithDelimiter(score) : "--";
+  // itself decides whether we show a value; rank is reported separately. Large
+  // scores are abbreviated (e.g. 44.8K) to keep the compact 3-column grid tidy.
+  const scoreLabel = score > 0 ? String(numberWithAbbreviation(score)) : "--";
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="runescape-stats-tile flex h-full w-full items-center justify-between px-3">
+        <div className="bg-card hover:border-primary flex h-full w-full items-center justify-between gap-x-1 rounded-md border px-2 py-1 transition-colors">
           <GameIcon
             src={icon}
             alt={name}
-            size={24}
-            className="flex-1 drop-shadow-solid-sm"
+            size={22}
+            className="shrink-0 drop-shadow-solid-sm"
           />
           <p
             className={cn(
-              "ml-1 flex-1 select-none text-center font-runescape text-lg font-bold leading-none solid-text-shadow",
-              score > 0 ? "text-osrs-yellow" : "text-muted-foreground",
+              "select-none text-sm font-semibold tabular-nums leading-none",
+              score > 0 ? "text-secondary-foreground" : "text-muted-foreground",
             )}
           >
             {scoreLabel}
@@ -223,7 +277,10 @@ function ActivityTile({
         <span className="text-sm font-semibold text-foreground">{name}</span>
         <Separator className="my-1" />
         <TooltipRow label="Rank" value={formatRank(rank)} />
-        <TooltipRow label="Score" value={scoreLabel} />
+        <TooltipRow
+          label="Score"
+          value={score > 0 ? numberWithDelimiter(score) : "--"}
+        />
       </TooltipContent>
     </Tooltip>
   );
@@ -247,7 +304,7 @@ function SummaryTile({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="runescape-stats-tile flex w-full items-center justify-center gap-x-2 py-0.5">
+        <div className="bg-card hover:border-primary flex w-full items-center justify-center gap-x-2 rounded-md border py-2 transition-colors">
           <GameIcon
             src={icon}
             alt={label}
@@ -257,7 +314,7 @@ function SummaryTile({
           />
           <p
             className={cn(
-              "font-runescape text-lg font-bold text-osrs-yellow solid-text-shadow",
+              "text-sm font-semibold tabular-nums text-secondary-foreground",
               { "text-osrs-green": isMax },
             )}
           >
