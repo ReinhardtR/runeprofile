@@ -1,6 +1,6 @@
-DROP INDEX "activities_account_id_index";--> statement-breakpoint
-DROP INDEX "combat_achievement_tiers_account_id_index";--> statement-breakpoint
-DROP INDEX "discord_watches_channel_index";--> statement-breakpoint
-DROP INDEX "items_account_id_index";--> statement-breakpoint
-DROP INDEX "quests_account_id_index";--> statement-breakpoint
-DROP INDEX "skills_account_id_index";
+DROP INDEX IF EXISTS "activities_account_id_index";--> statement-breakpoint
+DROP INDEX IF EXISTS "combat_achievement_tiers_account_id_index";--> statement-breakpoint
+DROP INDEX IF EXISTS "discord_watches_channel_index";--> statement-breakpoint
+DROP INDEX IF EXISTS "items_account_id_index";--> statement-breakpoint
+DROP INDEX IF EXISTS "quests_account_id_index";--> statement-breakpoint
+DROP INDEX IF EXISTS "skills_account_id_index";
