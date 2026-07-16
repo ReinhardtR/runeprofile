@@ -7,8 +7,10 @@ import {
   desc,
   eq,
   gt,
+  gte,
   inArray,
   lt,
+  lte,
   or,
   sql,
 } from "drizzle-orm";
@@ -37,8 +39,10 @@ import {
   CursorQuery,
   DirectionQuery,
   ErrorSchema,
+  FromQuery,
   InternalErrorResponse,
   RateLimitResponse,
+  ToQuery,
 } from "../schemas/shared";
 import { CACHE_HEADER, enrichActivity } from "../shared";
 
@@ -143,6 +147,8 @@ const getClanActivitiesRoute = createRoute({
       direction: DirectionQuery,
       limit: ActivitiesLimitQuery,
       activityTypes: ActivityTypesQuery,
+      from: FromQuery,
+      to: ToQuery,
     }),
   },
   responses: {
@@ -311,6 +317,8 @@ export const clansRouter = createV1App()
       direction,
       limit,
       activityTypes,
+      from,
+      to,
     } = c.req.valid("query");
     const db = drizzle(c.env.HYPERDRIVE);
 
@@ -334,6 +342,14 @@ export const clansRouter = createV1App()
 
     if (activityTypes && activityTypes.length > 0) {
       conditions.push(inArray(clanActivities.activityType, activityTypes));
+    }
+
+    if (from) {
+      conditions.push(gte(clanActivities.createdAt, from.toISOString()));
+    }
+
+    if (to) {
+      conditions.push(lte(clanActivities.createdAt, to.toISOString()));
     }
 
     let cursorCondition: SQL | undefined;

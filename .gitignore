@@ -27,3 +27,6 @@ yarn-error.log*
 
 # Cloudflare
 .wrangler/
+
+# Playwright
+.playwright-mcp/

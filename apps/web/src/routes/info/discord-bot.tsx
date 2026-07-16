@@ -91,13 +91,13 @@ const DiscordEmbedMock: React.FC<{
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 text-sm">
-          <p className="flex items-center gap-1.5 font-semibold text-[#efeff1]">
+          <p className="flex items-center gap-1.5 font-semibold">
             <GameIcon
               src={ACCOUNT_TYPE_ICONS.ironman}
               alt="Ironman"
               size={14}
             />
-            pgn
+            <span className="text-[#00a8fc] hover:underline">pgn</span>
           </p>
           <p className="mt-1.5 text-[#dbdee1]">{children}</p>
           <p className="mt-2 text-xs text-[#a1a1a4]">{footer}</p>

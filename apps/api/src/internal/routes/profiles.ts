@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { cache } from "hono/cache";
 import { z } from "zod";
 
-import { accounts, drizzle } from "@runeprofile/db";
+import { accounts, drizzle, lower } from "@runeprofile/db";
 import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 
 import { sendActivityMessages } from "~/internal/discord/messages/send";
@@ -174,6 +174,41 @@ export const profilesRouter = newRouter()
       const collectionLogPage = await getCollectionLogPage(db, username, page);
 
       return c.json(collectionLogPage, STATUS.OK);
+    },
+  )
+  .get(
+    "/:username/activities",
+    validator("param", z.object({ username: usernameSchema })),
+    validator(
+      "query",
+      z.object({
+        activityTypes: activityTypesSchema,
+        limit: limitSchema,
+        cursor: cursorSchema,
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { username } = c.req.valid("param");
+      const { activityTypes, limit, cursor } = c.req.valid("query");
+
+      const account = await db.query.accounts.findFirst({
+        where: eq(lower(accounts.username), username.toLowerCase()),
+        columns: { id: true },
+      });
+
+      if (!account) {
+        throw RuneProfileAccountNotFoundError;
+      }
+
+      const result = await getActivities(db, {
+        accountId: account.id,
+        activityTypes,
+        limit,
+        cursor,
+      });
+
+      return c.json(result, STATUS.OK);
     },
   )
   .post(
