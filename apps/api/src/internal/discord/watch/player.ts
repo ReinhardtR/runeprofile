@@ -20,7 +20,7 @@ export async function addPlayerWatch(params: {
     throw RuneProfileAccountNotFoundError;
   }
 
-  await db
+  const inserted = await db
     .insert(discordWatches)
     .values({
       id: crypto.randomUUID(),
@@ -28,7 +28,11 @@ export async function addPlayerWatch(params: {
       targetId: account.id,
       targetType: "player",
     })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .returning({ id: discordWatches.id });
+
+  // false when the watch already existed
+  return inserted.length > 0;
 }
 
 export async function removePlayerWatch(params: {

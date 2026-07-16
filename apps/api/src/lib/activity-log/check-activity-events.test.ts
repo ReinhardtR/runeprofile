@@ -205,15 +205,28 @@ describe("QUEST COMPLETED EVENTS", () => {
       checkQuestCompletedEvents([
         { id: 1, state: QuestState.FINISHED, oldState: QuestState.NOT_STARTED },
         {
-          id: 2,
+          id: 3,
           state: QuestState.FINISHED,
           oldState: QuestState.IN_PROGRESS,
         },
       ]),
     ).toEqual([
       { type: "quest_completed", data: { questId: 1 } },
-      { type: "quest_completed", data: { questId: 2 } },
+      { type: "quest_completed", data: { questId: 3 } },
     ]);
+  });
+
+  test("unknown quest id produces no event", () => {
+    expect(
+      checkQuestCompletedEvents([
+        {
+          // not a real quest id — e.g. a brand-new quest before data sync
+          id: 999999,
+          state: QuestState.FINISHED,
+          oldState: QuestState.NOT_STARTED,
+        },
+      ]),
+    ).toEqual([]);
   });
 
   test("not completed", () => {

@@ -85,6 +85,34 @@
       "when": 1778765630628,
       "tag": "0011_combat_achievement_varps",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1783898805586,
+      "tag": "0012_ancient_wolverine",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1784047913473,
+      "tag": "0013_freezing_pestilence",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1784103394843,
+      "tag": "0014_colorful_rockslide",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1784105724149,
+      "tag": "0015_stormy_franklin_storm",
+      "breakpoints": true
     }
   ]
 }

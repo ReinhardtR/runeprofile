@@ -22,6 +22,18 @@ export const RuneProfileAccountNotFoundError = new RuneProfileError(
   "Account not found.",
 );
 
+export const RuneProfileActivityNotFoundError = new RuneProfileError(
+  STATUS.NOT_FOUND,
+  "ActivityNotFound",
+  "Activity not found.",
+);
+
+export const RuneProfileInvalidCursorError = new RuneProfileError(
+  STATUS.BAD_REQUEST,
+  "InvalidCursor",
+  "Invalid cursor.",
+);
+
 export const RuneProfileFailedToUploadFileError = new RuneProfileError(
   STATUS.INTERNAL_SERVER_ERROR,
   "FailedToUploadFile",

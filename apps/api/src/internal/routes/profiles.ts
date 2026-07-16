@@ -8,6 +8,8 @@ import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 import { sendActivityMessages } from "~/internal/discord/messages/send";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
+import { deleteActivity } from "~/lib/activity-log/delete-activity";
+import { getActivities } from "~/lib/activity-log/get-activities";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
@@ -29,11 +31,23 @@ import {
 } from "~/lib/profiles/diff-cache";
 import { getProfileByUsername } from "~/lib/profiles/get-profile";
 import { getProfileUpdates } from "~/lib/profiles/get-profile-updates";
+import {
+  cascadeFreedName,
+  isUsernameUniqueViolation,
+  resolveUsername,
+} from "~/lib/profiles/resolve-username";
 import { searchProfiles } from "~/lib/profiles/search-profiles";
 import { setDefaultClogPage } from "~/lib/profiles/set-default-clog-page";
 import { updateProfile } from "~/lib/profiles/update-profile";
 import { STATUS } from "~/lib/status";
-import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
+import {
+  accountIdSchema,
+  activityTypesSchema,
+  cursorSchema,
+  limitSchema,
+  usernameSchema,
+  validator,
+} from "~/lib/validation";
 
 export const profilesRouter = newRouter()
   .get("/", validator("query", z.object({ q: z.string() })), async (c) => {
@@ -44,6 +58,84 @@ export const profilesRouter = newRouter()
 
     return c.json(profiles, STATUS.OK);
   })
+  .get(
+    "/accounts/:id",
+    validator("param", z.object({ id: accountIdSchema })),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id } = c.req.valid("param");
+
+      const account = await db.query.accounts.findFirst({
+        where: eq(accounts.id, id),
+        columns: {
+          username: true,
+          accountType: true,
+          clanName: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!account) {
+        throw RuneProfileAccountNotFoundError;
+      }
+
+      return c.json(
+        {
+          username: account.username,
+          accountType: AccountTypes[account.accountType]?.name ?? "Normal",
+          clanName: account.clanName,
+          createdAt: account.createdAt,
+          updatedAt: account.updatedAt,
+        },
+        STATUS.OK,
+      );
+    },
+  )
+  .get(
+    "/accounts/:id/activities",
+    validator("param", z.object({ id: accountIdSchema })),
+    validator(
+      "query",
+      z.object({
+        activityTypes: activityTypesSchema,
+        limit: limitSchema,
+        cursor: cursorSchema,
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id } = c.req.valid("param");
+      const { activityTypes, limit, cursor } = c.req.valid("query");
+
+      const result = await getActivities(db, {
+        accountId: id,
+        activityTypes,
+        limit,
+        cursor,
+      });
+
+      return c.json(result, STATUS.OK);
+    },
+  )
+  .delete(
+    "/accounts/:id/activities/:activityId",
+    validator(
+      "param",
+      z.object({
+        id: accountIdSchema,
+        activityId: z.string().uuid(),
+      }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id, activityId } = c.req.valid("param");
+
+      await deleteActivity(db, { accountId: id, activityId });
+
+      return c.json({ message: "Activity deleted successfully" }, STATUS.OK);
+    },
+  )
   .get(
     "/:username",
     validator("param", z.object({ username: usernameSchema })),
@@ -128,8 +220,20 @@ export const profilesRouter = newRouter()
 
       console.log({ EventSource: data.eventSource ?? "unknown", Data: data });
 
-      try {
-        const updates = await getProfileUpdates(db, kv, data);
+      let created = false;
+
+      const runUpdate = async () => {
+        const profileUpdates = await getProfileUpdates(db, kv, data);
+        const resolution = await resolveUsername(db, bucket, kv, {
+          id: data.id,
+          reportedUsername: data.username,
+          currentUsername: profileUpdates.currentProfile?.username ?? null,
+        });
+        const updates = {
+          ...profileUpdates,
+          username: resolution.username,
+          pendingUsername: resolution.pendingUsername,
+        };
         const activities = updates.forceResync
           ? []
           : checkActivityEvents(updates);
@@ -139,6 +243,33 @@ export const profilesRouter = newRouter()
           updates,
           activities,
         );
+        return { updates, resolution, activities, updatedAt };
+      };
+
+      try {
+        let result;
+        try {
+          result = await runUpdate();
+        } catch (error) {
+          if (!isUsernameUniqueViolation(error)) throw error;
+          // Lost a race for the name to a concurrent request — re-resolve
+          // against fresh state, which parks the name as pending instead.
+          console.log("Username conflict race detected, retrying update");
+          await deleteDiffProfileCache(kv, data.id);
+          result = await runUpdate();
+        }
+        const { updates, resolution, activities, updatedAt } = result;
+        created = updates.currentProfile === null;
+
+        // Grant the name this profile moved off of to any row waiting on it
+        if (resolution.freedName) {
+          const freedName = resolution.freedName;
+          c.executionCtx.waitUntil(
+            cascadeFreedName(db, bucket, kv, freedName).catch((err) => {
+              console.error("Failed to cascade freed name:", err);
+            }),
+          );
+        }
 
         // Update diff cache after successful write
         c.executionCtx.waitUntil(
@@ -175,7 +306,7 @@ export const profilesRouter = newRouter()
               discordApplicationId: c.env.DISCORD_APPLICATION_ID,
               activities,
               accountId: data.id,
-              rsn: data.username,
+              rsn: updates.username,
               accountType: AccountTypes[data.accountType],
               clanName: data.clan?.name ?? null,
             }),
@@ -186,7 +317,7 @@ export const profilesRouter = newRouter()
         throw error;
       }
 
-      return c.json({ message: "Profile updated" }, STATUS.OK);
+      return c.json({ message: "Profile updated", created }, STATUS.OK);
     },
   )
   .post(

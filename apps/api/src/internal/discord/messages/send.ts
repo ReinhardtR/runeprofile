@@ -2,19 +2,21 @@ import { and, eq, inArray, or } from "drizzle-orm";
 
 import {
   Database,
-  discordWatchFilters,
+  discordChannelSettings,
   discordWatches,
   lower,
 } from "@runeprofile/db";
 import {
   AccountType,
   ActivityEvent,
-  type ActivityEventTypeValue,
+  type ChannelActivityFilters,
+  DEFAULT_CHANNEL_SETTINGS,
+  DiscordChannelSettingsSchema,
 } from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/internal/discord/factory";
 import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
-import { filterActivityTypes } from "~/internal/discord/watch/filter";
+import { filterActivities } from "~/internal/discord/watch/filter";
 
 export async function sendActivityMessages(params: {
   db: Database;
@@ -54,49 +56,42 @@ export async function sendActivityMessages(params: {
     return;
   }
 
-  // Get unique channel IDs and fetch their filters
+  // Get unique channel IDs and fetch their settings; channels without a
+  // settings row (or with an invalid one) use the defaults.
   const channelIds = [...new Set(watches.map((w) => w.channelId))];
-  const allFilters =
-    channelIds.length > 0
-      ? await db.query.discordWatchFilters.findMany({
-          where: inArray(discordWatchFilters.channelId, channelIds),
-        })
-      : [];
+  const settingsRows = await db.query.discordChannelSettings.findMany({
+    where: inArray(discordChannelSettings.channelId, channelIds),
+  });
 
-  // Group filters by channel
-  const filtersByChannel = new Map<
-    string,
-    { activityType: string; mode: string }[]
-  >();
-  for (const filter of allFilters) {
-    const existing = filtersByChannel.get(filter.channelId) ?? [];
-    existing.push(filter);
-    filtersByChannel.set(filter.channelId, existing);
+  const filtersByChannel = new Map<string, ChannelActivityFilters>();
+  for (const row of settingsRows) {
+    const parsed = DiscordChannelSettingsSchema.safeParse(row.settings);
+    if (!parsed.success) {
+      console.error(`Invalid channel settings for ${row.channelId}`);
+      continue;
+    }
+    filtersByChannel.set(row.channelId, parsed.data.filters);
   }
 
   const discordApi = createDiscordApi(discordToken);
-  const activityTypes = activities.map(
-    (a) => a.type,
-  ) as ActivityEventTypeValue[];
 
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
     channelIds.map(async (channelId) => {
-      const channelFilters = filtersByChannel.get(channelId) ?? [];
-      const allowedTypes = filterActivityTypes(activityTypes, channelFilters);
+      const channelFilters =
+        filtersByChannel.get(channelId) ?? DEFAULT_CHANNEL_SETTINGS.filters;
+      const allowedActivities = filterActivities(activities, channelFilters);
 
-      if (allowedTypes.length === 0) return;
+      if (allowedActivities.length === 0) return;
 
-      const embeds = activities
-        .filter((a) => allowedTypes.includes(a.type as ActivityEventTypeValue))
-        .map((activity) =>
-          createActivityEmbed({
-            activity,
-            discordApplicationId,
-            rsn,
-            accountType,
-          }),
-        );
+      const embeds = allowedActivities.map((activity) =>
+        createActivityEmbed({
+          activity,
+          discordApplicationId,
+          rsn,
+          accountType,
+        }),
+      );
 
       if (embeds.length === 0) return;
 

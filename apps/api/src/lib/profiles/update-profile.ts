@@ -31,6 +31,7 @@ export async function updateProfile(
     await db.insert(accounts).values({
       id: updates.id,
       username: updates.username,
+      pendingUsername: updates.pendingUsername,
       accountType: updates.accountType,
     });
   }
@@ -99,6 +100,7 @@ export async function updateProfile(
         .update(accounts)
         .set({
           username: updates.username,
+          pendingUsername: updates.pendingUsername,
           accountType: updates.accountType,
           ...(updates.clan !== undefined && {
             clanName: updates.clan?.name ?? null,

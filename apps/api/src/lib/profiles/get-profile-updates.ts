@@ -49,6 +49,7 @@ export type ProfileUpdates = {
   currentProfile: DiffProfile | null;
   forceResync: boolean;
   username: string;
+  pendingUsername: string | null;
   accountType: number;
   clan?: {
     name: string;
@@ -204,6 +205,7 @@ export async function getProfileUpdates(
     id: input.id,
     forceResync,
     username: input.username,
+    pendingUsername: null,
     accountType: input.accountType,
     clan: input.clan,
     groupName: input.groupName,

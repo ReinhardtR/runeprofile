@@ -1,7 +1,11 @@
 import { relations } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 
-import { ActivityEvent, ActivityEventTypeValue } from "@runeprofile/runescape";
+import {
+  ActivityEvent,
+  ActivityEventTypeValue,
+  DiscordChannelSettings,
+} from "@runeprofile/runescape";
 
 import { createdAt, lower, updatedAt } from "./helpers";
 
@@ -10,6 +14,7 @@ export const accounts = t.pgTable(
   (t) => ({
     id: t.text().notNull().primaryKey(),
     username: t.text().notNull(),
+    pendingUsername: t.text(),
     accountType: t.integer().notNull(),
     banned: t.boolean().notNull().default(false),
     clanName: t.text(),
@@ -24,6 +29,9 @@ export const accounts = t.pgTable(
   }),
   (table) => [
     t.uniqueIndex("accounts_username_unique_index").on(lower(table.username)),
+    t
+      .index("accounts_pending_username_index")
+      .on(lower(table.pendingUsername)),
     t.index("accounts_clan_name_index").on(lower(table.clanName)),
     t.index("accounts_clan_name_id_index").on(lower(table.clanName), table.id),
     t.index("accounts_group_name_index").on(lower(table.groupName)),
@@ -54,7 +62,6 @@ export const achievementDiaryTiers = t.pgTable(
   },
   (table) => [
     t.primaryKey({ columns: [table.accountId, table.areaId, table.tier] }),
-    t.index("achievement_diary_tiers_account_id_index").on(table.accountId),
   ],
 );
 export const achievementDiariesRelations = relations(
@@ -271,22 +278,14 @@ export const discordWatchesRelations = relations(discordWatches, ({ one }) => ({
   }),
 }));
 
-export const discordWatchFilters = t.pgTable(
-  "discord_watch_filters",
-  {
-    id: t.text().notNull().primaryKey(),
-    channelId: t.text().notNull(),
-    activityType: t.text().notNull().$type<ActivityEventTypeValue>(),
-    mode: t.text().notNull().$type<"allow" | "block">(),
-    createdAt,
-  },
-  (table) => [
-    t
-      .uniqueIndex("discord_watch_filters_channel_activity_unique_index")
-      .on(table.channelId, table.activityType),
-    t.index("discord_watch_filters_channel_index").on(table.channelId),
-  ],
-);
+export const discordChannelSettings = t.pgTable("discord_channel_settings", {
+  channelId: t.text().notNull().primaryKey(),
+  // Full per-channel settings document, validated against
+  // DiscordChannelSettingsSchema (@runeprofile/runescape) on read/write.
+  settings: t.jsonb().notNull().$type<DiscordChannelSettings>(),
+  updatedAt,
+  createdAt,
+});
 
 // API key management
 export const apiKeys = t.pgTable(
