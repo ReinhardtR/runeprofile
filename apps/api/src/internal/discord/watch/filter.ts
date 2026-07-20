@@ -7,9 +7,9 @@ import {
   type ChannelActivityFilters,
   DEFAULT_CHANNEL_SETTINGS,
   type DiscordChannelSettings,
-  DiscordChannelSettingsSchema,
   getActivityThresholdConfig,
   getActivityTypeLabel,
+  parseDiscordChannelSettings,
 } from "@runeprofile/runescape";
 
 export { getActivityTypeLabel };
@@ -33,19 +33,24 @@ export async function getChannelSettings(params: {
     where: eq(discordChannelSettings.channelId, channelId),
   });
   if (!row) {
-    return { settings: structuredClone(DEFAULT_CHANNEL_SETTINGS), isDefault: true };
+    return {
+      settings: structuredClone(DEFAULT_CHANNEL_SETTINGS),
+      isDefault: true,
+    };
   }
 
-  const parsed = DiscordChannelSettingsSchema.safeParse(row.settings);
-  if (!parsed.success) {
+  const parsed = parseDiscordChannelSettings(row.settings);
+  if (!parsed) {
     console.error(
-      `Invalid channel settings for ${channelId}, falling back to defaults:`,
-      parsed.error,
+      `Invalid channel settings for ${channelId}, falling back to defaults`,
     );
-    return { settings: structuredClone(DEFAULT_CHANNEL_SETTINGS), isDefault: true };
+    return {
+      settings: structuredClone(DEFAULT_CHANNEL_SETTINGS),
+      isDefault: true,
+    };
   }
 
-  return { settings: parsed.data, isDefault: false };
+  return { settings: parsed, isDefault: false };
 }
 
 export async function saveChannelSettings(params: {

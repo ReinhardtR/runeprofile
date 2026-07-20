@@ -13,6 +13,7 @@ import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-ic
 import AchievementDiaryIcon from "~/core/assets/icons/achievement-diaries.png";
 import QuestIcon from "~/core/assets/icons/quest.png";
 import MiscIcons from "~/core/assets/misc-icons.json";
+import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { Card } from "~/features/profile/components/card";
 import { GameIcon } from "~/shared/components/icons";
@@ -277,12 +278,20 @@ function RenderCombatAchievementTaskCompletedEvent({
     <Tooltip>
       <TooltipTrigger>
         <div className="flex flex-col items-center justify-center col-span-1">
-          <GameIcon
-            src={tierIcon}
-            alt={tierName}
-            size={36}
-            className="drop-shadow-solid-xs"
-          />
+          {tierIcon ? (
+            <GameIcon
+              src={tierIcon}
+              alt={tierName}
+              size={36}
+              className="drop-shadow-solid-xs"
+            />
+          ) : (
+            <img
+              src={QuestionMarkImage}
+              alt="Combat Achievement"
+              className="size-9 object-contain drop-shadow-solid-xs"
+            />
+          )}
           <p
             className={cn(
               "font-runescape text-osrs-orange solid-text-shadow",
