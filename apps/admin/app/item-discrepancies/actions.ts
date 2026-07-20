@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
+import { requireAdmin } from "@/lib/require-admin";
 import {
   AccountItemDiscrepancy,
   AccountItemDiscrepancyWithDetails,
@@ -46,6 +47,8 @@ async function getAccountDiscrepancy(
  * Get all item discrepancies summary (with basic info)
  */
 export async function getAllDiscrepancies(): Promise<AccountItemDiscrepancy[]> {
+  await requireAdmin();
+
   const accountIds = await getDiscrepancyAccountIds();
   const discrepancies: AccountItemDiscrepancy[] = [];
 
@@ -69,6 +72,8 @@ export async function getAllDiscrepancies(): Promise<AccountItemDiscrepancy[]> {
 export async function getDiscrepancyDetails(
   accountId: string,
 ): Promise<AccountItemDiscrepancyWithDetails | null> {
+  await requireAdmin();
+
   const discrepancy = await getAccountDiscrepancy(accountId);
 
   if (!discrepancy) {
@@ -153,6 +158,8 @@ export async function reconcileDiscrepancy(accountId: string): Promise<{
   itemsUpdated: number;
   activitiesDeleted: number;
 }> {
+  await requireAdmin();
+
   const { env } = getCloudflareContext();
   const discrepancy = await getAccountDiscrepancy(accountId);
 
@@ -243,6 +250,8 @@ export async function reconcileDiscrepancy(accountId: string): Promise<{
  * Dismiss a discrepancy without taking action (removes from KV)
  */
 export async function dismissDiscrepancy(accountId: string): Promise<void> {
+  await requireAdmin();
+
   const { env } = getCloudflareContext();
 
   // Remove discrepancy from KV (no index to update - we use list() with prefix)
@@ -263,6 +272,8 @@ export async function removeDiscrepantItems(
   itemsDeleted: number;
   activitiesDeleted: number;
 }> {
+  await requireAdmin();
+
   if (itemIds.length === 0) {
     return { itemsDeleted: 0, activitiesDeleted: 0 };
   }
@@ -337,6 +348,8 @@ export async function removeDiscrepantItems(
  * Get account info by ID
  */
 export async function getAccountInfo(accountId: string) {
+  await requireAdmin();
+
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, accountId),
     columns: { id: true, username: true },
@@ -445,6 +458,8 @@ export async function getDetailsAndMaybeReconcile(accountId: string): Promise<
       };
     }
 > {
+  await requireAdmin();
+
   const { env } = getCloudflareContext();
   const discrepancy = await getAccountDiscrepancy(accountId);
 

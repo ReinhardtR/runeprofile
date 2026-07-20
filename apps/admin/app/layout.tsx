@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Toaster } from "sonner";
 
+import { requireAdmin } from "@/lib/require-admin";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +18,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Third auth layer for pages (Access edge + middleware are the first two):
+  // no page renders without a verified Access identity.
+  await requireAdmin();
+
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   return (

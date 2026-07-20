@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
+import { requireAdmin } from "@/lib/require-admin";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
 
@@ -18,6 +19,8 @@ import {
 import { accounts } from "@runeprofile/db";
 
 export async function deleteAccount(id: string) {
+  await requireAdmin();
+
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, id),
     columns: { username: true },
@@ -72,6 +75,8 @@ export async function updateAccount(
     banned?: boolean;
   },
 ) {
+  await requireAdmin();
+
   // Check if account exists
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, id),
@@ -131,6 +136,8 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function searchAccounts(q: string) {
+  await requireAdmin();
+
   const raw = q.trim();
   if (!raw) return [];
 
@@ -184,6 +191,8 @@ export async function searchAccounts(q: string) {
 }
 
 export async function toggleForceResync(id: string) {
+  await requireAdmin();
+
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, id),
     columns: { id: true, forceResync: true },

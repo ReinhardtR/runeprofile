@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -17,6 +18,8 @@ export async function getAccountActivities(
   page: number = 1,
   pageSize: number = 50,
 ) {
+  await requireAdmin();
+
   const offset = (page - 1) * pageSize;
 
   // Get account info first
@@ -74,6 +77,8 @@ export async function deleteAccountActivities(
   accountId: string,
   activityIds: string[],
 ) {
+  await requireAdmin();
+
   if (!activityIds.length) {
     return { deleted: 0 };
   }
@@ -106,6 +111,8 @@ export async function deleteAccountActivities(
 }
 
 export async function getActivityTypeStats(accountId: string) {
+  await requireAdmin();
+
   // Get activities count by type for this account
   const typeStatsResult = await db
     .select({
@@ -126,6 +133,8 @@ export async function updateActivity(
   activityData: ActivityEvent,
   createdAt: string,
 ) {
+  await requireAdmin();
+
   // Verify the activity exists and belongs to this account
   const existingActivity = await db.query.activities.findFirst({
     where: and(
@@ -164,6 +173,8 @@ export async function createActivity(
   activityData: ActivityEvent,
   createdAt?: string,
 ) {
+  await requireAdmin();
+
   // Verify the account exists and get clan info
   const account = await db.query.accounts.findFirst({
     where: eq(accounts.id, accountId),

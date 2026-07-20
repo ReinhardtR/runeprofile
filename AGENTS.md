@@ -49,3 +49,10 @@ for a full assessment.
 ## Rules
 
 Never expose the account.id in API responses or through other fields.
+
+## apps/admin is security-critical
+
+The admin app deploys to `admin.runeprofile.com` behind layered auth
+(Cloudflare Access + JWT middleware + per-action guards). Before touching
+anything under `apps/admin/`, read [apps/admin/AGENTS.md](apps/admin/AGENTS.md)
+and follow its invariants and verification checklist.

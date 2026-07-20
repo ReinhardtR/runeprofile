@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { desc, eq, sql } from "drizzle-orm";
 
 import { accounts, activities } from "@runeprofile/db";
@@ -9,6 +10,8 @@ import { type ActivityEvent } from "@runeprofile/runescape";
 // ── Account search ──────────────────────────────────────────────────────
 
 export async function searchAccountsForSimulator(query: string) {
+  await requireAdmin();
+
   const raw = query.trim();
   if (!raw) return [];
 
@@ -36,6 +39,8 @@ export async function searchAccountsForSimulator(query: string) {
 // ── Fetch recent activities ─────────────────────────────────────────────
 
 export async function getRecentActivities(accountId: string) {
+  await requireAdmin();
+
   return db
     .select({
       id: activities.id,
@@ -57,6 +62,8 @@ export async function sendDiscordEmbeds(params: {
   rsn: string;
   accountType?: number;
 }) {
+  await requireAdmin();
+
   const apiUrl = process.env.API_URL;
   if (!apiUrl) {
     throw new Error(

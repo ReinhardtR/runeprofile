@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
+import { requireAdmin } from "@/lib/require-admin";
 import {
   AccountItemDiscrepancy,
   AccountItemDiscrepancyWithDetails,
@@ -22,6 +23,8 @@ export async function getAccountItems(
   searchItemId?: string,
   sortBy: string = "id",
 ) {
+  await requireAdmin();
+
   const offset = (page - 1) * pageSize;
 
   // Get account info first
@@ -85,6 +88,8 @@ export async function getAccountItems(
 }
 
 export async function deleteAccountItems(accountId: string, itemIds: number[]) {
+  await requireAdmin();
+
   if (!itemIds.length) {
     return { deleted: 0 };
   }
@@ -119,6 +124,8 @@ export async function updateItemQuantity(
   itemId: number,
   newQuantity: number,
 ) {
+  await requireAdmin();
+
   if (newQuantity <= 0) {
     // If quantity is 0 or negative, delete the item
     await db
@@ -139,6 +146,8 @@ export async function updateItemQuantity(
 }
 
 export async function clearAllAccountItems(accountId: string) {
+  await requireAdmin();
+
   // Delete all items for this account
   await db.delete(items).where(eq(items.accountId, accountId));
 
@@ -148,6 +157,8 @@ export async function clearAllAccountItems(accountId: string) {
 }
 
 export async function getItemStats(accountId: string) {
+  await requireAdmin();
+
   // Get total items and total quantity
   const statsResult = await db
     .select({
@@ -169,6 +180,8 @@ export async function getItemStats(accountId: string) {
 export async function getAccountDiscrepancy(
   accountId: string,
 ): Promise<AccountItemDiscrepancy | null> {
+  await requireAdmin();
+
   const { env } = getCloudflareContext();
   const key = `${ITEM_DISCREPANCY_PREFIX}${accountId}`;
   return env.KV.get<AccountItemDiscrepancy>(key, "json");
@@ -180,6 +193,8 @@ export async function getAccountDiscrepancy(
 export async function getDiscrepancyDetails(
   accountId: string,
 ): Promise<AccountItemDiscrepancyWithDetails | null> {
+  await requireAdmin();
+
   const discrepancy = await getAccountDiscrepancy(accountId);
 
   if (!discrepancy) {
@@ -260,6 +275,8 @@ export async function reconcileDiscrepancy(accountId: string): Promise<{
   itemsUpdated: number;
   activitiesDeleted: number;
 }> {
+  await requireAdmin();
+
   const { env } = getCloudflareContext();
   const discrepancy = await getAccountDiscrepancy(accountId);
 
@@ -346,6 +363,8 @@ export async function reconcileDiscrepancy(accountId: string): Promise<{
  * Dismiss a discrepancy without taking action (removes from KV)
  */
 export async function dismissDiscrepancy(accountId: string): Promise<void> {
+  await requireAdmin();
+
   const { env } = getCloudflareContext();
   const key = `${ITEM_DISCREPANCY_PREFIX}${accountId}`;
   await env.KV.delete(key);

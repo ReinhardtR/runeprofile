@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:remote": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "node scripts/copy-game-assets.mjs && next dev --turbopack",
+    "dev:remote": "node scripts/copy-game-assets.mjs && next dev --turbopack",
+    "build": "node scripts/copy-game-assets.mjs && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
@@ -49,6 +51,7 @@
     "drizzle-orm": "^0.45.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
+    "jose": "^6.0.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.477.0",
     "next": "15.5.2",

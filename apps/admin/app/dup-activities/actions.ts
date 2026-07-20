@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -11,6 +12,8 @@ export async function findAccountsWithDuplicateActivities(
   targetTypes: ActivityEvent["type"][],
   limit = 100,
 ) {
+  await requireAdmin();
+
   console.log("*** Finding accounts with duplicate activities ***");
   // Find accountIds that have duplicate (type,data) combos for target types
   const rows = await db
@@ -28,6 +31,8 @@ export async function findAccountsWithDuplicateActivities(
 }
 
 export async function deleteActivityIds(ids: string[]) {
+  await requireAdmin();
+
   console.log("*** Deleting activity IDs ***");
   if (!ids.length) return { deleted: 0 };
 
@@ -39,6 +44,8 @@ export async function deleteActivityIds(ids: string[]) {
 }
 
 export async function getAccountBasic(accountId: string) {
+  await requireAdmin();
+
   const rows = await db
     .select({ id: accounts.id, username: accounts.username })
     .from(accounts)
@@ -50,6 +57,8 @@ export async function getAccountBasic(accountId: string) {
 // Lightweight deletion server action for optimistic client usage (no redirects).
 export async function deleteActivityIdsAction(ids: string[]) {
   "use server";
+  await requireAdmin();
+
   if (!ids.length) return { deleted: 0 };
   await deleteActivityIds(ids);
   return { deleted: ids.length };
@@ -59,6 +68,8 @@ export async function getAccountActivitiesForTypes(
   accountId: string,
   targetTypes: ActivityEvent["type"][],
 ) {
+  await requireAdmin();
+
   if (!targetTypes.length) return [];
   return db
     .select({
@@ -80,5 +91,7 @@ export async function getAccountActivitiesForTypes(
 // Revalidate the duplicate activities page (used when starting a fresh batch)
 export async function revalidateDupActivities() {
   "use server";
+  await requireAdmin();
+
   revalidatePath("/dup-activities");
 }

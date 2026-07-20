@@ -1,11 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { eq } from "drizzle-orm";
 
 import { apiKeys } from "@runeprofile/db";
 
 export async function getApiKeys() {
+  await requireAdmin();
+
   return db.query.apiKeys.findMany({
     columns: {
       id: true,
@@ -26,6 +29,8 @@ async function hashKey(key: string): Promise<string> {
 }
 
 export async function createApiKey(name: string, tier: string) {
+  await requireAdmin();
+
   const id = crypto.randomUUID();
   const rawKey = `rp_${crypto.randomUUID().replace(/-/g, "")}`;
   const keyHash = await hashKey(rawKey);
@@ -43,6 +48,8 @@ export async function createApiKey(name: string, tier: string) {
 }
 
 export async function toggleApiKeyActive(id: string) {
+  await requireAdmin();
+
   const key = await db.query.apiKeys.findFirst({
     where: eq(apiKeys.id, id),
     columns: { id: true, active: true },
@@ -55,5 +62,7 @@ export async function toggleApiKeyActive(id: string) {
 }
 
 export async function deleteApiKey(id: string) {
+  await requireAdmin();
+
   await db.delete(apiKeys).where(eq(apiKeys.id, id));
 }

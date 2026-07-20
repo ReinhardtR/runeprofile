@@ -7,6 +7,44 @@
     "nodejs_compat",
     "global_fetch_strictly_public"
   ],
+  // The Access-protected custom domain is the ONLY way to reach this worker.
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "admin.runeprofile.com",
+      "custom_domain": true
+    }
+  ],
+  // Same region as the API worker — close to the database.
+  "placement": {
+    "region": "aws:us-east-1"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "NEXTJS_ENV": "production",
+    // Cloudflare Access config — the app fails closed (403 on everything)
+    // if these are missing or wrong. See DEPLOYMENT.md.
+    "ACCESS_TEAM_DOMAIN": "runeprofile.cloudflareaccess.com",
+    "ACCESS_APP_AUD": "c9d7eebb796275e47c256cad966ef610ffa180da75f96164f720a442fa062005",
+    "ADMIN_EMAIL": "reinhardtrijna@gmail.com",
+    "API_URL": "https://api.runeprofile.com",
+    "DISCORD_CHANNEL_ID": "1265359294921052173"
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "411e7ad012ac4dc99be2e779457e87fb"
+    }
+  ],
   "r2_buckets": [
     {
       "binding": "BUCKET",

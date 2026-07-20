@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
+import { requireAdmin } from "@/lib/require-admin";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { aliasedTable, and, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -19,6 +20,8 @@ export type PendingNameRow = {
 };
 
 export async function getPendingNames(): Promise<PendingNameRow[]> {
+  await requireAdmin();
+
   const holder = aliasedTable(accounts, "holder");
   const rows = await db
     .select({
@@ -55,6 +58,8 @@ export async function getPendingNames(): Promise<PendingNameRow[]> {
  * row pending on the claimant's old name picks it up on its own next sync.
  */
 export async function resolvePendingName(claimantId: string) {
+  await requireAdmin();
+
   const claimant = await db.query.accounts.findFirst({
     where: eq(accounts.id, claimantId),
     columns: { id: true, username: true, pendingUsername: true },
@@ -134,6 +139,8 @@ export async function resolvePendingName(claimantId: string) {
  * reports the same name, the claim reappears on its next sync.
  */
 export async function clearPendingName(claimantId: string) {
+  await requireAdmin();
+
   await db
     .update(accounts)
     .set({ pendingUsername: null })
