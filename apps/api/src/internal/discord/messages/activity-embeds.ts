@@ -4,6 +4,7 @@ import {
   AccountType,
   AchievementDiaryTierCompletedEvent,
   ActivityEvent,
+  CombatAchievementTaskCompletedEvent,
   CombatAchievementTierCompletedEvent,
   CombatAchievementTierReachedEvent,
   LevelUpEvent,
@@ -14,6 +15,7 @@ import {
   XpMilestoneEvent,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierName,
   getQuestById,
 } from "@runeprofile/runescape";
@@ -59,6 +61,8 @@ export function createActivityEmbed(params: {
       return createCombatAchievementEmbed({ ...common, event: activity });
     case "combat_achievement_tier_reached":
       return createCombatAchievementEmbed({ ...common, event: activity });
+    case "combat_achievement_task_completed":
+      return createCombatAchievementTaskEmbed({ ...common, event: activity });
     case "maxed":
       return createMaxedEmbed({ ...common, event: activity });
   }
@@ -183,6 +187,24 @@ function createCombatAchievementEmbed(
     .description(description)
     .thumbnail({ url: getCombatAchievementIconUrl(tierName) })
     .footer({ text: "Combat Achievement Tier" })
+    .color(0xef4444); // Red
+}
+
+function createCombatAchievementTaskEmbed(
+  params: EmbedParams<CombatAchievementTaskCompletedEvent>,
+): Embed {
+  const { discordApplicationId, event, rsn, accountType, url } = params;
+  const task = getCombatAchievementTaskByIndex(event.data.taskIndex);
+  const tierName = task
+    ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
+    : "Unknown";
+
+  return new Embed()
+    .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
+    .url(url)
+    .description(`Completed **${task?.name ?? "Unknown Task"}** (${tierName})`)
+    .thumbnail({ url: getCombatAchievementIconUrl(tierName) })
+    .footer({ text: "Combat Achievement Task" })
     .color(0xef4444); // Red
 }
 

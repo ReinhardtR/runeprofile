@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  COMBAT_ACHIEVEMENT_TASKS,
+  COMBAT_ACHIEVEMENT_VARPS,
   MAX_SKILL_LEVEL,
   MAX_SKILL_XP,
   QuestState,
@@ -11,6 +13,7 @@ import {
 import {
   checkAchievementDiaryTierCompletedEvents,
   checkCombatAchievementEvents,
+  checkCombatAchievementTaskCompletedEvents,
   checkCombatAchievementTierReachedEvents,
   checkLevelUpEvents,
   checkMaxedEvent,
@@ -455,5 +458,92 @@ describe("COMBAT ACHIEVEMENT TIER REACHED EVENTS", () => {
         { "4138": 0, "4139": 0, "4140": 0 },
       ),
     ).toEqual([]);
+  });
+});
+
+// Builds a varp record where exactly the given task indices are completed.
+function varpsFromIndices(indices: number[]): Record<string, number> {
+  const varps: Record<string, number> = {};
+  for (const index of indices) {
+    const varpId = COMBAT_ACHIEVEMENT_VARPS[Math.floor(index / 32)];
+    varps[String(varpId)] = (varps[String(varpId)] ?? 0) | (1 << index % 32);
+  }
+  return varps;
+}
+
+describe("COMBAT ACHIEVEMENT TASK COMPLETED EVENTS", () => {
+  test("fires one event per newly completed task", () => {
+    const events = checkCombatAchievementTaskCompletedEvents(
+      varpsFromIndices([0]),
+      varpsFromIndices([0, 11, 15]),
+    );
+    expect(events).toEqual([
+      {
+        type: "combat_achievement_task_completed",
+        data: { taskIndex: 11 },
+      },
+      {
+        type: "combat_achievement_task_completed",
+        data: { taskIndex: 15 },
+      },
+    ]);
+  });
+
+  test("does not fire when nothing changed", () => {
+    const varps = varpsFromIndices([0, 11]);
+    expect(checkCombatAchievementTaskCompletedEvents(varps, varps)).toEqual([]);
+  });
+
+  test("does not fire for tasks missing from the registry", () => {
+    // Index 639 (last varp, bit 31) has no registry entry.
+    expect(
+      checkCombatAchievementTaskCompletedEvents({}, varpsFromIndices([639])),
+    ).toEqual([]);
+  });
+
+  test("drops task events when a single update completes too many tasks", () => {
+    const indices = Array.from({ length: 21 }, (_, i) => i);
+    expect(
+      checkCombatAchievementTaskCompletedEvents({}, varpsFromIndices(indices)),
+    ).toEqual([]);
+  });
+
+  test("keeps task events at exactly the cap", () => {
+    const indices = Array.from({ length: 20 }, (_, i) => i);
+    const events = checkCombatAchievementTaskCompletedEvents(
+      {},
+      varpsFromIndices(indices),
+    );
+    expect(events).toHaveLength(20);
+  });
+
+  test("first update with varps emits no task events", () => {
+    const events = checkCombatAchievementEvents(
+      { oldVarps: null, newVarps: varpsFromIndices([0, 11, 15]) },
+      [],
+    );
+    expect(
+      events.filter((e) => e.type === "combat_achievement_task_completed"),
+    ).toEqual([]);
+  });
+
+  test("tier-reached still fires when task events are capped away", () => {
+    // Complete every Easy task in one update: far over the task-event cap,
+    // but enough points to reach the Easy tier.
+    const easyIndices = COMBAT_ACHIEVEMENT_TASKS.filter(
+      (t) => t.tierId === 1,
+    ).map((t) => t.index);
+    const events = checkCombatAchievementEvents(
+      { oldVarps: {}, newVarps: varpsFromIndices(easyIndices) },
+      [],
+    );
+    expect(
+      events.filter((e) => e.type === "combat_achievement_task_completed"),
+    ).toEqual([]);
+    expect(
+      events.filter((e) => e.type === "combat_achievement_tier_reached"),
+    ).toEqual([
+      { type: "combat_achievement_tier_reached", data: { tierId: 1 } },
+    ]);
   });
 });

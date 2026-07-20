@@ -7,7 +7,10 @@ import {
   type ActivityEventTypeValue,
   ValuableDropThreshold,
 } from "./activities";
-import { getCombatAchievementTierName } from "./combat-achievements";
+import {
+  getCombatAchievementTaskByIndex,
+  getCombatAchievementTierName,
+} from "./combat-achievements";
 import {
   QuestDifficulty,
   getQuestById,
@@ -68,7 +71,10 @@ function abbreviate(value: number): string {
  * suffix, where rounding would silently change the user's value).
  */
 export function parseThresholdInput(input: string): number | undefined {
-  const cleaned = input.trim().toLowerCase().replace(/[,_\s]/g, "");
+  const cleaned = input
+    .trim()
+    .toLowerCase()
+    .replace(/[,_\s]/g, "");
   const match = /^(\d+(?:\.\d+)?)([kmb])?$/.exec(cleaned);
   if (!match) return undefined;
 
@@ -175,6 +181,20 @@ export const ACTIVITY_FILTER_META: Record<
       format: (v) => getCombatAchievementTierName(v) ?? `tier ${v}`,
     },
   },
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: {
+    label: "Combat Achievement Task",
+    threshold: {
+      unit: "tier",
+      min: 1,
+      max: 6,
+      suggestions: [1, 2, 3, 4, 5, 6],
+      getValue: (a) =>
+        a.type === ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED
+          ? (getCombatAchievementTaskByIndex(a.data.taskIndex)?.tierId ?? 0)
+          : 0,
+      format: (v) => getCombatAchievementTierName(v) ?? `tier ${v}`,
+    },
+  },
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: {
     label: "Combat Achievement",
     legacy: true,
@@ -268,6 +288,9 @@ export const DEFAULT_CHANNEL_SETTINGS: DiscordChannelSettings = {
     thresholds: {
       [ActivityEventType.LEVEL_UP]: 50,
       [ActivityEventType.QUEST_COMPLETED]: QuestDifficulty.EXPERIENCED,
+      // Master (5) — individual CA tasks are spammy at lower tiers, so
+      // channels only see Master+ tasks unless they change the threshold.
+      [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: 5,
     },
   },
 };

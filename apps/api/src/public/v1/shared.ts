@@ -5,6 +5,7 @@ import {
   COLLECTION_LOG_ITEMS,
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
+  getCombatAchievementTaskByIndex,
 } from "@runeprofile/runescape";
 
 export const CACHE_HEADER = { "Cache-Control": "public, max-age=60" };
@@ -35,6 +36,16 @@ export function enrichActivity(event: ActivityEvent) {
         (t) => t.id === event.data.tierId,
       );
       if (tier) enriched.tierName = tier.name;
+      break;
+    }
+    case "combat_achievement_task_completed": {
+      const task = getCombatAchievementTaskByIndex(event.data.taskIndex);
+      if (task) {
+        enriched.taskName = task.name;
+        enriched.tierName =
+          COMBAT_ACHIEVEMENT_TIERS.find((t) => t.id === task.tierId)?.name ??
+          "Unknown";
+      }
       break;
     }
     case "valuable_drop": {

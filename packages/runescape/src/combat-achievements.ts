@@ -75,6 +75,16 @@ export function getCombatAchievementTierName(id: number) {
   return COMBAT_ACHIEVEMENT_TIERS.find((tier) => tier.id === id)?.name;
 }
 
+const combatAchievementTasksByIndex = new Map<number, CombatAchievementTask>();
+export function getCombatAchievementTaskByIndex(index: number) {
+  if (combatAchievementTasksByIndex.size === 0) {
+    for (const task of COMBAT_ACHIEVEMENT_TASKS) {
+      combatAchievementTasksByIndex.set(task.index, task);
+    }
+  }
+  return combatAchievementTasksByIndex.get(index);
+}
+
 /**
  * Decodes varp bitmaps into a list of completed task indices.
  * @param varps - Record of varp ID to raw 32-bit value
