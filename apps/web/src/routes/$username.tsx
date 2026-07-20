@@ -90,6 +90,7 @@ const profileSearchSchema = z.object({
     .catch(undefined),
   "ca-type": z.enum(VALID_CA_TYPES).optional().catch(undefined),
   "ca-completed": z.enum(VALID_CA_COMPLETION).optional().catch(undefined),
+  "ca-hide-completed": z.coerce.boolean().optional().catch(undefined),
   "ca-panel": z.enum(VALID_PANELS).optional().catch(undefined),
 });
 
@@ -241,6 +242,12 @@ export function ProfileContent({
                 updateSearch({
                   "ca-completed":
                     caCompleted === "all" ? undefined : caCompleted,
+                })
+              }
+              hideCompletedBosses={search["ca-hide-completed"] ?? false}
+              onHideCompletedBossesChange={(hide) =>
+                updateSearch({
+                  "ca-hide-completed": hide ? true : undefined,
                 })
               }
             />

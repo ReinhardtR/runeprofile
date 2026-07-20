@@ -49,6 +49,8 @@ type CombatAchievementsPanelProps = {
   onTypeFilterChange: (value: string) => void;
   completionFilter: CompletionFilter;
   onCompletionFilterChange: (value: CompletionFilter) => void;
+  hideCompletedBosses: boolean;
+  onHideCompletedBossesChange: (value: boolean) => void;
 };
 
 type ViewMode = "tasks" | "bosses";
@@ -117,6 +119,8 @@ export function CombatAchievementsPanel({
   onTypeFilterChange,
   completionFilter,
   onCompletionFilterChange,
+  hideCompletedBosses,
+  onHideCompletedBossesChange,
 }: CombatAchievementsPanelProps) {
   const [bossSearch, setBossSearch] = React.useState("");
   const [showMobileFilters, setShowMobileFilters] = React.useState(false);
@@ -183,13 +187,19 @@ export function CombatAchievementsPanel({
 
     bossList.sort((a, b) => a.name.localeCompare(b.name));
 
-    if (bossSearch.trim()) {
-      const query = bossSearch.trim().toLowerCase();
-      return bossList.filter((b) => b.name.toLowerCase().includes(query));
+    let filtered = bossList;
+
+    if (hideCompletedBosses) {
+      filtered = filtered.filter((b) => b.completedCount < b.totalCount);
     }
 
-    return bossList;
-  }, [completedSet, bossSearch]);
+    if (bossSearch.trim()) {
+      const query = bossSearch.trim().toLowerCase();
+      filtered = filtered.filter((b) => b.name.toLowerCase().includes(query));
+    }
+
+    return filtered;
+  }, [completedSet, bossSearch, hideCompletedBosses]);
 
   const handleBossClick = React.useCallback(
     (bossName: string) => {
@@ -260,13 +270,33 @@ export function CombatAchievementsPanel({
                 hasNextThreshold={!!nextThreshold}
               />
             ) : (
-              <input
-                type="text"
-                value={bossSearch}
-                onChange={(e) => setBossSearch(e.target.value)}
-                placeholder="Search..."
-                className="w-full h-[28px] bg-black/60 border-2 border-black rounded-sm px-2 text-[17px] text-osrs-white solid-text-shadow leading-none font-runescape placeholder:text-osrs-gray outline-none focus:border-osrs-orange/50"
-              />
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={bossSearch}
+                  onChange={(e) => setBossSearch(e.target.value)}
+                  placeholder="Search..."
+                  className="flex-1 min-w-0 h-[28px] bg-black/60 border-2 border-black rounded-sm px-2 text-[17px] text-osrs-white solid-text-shadow leading-none font-runescape placeholder:text-osrs-gray outline-none focus:border-osrs-orange/50"
+                />
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={hideCompletedBosses}
+                  onClick={() =>
+                    onHideCompletedBossesChange(!hideCompletedBosses)
+                  }
+                  className="h-[28px] shrink-0 flex items-center gap-1.5 bg-black/60 border-2 border-black rounded-sm px-2 text-[17px] text-osrs-orange solid-text-shadow leading-none hover:text-osrs-white cursor-pointer"
+                >
+                  <span className="size-[14px] shrink-0 border-2 border-black bg-black/60 flex items-center justify-center leading-none">
+                    {hideCompletedBosses && (
+                      <span className="text-osrs-green text-[14px] leading-none">
+                        &#10003;
+                      </span>
+                    )}
+                  </span>
+                  Hide completed
+                </button>
+              </div>
             )}
           </div>
         </div>
