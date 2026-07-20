@@ -1,5 +1,6 @@
 "use client";
 
+import { DynamicActivityForm } from "@/app/accounts/[id]/activities/DynamicActivityForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,14 +18,13 @@ import { Loader2, Search, Send } from "lucide-react";
 import { useCallback, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import { DynamicActivityForm } from "@/app/accounts/[id]/activities/DynamicActivityForm";
-
 import {
-  ActivityEvent,
   AccountTypes,
+  ActivityEvent,
   COLLECTION_LOG_ITEMS,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierName,
   getQuestById,
 } from "@runeprofile/runescape";
@@ -93,6 +93,13 @@ function getActivityLabel(activity: { type: string; data: unknown }): string {
       const tierName =
         getCombatAchievementTierName(data.tierId as number) ?? "Unknown";
       return `${tierName} Combat Achievements`;
+    }
+    case "combat_achievement_task_completed": {
+      const task = getCombatAchievementTaskByIndex(data.taskIndex as number);
+      const tierName = task
+        ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
+        : "Unknown";
+      return `${task?.name ?? "Unknown Task"} (${tierName})`;
     }
     case "maxed":
       return "Maxed!";
@@ -192,12 +199,7 @@ export function DiscordSimulatorClient({
         );
       }
     });
-  }, [
-    selectedAccount,
-    selectedActivityIds,
-    accountActivities,
-    channelId,
-  ]);
+  }, [selectedAccount, selectedActivityIds, accountActivities, channelId]);
 
   const handleSendManual = useCallback(
     async (activityData: ActivityEvent) => {
@@ -356,7 +358,8 @@ export function DiscordSimulatorClient({
                     ) : (
                       <Send className="size-4 mr-1" />
                     )}
-                    Send {selectedActivityIds.size > 0 &&
+                    Send{" "}
+                    {selectedActivityIds.size > 0 &&
                       `(${selectedActivityIds.size})`}
                   </Button>
                 </div>

@@ -1,6 +1,7 @@
 import {
   AchievementDiaryTierCompletedEvent,
   ActivityEvent,
+  CombatAchievementTaskCompletedEvent,
   CombatAchievementTierReachedEvent,
   LevelUpEvent,
   MAX_SKILL_LEVEL,
@@ -14,6 +15,7 @@ import {
   calculateCombatAchievementPoints,
   decodeCombatAchievements,
   getAchievementDiaryTierTaskCount,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierReached,
   getLevelFromXP,
   getQuestById,
@@ -171,23 +173,32 @@ export function checkAchievementDiaryTierCompletedEvents(
 }
 
 /**
- * Generates tier-reached events when varps are available.
+ * Generates tier-reached and task-completed events when varps are available.
  * When oldVarps is null (first update after plugin upgrade), estimates the
  * player's previous tier from legacy per-tier completion counts to avoid
- * false tier-reached events.
+ * false tier-reached events — individual task events are skipped entirely in
+ * that case, since every previously completed task would look new.
  */
 export function checkCombatAchievementEvents(
   varps: ProfileUpdates["combatAchievementVarps"],
   legacyTiers: DiffProfile["combatAchievementTiers"],
-): Array<CombatAchievementTierReachedEvent> {
+): Array<
+  CombatAchievementTierReachedEvent | CombatAchievementTaskCompletedEvent
+> {
   if (!varps.newVarps) return [];
 
   // If we have old varps, use exact comparison
   if (varps.oldVarps) {
-    return checkCombatAchievementTierReachedEvents(
-      varps.oldVarps,
-      varps.newVarps,
-    );
+    return [
+      ...checkCombatAchievementTaskCompletedEvents(
+        varps.oldVarps,
+        varps.newVarps,
+      ),
+      ...checkCombatAchievementTierReachedEvents(
+        varps.oldVarps,
+        varps.newVarps,
+      ),
+    ];
   }
 
   // First update with varps — estimate old tier from legacy completion counts
@@ -209,6 +220,37 @@ export function checkCombatAchievementEvents(
   }
 
   return [];
+}
+
+// When a single update completes more tasks than this, the diff is almost
+// certainly a stale/expired diff cache or a long-offline player catching up —
+// not a real completion spree — so individual task events are dropped
+// (tier-reached events are still emitted).
+const CA_TASK_EVENTS_MAX_PER_UPDATE = 20;
+
+export function checkCombatAchievementTaskCompletedEvents(
+  oldVarps: Record<string, number>,
+  newVarps: Record<string, number>,
+): CombatAchievementTaskCompletedEvent[] {
+  const oldCompleted = new Set(decodeCombatAchievements(oldVarps));
+  const newCompleted = decodeCombatAchievements(newVarps);
+
+  const newlyCompleted = newCompleted.filter(
+    (index) => !oldCompleted.has(index),
+  );
+
+  if (newlyCompleted.length > CA_TASK_EVENTS_MAX_PER_UPDATE) return [];
+
+  return (
+    newlyCompleted
+      // Tasks not in our registry (e.g. brand-new releases before the task
+      // data is synced) shouldn't produce activities.
+      .filter((index) => getCombatAchievementTaskByIndex(index) !== undefined)
+      .map((index) => ({
+        type: "combat_achievement_task_completed" as const,
+        data: { taskIndex: index },
+      }))
+  );
 }
 
 export function checkCombatAchievementTierReachedEvents(

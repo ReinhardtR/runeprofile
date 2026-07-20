@@ -3,6 +3,7 @@ import {
   ActivityEvent,
   COLLECTION_LOG_ITEMS,
   COLLECTION_LOG_TABS,
+  getCombatAchievementTaskByIndex,
 } from "@runeprofile/runescape";
 
 import { getAccountTypeEmoji } from "~/internal/discord/emojis";
@@ -115,5 +116,11 @@ export function buildActivityUrl(params: {
     case "combat_achievement_tier_completed":
     case "combat_achievement_tier_reached":
       return `${base}?tab=cas&ca-tier=${activity.data.tierId}`;
+    case "combat_achievement_task_completed": {
+      const task = getCombatAchievementTaskByIndex(activity.data.taskIndex);
+      return task
+        ? `${base}?tab=cas&ca-tier=${task.tierId}`
+        : `${base}?tab=cas`;
+    }
   }
 }

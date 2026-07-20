@@ -36,8 +36,17 @@ const questCompleted = (questId: number): ActivityEvent => ({
   data: { questId },
 });
 
+const caTask = (taskIndex: number): ActivityEvent => ({
+  type: ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED,
+  data: { taskIndex },
+});
+
 const COOKS_ASSISTANT_ID = 17; // Novice
 const DRAGON_SLAYER_II_ID = 32; // Grandmaster
+
+const NOXIOUS_FOE_INDEX = 0; // Easy
+const COLLATERAL_DAMAGE_INDEX = 11; // Master
+const FEATHER_HUNTER_INDEX = 15; // Grandmaster
 
 const filters = (
   overrides: Partial<ChannelActivityFilters> = {},
@@ -142,6 +151,39 @@ describe("filterActivities", () => {
       questCompleted(DRAGON_SLAYER_II_ID),
     ]);
   });
+
+  test("combat achievement task threshold filters by the task's tier", () => {
+    const activities = [
+      caTask(NOXIOUS_FOE_INDEX),
+      caTask(COLLATERAL_DAMAGE_INDEX),
+      caTask(FEATHER_HUNTER_INDEX),
+    ];
+    const result = filterActivities(
+      activities,
+      filters({
+        thresholds: {
+          [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: 6, // Grandmaster
+        },
+      }),
+    );
+    expect(result).toEqual([caTask(FEATHER_HUNTER_INDEX)]);
+  });
+
+  test("default settings only pass Master+ combat achievement tasks", () => {
+    const activities = [
+      caTask(NOXIOUS_FOE_INDEX),
+      caTask(COLLATERAL_DAMAGE_INDEX),
+      caTask(FEATHER_HUNTER_INDEX),
+    ];
+    const result = filterActivities(
+      activities,
+      DEFAULT_CHANNEL_SETTINGS.filters,
+    );
+    expect(result).toEqual([
+      caTask(COLLATERAL_DAMAGE_INDEX),
+      caTask(FEATHER_HUNTER_INDEX),
+    ]);
+  });
 });
 
 describe("applyListFilter", () => {
@@ -185,7 +227,9 @@ describe("applyListFilter", () => {
   });
 
   test("preserves thresholds and does not mutate the input", () => {
-    const input = settings({ thresholds: { [ActivityEventType.LEVEL_UP]: 50 } });
+    const input = settings({
+      thresholds: { [ActivityEventType.LEVEL_UP]: 50 },
+    });
     const { settings: next } = applyListFilter(
       input,
       ActivityEventType.LEVEL_UP,
