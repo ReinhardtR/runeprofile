@@ -26,6 +26,7 @@ import {
   mergeGroupItems,
 } from "~/features/profile/utils/group-aggregation";
 import { Footer, Header } from "~/layouts";
+import { UnexpectedErrorPage } from "~/shared/components/UnexpectedErrorPage";
 import { GameIcon } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import { Separator } from "~/shared/components/ui/separator";
@@ -262,36 +263,12 @@ function GroupNotFoundComponent() {
 }
 
 function ErrorComponent({ error }: ErrorComponentProps) {
-  const navigate = useNavigate();
-
   const isGroupNotFound =
     error instanceof RuneProfileApiError && error.code === "AccountNotFound";
 
-  return (
-    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
-      <p className="text-2xl text-primary-foreground">
-        {isGroupNotFound ? "Group not found" : error.message}
-      </p>
-      {isGroupNotFound && (
-        <p className="text-muted-foreground text-center">
-          This group does not exist or has no members.
-          <br />
-          Make sure group members have updated their profiles using the plugin.
-          <br />
-          If needed you can follow the guide{" "}
-          <Link
-            to="/info/guide"
-            className="text-secondary-foreground underline"
-          >
-            here
-          </Link>
-          .
-        </p>
-      )}
-      <Button onClick={() => navigate({ to: "/" })}>Home Teleport</Button>
-      <Button variant="ghost" onClick={() => window.location.reload()}>
-        Try again
-      </Button>
-    </div>
-  );
+  if (!isGroupNotFound) {
+    return <UnexpectedErrorPage />;
+  }
+
+  return <GroupNotFoundComponent />;
 }

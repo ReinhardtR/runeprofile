@@ -42,6 +42,7 @@ import {
 } from "~/features/profile/components";
 import { isSearchDialogOpenAtom } from "~/features/search";
 import { Footer } from "~/layouts";
+import { UnexpectedErrorPage } from "~/shared/components/UnexpectedErrorPage";
 import { DiscordIcon, KofiIcon } from "~/shared/components/icons";
 import { Button, ButtonProps } from "~/shared/components/ui/button";
 import { ScrollArea } from "~/shared/components/ui/scroll-area";
@@ -359,31 +360,15 @@ function ProfileNotFoundComponent() {
 }
 
 function ErrorComponent(props: ErrorComponentProps) {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
-      <p className="text-2xl text-primary-foreground">{props.error.message}</p>
-      {props.error instanceof RuneProfileApiError &&
-        props.error.code === "AccountNotFound" && (
-          <p className="text-muted-foreground text-center">
-            Make sure you have updated your profile using the plugin.
-            <br />
-            If needed you can follow the guide{" "}
-            <Link
-              to="/info/guide"
-              className="text-secondary-foreground underline"
-            >
-              here
-            </Link>
-            .
-          </p>
-        )}
-      <Button onClick={() => navigate({ to: "/" })}>Home Teleport</Button>
-      <Button variant="ghost" onClick={() => window.location.reload()}>
-        Try again
-      </Button>
-    </div>
-  );
+  const isAccountNotFound =
+    props.error instanceof RuneProfileApiError &&
+    props.error.code === "AccountNotFound";
+
+  if (!isAccountNotFound) {
+    return <UnexpectedErrorPage />;
+  }
+
+  return <ProfileNotFoundComponent />;
 }
 
 export function SidePanel({ username }: { username: string }) {

@@ -1,9 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  ErrorComponentProps,
-  createFileRoute,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "react";
 import { z } from "zod";
@@ -22,7 +18,6 @@ import {
   clanQueryOptions,
 } from "~/features/clan";
 import { Footer, Header } from "~/layouts";
-import { Button } from "~/shared/components/ui/button";
 import { Separator } from "~/shared/components/ui/separator";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
@@ -51,7 +46,6 @@ const clanSearchSchema = z.object({
 
 export const Route = createFileRoute("/clan/$name")({
   component: RouteComponent,
-  errorComponent: ErrorComponent,
   validateSearch: zodValidator(clanSearchSchema),
   loaderDeps: ({ search }) => ({
     activityCursor: search.activityCursor,
@@ -163,19 +157,6 @@ function ClanHeaderSkeleton({ name }: { name: string }) {
       <div className="flex flex-row items-center gap-x-2 ml-auto text-sm text-muted-foreground">
         <Skeleton className="h-4 w-20" />
       </div>
-    </div>
-  );
-}
-
-function ErrorComponent(props: ErrorComponentProps) {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
-      <p className="text-2xl text-primary-foreground">{props.error.message}</p>
-      <Button onClick={() => navigate({ to: "/" })}>Home Teleport</Button>
-      <Button variant="ghost" onClick={() => window.location.reload()}>
-        Try again
-      </Button>
     </div>
   );
 }
