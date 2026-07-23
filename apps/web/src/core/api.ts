@@ -7,8 +7,33 @@ import {
   HiscoreLeaderboardKey,
 } from "@runeprofile/runescape";
 
+// During SSR, API calls skip HTTP entirely and go through the service
+// binding to the API worker. In the browser they hit VITE_API_URL — "/api"
+// in production (proxied same-origin by the /api/$ server route, no CORS)
+// or a direct URL in development. The SSR branch is dead-code-eliminated
+// from the client bundle.
+const apiFetch: typeof fetch = async (input, init) => {
+  if (import.meta.env.SSR) {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
+    if (url.startsWith("/api")) {
+      const { env } = await import("cloudflare:workers");
+      const target = new URL(
+        url.slice("/api".length) || "/",
+        "https://runeprofile-api.internal",
+      );
+      return env.API.fetch(new Request(target, init)) as Promise<Response>;
+    }
+  }
+  return fetch(input, init);
+};
+
 // @ts-expect-error
-const api: Client = hc(import.meta.env.VITE_API_URL);
+const api: Client = hc(import.meta.env.VITE_API_URL, { fetch: apiFetch });
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;
 

@@ -20,6 +20,8 @@ export default newRouter()
         "https://runeprofile.com",
         "https://www.runeprofile.com",
         "https://runeprofile.pages.dev",
+        // Temporary while validating the Workers migration pre-cutover.
+        "https://runeprofile-web.reinhardt.workers.dev",
         "http://localhost:3001",
       ],
       allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],

@@ -4,6 +4,13 @@
   "compatibility_date": "2026-07-23",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "services": [
+    {
+      "binding": "API",
+      "service": "runeprofile-api",
+      "remote": true
+    }
+  ],
   "observability": {
     "enabled": true
   }
