@@ -45,7 +45,8 @@
     "tailwindcss": "^4.0.9",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.174.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "workers-og": "^0.0.27"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.46.0",

@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsernameRouteImport } from './routes/$username'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ClanNameRouteImport } from './routes/clan/$name'
 import { Route as GroupNameRouteImport } from './routes/group/$name'
 import { Route as InfoAliasRouteImport } from './routes/info/alias'
 import { Route as InfoDiscordBotRouteImport } from './routes/info/discord-bot'
 import { Route as InfoGuideRouteImport } from './routes/info/guide'
+import { Route as OgUsernameDotpngRouteImport } from './routes/og.$username[.]png'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const UsernameRoute = UsernameRouteImport.update({
   id: '/$username',
   path: '/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClanNameRoute = ClanNameRouteImport.update({
@@ -52,73 +59,92 @@ const InfoGuideRoute = InfoGuideRouteImport.update({
   path: '/info/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgUsernameDotpngRoute = OgUsernameDotpngRouteImport.update({
+  id: '/og/$username.png',
+  path: '/og/$username.png',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/api/$': typeof ApiSplatRoute
   '/clan/$name': typeof ClanNameRoute
   '/group/$name': typeof GroupNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
+  '/og/$username.png': typeof OgUsernameDotpngRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/api/$': typeof ApiSplatRoute
   '/clan/$name': typeof ClanNameRoute
   '/group/$name': typeof GroupNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
+  '/og/$username.png': typeof OgUsernameDotpngRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
+  '/api/$': typeof ApiSplatRoute
   '/clan/$name': typeof ClanNameRoute
   '/group/$name': typeof GroupNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
+  '/og/$username.png': typeof OgUsernameDotpngRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/$username'
+    | '/api/$'
     | '/clan/$name'
     | '/group/$name'
     | '/info/alias'
     | '/info/discord-bot'
     | '/info/guide'
+    | '/og/$username.png'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$username'
+    | '/api/$'
     | '/clan/$name'
     | '/group/$name'
     | '/info/alias'
     | '/info/discord-bot'
     | '/info/guide'
+    | '/og/$username.png'
   id:
     | '__root__'
     | '/'
     | '/$username'
+    | '/api/$'
     | '/clan/$name'
     | '/group/$name'
     | '/info/alias'
     | '/info/discord-bot'
     | '/info/guide'
+    | '/og/$username.png'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRoute: typeof UsernameRoute
+  ApiSplatRoute: typeof ApiSplatRoute
   ClanNameRoute: typeof ClanNameRoute
   GroupNameRoute: typeof GroupNameRoute
   InfoAliasRoute: typeof InfoAliasRoute
   InfoDiscordBotRoute: typeof InfoDiscordBotRoute
   InfoGuideRoute: typeof InfoGuideRoute
+  OgUsernameDotpngRoute: typeof OgUsernameDotpngRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/$username'
       fullPath: '/$username'
       preLoaderRoute: typeof UsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clan/$name': {
@@ -172,17 +205,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InfoGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/$username.png': {
+      id: '/og/$username.png'
+      path: '/og/$username.png'
+      fullPath: '/og/$username.png'
+      preLoaderRoute: typeof OgUsernameDotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UsernameRoute: UsernameRoute,
+  ApiSplatRoute: ApiSplatRoute,
   ClanNameRoute: ClanNameRoute,
   GroupNameRoute: GroupNameRoute,
   InfoAliasRoute: InfoAliasRoute,
   InfoDiscordBotRoute: InfoDiscordBotRoute,
   InfoGuideRoute: InfoGuideRoute,
+  OgUsernameDotpngRoute: OgUsernameDotpngRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

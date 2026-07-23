@@ -143,6 +143,7 @@ export const Route = createFileRoute("/$username")({
     const username = loaderData?.username ?? decodeURIComponent(params.username);
     const title = `${username} | RuneProfile`;
     const description = `View ${username}'s Old School RuneScape progress and achievements on RuneProfile.`;
+    const ogImage = `https://runeprofile.com/og/${encodeURIComponent(username)}.png`;
     return {
       meta: [
         { title },
@@ -153,8 +154,13 @@ export const Route = createFileRoute("/$username")({
           property: "og:url",
           content: `https://runeprofile.com/${encodeURIComponent(username)}`,
         },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImage },
       ],
     };
   },
