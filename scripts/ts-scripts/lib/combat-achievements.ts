@@ -31,6 +31,9 @@ const CA_TYPE_ENUM_ID = 3969;
 const CA_BOSS_ENUM_ID = 3987;
 const CA_BOSS_GROUP_ID = 1315 as cache.ParamID;
 
+// Gameval category holding varplayer names (e.g. 3116 -> ca_task_completed_0)
+const VARPLAYER_GAMEVAL_CATEGORY = 3 as cache.GameValID;
+
 export type CombatAchievementTask = {
   index: number;
   tierId: number;
@@ -39,6 +42,45 @@ export type CombatAchievementTask = {
   type: string;
   monster: string;
 };
+
+/**
+ * Reads the ordered list of combat achievement completion varps from the
+ * varplayer gamevals (`ca_task_completed_<position>`). The position in this
+ * list determines which tasks each varp tracks (task index = position * 32
+ * + bit), so ordering is load-bearing.
+ */
+export async function loadCombatAchievementVarps(
+  provider: cache.CacheProvider,
+): Promise<number[]> {
+  const varplayers = await cache.GameVal.all(
+    provider,
+    VARPLAYER_GAMEVAL_CATEGORY,
+  );
+
+  const entries: { id: number; position: number }[] = [];
+  for (const [id, gameVal] of varplayers) {
+    const match = /^ca_task_completed_(\d+)$/.exec(gameVal.name);
+    if (match) {
+      entries.push({ id, position: Number(match[1]) });
+    }
+  }
+  entries.sort((a, b) => a.position - b.position);
+
+  if (entries.length === 0) {
+    throw new Error(
+      "Found no ca_task_completed_* varplayer gamevals — did the gameval category move?",
+    );
+  }
+  entries.forEach(({ position }, i) => {
+    if (position !== i) {
+      throw new Error(
+        `Combat achievement varp positions are not contiguous at ${i} (found ${position}).`,
+      );
+    }
+  });
+
+  return entries.map((e) => e.id);
+}
 
 /**
  * Reads every combat achievement task (sorted by varp index) and the boss

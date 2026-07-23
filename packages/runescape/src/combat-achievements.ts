@@ -38,7 +38,7 @@ export type CombatAchievementTaskType =
 // The VarPlayer IDs used to track individual combat achievement completion (bit-packed)
 export const COMBAT_ACHIEVEMENT_VARPS = [
   3116, 3117, 3118, 3119, 3120, 3121, 3122, 3123, 3124, 3125, 3126, 3127, 3128,
-  3387, 3718, 3773, 3774, 4204, 4496, 4721,
+  3387, 3718, 3773, 3774, 4204, 4496, 4721, 5673,
 ] as const;
 
 // Points awarded per tier

@@ -6,11 +6,13 @@ import {
   COMBAT_ACHIEVEMENT_BOSSES,
   COMBAT_ACHIEVEMENT_TASKS,
   COMBAT_ACHIEVEMENT_TASK_TYPES,
+  COMBAT_ACHIEVEMENT_VARPS,
 } from "@runeprofile/runescape";
 
 import { createCacheProvider } from "./lib/cache";
 import {
   CombatAchievementTask,
+  loadCombatAchievementVarps,
   loadCombatAchievements,
 } from "./lib/combat-achievements";
 
@@ -42,10 +44,28 @@ checkCombatAchievements()
 async function checkCombatAchievements() {
   const provider = createCacheProvider();
   const { tasks, bosses } = await loadCombatAchievements(provider);
+  const varps = await loadCombatAchievementVarps(provider);
 
   if (tasks.length === 0) {
     throw new Error("Loaded 0 combat achievement tasks from the cache.");
   }
+
+  // Every task's bit index must fit in the varp list, or completion of the
+  // overflowing tasks can't be tracked at all.
+  const maxIndex = Math.max(...tasks.map((t) => t.index));
+  if (maxIndex >= varps.length * 32) {
+    throw new Error(
+      `Task index ${maxIndex} does not fit in ${varps.length} varps (${varps.length * 32} bits) — the gameval scrape is missing a varp.`,
+    );
+  }
+
+  // --- Compare varps (order matters: task index = position * 32 + bit) ---
+  const varpsChanged =
+    varps.length !== COMBAT_ACHIEVEMENT_VARPS.length ||
+    varps.some((id, i) => COMBAT_ACHIEVEMENT_VARPS[i] !== id);
+  const newVarps = varps.filter(
+    (id) => !(COMBAT_ACHIEVEMENT_VARPS as readonly number[]).includes(id),
+  );
 
   // --- Compare tasks (keyed by varp index) ---
   const existingByIndex = new Map(
@@ -107,7 +127,8 @@ async function checkCombatAchievements() {
     removedTasks.length > 0 ||
     changedTasks.length > 0 ||
     addedBosses.length > 0 ||
-    removedBosses.length > 0;
+    removedBosses.length > 0 ||
+    varpsChanged;
 
   if (!hasChanges) {
     console.log("No changes found in combat achievement data.");
@@ -121,11 +142,12 @@ async function checkCombatAchievements() {
     addedBosses,
     removedBosses,
     newTypes,
+    newVarps,
   );
   console.log(summary);
 
   if (writeMode) {
-    writeChanges(tasks, bosses);
+    writeChanges(tasks, bosses, varps);
 
     // One summary file per data type; the Action concatenates whichever exist.
     const summaryPath = path.join("/tmp", "ca-changes-summary.txt");
@@ -141,8 +163,17 @@ function buildSummary(
   addedBosses: string[],
   removedBosses: string[],
   newTypes: string[],
+  newVarps: number[],
 ): string {
   const lines: string[] = ["## Combat Achievements Update Summary\n"];
+
+  if (newVarps.length > 0) {
+    lines.push(`### New Completion Varps (${newVarps.length})\n`);
+    for (const id of newVarps) {
+      lines.push(`- \`${id}\``);
+    }
+    lines.push("");
+  }
 
   if (newTypes.length > 0) {
     lines.push(
@@ -207,8 +238,31 @@ function prettierQuote(value: string): string {
   return singleQuote(value);
 }
 
-function writeChanges(tasks: CombatAchievementTask[], bosses: string[]) {
+// Wraps numbers into lines the way prettier would (80 cols, 2-space indent),
+// so a later `pnpm format` is a no-op.
+function formatNumberArray(values: number[]): string {
+  const lines: string[] = [];
+  let current = " ";
+  for (const value of values) {
+    const piece = ` ${value},`;
+    if (current.length + piece.length > 80) {
+      lines.push(current);
+      current = " ";
+    }
+    current += piece;
+  }
+  if (current.trim()) lines.push(current);
+  return lines.map((l) => `  ${l.trim()}`).join("\n");
+}
+
+function writeChanges(
+  tasks: CombatAchievementTask[],
+  bosses: string[],
+  varps: number[],
+) {
   console.log(`\nWriting changes to ${CA_PATH}...`);
+
+  const varpsBlock = `export const COMBAT_ACHIEVEMENT_VARPS = [\n${formatNumberArray(varps)}\n] as const;`;
 
   // Both arrays are fully cache-generated and carry `// prettier-ignore`, so we
   // regenerate them wholesale via text replacement to keep the exact hand-rolled
@@ -225,6 +279,12 @@ function writeChanges(tasks: CombatAchievementTask[], bosses: string[]) {
     .join("\n")}\n] as const;`;
 
   let text = readFileSync(CA_PATH, "utf-8");
+  text = replaceBlock(
+    text,
+    /export const COMBAT_ACHIEVEMENT_VARPS = \[[\s\S]*?\n\] as const;/,
+    varpsBlock,
+    "COMBAT_ACHIEVEMENT_VARPS",
+  );
   text = replaceBlock(
     text,
     /export const COMBAT_ACHIEVEMENT_BOSSES = \[[\s\S]*?\n\] as const;/,
