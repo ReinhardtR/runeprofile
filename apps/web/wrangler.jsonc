@@ -4,8 +4,19 @@
   "compatibility_date": "2026-07-23",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
-  // Cutover: re-add the runeprofile.com custom-domain routes once they are
-  // released from the Pages project (attaching fails while Pages holds them).
+  // Zone routes rather than custom domains: they intercept traffic at the
+  // zone layer above the Pages project, which made the cutover atomic (no
+  // remove-then-attach gap). The old Pages DNS records sit unused beneath.
+  "routes": [
+    {
+      "pattern": "runeprofile.com/*",
+      "zone_name": "runeprofile.com"
+    },
+    {
+      "pattern": "www.runeprofile.com/*",
+      "zone_name": "runeprofile.com"
+    }
+  ],
   "workers_dev": true,
   "services": [
     {
