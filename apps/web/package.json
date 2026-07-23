@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "vite --port=3001",
+    "dev": "vite dev --port=3001",
     "build": "vite build",
-    "serve": "vite preview",
-    "start": "vite"
+    "preview": "vite preview",
+    "deploy": "pnpm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -16,7 +17,7 @@
     "@radix-ui/react-popover": "^1.1.7",
     "@radix-ui/react-scroll-area": "^1.2.3",
     "@radix-ui/react-separator": "^1.1.4",
-    "@radix-ui/react-slot": "^1.2.0",
+    "@radix-ui/react-slot": "~1.2.0",
     "@radix-ui/react-tabs": "^1.1.11",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.2.0",
@@ -26,14 +27,15 @@
     "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-pacer": "^0.1.0",
     "@tanstack/react-query": "^5.67.2",
-    "@tanstack/react-router": "^1.112.0",
+    "@tanstack/react-router": "^1.170.18",
+    "@tanstack/react-router-ssr-query": "^1.167.1",
+    "@tanstack/react-start": "^1.168.32",
     "@tanstack/react-virtual": "^3.13.24",
-    "@tanstack/router-devtools": "^1.112.0",
     "@tanstack/zod-adapter": "^1.112.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "hono": "^4.7.2",
+    "hono": "^4.12.31",
     "jotai": "^2.12.2",
     "lucide-react": "^0.477.0",
     "react": "^19.0.0",
@@ -46,14 +48,15 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.46.0",
+    "@cloudflare/workers-types": "^5.20260721.1",
     "@runeprofile/api": "workspace:*",
-    "@tanstack/router-plugin": "^1.112.0",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@types/three": "^0.174.0",
-    "@vitejs/plugin-react": "^4.3.2",
-    "vite": "^6.0.3",
-    "wrangler": "^4.10.0"
+    "@vitejs/plugin-react": "^6.0.4",
+    "vite": "^8.1.5",
+    "wrangler": "^4.113.0"
   }
 }

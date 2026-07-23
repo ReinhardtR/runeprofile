@@ -7,6 +7,7 @@ import {
   ErrorComponentProps,
   Link,
   createFileRoute,
+  notFound,
   useNavigate,
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
@@ -98,24 +99,65 @@ export type ProfileSearch = z.infer<typeof profileSearchSchema>;
 export const Route = createFileRoute("/$username")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
+  notFoundComponent: ProfileNotFoundComponent,
   validateSearch: zodValidator(profileSearchSchema),
   loader: async ({ params, context }) => {
-    context.queryClient.prefetchQuery(
-      hiscoresQueryOptions({
-        username: params.username,
-        leaderboard: "normal",
-      }),
-    );
+    // OSRS usernames are 1-12 characters — anything else can never exist,
+    // and the API would reject it with a validation error instead of
+    // AccountNotFound.
+    const username = decodeURIComponent(params.username);
+    if (username.length === 0 || username.length > 12) {
+      throw notFound();
+    }
 
-    return context.queryClient.fetchQuery(profileQueryOptions(params.username));
+    // Fire-and-forget warmup for the hiscores tab; the result isn't awaited,
+    // so on the server it would just be a wasted API call.
+    if (typeof window !== "undefined") {
+      context.queryClient.prefetchQuery(
+        hiscoresQueryOptions({
+          username: params.username,
+          leaderboard: "normal",
+        }),
+      );
+    }
+
+    try {
+      return await context.queryClient.fetchQuery(
+        profileQueryOptions(params.username),
+      );
+    } catch (error) {
+      // Thrown as notFound() so it survives SSR serialization (loader errors
+      // thrown on the server are redacted) and returns a real 404 status.
+      if (
+        error instanceof RuneProfileApiError &&
+        error.code === "AccountNotFound"
+      ) {
+        throw notFound();
+      }
+      throw error;
+    }
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: `${loaderData.username} | RuneProfile`,
-      },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    // loaderData has the canonical casing; the URL param is the fallback for
+    // client-side navigations where head() re-runs before the loader.
+    const username = loaderData?.username ?? decodeURIComponent(params.username);
+    const title = `${username} | RuneProfile`;
+    const description = `View ${username}'s Old School RuneScape progress and achievements on RuneProfile.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        {
+          property: "og:url",
+          content: `https://runeprofile.com/${encodeURIComponent(username)}`,
+        },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+    };
+  },
 });
 
 function RouteComponent() {
@@ -282,6 +324,30 @@ export function ProfileContent({
         <RecentCollections events={profile.recentItems} />
         <RecentActivities events={profile.recentActivities} />
       </div>
+    </div>
+  );
+}
+
+function ProfileNotFoundComponent() {
+  const params = Route.useParams();
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
+      <p className="text-2xl text-primary-foreground">Account not found.</p>
+      <p className="text-muted-foreground text-center">
+        No profile found for{" "}
+        <span className="text-secondary-foreground">
+          {decodeURIComponent(params.username)}
+        </span>
+        . Make sure you have updated your profile using the plugin.
+        <br />
+        If needed you can follow the guide{" "}
+        <Link to="/info/guide" className="text-secondary-foreground underline">
+          here
+        </Link>
+        .
+      </p>
+      <Button onClick={() => navigate({ to: "/" })}>Home Teleport</Button>
     </div>
   );
 }

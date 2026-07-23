@@ -8,118 +8,50 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as UsernameRouteImport } from './routes/$username'
+import { Route as ClanNameRouteImport } from './routes/clan/$name'
+import { Route as GroupNameRouteImport } from './routes/group/$name'
+import { Route as InfoAliasRouteImport } from './routes/info/alias'
+import { Route as InfoDiscordBotRouteImport } from './routes/info/discord-bot'
+import { Route as InfoGuideRouteImport } from './routes/info/guide'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as UsernameImport } from './routes/$username'
-import { Route as IndexImport } from './routes/index'
-import { Route as InfoGuideImport } from './routes/info/guide'
-import { Route as InfoDiscordBotImport } from './routes/info/discord-bot'
-import { Route as InfoAliasImport } from './routes/info/alias'
-import { Route as GroupNameImport } from './routes/group/$name'
-import { Route as ClanNameImport } from './routes/clan/$name'
-
-// Create/Update Routes
-
-const UsernameRoute = UsernameImport.update({
-  id: '/$username',
-  path: '/$username',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const InfoGuideRoute = InfoGuideImport.update({
-  id: '/info/guide',
-  path: '/info/guide',
-  getParentRoute: () => rootRoute,
+const UsernameRoute = UsernameRouteImport.update({
+  id: '/$username',
+  path: '/$username',
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const InfoDiscordBotRoute = InfoDiscordBotImport.update({
-  id: '/info/discord-bot',
-  path: '/info/discord-bot',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const InfoAliasRoute = InfoAliasImport.update({
-  id: '/info/alias',
-  path: '/info/alias',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const GroupNameRoute = GroupNameImport.update({
-  id: '/group/$name',
-  path: '/group/$name',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const ClanNameRoute = ClanNameImport.update({
+const ClanNameRoute = ClanNameRouteImport.update({
   id: '/clan/$name',
   path: '/clan/$name',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/$username': {
-      id: '/$username'
-      path: '/$username'
-      fullPath: '/$username'
-      preLoaderRoute: typeof UsernameImport
-      parentRoute: typeof rootRoute
-    }
-    '/clan/$name': {
-      id: '/clan/$name'
-      path: '/clan/$name'
-      fullPath: '/clan/$name'
-      preLoaderRoute: typeof ClanNameImport
-      parentRoute: typeof rootRoute
-    }
-    '/group/$name': {
-      id: '/group/$name'
-      path: '/group/$name'
-      fullPath: '/group/$name'
-      preLoaderRoute: typeof GroupNameImport
-      parentRoute: typeof rootRoute
-    }
-    '/info/alias': {
-      id: '/info/alias'
-      path: '/info/alias'
-      fullPath: '/info/alias'
-      preLoaderRoute: typeof InfoAliasImport
-      parentRoute: typeof rootRoute
-    }
-    '/info/discord-bot': {
-      id: '/info/discord-bot'
-      path: '/info/discord-bot'
-      fullPath: '/info/discord-bot'
-      preLoaderRoute: typeof InfoDiscordBotImport
-      parentRoute: typeof rootRoute
-    }
-    '/info/guide': {
-      id: '/info/guide'
-      path: '/info/guide'
-      fullPath: '/info/guide'
-      preLoaderRoute: typeof InfoGuideImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
+const GroupNameRoute = GroupNameRouteImport.update({
+  id: '/group/$name',
+  path: '/group/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoAliasRoute = InfoAliasRouteImport.update({
+  id: '/info/alias',
+  path: '/info/alias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoDiscordBotRoute = InfoDiscordBotRouteImport.update({
+  id: '/info/discord-bot',
+  path: '/info/discord-bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InfoGuideRoute = InfoGuideRouteImport.update({
+  id: '/info/guide',
+  path: '/info/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -130,7 +62,6 @@ export interface FileRoutesByFullPath {
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
@@ -140,9 +71,8 @@ export interface FileRoutesByTo {
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$username': typeof UsernameRoute
   '/clan/$name': typeof ClanNameRoute
@@ -151,7 +81,6 @@ export interface FileRoutesById {
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -182,7 +111,6 @@ export interface FileRouteTypes {
     | '/info/guide'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UsernameRoute: typeof UsernameRoute
@@ -191,6 +119,60 @@ export interface RootRouteChildren {
   InfoAliasRoute: typeof InfoAliasRoute
   InfoDiscordBotRoute: typeof InfoDiscordBotRoute
   InfoGuideRoute: typeof InfoGuideRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$username': {
+      id: '/$username'
+      path: '/$username'
+      fullPath: '/$username'
+      preLoaderRoute: typeof UsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clan/$name': {
+      id: '/clan/$name'
+      path: '/clan/$name'
+      fullPath: '/clan/$name'
+      preLoaderRoute: typeof ClanNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/group/$name': {
+      id: '/group/$name'
+      path: '/group/$name'
+      fullPath: '/group/$name'
+      preLoaderRoute: typeof GroupNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/alias': {
+      id: '/info/alias'
+      path: '/info/alias'
+      fullPath: '/info/alias'
+      preLoaderRoute: typeof InfoAliasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/discord-bot': {
+      id: '/info/discord-bot'
+      path: '/info/discord-bot'
+      fullPath: '/info/discord-bot'
+      preLoaderRoute: typeof InfoDiscordBotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/info/guide': {
+      id: '/info/guide'
+      path: '/info/guide'
+      fullPath: '/info/guide'
+      preLoaderRoute: typeof InfoGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -202,47 +184,15 @@ const rootRouteChildren: RootRouteChildren = {
   InfoDiscordBotRoute: InfoDiscordBotRoute,
   InfoGuideRoute: InfoGuideRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/$username",
-        "/clan/$name",
-        "/group/$name",
-        "/info/alias",
-        "/info/discord-bot",
-        "/info/guide"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/$username": {
-      "filePath": "$username.tsx"
-    },
-    "/clan/$name": {
-      "filePath": "clan/$name.tsx"
-    },
-    "/group/$name": {
-      "filePath": "group/$name.tsx"
-    },
-    "/info/alias": {
-      "filePath": "info/alias.tsx"
-    },
-    "/info/discord-bot": {
-      "filePath": "info/discord-bot.tsx"
-    },
-    "/info/guide": {
-      "filePath": "info/guide.tsx"
-    }
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }
-ROUTE_MANIFEST_END */

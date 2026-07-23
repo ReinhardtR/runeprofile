@@ -1,6 +1,6 @@
 import { Center } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Link } from "@tanstack/react-router";
+import { ClientOnly, Link } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { Info, Pause, Play } from "lucide-react";
@@ -201,7 +201,20 @@ export function Character({
   );
 }
 
-export function PlayerModel({
+// The three.js canvas (and the scene hooks inside it) only work in the
+// browser — never render it during SSR.
+export function PlayerModel(props: {
+  username: string;
+  isAnimating: boolean;
+}) {
+  return (
+    <ClientOnly fallback={null}>
+      <PlayerModelScene {...props} />
+    </ClientOnly>
+  );
+}
+
+function PlayerModelScene({
   username,
   isAnimating,
 }: {
@@ -371,7 +384,15 @@ function Model3D({
   );
 }
 
-export function GroupCharacters({ members }: { members: Group["members"] }) {
+export function GroupCharacters(props: { members: Group["members"] }) {
+  return (
+    <ClientOnly fallback={null}>
+      <GroupCharactersScene {...props} />
+    </ClientOnly>
+  );
+}
+
+function GroupCharactersScene({ members }: { members: Group["members"] }) {
   const [loading, setLoading] = useState(true);
   const [geometries, setGeometries] = useState<
     Map<string, BufferGeometry | null>

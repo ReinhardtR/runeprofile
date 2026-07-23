@@ -3,6 +3,7 @@ import {
   ErrorComponentProps,
   Link,
   createFileRoute,
+  notFound,
   useNavigate,
 } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
@@ -56,15 +57,29 @@ function groupHiscoresQueryOptions(params: { usernames: string[] }) {
 export const Route = createFileRoute("/group/$name")({
   component: RouteComponent,
   errorComponent: ErrorComponent,
+  notFoundComponent: GroupNotFoundComponent,
   validateSearch: zodValidator(groupSearchSchema),
   loaderDeps: ({ search: { activityPage } }) => ({
     activityPage,
   }),
   loader: async ({ params, context, deps }) => {
     // Fetch group data first
-    const group = await context.queryClient.fetchQuery(
-      groupQueryOptions({ name: params.name }),
-    );
+    let group;
+    try {
+      group = await context.queryClient.fetchQuery(
+        groupQueryOptions({ name: params.name }),
+      );
+    } catch (error) {
+      // Thrown as notFound() so it survives SSR serialization (loader errors
+      // thrown on the server are redacted) and returns a real 404 status.
+      if (
+        error instanceof RuneProfileApiError &&
+        error.code === "AccountNotFound"
+      ) {
+        throw notFound();
+      }
+      throw error;
+    }
 
     // Then fetch batch hiscores for all members and activities
     const usernames = group.members.map(
@@ -82,13 +97,21 @@ export const Route = createFileRoute("/group/$name")({
 
     return group;
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: `${loaderData.groupName} (Group) | RuneProfile`,
-      },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const name = loaderData?.groupName ?? decodeURIComponent(params.name);
+    const title = `${name} (Group) | RuneProfile`;
+    const description = `View the ${name} group's Old School RuneScape progress and achievements on RuneProfile.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+    };
+  },
 });
 
 function RouteComponent() {
@@ -214,6 +237,27 @@ function RouteComponent() {
       </div>
       <Footer />
     </>
+  );
+}
+
+function GroupNotFoundComponent() {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col gap-y-4 items-center justify-center min-h-screen">
+      <p className="text-2xl text-primary-foreground">Group not found</p>
+      <p className="text-muted-foreground text-center">
+        This group does not exist or has no members.
+        <br />
+        Make sure group members have updated their profiles using the plugin.
+        <br />
+        If needed you can follow the guide{" "}
+        <Link to="/info/guide" className="text-secondary-foreground underline">
+          here
+        </Link>
+        .
+      </p>
+      <Button onClick={() => navigate({ to: "/" })}>Home Teleport</Button>
+    </div>
   );
 }
 

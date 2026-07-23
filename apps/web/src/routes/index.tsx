@@ -34,8 +34,11 @@ function metricsQueryOptions() {
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
-  loader: ({ context }) => {
-    context.queryClient.prefetchQuery(metricsQueryOptions());
+  loader: async ({ context }) => {
+    // Awaited so the metrics are dehydrated into the SSR payload — a
+    // fire-and-forget prefetch renders on the server but hydrates as
+    // undefined, causing a hydration mismatch on the stat counters.
+    await context.queryClient.prefetchQuery(metricsQueryOptions());
   },
 });
 

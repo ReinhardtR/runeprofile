@@ -80,13 +80,21 @@ export const Route = createFileRoute("/clan/$name")({
       }),
     );
   },
-  head: ({ params }) => ({
-    meta: [
-      {
-        title: `${decodeURIComponent(params.name)} | RuneProfile`,
-      },
-    ],
-  }),
+  head: ({ params }) => {
+    const name = decodeURIComponent(params.name);
+    const title = `${name} (Clan) | RuneProfile`;
+    const description = `View the ${name} clan's Old School RuneScape progress and achievements on RuneProfile.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+    };
+  },
 });
 
 function RouteComponent() {
