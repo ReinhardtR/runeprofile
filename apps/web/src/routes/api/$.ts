@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { getWorkerEnv } from "~/core/worker-env";
+
 // Same-origin proxy for browser API calls: /api/* is forwarded to the API
 // worker over the service binding, so the public api.runeprofile.com surface
 // (and CORS) isn't needed for the web app.
 async function proxyToApi({ request }: { request: Request }) {
-  const { env } = await import("cloudflare:workers");
+  const env = await getWorkerEnv();
   const url = new URL(request.url);
   const target = new URL(
     url.pathname.replace(/^\/api/, "") + url.search,

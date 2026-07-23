@@ -17,7 +17,7 @@ import { Route as GroupNameRouteImport } from './routes/group/$name'
 import { Route as InfoAliasRouteImport } from './routes/info/alias'
 import { Route as InfoDiscordBotRouteImport } from './routes/info/discord-bot'
 import { Route as InfoGuideRouteImport } from './routes/info/guide'
-import { Route as OgUsernameDotpngRouteImport } from './routes/og.$username[.]png'
+import { Route as OgUsernameRouteImport } from './routes/og.$username'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,9 +59,9 @@ const InfoGuideRoute = InfoGuideRouteImport.update({
   path: '/info/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OgUsernameDotpngRoute = OgUsernameDotpngRouteImport.update({
-  id: '/og/$username.png',
-  path: '/og/$username.png',
+const OgUsernameRoute = OgUsernameRouteImport.update({
+  id: '/og/$username',
+  path: '/og/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -74,7 +74,7 @@ export interface FileRoutesByFullPath {
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
-  '/og/$username.png': typeof OgUsernameDotpngRoute
+  '/og/$username': typeof OgUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +85,7 @@ export interface FileRoutesByTo {
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
-  '/og/$username.png': typeof OgUsernameDotpngRoute
+  '/og/$username': typeof OgUsernameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +97,7 @@ export interface FileRoutesById {
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
   '/info/guide': typeof InfoGuideRoute
-  '/og/$username.png': typeof OgUsernameDotpngRoute
+  '/og/$username': typeof OgUsernameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,7 +110,7 @@ export interface FileRouteTypes {
     | '/info/alias'
     | '/info/discord-bot'
     | '/info/guide'
-    | '/og/$username.png'
+    | '/og/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,7 +121,7 @@ export interface FileRouteTypes {
     | '/info/alias'
     | '/info/discord-bot'
     | '/info/guide'
-    | '/og/$username.png'
+    | '/og/$username'
   id:
     | '__root__'
     | '/'
@@ -132,7 +132,7 @@ export interface FileRouteTypes {
     | '/info/alias'
     | '/info/discord-bot'
     | '/info/guide'
-    | '/og/$username.png'
+    | '/og/$username'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,7 +144,7 @@ export interface RootRouteChildren {
   InfoAliasRoute: typeof InfoAliasRoute
   InfoDiscordBotRoute: typeof InfoDiscordBotRoute
   InfoGuideRoute: typeof InfoGuideRoute
-  OgUsernameDotpngRoute: typeof OgUsernameDotpngRoute
+  OgUsernameRoute: typeof OgUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -205,11 +205,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InfoGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/og/$username.png': {
-      id: '/og/$username.png'
-      path: '/og/$username.png'
-      fullPath: '/og/$username.png'
-      preLoaderRoute: typeof OgUsernameDotpngRouteImport
+    '/og/$username': {
+      id: '/og/$username'
+      path: '/og/$username'
+      fullPath: '/og/$username'
+      preLoaderRoute: typeof OgUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -224,7 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfoAliasRoute: InfoAliasRoute,
   InfoDiscordBotRoute: InfoDiscordBotRoute,
   InfoGuideRoute: InfoGuideRoute,
-  OgUsernameDotpngRoute: OgUsernameDotpngRoute,
+  OgUsernameRoute: OgUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

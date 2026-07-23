@@ -21,12 +21,13 @@ const apiFetch: typeof fetch = async (input, init) => {
           ? input.href
           : input.url;
     if (url.startsWith("/api")) {
-      const { env } = await import("cloudflare:workers");
+      const { getWorkerEnv } = await import("~/core/worker-env");
+      const env = await getWorkerEnv();
       const target = new URL(
         url.slice("/api".length) || "/",
         "https://runeprofile-api.internal",
       );
-      return env.API.fetch(new Request(target, init)) as Promise<Response>;
+      return env.API.fetch(new Request(target, init));
     }
   }
   return fetch(input, init);

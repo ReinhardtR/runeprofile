@@ -59,6 +59,8 @@ async function generateOgImage({ request }: { request: Request }) {
   const cached = await cache.match(request.url);
   if (cached) return cached;
 
+  // The route matches /og/$username; og:image links use a .png suffix for
+  // crawler-friendliness, so strip it from the param segment.
   const url = new URL(request.url);
   const username = decodeURIComponent(
     url.pathname.replace(/^\/og\//, "").replace(/\.png$/, ""),
@@ -136,7 +138,7 @@ async function generateOgImage({ request }: { request: Request }) {
   return response;
 }
 
-export const Route = createFileRoute("/og/$username.png")({
+export const Route = createFileRoute("/og/$username")({
   server: {
     handlers: {
       GET: generateOgImage,
