@@ -29,18 +29,18 @@
     "@scalar/types": "^0.9.5",
     "discord-api-types": "^0.38.28",
     "discord-hono": "^0.20.1",
-    "drizzle-orm": "^0.45.1",
-    "hono": "^4.12.16",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.31",
     "hono-rate-limiter": "^0.5.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.4",
     "@types/node": "^25.0.3",
-    "@vitest/ui": "3.1.2",
-    "drizzle-kit": "^0.30.5",
+    "@vitest/ui": "3.2.7",
+    "drizzle-kit": "^0.31.8",
     "tsx": "^4.20.6",
-    "vitest": "^3.1.2",
+    "vitest": "^3.2.7",
     "wrangler": "^4.59.2"
   }
 }

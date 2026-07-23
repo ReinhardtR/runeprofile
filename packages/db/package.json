@@ -21,16 +21,16 @@
   },
   "dependencies": {
     "@runeprofile/runescape": "workspace:*",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250214.0",
+    "@cloudflare/workers-types": "^5.20260721.1",
     "@types/node": "^20.19.11",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.8",
     "tsx": "^4.19.2",
     "typescript": "^5.8.2",
-    "wrangler": "^4.10.0"
+    "wrangler": "^4.59.1"
   }
 }
