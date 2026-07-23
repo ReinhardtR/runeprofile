@@ -43,7 +43,8 @@ export function GroupActivitiesList() {
             className="pt-3 overflow-hidden flex flex-row relative group"
           >
             <div className="bg-card border rounded-md min-h-16 lg:h-16 px-4 py-2 lg:py-0 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
-              {render(event as any)}
+              {/* Groups aren't clans — clan rank icons are irrelevant here. */}
+              {render(event as any, { showClanRank: false })}
             </div>
           </Link>
         );

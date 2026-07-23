@@ -122,23 +122,27 @@ export function Character({
               params={{ name: clan.name }}
               className="flex flex-row px-4 py-1 gap-x-2 font-runescape font-bold bg-background/80 border border-border rounded-md items-center hover:border-primary hover:bg-background transition-colors group"
             >
-              <Tooltip>
-                <TooltipTrigger>
-                  <GameIcon
-                    src={
-                      ClanRankIcons[
-                        String(clan.icon) as keyof typeof ClanRankIcons
-                      ]
-                    }
-                    alt={clan.title}
-                    size={16}
-                    className="drop-shadow-solid-sm"
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{clan.title}</p>
-                </TooltipContent>
-              </Tooltip>
+              {!!ClanRankIcons[
+                String(clan.icon) as keyof typeof ClanRankIcons
+              ] && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <GameIcon
+                      src={
+                        ClanRankIcons[
+                          String(clan.icon) as keyof typeof ClanRankIcons
+                        ]
+                      }
+                      alt={clan.title}
+                      size={16}
+                      className="drop-shadow-solid-sm"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{clan.title}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               <p className="text-md text-osrs-orange solid-text-shadow group-hover:underline">
                 {clan.name}
               </p>

@@ -75,8 +75,8 @@ export function KofiIcon({ className }: { className?: string }) {
 }
 
 interface GameIconProps {
-  /** Base64 image data or full data URL */
-  src: string;
+  /** Base64 image data or full data URL; renders nothing when missing */
+  src: string | undefined | null;
   /** Alternative text for the icon */
   alt: string;
   /** Size of the icon in pixels (default: 24) */
@@ -100,6 +100,9 @@ export function GameIcon({
   pixelated = true,
   isBase64 = true,
 }: GameIconProps) {
+  // Icon lookups (e.g. clan rank ids) can miss; skip rendering instead of crashing.
+  if (!src) return null;
+
   // Handle both base64 strings and full data URLs
   const imageSrc =
     !isBase64 || src.startsWith("data:") ? src : `data:image/png;base64,${src}`;

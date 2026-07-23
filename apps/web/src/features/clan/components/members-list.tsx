@@ -46,6 +46,10 @@ export function MembersList() {
             AccountTypeIcons[
               member.accountType.key as keyof typeof AccountTypeIcons
             ];
+          const clanRankIcon =
+            ClanRankIcons[
+              String(member.clan.icon) as keyof typeof ClanRankIcons
+            ];
 
           return (
             <Link
@@ -55,16 +59,14 @@ export function MembersList() {
               className="pt-3 overflow-hidden flex flex-row relative group"
             >
               <div className="bg-card border rounded-md px-4 h-16 flex flex-row items-center gap-x-2 flex-1 group-hover:border-primary">
-                <GameIcon
-                  src={
-                    ClanRankIcons[
-                      String(member.clan.icon) as keyof typeof ClanRankIcons
-                    ]
-                  }
-                  alt="Clan rank"
-                  size={16}
-                  className="drop-shadow-solid-sm"
-                />
+                {!!clanRankIcon && (
+                  <GameIcon
+                    src={clanRankIcon}
+                    alt="Clan rank"
+                    size={16}
+                    className="drop-shadow-solid-sm"
+                  />
+                )}
                 {!!accountTypeIcon && (
                   <GameIcon
                     src={accountTypeIcon}

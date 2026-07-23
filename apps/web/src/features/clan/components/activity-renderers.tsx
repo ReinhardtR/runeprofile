@@ -55,24 +55,38 @@ export function ActivityIcon(props: { children: React.ReactNode }) {
   );
 }
 
+// Contexts that aren't clan-scoped (e.g. group activity feeds) can opt out
+// of clan rank icons; the accounts there aren't shown as clan members.
+export interface ActivityRenderOptions {
+  showClanRank?: boolean;
+}
+
 export function ActivityAccount({
   account,
+  showClanRank = true,
 }: {
   account: ClanActivityEvent["account"];
+  showClanRank?: boolean;
 }) {
   const accountTypeIcon =
     AccountTypeIcons[account.accountType.key as keyof typeof AccountTypeIcons];
+  // Group members needn't be in a clan (clanIcon is null), and unknown icon
+  // ids don't resolve — show no rank icon in both cases.
+  const clanRankIcon =
+    account.clanIcon != null
+      ? ClanRankIcons[String(account.clanIcon) as keyof typeof ClanRankIcons]
+      : undefined;
 
   return (
     <div className="flex flex-row items-center gap-x-1.5">
-      <GameIcon
-        src={
-          ClanRankIcons[String(account.clanIcon) as keyof typeof ClanRankIcons]
-        }
-        alt="Clan rank"
-        size={16}
-        className="drop-shadow-solid-sm"
-      />
+      {showClanRank && !!clanRankIcon && (
+        <GameIcon
+          src={clanRankIcon}
+          alt="Clan rank"
+          size={16}
+          className="drop-shadow-solid-sm"
+        />
+      )}
       {!!accountTypeIcon && (
         <GameIcon
           src={accountTypeIcon}
@@ -94,6 +108,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.NEW_ITEM_OBTAINED }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     const itemIcon =
       ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
@@ -117,7 +132,10 @@ export const ActivityRenderMap = {
           )}
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>obtained</span>
           <span className="text-secondary-foreground">
             {itemName ?? "Unknown Item"}
@@ -131,6 +149,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.LEVEL_UP }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     const skillIcon =
       SkillIconsLarge[
@@ -147,7 +166,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>reached level</span>
           <span className="text-secondary-foreground">
             {event.data.level} in {event.data.name}
@@ -161,6 +183,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.XP_MILESTONE }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     const skillIcon =
       SkillIconsLarge[
@@ -177,7 +200,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>reached</span>
           <span
             className={cn("text-secondary-foreground", {
@@ -195,6 +221,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     const areaName =
       getAchievementDiaryAreaName(event.data.areaId) ?? "Unknown";
@@ -208,7 +235,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>completed the</span>
           <span className="text-secondary-foreground">
             {tierName} diary in {areaName}
@@ -222,6 +252,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     const tierIcon =
       CombatAchievementTierIcons[
@@ -240,7 +271,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>reached the</span>
           <span
             className={cn(
@@ -259,6 +293,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.QUEST_COMPLETED }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     const quest = getQuestById(event.data.questId);
     return (
@@ -271,7 +306,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>completed</span>
           <span className="text-secondary-foreground">
             {quest?.name ?? "Unknown"}
@@ -282,6 +320,7 @@ export const ActivityRenderMap = {
   },
   [ActivityEventType.MAXED]: (
     event: Extract<ClanActivityEvent, { type: typeof ActivityEventType.MAXED }>,
+    options?: ActivityRenderOptions,
   ) => {
     return (
       <>
@@ -294,7 +333,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>has</span>
           <span className="shimmer-text">Maxed</span>
           <span>all skills.</span>
@@ -307,6 +349,7 @@ export const ActivityRenderMap = {
       ClanActivityEvent,
       { type: typeof ActivityEventType.VALUABLE_DROP }
     >,
+    options?: ActivityRenderOptions,
   ) => {
     return (
       <>
@@ -317,7 +360,10 @@ export const ActivityRenderMap = {
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
-          <ActivityAccount account={event.account} />
+          <ActivityAccount
+            account={event.account}
+            showClanRank={options?.showClanRank}
+          />
           <span>received a valuable drop worth</span>
           <span className="text-secondary-foreground">
             {numberWithDelimiter(event.data.value)} gp
