@@ -201,7 +201,7 @@ function createCombatAchievementTaskEmbed(
     : "Unknown";
 
   const description = [
-    `Completed **${task?.name ?? "Unknown Task"}**`,
+    `**${task?.name ?? "Unknown Task"}**`,
     ...(task ? [`*${task.description}*`] : []),
   ].join("\n");
 
