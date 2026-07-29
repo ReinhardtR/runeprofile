@@ -16,7 +16,7 @@ import CombatAchievementsSmallIcon from "~/core/assets/icons/combat-achievements
 import { Card } from "~/features/profile/components/card";
 import { hiscoresQueryOptions } from "~/features/profile/components/hiscores";
 import { RuneScapeScrollArea } from "~/features/profile/components/scroll-area";
-import { ItemIcon } from "~/shared/components/icons";
+import { ClogItemIcon } from "~/shared/components/clog-item-icon";
 import {
   Command,
   CommandEmpty,
@@ -527,7 +527,7 @@ function CollectionLogItem({
             target="_blank"
             rel="noreferrer"
           >
-            <ItemIcon
+            <ClogItemIcon
               id={id}
               alt={name}
               size={54}

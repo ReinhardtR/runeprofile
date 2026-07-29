@@ -19,6 +19,7 @@
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",
+    "sharp": "^0.35.3",
     "ts-morph": "^27.0.2",
     "tsx": "^4.19.3"
   }

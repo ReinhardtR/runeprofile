@@ -2,7 +2,7 @@ import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 
 import { Profile } from "~/core/api";
 import { Card } from "~/features/profile/components/card";
-import { ItemIcon } from "~/shared/components/icons";
+import { ClogItemIcon } from "~/shared/components/clog-item-icon";
 import {
   Tooltip,
   TooltipContent,
@@ -32,7 +32,7 @@ export function RecentCollections({
                 target="_blank"
                 rel="noreferrer"
               >
-                <ItemIcon
+                <ClogItemIcon
                   id={event.data.itemId}
                   alt={itemName}
                   size={54}

@@ -17,10 +17,21 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
+
+import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 
 // Renders an icon for every named item in the OSRS cache and syncs them into
 // the runeprofile-cdn R2 bucket, served at
 // https://cdn.runeprofile.com/item/{id}.png.
+//
+// Also composes every collection log item icon into a single sprite-sheet
+// atlas so the web app can render clog pages atomically with one request:
+//   clog-atlas.{contenthash}.png  (immutable)
+//   clog-atlas.json               (stable URL, short TTL manifest with the
+//                                  atlas URL, cell size and id -> [x, y])
+// The manifest is uploaded after the atlas it references, so a live
+// manifest always points at an existing atlas.
 //
 // Fully self-contained: downloads the latest live cache from the OpenRS2
 // archive (updated within hours of a game update), renders icons headlessly
@@ -110,6 +121,7 @@ async function syncItemIcons() {
 
   if (pending.length === 0) {
     console.log(`All ${unchanged} item icons are already up to date.`);
+    await uploadClogAtlas(iconsDir);
     return;
   }
   console.log(`Uploading ${pending.length} icons (${unchanged} unchanged)...`);
@@ -150,6 +162,97 @@ async function syncItemIcons() {
     }
     throw new Error(`${failed.length} icon uploads failed.`);
   }
+
+  await uploadClogAtlas(iconsDir);
+}
+
+// Item icons are always 36x32.
+const CELL_WIDTH = 36;
+const CELL_HEIGHT = 32;
+const ATLAS_COLUMNS = 40;
+
+async function uploadClogAtlas(iconsDir: string) {
+  const clogItemIds = Object.keys(COLLECTION_LOG_ITEMS)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  const cells: Array<{ id: number; filePath: string }> = [];
+  const missing: number[] = [];
+  for (const id of clogItemIds) {
+    const filePath = path.join(iconsDir, `${id}.png`);
+    if (existsSync(filePath)) {
+      cells.push({ id, filePath });
+    } else {
+      missing.push(id);
+    }
+  }
+  if (missing.length > 0) {
+    // The web app falls back to per-item icon URLs for anything the
+    // manifest doesn't cover, so this is a warning rather than a failure.
+    console.warn(
+      `${missing.length} collection log items have no rendered icon and were left out of the atlas: ${missing.join(", ")}`,
+    );
+  }
+
+  const rows = Math.ceil(cells.length / ATLAS_COLUMNS);
+  const width = ATLAS_COLUMNS * CELL_WIDTH;
+  const height = rows * CELL_HEIGHT;
+
+  const icons: Record<number, [number, number]> = {};
+  const composites = cells.map(({ id, filePath }, index) => {
+    const x = (index % ATLAS_COLUMNS) * CELL_WIDTH;
+    const y = Math.floor(index / ATLAS_COLUMNS) * CELL_HEIGHT;
+    icons[id] = [x, y];
+    return { input: filePath, left: x, top: y };
+  });
+
+  const atlas = await sharp({
+    create: {
+      width,
+      height,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite(composites)
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+
+  const hash = createHash("md5").update(atlas).digest("hex").slice(0, 16);
+  const atlasKey = `clog-atlas.${hash}.png`;
+
+  const manifest = JSON.stringify({
+    atlas: `https://cdn.runeprofile.com/${atlasKey}`,
+    width,
+    height,
+    cellWidth: CELL_WIDTH,
+    cellHeight: CELL_HEIGHT,
+    icons,
+  });
+
+  // Atlas first, manifest second: a live manifest must always reference an
+  // atlas that already exists.
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: atlasKey,
+      Body: atlas,
+      ContentType: "image/png",
+      CacheControl: CACHE_CONTROL,
+    }),
+  );
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: "clog-atlas.json",
+      Body: manifest,
+      ContentType: "application/json",
+      CacheControl: "public, max-age=300",
+    }),
+  );
+  console.log(
+    `Uploaded clog atlas ${atlasKey} (${cells.length} icons, ${width}x${height}, ${Math.round(atlas.length / 1024)}KB) and manifest.`,
+  );
 }
 
 // Downloads the latest live cache from OpenRS2 and renders all item icons
