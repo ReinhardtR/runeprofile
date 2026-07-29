@@ -39,7 +39,6 @@ import { Skeleton } from "~/shared/components/ui/skeleton";
 import {
   cn,
   formatRelativeTime,
-  itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
 } from "~/shared/utils";
@@ -271,7 +270,7 @@ const ProfileActivityRenderMap = {
           <ClogItemIcon
             id={event.data.itemId}
             alt={itemName}
-            size={26}
+            size={36}
             className="z-10 drop-shadow-2xl mx-auto"
           />
         </ActivityIcon>
@@ -504,9 +503,11 @@ const ProfileActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <img
-            src={itemIconUrl(event.data.itemId)}
-            className={cn("z-10 drop-shadow-2xl object-contain mx-auto")}
+          <ClogItemIcon
+            id={event.data.itemId}
+            alt="Valuable drop"
+            size={36}
+            className="z-10 drop-shadow-2xl mx-auto"
           />
         </ActivityIcon>
         <ProfileActivityContent createdAt={event.createdAt}>
