@@ -135,6 +135,7 @@ export const QUESTS = [
   { id: 3713, name: "Ethically Acquired Antiquities", points: 1, difficulty: QuestDifficulty.NOVICE, type: QuestType.MEMBERS },
   { id: 46, name: "Fairytale I - Growing Pains", points: 2, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MEMBERS },
   { id: 47, name: "Fairytale II - Cure a Queen", points: 2, difficulty: QuestDifficulty.EXPERIENCED, type: QuestType.MEMBERS },
+  { id: 7133, name: "Fallen From Grace", points: 2, difficulty: QuestDifficulty.EXPERIENCED, type: QuestType.MEMBERS },
   { id: 48, name: "Family Crest", points: 1, difficulty: QuestDifficulty.EXPERIENCED, type: QuestType.MEMBERS },
   { id: 51, name: "Fight Arena", points: 2, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MEMBERS },
   { id: 52, name: "Fishing Contest", points: 1, difficulty: QuestDifficulty.NOVICE, type: QuestType.MEMBERS },
