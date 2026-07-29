@@ -126,6 +126,8 @@
   --drop-shadow-solid-xs: 0.5px 0.5px 0 black;
 
   --font-runescape: "RuneScape";
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @layer base {
@@ -137,13 +139,13 @@
 /* Custom Styles */
 
 @font-face {
-  font-family: "ui-sans-serif";
+  font-family: "Inter";
   src: url("~/core/assets/fonts/inter.ttf") format("truetype");
   font-style: normal;
 }
 
 @font-face {
-  font-family: "ui-sans-serif";
+  font-family: "Inter";
   src: url("~/core/assets/fonts/inter-italic.ttf") format("truetype");
   font-style: italic;
 }
