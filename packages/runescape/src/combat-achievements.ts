@@ -236,6 +236,7 @@ export const COMBAT_ACHIEVEMENT_BOSSES = [
   'Tempoross',
   'The Hueycoatl',
   'The Leviathan',
+  'The Mad Angel',
   'The Nightmare',
   'The Whisperer',
   'Theatre of Blood',
