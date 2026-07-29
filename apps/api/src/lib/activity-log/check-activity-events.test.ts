@@ -466,7 +466,7 @@ function varpsFromIndices(indices: number[]): Record<string, number> {
   const varps: Record<string, number> = {};
   for (const index of indices) {
     const varpId = COMBAT_ACHIEVEMENT_VARPS[Math.floor(index / 32)];
-    varps[String(varpId)] = (varps[String(varpId)] ?? 0) | (1 << index % 32);
+    varps[String(varpId)] = (varps[String(varpId)] ?? 0) | (1 << (index % 32));
   }
   return varps;
 }
@@ -495,9 +495,17 @@ describe("COMBAT ACHIEVEMENT TASK COMPLETED EVENTS", () => {
   });
 
   test("does not fire for tasks missing from the registry", () => {
-    // Index 639 (last varp, bit 31) has no registry entry.
+    // One past the highest registered index — a bit Jagex hasn't assigned yet.
+    const unregistered =
+      Math.max(...COMBAT_ACHIEVEMENT_TASKS.map((t) => t.index)) + 1;
+    // Sanity: the index must still be addressable within the varp range,
+    // otherwise this test silently stops exercising the registry guard.
+    expect(unregistered).toBeLessThan(COMBAT_ACHIEVEMENT_VARPS.length * 32);
     expect(
-      checkCombatAchievementTaskCompletedEvents({}, varpsFromIndices([639])),
+      checkCombatAchievementTaskCompletedEvents(
+        {},
+        varpsFromIndices([unregistered]),
+      ),
     ).toEqual([]);
   });
 
