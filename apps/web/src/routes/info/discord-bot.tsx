@@ -11,8 +11,8 @@ import {
 } from "@runeprofile/runescape";
 
 import ACCOUNT_TYPE_ICONS from "~/core/assets/account-type-icons.json";
-import ITEM_ICONS from "~/core/assets/item-icons.json";
 import QuestIcon from "~/core/assets/icons/quest.png";
+import ITEM_ICONS from "~/core/assets/item-icons.json";
 import Logo from "~/core/assets/misc/logo.png";
 import SKILL_ICONS from "~/core/assets/skill-icons-large.json";
 import {
@@ -33,8 +33,8 @@ import {
 } from "~/features/info";
 import { Footer, Header } from "~/layouts";
 import { AddDiscordBotButton } from "~/shared/components/AddDiscordBotButton";
-import { GameIcon } from "~/shared/components/icons";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
+import { GameIcon } from "~/shared/components/icons";
 import { cn } from "~/shared/utils";
 
 export const Route = createFileRoute("/info/discord-bot")({
@@ -52,9 +52,7 @@ interface Section {
 /* -------------------------------------------------------------------------- */
 
 // Colors sampled from a real Discord screenshot of the bot's messages.
-const DiscordMock: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const DiscordMock: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="my-6 rounded-lg border border-border bg-[#1a1a1e] px-4 py-3.5 shadow-md">
       <div className="flex gap-3.5">
@@ -135,9 +133,7 @@ const DiscordPreview: React.FC = () => (
     <DiscordEmbedMock
       color="#00ced1"
       footer="Quest"
-      icon={
-        <GameIcon src={QuestIcon} alt="Quest" size={32} isBase64={false} />
-      }
+      icon={<GameIcon src={QuestIcon} alt="Quest" size={32} isBase64={false} />}
     >
       Completed{" "}
       <b className="text-[#efeff1]">Desert Treasure II - The Fallen Empire</b>
@@ -175,6 +171,16 @@ const FILTER_EXAMPLE_OUTCOMES: FilterOutcome[] = [
     activity: "Completed Cook's Assistant (Novice)",
     sent: false,
     reason: "below the Experienced threshold",
+  },
+  {
+    activity: "Completed a Grandmaster combat achievement task",
+    sent: true,
+    reason: "at or above the Master threshold",
+  },
+  {
+    activity: "Completed an Easy combat achievement task",
+    sent: false,
+    reason: "below the Master threshold",
   },
   {
     activity: "New collection log item",
@@ -370,8 +376,8 @@ const SECTIONS: Section[] = [
         <GuideParagraph>
           The RuneProfile Discord bot sends activity messages directly to your
           Discord server. Get notified when clan members or tracked players
-          level up, receive valuable drops, complete quests, obtain collection
-          log items, and more.
+          level up, receive valuable drops, complete quests and combat
+          achievement tasks, obtain collection log items, and more.
         </GuideParagraph>
         <DiscordPreview />
       </>
@@ -422,16 +428,16 @@ const SECTIONS: Section[] = [
     content: (
       <>
         <GuideParagraph>
-          Each channel decides which activities it receives. There are two
-          kinds of filter, and they work together:
+          Each channel decides which activities it receives. There are two kinds
+          of filter, and they work together:
         </GuideParagraph>
         <GuideList>
           <li>
-            <b className="text-secondary-foreground">Allow / block</b> -
-            control which activity types are sent. A channel is either a block
-            list (every type is sent except the ones you block) or an allow
-            list (only the types you allow are sent). Adding the other kind of
-            filter switches the channel over and clears the old list.
+            <b className="text-secondary-foreground">Allow / block</b> - control
+            which activity types are sent. A channel is either a block list
+            (every type is sent except the ones you block) or an allow list
+            (only the types you allow are sent). Adding the other kind of filter
+            switches the channel over and clears the old list.
           </li>
           <li>
             <b className="text-secondary-foreground">Thresholds</b> - for
@@ -470,6 +476,15 @@ const SECTIONS: Section[] = [
             </li>
           ))}
         </GuideList>
+        <GuideParagraph>
+          Individual combat achievement tasks default to a{" "}
+          <b className="text-secondary-foreground">Master</b> minimum in every
+          channel — including channels configured before task activities existed
+          — since some bosses have a lot of easy tasks. Lower it (e.g.{" "}
+          <GuideCode>/watch filter threshold [activity] [value]</GuideCode>) or
+          remove it to receive lower-tier tasks too; tier completions like
+          reaching a new Combat Achievement tier are unaffected.
+        </GuideParagraph>
         <GuideParagraph>
           Run <GuideCode>/watch filter reset</GuideCode> at any time to return
           to these defaults, or <GuideCode>/watch filter clear</GuideCode> to

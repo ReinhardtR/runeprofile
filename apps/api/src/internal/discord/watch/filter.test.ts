@@ -3,9 +3,11 @@ import { describe, expect, test } from "vitest";
 import {
   ActivityEvent,
   ActivityEventType,
+  CA_TASK_DEFAULT_TIER_THRESHOLD,
   type ChannelActivityFilters,
   DEFAULT_CHANNEL_SETTINGS,
   type DiscordChannelSettings,
+  parseDiscordChannelSettings,
   parseThresholdInput,
 } from "@runeprofile/runescape";
 
@@ -36,8 +38,17 @@ const questCompleted = (questId: number): ActivityEvent => ({
   data: { questId },
 });
 
+const caTask = (taskIndex: number): ActivityEvent => ({
+  type: ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED,
+  data: { taskIndex },
+});
+
 const COOKS_ASSISTANT_ID = 17; // Novice
 const DRAGON_SLAYER_II_ID = 32; // Grandmaster
+
+const NOXIOUS_FOE_INDEX = 0; // Easy
+const COLLATERAL_DAMAGE_INDEX = 11; // Master
+const FEATHER_HUNTER_INDEX = 15; // Grandmaster
 
 const filters = (
   overrides: Partial<ChannelActivityFilters> = {},
@@ -51,7 +62,7 @@ const filters = (
 const settings = (
   overrides: Partial<ChannelActivityFilters> = {},
 ): DiscordChannelSettings => ({
-  version: 1,
+  version: 2,
   filters: filters(overrides),
 });
 
@@ -142,6 +153,39 @@ describe("filterActivities", () => {
       questCompleted(DRAGON_SLAYER_II_ID),
     ]);
   });
+
+  test("combat achievement task threshold filters by the task's tier", () => {
+    const activities = [
+      caTask(NOXIOUS_FOE_INDEX),
+      caTask(COLLATERAL_DAMAGE_INDEX),
+      caTask(FEATHER_HUNTER_INDEX),
+    ];
+    const result = filterActivities(
+      activities,
+      filters({
+        thresholds: {
+          [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: 6, // Grandmaster
+        },
+      }),
+    );
+    expect(result).toEqual([caTask(FEATHER_HUNTER_INDEX)]);
+  });
+
+  test("default settings only pass Master+ combat achievement tasks", () => {
+    const activities = [
+      caTask(NOXIOUS_FOE_INDEX),
+      caTask(COLLATERAL_DAMAGE_INDEX),
+      caTask(FEATHER_HUNTER_INDEX),
+    ];
+    const result = filterActivities(
+      activities,
+      DEFAULT_CHANNEL_SETTINGS.filters,
+    );
+    expect(result).toEqual([
+      caTask(COLLATERAL_DAMAGE_INDEX),
+      caTask(FEATHER_HUNTER_INDEX),
+    ]);
+  });
 });
 
 describe("applyListFilter", () => {
@@ -185,7 +229,9 @@ describe("applyListFilter", () => {
   });
 
   test("preserves thresholds and does not mutate the input", () => {
-    const input = settings({ thresholds: { [ActivityEventType.LEVEL_UP]: 50 } });
+    const input = settings({
+      thresholds: { [ActivityEventType.LEVEL_UP]: 50 },
+    });
     const { settings: next } = applyListFilter(
       input,
       ActivityEventType.LEVEL_UP,
@@ -306,5 +352,67 @@ describe("removeFilter", () => {
       "all",
     );
     expect(removed).toBe(false);
+  });
+});
+
+describe("parseDiscordChannelSettings", () => {
+  test("v2 document parses unchanged", () => {
+    const doc = settings({
+      thresholds: { [ActivityEventType.LEVEL_UP]: 70 },
+    });
+    expect(parseDiscordChannelSettings(doc)).toEqual(doc);
+  });
+
+  test("v2 document without a CA task threshold stays without one", () => {
+    // A user who explicitly removed the threshold must not have it re-added.
+    const doc = settings();
+    const parsed = parseDiscordChannelSettings(doc);
+    expect(
+      parsed?.filters.thresholds[
+        ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED
+      ],
+    ).toBeUndefined();
+  });
+
+  test("v1 document is migrated with the default CA task threshold", () => {
+    const doc = {
+      version: 1,
+      filters: {
+        mode: "blocklist",
+        types: [ActivityEventType.MAXED],
+        thresholds: { [ActivityEventType.LEVEL_UP]: 70 },
+      },
+    };
+    expect(parseDiscordChannelSettings(doc)).toEqual({
+      version: 2,
+      filters: {
+        mode: "blocklist",
+        types: [ActivityEventType.MAXED],
+        thresholds: {
+          [ActivityEventType.LEVEL_UP]: 70,
+          [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]:
+            CA_TASK_DEFAULT_TIER_THRESHOLD,
+        },
+      },
+    });
+  });
+
+  test("unrecognizable document returns undefined", () => {
+    expect(parseDiscordChannelSettings({ version: 99 })).toBeUndefined();
+    expect(parseDiscordChannelSettings(null)).toBeUndefined();
+    expect(parseDiscordChannelSettings("garbage")).toBeUndefined();
+  });
+
+  test("migrated v1 settings drop low-tier CA tasks", () => {
+    const parsed = parseDiscordChannelSettings({
+      version: 1,
+      filters: { mode: "blocklist", types: [], thresholds: {} },
+    });
+    expect(parsed).toBeDefined();
+    const result = filterActivities(
+      [caTask(NOXIOUS_FOE_INDEX), caTask(COLLATERAL_DAMAGE_INDEX)],
+      parsed!.filters,
+    );
+    expect(result).toEqual([caTask(COLLATERAL_DAMAGE_INDEX)]);
   });
 });

@@ -32,6 +32,7 @@ import {
   ActivityEvent,
   COLLECTION_LOG_ITEMS,
   getAchievementDiaryById,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierName,
   getQuestById,
   getQuestStateFromIndex,
@@ -225,6 +226,26 @@ export function AccountActivitiesTable({
               )}
             </div>
           );
+        case "combat_achievement_task_completed": {
+          const task =
+            anyData.taskIndex !== undefined
+              ? getCombatAchievementTaskByIndex(anyData.taskIndex)
+              : undefined;
+          return (
+            <div>
+              <span className="font-medium">
+                {task?.name || "Unknown Task"}
+              </span>
+              <span className="text-muted-foreground">
+                {" "}
+                - {task ? getCombatAchievementTierName(task.tierId) : "Unknown"}
+              </span>
+              <div className="text-xs text-muted-foreground">
+                Task Index: {anyData.taskIndex}
+              </div>
+            </div>
+          );
+        }
         case "xp_milestone":
           return `${anyData.name} → ${anyData.xp?.toLocaleString()} XP`;
         case "valuable_drop":
@@ -338,6 +359,7 @@ export function AccountActivitiesTable({
       quest_state_changed: "bg-purple-50 text-purple-700",
       achievement_diary_tier_completed: "bg-yellow-100 text-yellow-800",
       combat_achievement_tier_completed: "bg-red-100 text-red-800",
+      combat_achievement_task_completed: "bg-red-50 text-red-700",
       xp_milestone: "bg-indigo-100 text-indigo-800",
       valuable_drop: "bg-orange-100 text-orange-800",
       maxed: "bg-pink-100 text-pink-800",

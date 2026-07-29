@@ -6,6 +6,7 @@ import {
   MAX_SKILL_XP,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierName,
   getQuestById,
 } from "@runeprofile/runescape";
@@ -284,6 +285,54 @@ export const ActivityRenderMap = {
           >
             {tierName} Combat Achievement Tier
           </span>
+        </ActivityContent>
+      </>
+    );
+  },
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: (
+    event: Extract<
+      ClanActivityEvent,
+      { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED }
+    >,
+  ) => {
+    const task = getCombatAchievementTaskByIndex(event.data.taskIndex);
+    const tierIcon =
+      CombatAchievementTierIcons[
+        task?.tierId as unknown as keyof typeof CombatAchievementTierIcons
+      ];
+    const tierName = task
+      ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
+      : "Unknown";
+    return (
+      <>
+        <ActivityIcon>
+          {tierIcon ? (
+            <GameIcon
+              src={tierIcon}
+              alt={tierName}
+              size={28}
+              className="drop-shadow-solid-sm"
+            />
+          ) : (
+            <img
+              src={QuestionMarkImage}
+              alt="Combat Achievement"
+              className="z-10 drop-shadow-2xl object-contain mx-auto size-[26px]"
+            />
+          )}
+        </ActivityIcon>
+        <ActivityContent createdAt={event.createdAt}>
+          <ActivityAccount account={event.account} />
+          <span>completed</span>
+          <span
+            className={cn(
+              "text-secondary-foreground",
+              task?.tierId === 6 && "shimmer-text",
+            )}
+          >
+            {task?.name ?? "Unknown Task"}
+          </span>
+          <span>({tierName})</span>
         </ActivityContent>
       </>
     );

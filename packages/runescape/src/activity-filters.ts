@@ -7,7 +7,10 @@ import {
   type ActivityEventTypeValue,
   ValuableDropThreshold,
 } from "./activities";
-import { getCombatAchievementTierName } from "./combat-achievements";
+import {
+  getCombatAchievementTaskByIndex,
+  getCombatAchievementTierName,
+} from "./combat-achievements";
 import {
   QuestDifficulty,
   getQuestById,
@@ -68,7 +71,10 @@ function abbreviate(value: number): string {
  * suffix, where rounding would silently change the user's value).
  */
 export function parseThresholdInput(input: string): number | undefined {
-  const cleaned = input.trim().toLowerCase().replace(/[,_\s]/g, "");
+  const cleaned = input
+    .trim()
+    .toLowerCase()
+    .replace(/[,_\s]/g, "");
   const match = /^(\d+(?:\.\d+)?)([kmb])?$/.exec(cleaned);
   if (!match) return undefined;
 
@@ -175,6 +181,20 @@ export const ACTIVITY_FILTER_META: Record<
       format: (v) => getCombatAchievementTierName(v) ?? `tier ${v}`,
     },
   },
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: {
+    label: "Combat Achievement Task",
+    threshold: {
+      unit: "tier",
+      min: 1,
+      max: 6,
+      suggestions: [1, 2, 3, 4, 5, 6],
+      getValue: (a) =>
+        a.type === ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED
+          ? (getCombatAchievementTaskByIndex(a.data.taskIndex)?.tierId ?? 0)
+          : 0,
+      format: (v) => getCombatAchievementTierName(v) ?? `tier ${v}`,
+    },
+  },
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_COMPLETED]: {
     label: "Combat Achievement",
     legacy: true,
@@ -244,12 +264,18 @@ export type ChannelActivityFilters = z.infer<
   typeof ChannelActivityFiltersSchema
 >;
 
+const DiscordChannelSettingsV1Schema = z.object({
+  version: z.literal(1),
+  filters: ChannelActivityFiltersSchema,
+});
+
 /**
  * Per-channel Discord bot settings, stored as a single JSONB document.
- * Bump `version` (and migrate on read) when the shape changes.
+ * Bump `version` (and migrate in `parseDiscordChannelSettings`) when the
+ * shape — or the meaning of an absent key — changes.
  */
 export const DiscordChannelSettingsSchema = z.object({
-  version: z.literal(1),
+  version: z.literal(2),
   filters: ChannelActivityFiltersSchema,
 });
 export type DiscordChannelSettings = z.infer<
@@ -257,24 +283,67 @@ export type DiscordChannelSettings = z.infer<
 >;
 
 /**
+ * Default tier threshold for individual combat achievement task activities —
+ * Master (5). Tasks are spammy at lower tiers, so channels only see Master+
+ * tasks unless they change or remove the threshold.
+ */
+export const CA_TASK_DEFAULT_TIER_THRESHOLD = 5;
+
+/**
+ * Parses a stored channel settings document, migrating older versions
+ * forward. Returns `undefined` for unrecognizable documents.
+ *
+ * v1 -> v2: v1 documents predate the `combat_achievement_task_completed`
+ * activity type, so they get the default Master+ task threshold — otherwise
+ * every pre-existing customized channel would receive low-tier task spam.
+ * The migrated document is only persisted on the channel's next settings
+ * save; from then on an explicit threshold removal sticks.
+ */
+export function parseDiscordChannelSettings(
+  doc: unknown,
+): DiscordChannelSettings | undefined {
+  const v2 = DiscordChannelSettingsSchema.safeParse(doc);
+  if (v2.success) return v2.data;
+
+  const v1 = DiscordChannelSettingsV1Schema.safeParse(doc);
+  if (v1.success) {
+    return {
+      version: 2,
+      filters: {
+        ...v1.data.filters,
+        thresholds: {
+          [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]:
+            CA_TASK_DEFAULT_TIER_THRESHOLD,
+          ...v1.data.filters.thresholds,
+        },
+      },
+    };
+  }
+
+  return undefined;
+}
+
+/**
  * The default ("Light") settings. Channels without a settings row use these —
  * `/watch filter reset` returns a channel to them.
  */
 export const DEFAULT_CHANNEL_SETTINGS: DiscordChannelSettings = {
-  version: 1,
+  version: 2,
   filters: {
     mode: "blocklist",
     types: [],
     thresholds: {
       [ActivityEventType.LEVEL_UP]: 50,
       [ActivityEventType.QUEST_COMPLETED]: QuestDifficulty.EXPERIENCED,
+      [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]:
+        CA_TASK_DEFAULT_TIER_THRESHOLD,
     },
   },
 };
 
 /** Settings that pass every activity through — used by `/watch filter clear`. */
 export const PASS_EVERYTHING_CHANNEL_SETTINGS: DiscordChannelSettings = {
-  version: 1,
+  version: 2,
   filters: {
     mode: "blocklist",
     types: [],

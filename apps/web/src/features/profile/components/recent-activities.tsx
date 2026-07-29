@@ -3,6 +3,7 @@ import {
   MAX_SKILL_XP,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierName,
   getQuestById,
 } from "@runeprofile/runescape";
@@ -12,6 +13,7 @@ import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-ic
 import AchievementDiaryIcon from "~/core/assets/icons/achievement-diaries.png";
 import QuestIcon from "~/core/assets/icons/quest.png";
 import MiscIcons from "~/core/assets/misc-icons.json";
+import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { Card } from "~/features/profile/components/card";
 import { GameIcon } from "~/shared/components/icons";
@@ -39,6 +41,8 @@ const ActivityRenderMap = {
     RenderAchievementDiaryTierCompletedEvent,
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]:
     RenderCombatAchievementTierReachedEvent,
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]:
+    RenderCombatAchievementTaskCompletedEvent,
   [ActivityEventType.QUEST_COMPLETED]: RenderQuestCompletedEvent,
   [ActivityEventType.MAXED]: RenderMaxedEvent,
   [ActivityEventType.VALUABLE_DROP]: RenderValuableDropEvent,
@@ -246,6 +250,71 @@ function RenderCombatAchievementTierReachedEvent({
           <span className="text-secondary-foreground">{tierName}</span> Combat
           Achievement Tier
         </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {formatRelativeTime(event.createdAt)}
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function RenderCombatAchievementTaskCompletedEvent({
+  event,
+}: {
+  event: Extract<
+    ProfileRecentActivity,
+    { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED }
+  >;
+}) {
+  const task = getCombatAchievementTaskByIndex(event.data.taskIndex);
+  const tierIcon =
+    CombatAchievementTierIcons[
+      task?.tierId as unknown as keyof typeof CombatAchievementTierIcons
+    ];
+  const tierName = task
+    ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
+    : "Unknown";
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex flex-col items-center justify-center col-span-1">
+          {tierIcon ? (
+            <GameIcon
+              src={tierIcon}
+              alt={tierName}
+              size={36}
+              className="drop-shadow-solid-xs"
+            />
+          ) : (
+            <img
+              src={QuestionMarkImage}
+              alt="Combat Achievement"
+              className="size-9 object-contain drop-shadow-solid-xs"
+            />
+          )}
+          <p
+            className={cn(
+              "font-runescape text-osrs-orange solid-text-shadow",
+              task?.tierId === 6 && "shimmer-text",
+            )}
+          >
+            Task
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent className="w-78">
+        <p className="font-semibold text-sm">
+          Completed{" "}
+          <span className="text-secondary-foreground">
+            {task?.name ?? "Unknown Task"}
+          </span>{" "}
+          ({tierName})
+        </p>
+        {task && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {task.description}
+          </p>
+        )}
         <p className="text-xs text-muted-foreground mt-1">
           {formatRelativeTime(event.createdAt)}
         </p>

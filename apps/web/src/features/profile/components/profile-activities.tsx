@@ -10,6 +10,7 @@ import {
   MAX_SKILL_XP,
   getAchievementDiaryAreaName,
   getAchievementDiaryTierName,
+  getCombatAchievementTaskByIndex,
   getCombatAchievementTierName,
   getQuestById,
 } from "@runeprofile/runescape";
@@ -73,6 +74,8 @@ const ACTIVITY_TYPE_LABELS: Partial<Record<ActivityEventTypeValue, string>> = {
   [ActivityEventType.NEW_ITEM_OBTAINED]: "New Item Obtained",
   [ActivityEventType.ACHIEVEMENT_DIARY_TIER_COMPLETED]: "Achievement Diary",
   [ActivityEventType.COMBAT_ACHIEVEMENT_TIER_REACHED]: "Combat Achievement",
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]:
+    "Combat Achievement Task",
   [ActivityEventType.QUEST_COMPLETED]: "Quest Completed",
   [ActivityEventType.MAXED]: "Maxed",
   [ActivityEventType.XP_MILESTONE]: "XP Milestone",
@@ -409,6 +412,53 @@ const ProfileActivityRenderMap = {
           >
             {tierName} Combat Achievement Tier
           </span>
+        </ProfileActivityContent>
+      </>
+    );
+  },
+  [ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED]: (
+    event: Extract<
+      ProfileActivityEvent,
+      { type: typeof ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED }
+    >,
+  ) => {
+    const task = getCombatAchievementTaskByIndex(event.data.taskIndex);
+    const tierIcon =
+      CombatAchievementTierIcons[
+        task?.tierId as unknown as keyof typeof CombatAchievementTierIcons
+      ];
+    const tierName = task
+      ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
+      : "Unknown";
+    return (
+      <>
+        <ActivityIcon>
+          {tierIcon ? (
+            <GameIcon
+              src={tierIcon}
+              alt={tierName}
+              size={28}
+              className="drop-shadow-solid-sm"
+            />
+          ) : (
+            <img
+              src={QuestionMarkImage}
+              alt="Combat Achievement"
+              className="z-10 drop-shadow-2xl object-contain mx-auto size-[26px]"
+            />
+          )}
+        </ActivityIcon>
+        <ProfileActivityContent createdAt={event.createdAt}>
+          <span>Completed</span>
+          <span
+            className={cn(
+              "text-secondary-foreground",
+              task?.tierId === 6 && "shimmer-text",
+            )}
+          >
+            {task?.name ?? "Unknown Task"}
+          </span>
+          <span>({tierName})</span>
         </ProfileActivityContent>
       </>
     );

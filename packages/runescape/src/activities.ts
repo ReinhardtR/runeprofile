@@ -6,6 +6,7 @@ export const ActivityEventType = {
   ACHIEVEMENT_DIARY_TIER_COMPLETED: "achievement_diary_tier_completed",
   COMBAT_ACHIEVEMENT_TIER_COMPLETED: "combat_achievement_tier_completed",
   COMBAT_ACHIEVEMENT_TIER_REACHED: "combat_achievement_tier_reached",
+  COMBAT_ACHIEVEMENT_TASK_COMPLETED: "combat_achievement_task_completed",
   QUEST_COMPLETED: "quest_completed",
   MAXED: "maxed",
   XP_MILESTONE: "xp_milestone",
@@ -70,6 +71,16 @@ export type CombatAchievementTierReachedEvent = z.infer<
   typeof CombatAchievementTierReachedEventSchema
 >;
 
+export const CombatAchievementTaskCompletedEventSchema = z.object({
+  type: z.literal(ActivityEventType.COMBAT_ACHIEVEMENT_TASK_COMPLETED),
+  data: z.object({
+    taskIndex: z.number(),
+  }),
+});
+export type CombatAchievementTaskCompletedEvent = z.infer<
+  typeof CombatAchievementTaskCompletedEventSchema
+>;
+
 export const QuestCompletedEventSchema = z.object({
   type: z.literal(ActivityEventType.QUEST_COMPLETED),
   data: z.object({
@@ -109,6 +120,7 @@ export const ActivityEventSchema = z.discriminatedUnion("type", [
   AchievementDiaryTierCompletedEventSchema,
   CombatAchievementTierCompletedEventSchema,
   CombatAchievementTierReachedEventSchema,
+  CombatAchievementTaskCompletedEventSchema,
   QuestCompletedEventSchema,
   MaxedEventSchema,
   XpMilestoneEventSchema,

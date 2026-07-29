@@ -11,7 +11,7 @@ import {
   ActivityEvent,
   type ChannelActivityFilters,
   DEFAULT_CHANNEL_SETTINGS,
-  DiscordChannelSettingsSchema,
+  parseDiscordChannelSettings,
 } from "@runeprofile/runescape";
 
 import { createDiscordApi } from "~/internal/discord/factory";
@@ -65,12 +65,12 @@ export async function sendActivityMessages(params: {
 
   const filtersByChannel = new Map<string, ChannelActivityFilters>();
   for (const row of settingsRows) {
-    const parsed = DiscordChannelSettingsSchema.safeParse(row.settings);
-    if (!parsed.success) {
+    const parsed = parseDiscordChannelSettings(row.settings);
+    if (!parsed) {
       console.error(`Invalid channel settings for ${row.channelId}`);
       continue;
     }
-    filtersByChannel.set(row.channelId, parsed.data.filters);
+    filtersByChannel.set(row.channelId, parsed.filters);
   }
 
   const discordApi = createDiscordApi(discordToken);
