@@ -1,4 +1,4 @@
-import { InferInsertModel, eq, sql } from "drizzle-orm";
+import { InferInsertModel, and, eq, inArray, sql } from "drizzle-orm";
 
 import {
   Database,
@@ -53,13 +53,18 @@ export async function updateProfile(
     }),
   );
 
-  const itemsValues: Array<InferInsertModel<typeof items>> = updates.items.map(
-    (item) => ({
+  // Zero-quantity updates are deletion signals from a force resync
+  const itemsValues: Array<InferInsertModel<typeof items>> = updates.items
+    .filter((item) => item.quantity > 0)
+    .map((item) => ({
       accountId,
       id: item.id,
       quantity: item.quantity,
-    }),
-  );
+    }));
+
+  const deletedItemIds = updates.items
+    .filter((item) => item.quantity === 0)
+    .map((item) => item.id);
 
   const questsValues: Array<InferInsertModel<typeof quests>> =
     updates.quests.map((quest) => ({
@@ -109,7 +114,9 @@ export async function updateProfile(
             clanTitle: updates.clan?.title ?? null,
           }),
           groupName: updates.groupName ?? null,
-          forceResync: false,
+          // Keep the flag armed until items have been force resynced, which
+          // requires a full clog payload — partial autosyncs must not eat it.
+          forceResync: updates.forceResync && !updates.itemsForceResynced,
           updatedAt: sql`now()`,
         })
         .where(eq(accounts.id, accountId))
@@ -170,6 +177,18 @@ export async function updateProfile(
             set: buildConflictUpdateColumns(items, ["quantity"]),
           }),
       ),
+      ...(deletedItemIds.length > 0
+        ? [
+            tx
+              .delete(items)
+              .where(
+                and(
+                  eq(items.accountId, accountId),
+                  inArray(items.id, deletedItemIds),
+                ),
+              ),
+          ]
+        : []),
       withValues(questsValues, (values) =>
         tx
           .insert(quests)
