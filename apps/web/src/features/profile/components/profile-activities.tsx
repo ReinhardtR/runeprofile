@@ -19,12 +19,11 @@ import { getProfileActivities } from "~/core/api";
 import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-icons.json";
 import AchievementDiaryIcon from "~/core/assets/icons/achievement-diaries.png";
 import QuestIcon from "~/core/assets/icons/quest.png";
-import ITEM_ICONS from "~/core/assets/item-icons.json";
 import MiscIcons from "~/core/assets/misc-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { ActivityIcon } from "~/features/clan/components/activity-renderers";
-import { GameIcon } from "~/shared/components/icons";
+import { GameIcon, ItemIcon } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -264,26 +263,16 @@ const ProfileActivityRenderMap = {
       { type: typeof ActivityEventType.NEW_ITEM_OBTAINED }
     >,
   ) => {
-    const itemIcon =
-      ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
     const itemName = COLLECTION_LOG_ITEMS[event.data.itemId] ?? "Unknown";
     return (
       <>
         <ActivityIcon>
-          {itemIcon ? (
-            <GameIcon
-              src={itemIcon}
-              alt={itemName}
-              size={26}
-              className="z-10 drop-shadow-2xl mx-auto"
-            />
-          ) : (
-            <img
-              src={QuestionMarkImage}
-              alt={itemName}
-              className="z-10 drop-shadow-2xl object-contain mx-auto size-[26px]"
-            />
-          )}
+          <ItemIcon
+            id={event.data.itemId}
+            alt={itemName}
+            size={26}
+            className="z-10 drop-shadow-2xl mx-auto"
+          />
         </ActivityIcon>
         <ProfileActivityContent createdAt={event.createdAt}>
           <span>Obtained</span>

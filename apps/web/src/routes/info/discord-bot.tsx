@@ -12,7 +12,6 @@ import {
 
 import ACCOUNT_TYPE_ICONS from "~/core/assets/account-type-icons.json";
 import QuestIcon from "~/core/assets/icons/quest.png";
-import ITEM_ICONS from "~/core/assets/item-icons.json";
 import Logo from "~/core/assets/misc/logo.png";
 import SKILL_ICONS from "~/core/assets/skill-icons-large.json";
 import {
@@ -34,7 +33,7 @@ import {
 import { Footer, Header } from "~/layouts";
 import { AddDiscordBotButton } from "~/shared/components/AddDiscordBotButton";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
-import { GameIcon } from "~/shared/components/icons";
+import { GameIcon, ItemIcon } from "~/shared/components/icons";
 import { cn } from "~/shared/utils";
 
 export const Route = createFileRoute("/info/discord-bot")({
@@ -120,13 +119,7 @@ const DiscordPreview: React.FC = () => (
     <DiscordEmbedMock
       color="#ff006e"
       footer="Valuable Drop"
-      icon={
-        <GameIcon
-          src={ITEM_ICONS["20997" as keyof typeof ITEM_ICONS]}
-          alt="Twisted bow"
-          size={36}
-        />
-      }
+      icon={<ItemIcon id={20997} alt="Twisted bow" size={36} />}
     >
       <b className="text-[#efeff1]">1,412,006,319 gp</b>
     </DiscordEmbedMock>

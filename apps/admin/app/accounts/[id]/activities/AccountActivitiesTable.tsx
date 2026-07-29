@@ -145,7 +145,7 @@ export function AccountActivitiesTable({
             <div className="flex items-center gap-2">
               {anyData.itemId && (
                 <Image
-                  src={`https://static.runelite.net/cache/item/icon/${anyData.itemId}.png`}
+                  src={`https://cdn.runeprofile.com/item/${anyData.itemId}.png`}
                   alt=""
                   width={24}
                   height={24}
@@ -253,7 +253,7 @@ export function AccountActivitiesTable({
             <div className="flex items-center gap-2">
               {anyData.itemId && (
                 <Image
-                  src={`https://static.runelite.net/cache/item/icon/${anyData.itemId}.png`}
+                  src={`https://cdn.runeprofile.com/item/${anyData.itemId}.png`}
                   alt=""
                   width={24}
                   height={24}

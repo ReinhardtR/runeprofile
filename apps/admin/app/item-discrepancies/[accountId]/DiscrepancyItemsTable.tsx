@@ -341,7 +341,7 @@ export function DiscrepancyItemsTable({
                     </TableCell>
                     <TableCell>
                       <Image
-                        src={`https://static.runelite.net/cache/item/icon/${item.itemId}.png`}
+                        src={`https://cdn.runeprofile.com/item/${item.itemId}.png`}
                         alt=""
                         width={32}
                         height={32}

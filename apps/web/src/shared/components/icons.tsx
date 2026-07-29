@@ -1,4 +1,7 @@
-import { cn } from "~/shared/utils";
+import { useState } from "react";
+
+import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
+import { cn, itemIconUrl } from "~/shared/utils";
 
 export function DiscordIcon({ className }: { className?: string }) {
   return (
@@ -116,6 +119,38 @@ export function GameIcon({
         width: `${size}px`,
         height: `${size}px`,
         imageRendering: pixelated ? "pixelated" : "auto",
+      }}
+    />
+  );
+}
+
+/**
+ * Item icon served from the RuneProfile CDN, with a question mark fallback
+ * for items whose icon is missing from the bucket.
+ */
+export function ItemIcon({
+  id,
+  alt,
+  size = 24,
+  className,
+}: {
+  id: number;
+  alt: string;
+  size?: number;
+  className?: string;
+}) {
+  const [failedId, setFailedId] = useState<number | null>(null);
+
+  return (
+    <img
+      src={failedId === id ? QuestionMarkImage : itemIconUrl(id)}
+      alt={alt}
+      onError={() => setFailedId(id)}
+      className={cn("object-contain", className)}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        imageRendering: "pixelated",
       }}
     />
   );

@@ -1,0 +1,48 @@
+name: Sync Item Icons
+
+on:
+  # New collection log items land in this file (via the Update Game Data PR),
+  # so a merge to main is the moment new icons need to be mirrored.
+  push:
+    branches: [main]
+    paths:
+      - packages/runescape/src/collection-log.ts
+  schedule:
+    # Weekly safety net, Thursday 06:00 UTC (day after the OSRS game update
+    # and the Update Game Data workflow).
+    - cron: "0 6 * * 4"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Re-upload every icon instead of only missing ones
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-item-icons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync item icons to R2
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: pnpm script:sync-item-icons ${{ inputs.force && '--force' || '' }}
