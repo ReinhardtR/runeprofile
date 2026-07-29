@@ -110,6 +110,34 @@ function loadFonts() {
   return fonts;
 }
 
+/**
+ * workers-og re-attempts wasm init on every render and logs the caught
+ * "Already initialized" error each time. The failures are benign — this
+ * silences exactly that chatter for the duration of a render.
+ *
+ * Note: workers-og is kept over calling modern satori directly on
+ * purpose. Its bundled older satori emits far simpler SVG (no per-node
+ * overflow masks), which renders ~5x faster under workerd.
+ */
+async function withoutInitNoise<T>(work: () => Promise<T>): Promise<T> {
+  const original = console.log;
+  console.log = (...args: unknown[]) => {
+    if (args[0] === "init RESVG") return;
+    if (
+      args[0] instanceof Error &&
+      args[0].message.includes("Already initialized")
+    ) {
+      return;
+    }
+    original(...args);
+  };
+  try {
+    return await work();
+  } finally {
+    console.log = original;
+  }
+}
+
 export async function renderActivityCardPng(params: {
   activity: ActivityEvent;
   rsn: string;
@@ -117,13 +145,15 @@ export async function renderActivityCardPng(params: {
   avatarDataUri: string;
 }): Promise<Uint8Array> {
   const html = buildCardHtml(params);
-  const { ImageResponse } = await import("workers-og");
-  const image = new ImageResponse(html, {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    fonts: loadFonts(),
+  return withoutInitNoise(async () => {
+    const { ImageResponse } = await import("workers-og");
+    const image = new ImageResponse(html, {
+      width: CARD_WIDTH,
+      height: CARD_HEIGHT,
+      fonts: loadFonts(),
+    });
+    return new Uint8Array(await image.arrayBuffer());
   });
-  return new Uint8Array(await image.arrayBuffer());
 }
 
 // ---------------------------------------------------------------- layout
@@ -297,7 +327,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
   }
 }
 
-function buildCardHtml(params: {
+export function buildCardHtml(params: {
   activity: ActivityEvent;
   rsn: string;
   accountType?: AccountType;

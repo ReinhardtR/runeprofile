@@ -163,6 +163,14 @@ async function postCardsMessage(params: {
   form.append(
     "payload_json",
     JSON.stringify({
+      // Each card goes inside an embed: bare image attachments get
+      // squeezed into a cropped mosaic gallery, while embeds stack
+      // vertically and show the full image. The embed color matches the
+      // card background so Discord's embed chrome blends away.
+      embeds: files.map((_, i) => ({
+        image: { url: `attachment://activity-${i}.png` },
+        color: 0x0d0d0c,
+      })),
       attachments: files.map((_, i) => ({
         id: i,
         filename: `activity-${i}.png`,
