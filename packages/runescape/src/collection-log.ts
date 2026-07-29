@@ -253,6 +253,10 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["leviathan", "levi", "lev"],
       },
       {
+        name: "The Mad Angel",
+        items: [34027, 34033, 21726, 34042, 34030],
+      },
+      {
         name: "Maggot King",
         items: [33642, 33631, 33634],
         hiscore: { "Maggot King": "Maggot King kills" },
@@ -933,7 +937,8 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           19730, 12703, 13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665,
           21509, 13071, 23495, 23760, 23757, 24491, 25348, 25602, 26348, 26901,
           27352, 27590, 28246, 28250, 28248, 28252, 28801, 28960, 28962, 29836,
-          30152, 30154, 30622, 30888, 31130, 31283, 31285, 33124, 33642,
+          30152, 30154, 30622, 30888, 31130, 31283, 31285, 33124, 33642, 34040,
+          34042,
         ],
         aliases: ["all pets", "pets", "pet"],
       },
@@ -1119,7 +1124,9 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "Skilling Pets",
-        items: [13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665, 31283],
+        items: [
+          13320, 13321, 13322, 13324, 20659, 20661, 20663, 20665, 31283, 34040,
+        ],
         aliases: [
           "skilling pet",
           "skill pets",
@@ -1164,7 +1171,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           20442, 20433, 21343, 21345, 21392, 9007, 9008, 9010, 9011, 22374,
           20754, 22875, 7536, 7538, 13392, 23522, 23943, 24000, 23959, 24034,
           24037, 24040, 24046, 24043, 6571, 21649, 25844, 25846, 28813, 30324,
-          30111, 31572,
+          30111, 31572, 34024,
         ],
         aliases: ["misc"],
       },
@@ -2879,6 +2886,12 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   33642: "Maggot marquess",
   33661: "Venator fang",
   33663: "Venator tooth",
+  34024: "Jeweller's chisel",
+  34027: "Hallowfell",
+  34030: "Jar of light",
+  34033: "Ardeaglais teleport",
+  34040: "Mr mcgroot",
+  34042: "Aggy",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
