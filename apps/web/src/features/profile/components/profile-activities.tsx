@@ -450,15 +450,9 @@ const ProfileActivityRenderMap = {
         </ActivityIcon>
         <ProfileActivityContent createdAt={event.createdAt}>
           <span>Completed</span>
-          <span
-            className={cn(
-              "text-secondary-foreground",
-              task?.tierId === 6 && "shimmer-text",
-            )}
-          >
+          <span className="text-secondary-foreground">
             {task?.name ?? "Unknown Task"}
           </span>
-          <span>({tierName})</span>
         </ProfileActivityContent>
       </>
     );

@@ -292,12 +292,7 @@ function RenderCombatAchievementTaskCompletedEvent({
               className="size-9 object-contain drop-shadow-solid-xs"
             />
           )}
-          <p
-            className={cn(
-              "font-runescape text-osrs-orange solid-text-shadow",
-              task?.tierId === 6 && "shimmer-text",
-            )}
-          >
+          <p className="font-runescape text-osrs-orange solid-text-shadow">
             Task
           </p>
         </div>
@@ -307,8 +302,7 @@ function RenderCombatAchievementTaskCompletedEvent({
           Completed{" "}
           <span className="text-secondary-foreground">
             {task?.name ?? "Unknown Task"}
-          </span>{" "}
-          ({tierName})
+          </span>
         </p>
         {task && (
           <p className="text-xs text-muted-foreground mt-1">

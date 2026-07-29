@@ -324,15 +324,9 @@ export const ActivityRenderMap = {
         <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>completed</span>
-          <span
-            className={cn(
-              "text-secondary-foreground",
-              task?.tierId === 6 && "shimmer-text",
-            )}
-          >
+          <span className="text-secondary-foreground">
             {task?.name ?? "Unknown Task"}
           </span>
-          <span>({tierName})</span>
         </ActivityContent>
       </>
     );
