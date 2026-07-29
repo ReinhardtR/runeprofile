@@ -84,12 +84,13 @@ export async function sendActivityMessages(params: {
 
       if (allowedActivities.length === 0) return;
 
-      const embeds = allowedActivities.map((activity) =>
+      const embeds = allowedActivities.map((activity, index) =>
         createActivityEmbed({
           activity,
           discordApplicationId,
           rsn,
           accountType,
+          index,
         }),
       );
 

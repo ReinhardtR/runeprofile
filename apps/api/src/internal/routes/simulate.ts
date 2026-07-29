@@ -42,12 +42,13 @@ export const simulateRouter = newRouter().post(
     const acct: AccountType | undefined =
       accountType != null ? AccountTypes[accountType] : undefined;
 
-    const embeds = activities.map((activity) =>
+    const embeds = activities.map((activity, index) =>
       createActivityEmbed({
         activity,
         discordApplicationId: c.env.DISCORD_APPLICATION_ID,
         rsn,
         accountType: acct,
+        index,
       }),
     );
 

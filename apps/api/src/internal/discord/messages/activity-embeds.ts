@@ -39,9 +39,18 @@ export function createActivityEmbed(params: {
   activity: ActivityEvent;
   rsn: string;
   accountType?: AccountType;
+  /**
+   * Position of this embed within its message. Discord collapses embeds that
+   * share a `url` into one, so embeds after the first get a uniquifying query
+   * param appended.
+   */
+  index?: number;
 }): Embed {
-  const { discordApplicationId, activity, rsn, accountType } = params;
-  const url = buildActivityUrl({ rsn, activity });
+  const { discordApplicationId, activity, rsn, accountType, index } = params;
+  let url = buildActivityUrl({ rsn, activity });
+  if (index) {
+    url += `${url.includes("?") ? "&" : "?"}n=${index}`;
+  }
   const common = { discordApplicationId, rsn, accountType, url };
 
   switch (activity.type) {
