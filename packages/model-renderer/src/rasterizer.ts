@@ -50,11 +50,17 @@ export type RenderOptions = {
    */
   alignBaseline?: boolean;
   /**
-   * Fade the bottom of the image to transparent over this fraction of the
-   * height (e.g. 0.25). Blends cropped models seamlessly into any
-   * background without overlay tricks. Default 0 (no fade).
+   * Fade the bottom of the image over this fraction of the height
+   * (e.g. 0.25). Blends cropped models seamlessly into any background
+   * without overlay tricks. Default 0 (no fade).
    */
   fadeBottom?: number;
+  /**
+   * Opacity the bottom fade lands on at the very edge, 0..1. 0 (default)
+   * dissolves fully; ~0.5 keeps the model half-visible at the edge for a
+   * gentler cut.
+   */
+  fadeFloor?: number;
 };
 
 const DEFAULT_YAW = 3.49;
@@ -87,16 +93,15 @@ export function renderScene(
     if (options.alignBaseline ?? true) {
       baseZ = Infinity;
       for (let i = 0; i < count; i++) {
-        if (model.positions[i * 3 + 2] < baseZ) {
-          baseZ = model.positions[i * 3 + 2];
-        }
+        const z = model.positions[i * 3 + 2]!;
+        if (z < baseZ) baseZ = z;
       }
     }
     const pts = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const mx = model.positions[i * 3];
-      const my = model.positions[i * 3 + 1];
-      const mz = model.positions[i * 3 + 2];
+      const mx = model.positions[i * 3]!;
+      const my = model.positions[i * 3 + 1]!;
+      const mz = model.positions[i * 3 + 2]!;
       pts[i * 3] = mx * cos - my * sin + (offsetX ?? 0);
       pts[i * 3 + 1] = mz - baseZ;
       pts[i * 3 + 2] = mx * sin + my * cos + (offsetZ ?? 0);
@@ -108,8 +113,9 @@ export function renderScene(
   let maxY = -Infinity;
   for (const { pts } of transformed) {
     for (let i = 0; i < pts.length; i += 3) {
-      if (pts[i + 1] < minY) minY = pts[i + 1];
-      if (pts[i + 1] > maxY) maxY = pts[i + 1];
+      const y = pts[i + 1]!;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
     }
   }
 
@@ -138,8 +144,9 @@ export function renderScene(
   } else {
     for (const { pts } of transformed) {
       for (let i = 0; i < pts.length; i += 3) {
-        if (pts[i] < minX) minX = pts[i];
-        if (pts[i] > maxX) maxX = pts[i];
+        const x = pts[i]!;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
       }
     }
   }
@@ -170,19 +177,19 @@ export function renderScene(
   for (const { pts, model } of transformed) {
     const { colors, indices } = model;
     for (let f = 0; f < indices.length; f += 3) {
-      const ia = indices[f];
-      const ib = indices[f + 1];
-      const ic = indices[f + 2];
+      const ia = indices[f]!;
+      const ib = indices[f + 1]!;
+      const ic = indices[f + 2]!;
 
-      const ax = width / 2 + (pts[ia * 3] - centerX) * scale;
-      const ay = yBase - pts[ia * 3 + 1] * scale;
-      const az = pts[ia * 3 + 2];
-      const bx = width / 2 + (pts[ib * 3] - centerX) * scale;
-      const by = yBase - pts[ib * 3 + 1] * scale;
-      const bz = pts[ib * 3 + 2];
-      const cx = width / 2 + (pts[ic * 3] - centerX) * scale;
-      const cy = yBase - pts[ic * 3 + 1] * scale;
-      const cz = pts[ic * 3 + 2];
+      const ax = width / 2 + (pts[ia * 3]! - centerX) * scale;
+      const ay = yBase - pts[ia * 3 + 1]! * scale;
+      const az = pts[ia * 3 + 2]!;
+      const bx = width / 2 + (pts[ib * 3]! - centerX) * scale;
+      const by = yBase - pts[ib * 3 + 1]! * scale;
+      const bz = pts[ib * 3 + 2]!;
+      const cx = width / 2 + (pts[ic * 3]! - centerX) * scale;
+      const cy = yBase - pts[ic * 3 + 1]! * scale;
+      const cz = pts[ic * 3 + 2]!;
 
       const denom = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
       if (Math.abs(denom) < 1e-9) continue;
@@ -205,19 +212,21 @@ export function renderScene(
 
           const z = l0 * az + l1 * bz + l2 * cz;
           const idx = py * width + px;
-          if (z <= zbuf[idx]) continue;
+          if (z <= zbuf[idx]!) continue;
           zbuf[idx] = z;
 
           rgba[idx * 4] =
-            l0 * colors[ia * 3] + l1 * colors[ib * 3] + l2 * colors[ic * 3];
+            l0 * colors[ia * 3]! +
+            l1 * colors[ib * 3]! +
+            l2 * colors[ic * 3]!;
           rgba[idx * 4 + 1] =
-            l0 * colors[ia * 3 + 1] +
-            l1 * colors[ib * 3 + 1] +
-            l2 * colors[ic * 3 + 1];
+            l0 * colors[ia * 3 + 1]! +
+            l1 * colors[ib * 3 + 1]! +
+            l2 * colors[ic * 3 + 1]!;
           rgba[idx * 4 + 2] =
-            l0 * colors[ia * 3 + 2] +
-            l1 * colors[ib * 3 + 2] +
-            l2 * colors[ic * 3 + 2];
+            l0 * colors[ia * 3 + 2]! +
+            l1 * colors[ib * 3 + 2]! +
+            l2 * colors[ic * 3 + 2]!;
           rgba[idx * 4 + 3] = 255;
         }
       }
@@ -233,14 +242,15 @@ export function renderScene(
       outHeight,
       Math.round(outHeight * options.fadeBottom),
     );
+    const floor = Math.min(1, Math.max(0, options.fadeFloor ?? 0));
     for (let row = 0; row < fadeRows; row++) {
       const y = outHeight - 1 - row;
-      // Smoothstep from 0 alpha at the bottom edge up to full alpha.
+      // Smoothstep from the floor alpha at the bottom edge up to full.
       const t = row / fadeRows;
-      const factor = t * t * (3 - 2 * t);
+      const factor = floor + (1 - floor) * (t * t * (3 - 2 * t));
       for (let x = 0; x < outWidth; x++) {
         const i = (y * outWidth + x) * 4 + 3;
-        out[i] = out[i] * factor;
+        out[i] = out[i]! * factor;
       }
     }
   }
@@ -268,7 +278,7 @@ function estimateBody(pts: Float32Array): BodyEstimate {
   let minY = Infinity;
   let maxY = -Infinity;
   for (let i = 0; i < count; i++) {
-    const y = pts[i * 3 + 1];
+    const y = pts[i * 3 + 1]!;
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
   }
@@ -281,23 +291,23 @@ function estimateBody(pts: Float32Array): BodyEstimate {
   const binMinX = new Float32Array(BINS).fill(Infinity);
   const binMaxX = new Float32Array(BINS).fill(-Infinity);
   for (let i = 0; i < count; i++) {
-    const t = (pts[i * 3 + 1] - minY) / (maxY - minY);
+    const t = (pts[i * 3 + 1]! - minY) / (maxY - minY);
     const b = Math.min(BINS - 1, Math.floor(t * BINS));
-    bins[b]++;
-    const x = pts[i * 3];
-    if (x < binMinX[b]) binMinX[b] = x;
-    if (x > binMaxX[b]) binMaxX[b] = x;
+    bins[b] = bins[b]! + 1;
+    const x = pts[i * 3]!;
+    if (x < binMinX[b]!) binMinX[b] = x;
+    if (x > binMaxX[b]!) binMaxX[b] = x;
   }
 
   let densest = 0;
   for (let b = 1; b < BINS; b++) {
-    if (bins[b] > bins[densest]) densest = b;
+    if (bins[b]! > bins[densest]!) densest = b;
   }
-  const countThreshold = Math.max(4, bins[densest] * 0.08);
-  const widthThreshold = (binMaxX[densest] - binMinX[densest]) * 0.22;
+  const countThreshold = Math.max(4, bins[densest]! * 0.08);
+  const widthThreshold = (binMaxX[densest]! - binMinX[densest]!) * 0.22;
 
   const isBody = (b: number) =>
-    bins[b] >= countThreshold && binMaxX[b] - binMinX[b] >= widthThreshold;
+    bins[b]! >= countThreshold && binMaxX[b]! - binMinX[b]! >= widthThreshold;
 
   // A single failing slice can be a neck or a gap in a hood — only a
   // sustained run marks the transition from body to protrusion.
@@ -324,8 +334,8 @@ function estimateBody(pts: Float32Array): BodyEstimate {
   let right = -Infinity;
   for (let b = bottomBin; b <= topBin; b++) {
     if (!isBody(b)) continue;
-    if (binMinX[b] < left) left = binMinX[b];
-    if (binMaxX[b] > right) right = binMaxX[b];
+    if (binMinX[b]! < left) left = binMinX[b]!;
+    if (binMaxX[b]! > right) right = binMaxX[b]!;
   }
 
   return {
@@ -354,11 +364,11 @@ function downsample(
       for (let sy = 0; sy < factor; sy++) {
         for (let sx = 0; sx < factor; sx++) {
           const si = ((y * factor + sy) * srcWidth + x * factor + sx) * 4;
-          const alpha = src[si + 3];
+          const alpha = src[si + 3]!;
           // Weight colors by alpha so transparent samples don't darken edges.
-          r += src[si] * alpha;
-          g += src[si + 1] * alpha;
-          b += src[si + 2] * alpha;
+          r += src[si]! * alpha;
+          g += src[si + 1]! * alpha;
+          b += src[si + 2]! * alpha;
           a += alpha;
         }
       }

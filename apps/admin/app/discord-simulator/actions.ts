@@ -61,6 +61,7 @@ export async function sendDiscordEmbeds(params: {
   activities: ActivityEvent[];
   rsn: string;
   accountType?: number;
+  format?: "embeds" | "cards";
 }) {
   await requireAdmin();
 

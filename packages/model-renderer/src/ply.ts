@@ -44,16 +44,16 @@ export function parsePly(data: ArrayBuffer | Uint8Array): ParsedModel {
     positions[i * 3] = view.getInt16(offset, true);
     positions[i * 3 + 1] = view.getInt16(offset + 2, true);
     positions[i * 3 + 2] = view.getInt16(offset + 4, true);
-    colors[i * 3] = bytes[offset + 6];
-    colors[i * 3 + 1] = bytes[offset + 7];
-    colors[i * 3 + 2] = bytes[offset + 8];
+    colors[i * 3] = bytes[offset + 6]!;
+    colors[i * 3 + 1] = bytes[offset + 7]!;
+    colors[i * 3 + 2] = bytes[offset + 8]!;
     offset += 9;
   }
 
   // Faces are mostly triangles; triangulate anything larger as a fan.
   const indices: number[] = [];
   for (let i = 0; i < faceCount; i++) {
-    const count = bytes[offset];
+    const count = bytes[offset]!;
     offset += 1;
     const first = view.getInt16(offset, true);
     for (let t = 1; t + 1 < count; t++) {

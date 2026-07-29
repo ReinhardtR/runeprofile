@@ -78,7 +78,7 @@ function crc32(data: Uint8Array): number {
   }
   let c = -1;
   for (let i = 0; i < data.length; i++) {
-    c = crcTable[(c ^ data[i]) & 0xff] ^ (c >>> 8);
+    c = crcTable[(c ^ data[i]!) & 0xff]! ^ (c >>> 8);
   }
   return (c ^ -1) >>> 0;
 }
