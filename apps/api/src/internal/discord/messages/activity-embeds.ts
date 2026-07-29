@@ -195,14 +195,20 @@ function createCombatAchievementTaskEmbed(
 ): Embed {
   const { discordApplicationId, event, rsn, accountType, url } = params;
   const task = getCombatAchievementTaskByIndex(event.data.taskIndex);
+  // The tier is conveyed by the thumbnail icon, so it stays out of the text.
   const tierName = task
     ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
     : "Unknown";
 
+  const description = [
+    `Completed **${task?.name ?? "Unknown Task"}**`,
+    ...(task ? [`*${task.description}*`] : []),
+  ].join("\n");
+
   return new Embed()
     .title(buildPlayerTitle({ discordApplicationId, rsn, accountType }))
     .url(url)
-    .description(`Completed **${task?.name ?? "Unknown Task"}** (${tierName})`)
+    .description(description)
     .thumbnail({ url: getCombatAchievementIconUrl(tierName) })
     .footer({ text: "Combat Achievement Task" })
     .color(0xef4444); // Red
