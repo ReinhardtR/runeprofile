@@ -39,6 +39,13 @@ export type RenderOptions = {
   /** Fraction of the canvas left empty around the scene (default 0.02). */
   padding?: number;
   /**
+   * "contain" (default) scales the scene to fit both axes. "height" fits
+   * the vertical crop region only — a tight portrait can then overflow
+   * horizontally (shoulders bleeding off a narrow canvas) and is clipped
+   * by the canvas edges.
+   */
+  fit?: "contain" | "height";
+  /**
    * Render at N x the requested size and box-downsample, to anti-alias
    * edges. Default 2.
    */
@@ -158,10 +165,11 @@ export function renderScene(
     : padding;
   const spanX = maxX - minX || 1;
   const spanY = topY - cropMinY || 1;
-  const scale = Math.min(
-    (width * (1 - padding * 2)) / spanX,
-    (height * (1 - padTop - padding)) / spanY,
-  );
+  const heightScale = (height * (1 - padTop - padding)) / spanY;
+  const scale =
+    options.fit === "height"
+      ? heightScale
+      : Math.min((width * (1 - padding * 2)) / spanX, heightScale);
   const centerX = (minX + maxX) / 2;
 
   // Body-framed renders pin the head below the reserved headroom so heads

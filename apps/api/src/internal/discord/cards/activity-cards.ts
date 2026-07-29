@@ -58,9 +58,13 @@ export async function renderAvatarDataUri(
   const rgba = renderScene([{ model: parsePly(ply), yaw: 2.49 }], {
     width,
     height,
-    cropTop: 0.45,
+    // Tight head-and-shoulders framing: Discord scales the card down, so
+    // the model has to read at a glance. Height-only fit lets broad
+    // shoulders bleed off the sides instead of shrinking the head.
+    cropTop: 0.34,
     cropRef: "body",
-    headroomTop: 0.16,
+    headroomTop: 0.1,
+    fit: "height",
     supersample: 2,
     fadeBottom: 0.28,
     fadeFloor: 0.45,
@@ -178,6 +182,9 @@ const escapeHtml = (value: string) =>
 
 const rgba = (c: [number, number, number], a: number) =>
   `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+const truncate = (value: string, max: number) =>
+  value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value;
 
 const YELLOW: [number, number, number] = [255, 255, 0];
 const ORANGE: [number, number, number] = [255, 152, 31];
@@ -304,13 +311,16 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const tierName = task
         ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
         : "Unknown";
+      // Task descriptions can run long; keep the panel to at most two
+      // subtitle lines so the card never overflows.
+      const description = task?.description ?? `${tierName} task`;
       return {
         accent: RED,
         verb: "completed a combat task",
         panelIcon: caTierIcon(task?.tierId),
         panelTitle: task?.name ?? "Unknown Task",
-        panelSubtitle: task?.description ?? `${tierName} task`,
-        footerLeft: `Combat Achievements  ·  ${tierName}`,
+        panelSubtitle: truncate(description, 68),
+        footerLeft: `${tierName} task`,
       };
     }
     case "maxed": {
@@ -319,7 +329,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         verb: "achieved max total level",
         panelIcon: png(CardAssets.maxCapeIcon),
         panelTitle: "Maxed",
-        panelSubtitle: "Level 99 in every skill",
+        panelSubtitle: "All skills 99",
         badge: "2,277",
         footerLeft: "Maxed",
       };
@@ -343,9 +353,9 @@ export function buildCardHtml(params: {
     ];
 
   const title = escapeHtml(content.panelTitle);
-  // Long titles (quests, CA tasks) drop to a smaller size to stay on
-  // one line-ish; satori wraps if it still overflows.
-  const titleSize = content.panelTitle.length > 26 ? 22 * S : 28 * S;
+  // Long titles (quests, CA tasks) drop to a smaller size so they stay
+  // on one line-ish; satori wraps if they still overflow.
+  const titleSize = content.panelTitle.length > 18 ? 25 * S : 32 * S;
 
   const shadowSm = `text-shadow: ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
 
@@ -358,36 +368,36 @@ export function buildCardHtml(params: {
 
       <img src="${avatarDataUri}" width="${200 * S}" height="${240 * S}" style="position: absolute; left: ${18 * S}px; top: 0;" />
 
-      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${14 * S}px; position: absolute; left: ${240 * S}px; top: 0; bottom: 0; right: ${28 * S}px;">
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${13 * S}px; position: absolute; left: ${236 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: ${10 * S}px;">
+          <div style="display: flex; align-items: baseline; gap: ${10 * S}px;">
             ${
               accountTypeIcon
-                ? `<img src="${png(accountTypeIcon)}" width="${24 * S}" height="${24 * S}" />`
+                ? `<img src="${png(accountTypeIcon)}" width="${26 * S}" height="${26 * S}" style="align-self: center;" />`
                 : ""
             }
-            <span style="font-size: ${34 * S}px; font-weight: 700; color: #ffff00; ${shadowSm}">${name}</span>
-            <span style="font-size: ${26 * S}px; color: #ff981f; ${shadowSm}">${content.verb}</span>
+            <span style="font-size: ${38 * S}px; font-weight: 700; color: #ffff00; line-height: 1; ${shadowSm}">${name}</span>
+            <span style="font-size: ${29 * S}px; color: #ff981f; line-height: 1; ${shadowSm}">${content.verb}</span>
           </div>
-          <img src="${png(CardAssets.logo)}" width="${30 * S}" height="${30 * S}" style="border-radius: ${6 * S}px; opacity: 0.9;" />
+          <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="align-self: center; border-radius: ${6 * S}px; opacity: 0.9;" />
         </div>
 
-        <div style="display: flex; align-items: center; gap: ${14 * S}px; background-color: rgba(0,0,0,0.4); border-style: solid; border-width: ${2 * S}px; border-top-color: #4b473d; border-left-color: #3b3831; border-right-color: #3b3831; border-bottom-color: #24221e; border-radius: ${6 * S}px; padding: ${12 * S}px ${18 * S}px;">
-          <img src="${content.panelIcon}" width="${42 * S}" height="${42 * S}" />
-          <div style="display: flex; flex-direction: column; flex: 1;">
-            <span style="font-size: ${titleSize}px; font-weight: 700; color: #e2e2e2; line-height: 1.1; ${shadowSm}">${title}</span>
-            <span style="font-size: ${20 * S}px; color: #9f9f9f; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>
+        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: rgba(0,0,0,0.4); border-style: solid; border-width: ${2 * S}px; border-top-color: #4b473d; border-left-color: #3b3831; border-right-color: #3b3831; border-bottom-color: #24221e; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
+          <img src="${content.panelIcon}" width="${50 * S}" height="${50 * S}" />
+          <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">
+            <span style="font-size: ${titleSize}px; font-weight: 700; color: #e2e2e2; line-height: 1.05; ${shadowSm}">${title}</span>
+            <span style="font-size: ${23 * S}px; color: #9f9f9f; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>
           </div>
           ${
             content.badge
-              ? `<span style="font-size: ${44 * S}px; font-weight: 700; color: ${rgba(content.accent, 1)}; ${shadowSm}">${escapeHtml(content.badge)}</span>`
+              ? `<span style="font-size: ${52 * S}px; font-weight: 700; color: ${rgba(content.accent, 1)}; line-height: 1; ${shadowSm}">${escapeHtml(content.badge)}</span>`
               : ""
           }
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: ${19 * S}px; color: #9f9f9f; ${shadowSm}">${escapeHtml(content.footerLeft)}</span>
-          <span style="font-size: ${19 * S}px; color: #9f9f9f; ${shadowSm}">runeprofile.com/${name}</span>
+          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowSm}">${escapeHtml(content.footerLeft)}</span>
+          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowSm}">runeprofile.com/${name}</span>
         </div>
       </div>
     </div>`;
