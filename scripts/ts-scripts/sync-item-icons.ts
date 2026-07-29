@@ -1,41 +1,54 @@
-import * as cache from "@abextm/cache2";
 import {
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
+import path from "node:path";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
+import { fileURLToPath } from "node:url";
 
-import { createCacheProvider } from "./lib/cache";
-
-// Mirrors item icons into the runeprofile-cdn R2 bucket, served at
+// Renders an icon for every named item in the OSRS cache and syncs them into
+// the runeprofile-cdn R2 bucket, served at
 // https://cdn.runeprofile.com/item/{id}.png.
 //
-// Covers every named item in the game cache (valuable drop events can
-// reference any item, not just collection log ones). Icons are fetched from
-// the RuneLite static CDN, which renders them from the game cache with the
-// same pipeline the plugin's ItemManager uses. Collection log dummy IDs
-// (e.g. 25627 for Coal bag) are named cache items too, so they're covered.
+// Fully self-contained: downloads the latest live cache from the OpenRS2
+// archive (updated within hours of a game update), renders icons headlessly
+// with the RuneLite cache module (scripts/item-icons - the same rasterizer
+// the client uses, including quantity-based stack variants), then uploads
+// every icon whose bytes differ from what's in the bucket (compared via MD5
+// against the R2 ETag), so both new and visually changed icons are synced.
 //
-// Only IDs missing from the bucket are uploaded, so the recurring run is a
-// no-op unless the game update added items. Flags:
-//   --force              re-upload every icon
-//   --seed-json <path>   prefer base64 icons from a plugin-generated
-//                        item-icons.json over the RuneLite CDN (one-time
-//                        seeding, keeps current visuals pixel-identical)
+// Flags:
+//   --force              upload every icon even if unchanged
+//   --icons-dir <path>   skip the download+render steps and upload
+//                        pre-rendered icons from this directory
 //
 // Required env: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 // Optional env: R2_BUCKET (default: runeprofile-cdn)
 
-const RUNELITE_ICON_URL = (id: number) =>
-  `https://static.runelite.net/cache/item/icon/${id}.png`;
-const CONCURRENCY = 16;
+const OPENRS2_CACHES_URL = "https://archive.openrs2.org/caches.json";
+const UPLOAD_CONCURRENCY = 16;
 const CACHE_CONTROL = "public, max-age=31536000, immutable";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const RENDERER_DIR = path.resolve(__dirname, "../item-icons");
+const WORK_DIR = path.join(RENDERER_DIR, "work");
+
 const force = process.argv.includes("--force");
-const seedJsonIndex = process.argv.indexOf("--seed-json");
-const seedJsonPath =
-  seedJsonIndex === -1 ? null : process.argv[seedJsonIndex + 1];
+const iconsDirIndex = process.argv.indexOf("--icons-dir");
+const prerenderedDir =
+  iconsDirIndex === -1 ? null : process.argv[iconsDirIndex + 1];
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -63,63 +76,57 @@ syncItemIcons()
   });
 
 async function syncItemIcons() {
-  let seedIcons: Record<string, string> = {};
-  if (seedJsonPath) {
-    if (!existsSync(seedJsonPath)) {
-      throw new Error(`Seed JSON not found: ${seedJsonPath}`);
-    }
-    seedIcons = JSON.parse(readFileSync(seedJsonPath, "utf-8"));
-    console.log(
-      `Loaded ${Object.keys(seedIcons).length} seed icons from ${seedJsonPath}`,
-    );
+  const iconsDir = prerenderedDir ?? (await renderIcons());
+
+  const files = readdirSync(iconsDir).filter((f) => /^\d+\.png$/.test(f));
+  if (files.length === 0) {
+    throw new Error(`No rendered icons found in ${iconsDir}`);
   }
 
-  console.log("Loading item definitions from the OSRS cache...");
-  const items = await cache.Item.all(createCacheProvider());
-  const itemIds = items
-    .filter((item) => item.name && item.name.toLowerCase() !== "null")
-    .map((item) => item.id as number);
-  const existing = await listExistingIconIds();
+  const existing = await listExistingIcons();
   console.log(
-    `${itemIds.length} named items in cache, ${existing.size} icons already in bucket.`,
+    `${files.length} rendered icons, ${existing.size} icons in bucket.`,
   );
 
-  const pending = force ? itemIds : itemIds.filter((id) => !existing.has(id));
+  const pending: Array<{ id: number; filePath: string }> = [];
+  let unchanged = 0;
+  for (const file of files) {
+    const id = Number(file.replace(".png", ""));
+    const filePath = path.join(iconsDir, file);
+    if (!force) {
+      const etag = existing.get(id);
+      if (etag) {
+        const md5 = createHash("md5")
+          .update(readFileSync(filePath))
+          .digest("hex");
+        if (etag === md5) {
+          unchanged++;
+          continue;
+        }
+      }
+    }
+    pending.push({ id, filePath });
+  }
 
   if (pending.length === 0) {
-    console.log("All item icons are already synced.");
+    console.log(`All ${unchanged} item icons are already up to date.`);
     return;
   }
-  console.log(`Uploading ${pending.length} icons...`);
+  console.log(`Uploading ${pending.length} icons (${unchanged} unchanged)...`);
 
   let uploaded = 0;
-  let fromSeed = 0;
-  const notFound: number[] = [];
   const failed: Array<{ id: number; error: string }> = [];
 
   const queue = [...pending];
   await Promise.all(
-    Array.from({ length: CONCURRENCY }, async () => {
-      for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
+    Array.from({ length: UPLOAD_CONCURRENCY }, async () => {
+      for (let job = queue.shift(); job !== undefined; job = queue.shift()) {
         try {
-          let png: Uint8Array;
-          if (seedIcons[id]) {
-            png = Buffer.from(seedIcons[id], "base64");
-            fromSeed++;
-          } else {
-            const icon = await fetchRuneliteIcon(id);
-            if (!icon) {
-              notFound.push(id);
-              continue;
-            }
-            png = icon;
-          }
-
           await s3.send(
             new PutObjectCommand({
               Bucket: bucket,
-              Key: `item/${id}.png`,
-              Body: png,
+              Key: `item/${job.id}.png`,
+              Body: readFileSync(job.filePath),
               ContentType: "image/png",
               CacheControl: CACHE_CONTROL,
             }),
@@ -129,34 +136,97 @@ async function syncItemIcons() {
             console.log(`  ${uploaded}/${pending.length}`);
           }
         } catch (error) {
-          failed.push({ id, error: String(error) });
+          failed.push({ id: job.id, error: String(error) });
         }
       }
     }),
   );
 
-  console.log(
-    `Uploaded ${uploaded} icons (${fromSeed} from seed JSON, ${uploaded - fromSeed} from RuneLite CDN).`,
-  );
-
-  if (notFound.length > 0) {
-    // The apps would 404 on these today too (they hotlink the same CDN),
-    // so this is a warning rather than a failure.
-    console.warn(
-      `No icon available upstream for ${notFound.length} items: ${notFound.slice(0, 50).join(", ")}${notFound.length > 50 ? ", ..." : ""}`,
-    );
-  }
+  console.log(`Uploaded ${uploaded} icons (${unchanged} unchanged).`);
 
   if (failed.length > 0) {
     for (const { id, error } of failed.slice(0, 20)) {
-      console.error(`Failed to sync icon for item ${id}: ${error}`);
+      console.error(`Failed to upload icon for item ${id}: ${error}`);
     }
     throw new Error(`${failed.length} icon uploads failed.`);
   }
 }
 
-async function listExistingIconIds(): Promise<Set<number>> {
-  const ids = new Set<number>();
+// Downloads the latest live cache from OpenRS2 and renders all item icons
+// with the Java renderer. Returns the directory the PNGs were written to.
+async function renderIcons(): Promise<string> {
+  console.log("Finding the latest live cache on OpenRS2...");
+  const response = await fetch(OPENRS2_CACHES_URL);
+  if (!response.ok) {
+    throw new Error(`OpenRS2 caches.json returned ${response.status}`);
+  }
+  const caches: Array<{
+    id: number;
+    scope: string;
+    game: string;
+    environment: string;
+    language: string;
+    timestamp: string | null;
+    disk_store_valid: boolean;
+  }> = await response.json();
+
+  const latest = caches
+    .filter(
+      (c) =>
+        c.game === "oldschool" &&
+        c.environment === "live" &&
+        c.language === "en" &&
+        c.disk_store_valid &&
+        c.timestamp,
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime(),
+    )[0];
+  if (!latest) {
+    throw new Error("No valid live oldschool cache found on OpenRS2.");
+  }
+  console.log(`Using cache ${latest.id} (${latest.timestamp})`);
+
+  rmSync(WORK_DIR, { recursive: true, force: true });
+  mkdirSync(WORK_DIR, { recursive: true });
+
+  const zipPath = path.join(WORK_DIR, "disk.zip");
+  const downloadUrl = `https://archive.openrs2.org/caches/${latest.scope}/${latest.id}/disk.zip`;
+  console.log(`Downloading ${downloadUrl}...`);
+  const download = await fetch(downloadUrl);
+  if (!download.ok || !download.body) {
+    throw new Error(`Cache download returned ${download.status}`);
+  }
+  await pipeline(
+    Readable.fromWeb(download.body as never),
+    createWriteStream(zipPath),
+  );
+
+  execFileSync("unzip", ["-o", "-q", zipPath, "-d", WORK_DIR]);
+  const cacheDir = path.join(WORK_DIR, "cache");
+  if (!existsSync(path.join(cacheDir, "main_file_cache.dat2"))) {
+    throw new Error(`Extracted cache not found at ${cacheDir}`);
+  }
+
+  const outDir = path.join(WORK_DIR, "icons");
+  console.log("Rendering item icons (takes ~10-15 minutes)...");
+  execFileSync(
+    process.platform === "win32" ? "gradlew.bat" : "./gradlew",
+    [
+      "--no-daemon",
+      "-q",
+      "run",
+      `--args=${cacheDir} ${outDir} ${path.join(RENDERER_DIR, "quantities.json")}`,
+    ],
+    { cwd: RENDERER_DIR, stdio: "inherit" },
+  );
+
+  return outDir;
+}
+
+async function listExistingIcons(): Promise<Map<number, string>> {
+  const icons = new Map<number, string>();
   let continuationToken: string | undefined;
   do {
     const response = await s3.send(
@@ -168,30 +238,11 @@ async function listExistingIconIds(): Promise<Set<number>> {
     );
     for (const object of response.Contents ?? []) {
       const match = object.Key?.match(/^item\/(\d+)\.png$/);
-      if (match) ids.add(Number(match[1]));
+      if (match && object.ETag) {
+        icons.set(Number(match[1]), object.ETag.replaceAll('"', ""));
+      }
     }
     continuationToken = response.NextContinuationToken;
   } while (continuationToken);
-  return ids;
-}
-
-async function fetchRuneliteIcon(id: number): Promise<Uint8Array | null> {
-  // Retry transient failures; a 404 means the icon doesn't exist upstream.
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    const response = await fetch(RUNELITE_ICON_URL(id));
-    if (response.ok) {
-      return new Uint8Array(await response.arrayBuffer());
-    }
-    if (response.status === 404) {
-      return null;
-    }
-    if (attempt < 3) {
-      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
-    } else {
-      throw new Error(
-        `RuneLite CDN returned ${response.status} for item ${id}`,
-      );
-    }
-  }
-  return null;
+  return icons;
 }
