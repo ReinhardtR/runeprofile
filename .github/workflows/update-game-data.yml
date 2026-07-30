@@ -8,9 +8,12 @@ name: Update Game Data
 
 on:
   schedule:
-    # Daily, just after the usual game-update window (Wednesdays ~10:30-11:30
-    # UTC); off-schedule cache revisions get picked up at most a day later.
-    - cron: "45 11 * * *"
+    # OpenRS2 archives a new cache within minutes of the game update, which
+    # lands 11:30 UK time - 10:30 UTC in summer, 11:30 UTC in winter. The
+    # 11:31 run catches summer updates immediately; the 12:31 run covers the
+    # winter hour (and archive lag) the same day instead of the next.
+    - cron: "31 11 * * *"
+    - cron: "31 12 * * *"
   workflow_dispatch:
     inputs:
       force:
