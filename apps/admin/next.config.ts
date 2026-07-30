@@ -13,9 +13,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "static.runelite.net",
+        hostname: "cdn.runeprofile.com",
         port: "",
-        pathname: "/cache/item/icon/**",
+        pathname: "/item/**",
       },
     ],
   },

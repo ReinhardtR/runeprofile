@@ -23,9 +23,12 @@ function parseAsUTC(date: string | Date): Date {
     return date;
   }
   // If the date string doesn't have timezone info, treat it as UTC
-  const dateStr = date.includes('Z') || date.includes('+') || date.includes('T') && date.lastIndexOf('-') > 10
-    ? date
-    : date.replace(' ', 'T') + 'Z';
+  const dateStr =
+    date.includes("Z") ||
+    date.includes("+") ||
+    (date.includes("T") && date.lastIndexOf("-") > 10)
+      ? date
+      : date.replace(" ", "T") + "Z";
   return new Date(dateStr);
 }
 
@@ -108,7 +111,7 @@ export function capitalize(str: string) {
 }
 
 export const itemIconUrl = (itemId: number) =>
-  `https://static.runelite.net/cache/item/icon/${itemId}.png`;
+  `https://cdn.runeprofile.com/item/${itemId}.png`;
 
 export function base64ImgSrc(image: string) {
   return `data:image/png;base64,${image}`;

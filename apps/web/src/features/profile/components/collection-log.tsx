@@ -13,12 +13,10 @@ import {
 
 import { Profile } from "~/core/api";
 import CombatAchievementsSmallIcon from "~/core/assets/icons/combat-achievements-small.png";
-import ITEM_ICONS from "~/core/assets/item-icons.json";
-import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import { Card } from "~/features/profile/components/card";
 import { hiscoresQueryOptions } from "~/features/profile/components/hiscores";
 import { RuneScapeScrollArea } from "~/features/profile/components/scroll-area";
-import { GameIcon } from "~/shared/components/icons";
+import { ItemIcon } from "~/shared/components/item-icon";
 import {
   Command,
   CommandEmpty,
@@ -151,7 +149,9 @@ export function CollectionLog({
     const name = COLLECTION_LOG_ITEMS[id] ?? "Unknown";
     const createdAt = itemData?.createdAt;
     const isGenuineObtain =
-      !!createdAt && !!bulkImportTimestamps && !bulkImportTimestamps.has(createdAt);
+      !!createdAt &&
+      !!bulkImportTimestamps &&
+      !bulkImportTimestamps.has(createdAt);
     items.push({
       id,
       name,
@@ -466,8 +466,6 @@ function CollectionLogItem({
 }) {
   const wikiUrlName = name.replaceAll(" ", "_");
 
-  const itemIcon = ITEM_ICONS[id as unknown as keyof typeof ITEM_ICONS];
-
   const obtainedLabel = obtainedAt ? (
     <p className="text-xs text-muted-foreground mt-1">
       Obtained {formatRelativeTime(obtainedAt)}
@@ -529,26 +527,12 @@ function CollectionLogItem({
             target="_blank"
             rel="noreferrer"
           >
-            {itemIcon ? (
-              <GameIcon
-                src={itemIcon}
-                alt={name}
-                size={54}
-                className={cn(
-                  "z-10 drop-shadow-2xl",
-                  !quantity && "opacity-30",
-                )}
-              />
-            ) : (
-              <img
-                src={QuestionMarkImage}
-                alt={name}
-                className={cn(
-                  "z-10 drop-shadow-2xl size-[54px] object-contain",
-                  !quantity && "opacity-30",
-                )}
-              />
-            )}
+            <ItemIcon
+              id={id}
+              alt={name}
+              size={54}
+              className={cn("z-10 drop-shadow-2xl", !quantity && "opacity-30")}
+            />
           </a>
         </div>
       </TooltipTrigger>

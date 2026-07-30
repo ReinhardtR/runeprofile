@@ -1,10 +1,8 @@
 import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 
 import { Profile } from "~/core/api";
-import ITEM_ICONS from "~/core/assets/item-icons.json";
-import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import { Card } from "~/features/profile/components/card";
-import { GameIcon } from "~/shared/components/icons";
+import { ItemIcon } from "~/shared/components/item-icon";
 import {
   Tooltip,
   TooltipContent,
@@ -23,9 +21,6 @@ export function RecentCollections({
         Latest Collections
       </p>
       {events.map((event, idx) => {
-        const itemIcon =
-          ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
-
         const itemName = COLLECTION_LOG_ITEMS[event.data.itemId] ?? "Unknown";
         const wikiUrlName = itemName.replaceAll(" ", "_");
 
@@ -37,20 +32,12 @@ export function RecentCollections({
                 target="_blank"
                 rel="noreferrer"
               >
-                {itemIcon ? (
-                  <GameIcon
-                    src={itemIcon}
-                    alt={itemName}
-                    size={54}
-                    className="z-10 drop-shadow-2xl mx-auto"
-                  />
-                ) : (
-                  <img
-                    src={QuestionMarkImage}
-                    alt={itemName}
-                    className="z-10 drop-shadow-2xl size-[54px] object-contain mx-auto"
-                  />
-                )}
+                <ItemIcon
+                  id={event.data.itemId}
+                  alt={itemName}
+                  size={54}
+                  className="z-10 drop-shadow-2xl mx-auto"
+                />
               </a>
             </TooltipTrigger>
             <TooltipContent>

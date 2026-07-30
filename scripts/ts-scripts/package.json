@@ -10,13 +10,17 @@
     "check-ca": "tsx check-combat-achievements.ts",
     "update-ca": "tsx check-combat-achievements.ts --write",
     "check-quests": "tsx check-quests.ts",
-    "update-quests": "tsx check-quests.ts --write"
+    "update-quests": "tsx check-quests.ts --write",
+    "sync-item-icons": "tsx sync-item-icons.ts",
+    "check-cache": "tsx check-cache-version.ts"
   },
   "devDependencies": {
     "@abextm/cache2": "^0.1.9",
+    "@aws-sdk/client-s3": "^3.750.0",
     "@runeprofile/runescape": "workspace:*",
     "@types/node": "^22.13.9",
     "node": "^20.19.0",
+    "sharp": "^0.35.3",
     "ts-morph": "^27.0.2",
     "tsx": "^4.19.3"
   }

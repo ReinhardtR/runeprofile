@@ -12,7 +12,7 @@ export function getItemName(itemId: number): string {
   return COLLECTION_LOG_ITEMS[itemId] ?? `Unknown Item (${itemId})`;
 }
 
-const ITEM_ICON_BASE_URL = "https://static.runelite.net/cache/item/icon";
+const ITEM_ICON_BASE_URL = "https://cdn.runeprofile.com/item";
 export function getItemIconUrl(itemId: number): string {
   return `${ITEM_ICON_BASE_URL}/${itemId}.png`;
 }
