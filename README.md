@@ -74,6 +74,6 @@ RuneScape data definitions live in `packages/runescape`, and icons come from the
 
 The **Update Game Data** workflow checks daily whether the [OpenRS2 archive](https://archive.openrs2.org) has a new game cache. When it does, it regenerates the data definitions and icon sheets, renders every item icon to the CDN, and opens a PR with what changed. Icons are rendered with RuneLite's `cache` module, so no game client is involved.
 
-The PR needs a quick review for the few fields the cache doesn't contain: collection log `hiscore`/`aliases` and quest `points`/`type`.
+New collection log pages are the one thing the cache can't fully describe — their `hiscore` and `aliases` fields have to be filled in by hand on the PR.
 
 To run any of it yourself, see the `script:*` entries in `package.json`.

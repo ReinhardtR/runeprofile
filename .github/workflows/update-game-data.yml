@@ -126,7 +126,7 @@ jobs:
               echo ""
               echo "---"
               echo ""
-              echo "Review the per-section notes above for fields that must be filled in manually (e.g. collection log \`hiscore\`/\`aliases\`, quest \`points\`/\`type\`)."
+              echo "Review the per-section notes above for fields that must be filled in manually (new collection log pages need \`hiscore\` and \`aliases\`)."
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
