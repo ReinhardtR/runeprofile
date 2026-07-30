@@ -12,12 +12,17 @@ repositories {
 
 dependencies {
     implementation group: 'net.runelite', name: 'cache', version: 'latest.release'
+    // Only for the HiscoreSkill enum (skill/boss -> sprite id mapping, pure
+    // data maintained upstream) used by DumpHiscoreIcons.
+    implementation group: 'net.runelite', name: 'client', version: 'latest.release'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'org.slf4j:slf4j-simple:1.7.36'
 }
 
 application {
-    mainClass = 'com.runeprofile.itemicons.RenderItemIcons'
+    // Override with -PmainClass=... to run the other tools (e.g.
+    // com.runeprofile.itemicons.DumpHiscoreIcons).
+    mainClass = project.findProperty('mainClass') ?: 'com.runeprofile.itemicons.RenderItemIcons'
 }
 
 sourceCompatibility = '11'
