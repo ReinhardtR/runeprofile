@@ -11,8 +11,10 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -30,14 +32,19 @@ import net.runelite.cache.definitions.providers.ModelProvider;
 import net.runelite.cache.fs.Archive;
 import net.runelite.cache.fs.Index;
 import net.runelite.cache.fs.Store;
-import net.runelite.cache.item.ItemSpriteFactory;
+import net.runelite.cache.item.BrightnessItemSpriteFactory;
 
 /**
  * Renders an inventory icon PNG for every named item in an OSRS cache,
  * headlessly, using the same software rasterizer the RuneLite client uses
  * for item icons (ItemSpriteFactory).
  *
- * Usage: RenderItemIcons <cacheDir> <outDir> [quantitiesJson]
+ * Usage: RenderItemIcons <cacheDir> <outDir> [quantitiesJson] [brightness] [ids]
+ *
+ * brightness is the palette gamma exponent (lower = brighter): 0.6 is what
+ * RuneLite's cache tooling uses, ~0.8 matches the client's default in-game
+ * brightness setting. ids is an optional comma-separated list of item IDs
+ * to render only a subset (for previews/testing).
  *
  * cacheDir is a Jagex disk store (main_file_cache.dat2 + .idx files), e.g.
  * an OpenRS2 disk.zip extracted. Icons are rendered at quantity 10000 so
@@ -56,6 +63,7 @@ import net.runelite.cache.item.ItemSpriteFactory;
 public class RenderItemIcons
 {
 	private static final int DEFAULT_QUANTITY = 10000;
+	private static final double DEFAULT_BRIGHTNESS = 0.6;
 	// Matches the client's item icon rendering (and the RuneLite item dumper).
 	private static final int BORDER = 1;
 	private static final int SHADOW_COLOR = 3153952;
@@ -86,6 +94,16 @@ public class RenderItemIcons
 				quantities = new Gson().fromJson(reader, type);
 			}
 			System.out.println("Loaded " + quantities.size() + " quantity overrides");
+		}
+
+		double brightness = args.length >= 4 ? Double.parseDouble(args[3]) : DEFAULT_BRIGHTNESS;
+		Set<Integer> onlyIds = new HashSet<>();
+		if (args.length >= 5)
+		{
+			for (String id : args[4].split(","))
+			{
+				onlyIds.add(Integer.parseInt(id.trim()));
+			}
 		}
 
 		long start = System.currentTimeMillis();
@@ -135,14 +153,16 @@ public class RenderItemIcons
 			List<ItemDefinition> named = new ArrayList<>();
 			for (ItemDefinition itemDef : itemManager.getItems())
 			{
-				if (itemDef.name != null && !itemDef.name.equalsIgnoreCase("null"))
+				if (itemDef.name != null && !itemDef.name.equalsIgnoreCase("null")
+					&& (onlyIds.isEmpty() || onlyIds.contains(itemDef.id)))
 				{
 					named.add(itemDef);
 				}
 			}
 
 			int threads = Runtime.getRuntime().availableProcessors();
-			System.out.println("Rendering " + named.size() + " items on " + threads + " threads");
+			System.out.println("Rendering " + named.size() + " items on " + threads
+				+ " threads at brightness " + brightness);
 
 			AtomicInteger rendered = new AtomicInteger();
 			ConcurrentLinkedQueue<Integer> failed = new ConcurrentLinkedQueue<>();
@@ -155,9 +175,9 @@ public class RenderItemIcons
 				{
 					try
 					{
-						BufferedImage sprite = ItemSpriteFactory.createSprite(
+						BufferedImage sprite = BrightnessItemSpriteFactory.createSprite(
 							itemManager, modelProvider, spriteManager, textureManager,
-							itemDef.id, quantity, BORDER, SHADOW_COLOR, false);
+							itemDef.id, quantity, BORDER, SHADOW_COLOR, false, brightness);
 						if (sprite == null)
 						{
 							failed.add(itemDef.id);
