@@ -29,4 +29,7 @@ yarn-error.log*
 .wrangler/
 
 # Playwright
-.playwright-mcp/.claude/worktrees/
+.playwright-mcp/
+
+# Claude Code
+.claude/worktrees/
