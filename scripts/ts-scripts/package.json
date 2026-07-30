@@ -13,7 +13,7 @@
     "update-quests": "tsx check-quests.ts --write",
     "sync-item-icons": "tsx sync-item-icons.ts",
     "check-cache": "tsx check-cache-version.ts",
-    "update-hiscore-icons": "tsx update-hiscore-icons.ts"
+    "update-sprite-icons": "tsx update-sprite-icons.ts"
   },
   "devDependencies": {
     "@abextm/cache2": "^0.1.9",

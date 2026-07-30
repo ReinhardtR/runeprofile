@@ -83,11 +83,11 @@ jobs:
           OSRS_CACHE_DIR: ${{ steps.cache.outputs.cache_dir }}
         run: pnpm script:update-quests
 
-      - name: Update hiscore icons
+      - name: Update sprite icons (hiscore, clan rank)
         if: steps.cache.outputs.new == 'true'
         env:
           OSRS_CACHE_DIR: ${{ steps.cache.outputs.cache_dir }}
-        run: pnpm script:update-hiscore-icons
+        run: pnpm script:update-sprite-icons
 
       # New icons are in the bucket before the game-data PR merges; the
       # atlas picks up new collection log items via the push-triggered
@@ -112,7 +112,7 @@ jobs:
             /tmp/clog-changes-summary.txt \
             /tmp/ca-changes-summary.txt \
             /tmp/quests-changes-summary.txt \
-            /tmp/hiscore-icons-changes-summary.txt; do
+            /tmp/sprite-icons-changes-summary.txt; do
             if [ -f "$f" ]; then
               cat "$f" >> "$body_file"
               echo "" >> "$body_file"
