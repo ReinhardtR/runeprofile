@@ -29,4 +29,4 @@ yarn-error.log*
 .wrangler/
 
 # Playwright
-.playwright-mcp/
+.playwright-mcp/.claude/worktrees/
