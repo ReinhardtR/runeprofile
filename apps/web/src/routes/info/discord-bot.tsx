@@ -33,7 +33,8 @@ import {
 import { Footer, Header } from "~/layouts";
 import { AddDiscordBotButton } from "~/shared/components/AddDiscordBotButton";
 import { JoinDiscordButton } from "~/shared/components/JoinDiscordButton";
-import { GameIcon, ItemIcon } from "~/shared/components/icons";
+import { GameIcon } from "~/shared/components/icons";
+import { ItemIcon } from "~/shared/components/item-icon";
 import { cn } from "~/shared/utils";
 
 export const Route = createFileRoute("/info/discord-bot")({

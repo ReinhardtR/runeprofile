@@ -1,7 +1,8 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
-import { ItemIcon } from "~/shared/components/icons";
-import { cn } from "~/shared/utils";
+import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
+import { cn, itemIconUrl } from "~/shared/utils";
 
 // All collection log item icons composed into one sprite sheet, so clog
 // grids render atomically with a single image request instead of one
@@ -33,16 +34,17 @@ export const clogAtlasQueryOptions = queryOptions({
 });
 
 /**
- * Collection log item icon rendered from the sprite-sheet atlas.
+ * Item icon from the RuneProfile CDN - the one component for rendering any
+ * item, collection log or not.
  *
- * While the manifest is loading this renders an empty placeholder rather
- * than falling back to per-item icons - kicking off individual requests
- * just to swap them out moments later is the popcorn effect the atlas
- * exists to prevent. Per-item icons (with their question mark fallback)
- * are only used when the manifest failed to load or doesn't contain the
- * item.
+ * Collection log items come from the sprite-sheet atlas; anything else
+ * (or anything the manifest doesn't cover) falls back to the per-item
+ * icon URL with a question mark for missing icons. While the manifest is
+ * loading this renders an empty placeholder rather than per-item icons -
+ * kicking off individual requests just to swap them out moments later is
+ * the popcorn effect the atlas exists to prevent.
  */
-export function ClogItemIcon({
+export function ItemIcon({
   id,
   alt,
   size = 24,
@@ -64,7 +66,9 @@ export function ClogItemIcon({
         <div className={className} style={{ width: size, height: size }} />
       );
     }
-    return <ItemIcon id={id} alt={alt} size={size} className={className} />;
+    return (
+      <ItemIconImage id={id} alt={alt} size={size} className={className} />
+    );
   }
 
   // The cell is rendered at its native size with integer background
@@ -90,5 +94,37 @@ export function ClogItemIcon({
         }}
       />
     </div>
+  );
+}
+
+/**
+ * Single item icon fetched from the CDN by item id, with a question mark
+ * fallback for icons missing from the bucket.
+ */
+function ItemIconImage({
+  id,
+  alt,
+  size = 24,
+  className,
+}: {
+  id: number;
+  alt: string;
+  size?: number;
+  className?: string;
+}) {
+  const [failedId, setFailedId] = useState<number | null>(null);
+
+  return (
+    <img
+      src={failedId === id ? QuestionMarkImage : itemIconUrl(id)}
+      alt={alt}
+      onError={() => setFailedId(id)}
+      className={cn("object-contain", className)}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        imageRendering: "pixelated",
+      }}
+    />
   );
 }

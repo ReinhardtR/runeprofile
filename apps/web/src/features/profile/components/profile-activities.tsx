@@ -23,7 +23,7 @@ import MiscIcons from "~/core/assets/misc-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { ActivityIcon } from "~/features/clan/components/activity-renderers";
-import { ClogItemIcon } from "~/shared/components/clog-item-icon";
+import { ItemIcon } from "~/shared/components/item-icon";
 import { GameIcon } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
@@ -267,7 +267,7 @@ const ProfileActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <ClogItemIcon
+          <ItemIcon
             id={event.data.itemId}
             alt={itemName}
             size={36}
@@ -503,7 +503,7 @@ const ProfileActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <ClogItemIcon
+          <ItemIcon
             id={event.data.itemId}
             alt="Valuable drop"
             size={36}
