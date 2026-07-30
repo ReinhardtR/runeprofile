@@ -16,7 +16,8 @@
     "script:update-ca": "pnpm --filter ts-scripts run update-ca",
     "script:check-quests": "pnpm --filter ts-scripts run check-quests",
     "script:update-quests": "pnpm --filter ts-scripts run update-quests",
-    "script:sync-item-icons": "pnpm --filter ts-scripts run sync-item-icons"
+    "script:sync-item-icons": "pnpm --filter ts-scripts run sync-item-icons",
+    "script:check-cache": "pnpm --filter ts-scripts run check-cache"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

@@ -1,25 +1,15 @@
-import {
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import {
-  createWriteStream,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-} from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { Readable } from "node:stream";
-import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
+
+import { downloadCache, resolveLatestCache } from "./lib/openrs2";
+import { createR2Client, r2Bucket } from "./lib/r2";
 
 // Renders an icon for every named item in the OSRS cache and syncs them into
 // the runeprofile-cdn R2 bucket, served at
@@ -34,7 +24,7 @@ import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 // manifest always points at an existing atlas.
 //
 // Fully self-contained: downloads the latest live cache from the OpenRS2
-// archive (updated within hours of a game update), renders icons headlessly
+// archive (updated within minutes of a game update), renders icons headlessly
 // with the RuneLite cache module (scripts/item-icons - the same rasterizer
 // the client uses, including quantity-based stack variants), then uploads
 // every icon whose bytes differ from what's in the bucket (compared via MD5
@@ -42,13 +32,13 @@ import { COLLECTION_LOG_ITEMS } from "@runeprofile/runescape";
 //
 // Flags:
 //   --force              upload every icon even if unchanged
+//   --cache-dir <path>   render from an already-downloaded disk store
+//                        (e.g. the unified daily pipeline's download)
 //   --icons-dir <path>   skip the download+render steps and upload
 //                        pre-rendered icons from this directory
 //
-// Required env: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
-// Optional env: R2_BUCKET (default: runeprofile-cdn)
+// Env: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY [, R2_BUCKET]
 
-const OPENRS2_CACHES_URL = "https://archive.openrs2.org/caches.json";
 const UPLOAD_CONCURRENCY = 16;
 const CACHE_CONTROL = "public, max-age=31536000, immutable";
 
@@ -57,27 +47,15 @@ const RENDERER_DIR = path.resolve(__dirname, "../item-icons");
 const WORK_DIR = path.join(RENDERER_DIR, "work");
 
 const force = process.argv.includes("--force");
-const iconsDirIndex = process.argv.indexOf("--icons-dir");
-const prerenderedDir =
-  iconsDirIndex === -1 ? null : process.argv[iconsDirIndex + 1];
+const argValue = (flag: string) => {
+  const index = process.argv.indexOf(flag);
+  return index === -1 ? null : process.argv[index + 1];
+};
+const prerenderedDir = argValue("--icons-dir");
+const cacheDirArg = argValue("--cache-dir");
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-  return value;
-}
-
-const bucket = process.env.R2_BUCKET ?? "runeprofile-cdn";
-const s3 = new S3Client({
-  region: "auto",
-  endpoint: `https://${requireEnv("R2_ACCOUNT_ID")}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: requireEnv("R2_ACCESS_KEY_ID"),
-    secretAccessKey: requireEnv("R2_SECRET_ACCESS_KEY"),
-  },
-});
+const bucket = r2Bucket();
+const s3 = createR2Client();
 
 syncItemIcons()
   .then(() => console.log("Finished syncing item icons."))
@@ -164,6 +142,56 @@ async function syncItemIcons() {
   }
 
   await uploadClogAtlas(iconsDir);
+}
+
+// Renders all item icons with the Java renderer, from the given disk store
+// or (by default) a freshly downloaded latest cache from OpenRS2. Returns
+// the directory the PNGs were written to.
+async function renderIcons(): Promise<string> {
+  let cacheDir = cacheDirArg;
+  if (!cacheDir) {
+    console.log("Finding the latest live cache on OpenRS2...");
+    const latest = await resolveLatestCache();
+    console.log(`Using cache ${latest.id} (${latest.timestamp})`);
+    cacheDir = await downloadCache(latest, WORK_DIR);
+  }
+
+  const outDir = path.join(WORK_DIR, "icons");
+  console.log("Rendering item icons...");
+  execFileSync(
+    process.platform === "win32" ? "gradlew.bat" : "./gradlew",
+    [
+      "--no-daemon",
+      "-q",
+      "run",
+      `--args=${cacheDir} ${outDir} ${path.join(RENDERER_DIR, "quantities.json")}`,
+    ],
+    { cwd: RENDERER_DIR, stdio: "inherit" },
+  );
+
+  return outDir;
+}
+
+async function listExistingIcons(): Promise<Map<number, string>> {
+  const icons = new Map<number, string>();
+  let continuationToken: string | undefined;
+  do {
+    const response = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: bucket,
+        Prefix: "item/",
+        ContinuationToken: continuationToken,
+      }),
+    );
+    for (const object of response.Contents ?? []) {
+      const match = object.Key?.match(/^item\/(\d+)\.png$/);
+      if (match && object.ETag) {
+        icons.set(Number(match[1]), object.ETag.replaceAll('"', ""));
+      }
+    }
+    continuationToken = response.NextContinuationToken;
+  } while (continuationToken);
+  return icons;
 }
 
 // Item icons are always 36x32.
@@ -253,99 +281,4 @@ async function uploadClogAtlas(iconsDir: string) {
   console.log(
     `Uploaded clog atlas ${atlasKey} (${cells.length} icons, ${width}x${height}, ${Math.round(atlas.length / 1024)}KB) and manifest.`,
   );
-}
-
-// Downloads the latest live cache from OpenRS2 and renders all item icons
-// with the Java renderer. Returns the directory the PNGs were written to.
-async function renderIcons(): Promise<string> {
-  console.log("Finding the latest live cache on OpenRS2...");
-  const response = await fetch(OPENRS2_CACHES_URL);
-  if (!response.ok) {
-    throw new Error(`OpenRS2 caches.json returned ${response.status}`);
-  }
-  const caches: Array<{
-    id: number;
-    scope: string;
-    game: string;
-    environment: string;
-    language: string;
-    timestamp: string | null;
-    disk_store_valid: boolean;
-  }> = await response.json();
-
-  const latest = caches
-    .filter(
-      (c) =>
-        c.game === "oldschool" &&
-        c.environment === "live" &&
-        c.language === "en" &&
-        c.disk_store_valid &&
-        c.timestamp,
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime(),
-    )[0];
-  if (!latest) {
-    throw new Error("No valid live oldschool cache found on OpenRS2.");
-  }
-  console.log(`Using cache ${latest.id} (${latest.timestamp})`);
-
-  rmSync(WORK_DIR, { recursive: true, force: true });
-  mkdirSync(WORK_DIR, { recursive: true });
-
-  const zipPath = path.join(WORK_DIR, "disk.zip");
-  const downloadUrl = `https://archive.openrs2.org/caches/${latest.scope}/${latest.id}/disk.zip`;
-  console.log(`Downloading ${downloadUrl}...`);
-  const download = await fetch(downloadUrl);
-  if (!download.ok || !download.body) {
-    throw new Error(`Cache download returned ${download.status}`);
-  }
-  await pipeline(
-    Readable.fromWeb(download.body as never),
-    createWriteStream(zipPath),
-  );
-
-  execFileSync("unzip", ["-o", "-q", zipPath, "-d", WORK_DIR]);
-  const cacheDir = path.join(WORK_DIR, "cache");
-  if (!existsSync(path.join(cacheDir, "main_file_cache.dat2"))) {
-    throw new Error(`Extracted cache not found at ${cacheDir}`);
-  }
-
-  const outDir = path.join(WORK_DIR, "icons");
-  console.log("Rendering item icons (takes ~10-15 minutes)...");
-  execFileSync(
-    process.platform === "win32" ? "gradlew.bat" : "./gradlew",
-    [
-      "--no-daemon",
-      "-q",
-      "run",
-      `--args=${cacheDir} ${outDir} ${path.join(RENDERER_DIR, "quantities.json")}`,
-    ],
-    { cwd: RENDERER_DIR, stdio: "inherit" },
-  );
-
-  return outDir;
-}
-
-async function listExistingIcons(): Promise<Map<number, string>> {
-  const icons = new Map<number, string>();
-  let continuationToken: string | undefined;
-  do {
-    const response = await s3.send(
-      new ListObjectsV2Command({
-        Bucket: bucket,
-        Prefix: "item/",
-        ContinuationToken: continuationToken,
-      }),
-    );
-    for (const object of response.Contents ?? []) {
-      const match = object.Key?.match(/^item\/(\d+)\.png$/);
-      if (match && object.ETag) {
-        icons.set(Number(match[1]), object.ETag.replaceAll('"', ""));
-      }
-    }
-    continuationToken = response.NextContinuationToken;
-  } while (continuationToken);
-  return icons;
 }

@@ -11,6 +11,8 @@ import {
   CollectionLogPage,
 } from "@runeprofile/runescape";
 
+import { createCacheProvider } from "./lib/cache";
+
 const CLOG_GROUPS = 2102 as cache.ParamID;
 const CLOG_TAB_ENUM = 683 as cache.ParamID;
 const CLOG_TAB_NAME = 682 as cache.ParamID;
@@ -69,16 +71,7 @@ checkClog()
   });
 
 async function checkClog() {
-  const provider = new cache.FlatCacheProvider({
-    getFile: async (name) => {
-      const response = await fetch(
-        `https://raw.githubusercontent.com/abextm/osrs-cache/master/${name}`,
-      );
-      if (!response.ok) return;
-      const buffer = await response.arrayBuffer();
-      return new Uint8Array(buffer);
-    },
-  });
+  const provider = createCacheProvider();
 
   const tabsEnum = await cache.Enum.load(provider, CLOG_GROUPS);
   if (!tabsEnum) {

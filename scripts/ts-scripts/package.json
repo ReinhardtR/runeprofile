@@ -11,7 +11,8 @@
     "update-ca": "tsx check-combat-achievements.ts --write",
     "check-quests": "tsx check-quests.ts",
     "update-quests": "tsx check-quests.ts --write",
-    "sync-item-icons": "tsx sync-item-icons.ts"
+    "sync-item-icons": "tsx sync-item-icons.ts",
+    "check-cache": "tsx check-cache-version.ts"
   },
   "devDependencies": {
     "@abextm/cache2": "^0.1.9",

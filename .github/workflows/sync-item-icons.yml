@@ -1,16 +1,14 @@
 name: Sync Item Icons
 
+# The daily Update Game Data workflow syncs icons whenever a new cache
+# appears; this workflow covers the other moment icons change: a merge to
+# main that adds collection log items (the atlas is built from the merged
+# COLLECTION_LOG_ITEMS, so it can only pick them up after the PR lands).
 on:
-  # New collection log items land in this file (via the Update Game Data PR),
-  # so a merge to main is the moment new icons need to be mirrored.
   push:
     branches: [main]
     paths:
       - packages/runescape/src/collection-log.ts
-  schedule:
-    # Weekly safety net, Thursday 06:00 UTC (day after the OSRS game update
-    # and the Update Game Data workflow).
-    - cron: "0 6 * * 4"
   workflow_dispatch:
     inputs:
       force:
