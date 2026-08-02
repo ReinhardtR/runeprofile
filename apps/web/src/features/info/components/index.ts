@@ -16,3 +16,5 @@ export {
   useActiveSection,
 } from "./guide-components";
 export type { CommandItem, FaqItem, TocItem } from "./guide-components";
+export { LegalPage } from "./legal-page";
+export type { LegalSection } from "./legal-page";
