@@ -16,16 +16,15 @@ import ClanRankIcons from "~/core/assets/clan-rank-icons.json";
 import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-icons.json";
 import AchievementDiaryIcon from "~/core/assets/icons/achievement-diaries.png";
 import QuestIcon from "~/core/assets/icons/quest.png";
-import ITEM_ICONS from "~/core/assets/item-icons.json";
 import MiscIcons from "~/core/assets/misc-icons.json";
 import QuestionMarkImage from "~/core/assets/misc/question-mark.png";
 import SkillIconsLarge from "~/core/assets/skill-icons-large.json";
 import { ClanActivityEvent } from "~/features/clan";
+import { ItemIcon } from "~/shared/components/item-icon";
 import { GameIcon } from "~/shared/components/icons";
 import {
   cn,
   formatRelativeTime,
-  itemIconUrl,
   numberWithAbbreviation,
   numberWithDelimiter,
 } from "~/shared/utils";
@@ -111,26 +110,16 @@ export const ActivityRenderMap = {
     >,
     options?: ActivityRenderOptions,
   ) => {
-    const itemIcon =
-      ITEM_ICONS[event.data.itemId as unknown as keyof typeof ITEM_ICONS];
     const itemName = COLLECTION_LOG_ITEMS[event.data.itemId] ?? "Unknown";
     return (
       <>
         <ActivityIcon>
-          {itemIcon ? (
-            <GameIcon
-              src={itemIcon}
-              alt={itemName}
-              size={26}
-              className="z-10 drop-shadow-2xl mx-auto"
-            />
-          ) : (
-            <img
-              src={QuestionMarkImage}
-              alt={itemName}
-              className="z-10 drop-shadow-2xl object-contain mx-auto size-[26px]"
-            />
-          )}
+          <ItemIcon
+            id={event.data.itemId}
+            alt={itemName}
+            size={36}
+            className="z-10 drop-shadow-2xl mx-auto"
+          />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount
@@ -324,15 +313,9 @@ export const ActivityRenderMap = {
         <ActivityContent createdAt={event.createdAt}>
           <ActivityAccount account={event.account} />
           <span>completed</span>
-          <span
-            className={cn(
-              "text-secondary-foreground",
-              task?.tierId === 6 && "shimmer-text",
-            )}
-          >
+          <span className="text-secondary-foreground">
             {task?.name ?? "Unknown Task"}
           </span>
-          <span>({tierName})</span>
         </ActivityContent>
       </>
     );
@@ -403,9 +386,11 @@ export const ActivityRenderMap = {
     return (
       <>
         <ActivityIcon>
-          <img
-            src={itemIconUrl(event.data.itemId)}
-            className={cn("z-10 drop-shadow-2xl object-contain mx-auto")}
+          <ItemIcon
+            id={event.data.itemId}
+            alt="Valuable drop"
+            size={36}
+            className="z-10 drop-shadow-2xl mx-auto"
           />
         </ActivityIcon>
         <ActivityContent createdAt={event.createdAt}>

@@ -1,0 +1,16 @@
+{
+  "name": "@runeprofile/model-rasterizer",
+  "private": true,
+  "type": "module",
+  "description": "Software renderer for plugin-exported character models (GLB and legacy PLY) - no GPU, runs in Workers, Node, and browsers",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  }
+}

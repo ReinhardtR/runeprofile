@@ -130,10 +130,14 @@ export function buildUpdatedDiffProfile(
     });
   }
 
-  // Merge items
+  // Merge items — zero-quantity updates are deletions from a force resync
   const itemsMap = new Map(current.items.map((i) => [i.id, i]));
   for (const update of updates.items) {
-    itemsMap.set(update.id, { id: update.id, quantity: update.quantity });
+    if (update.quantity === 0) {
+      itemsMap.delete(update.id);
+    } else {
+      itemsMap.set(update.id, { id: update.id, quantity: update.quantity });
+    }
   }
 
   // Merge quests

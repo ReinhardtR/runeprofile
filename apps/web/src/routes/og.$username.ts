@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { renderPlyToPng } from "@runeprofile/model-renderer";
+import { renderModelToPng } from "@runeprofile/model-rasterizer";
 import { SKILLS, getLevelFromXP } from "@runeprofile/runescape";
 
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";
 import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-icons.json";
 import CollectionLogRankIcons from "~/core/assets/collection-log-rank-icons.json";
 import OgFrameCorners from "~/core/assets/og-frame-corners.json";
-import { RuneProfileApiError, getProfile, getProfileModels } from "~/core/api";
+import { RuneProfileApiError, getProfile, getProfileModel } from "~/core/api";
 // Satori needs raw TTF bytes. The fonts are inlined into the bundle as data
 // URIs (a Worker can't fetch() its own hostname to load them as assets).
 import runescapeBoldFont from "~/core/assets/fonts/runescape-bold.ttf?inline";
@@ -139,12 +139,14 @@ async function generateOgImage({ request }: { request: Request }) {
   );
 
   // Chest-up portrait of the player's 3D model, rendered in software.
+  // The model arrives as raw bytes in whichever format the profile last
+  // synced (GLB now, PLY historically) — the rasterizer sniffs it.
   // Profiles without an uploaded model fall back to a centered layout.
   let modelDataUri: string | null = null;
   try {
-    const models = await getProfileModels({ username, includePet: false });
-    const png = await renderPlyToPng(
-      base64ToBytes(models.playerModelBase64),
+    const model = await getProfileModel({ username });
+    const png = await renderModelToPng(
+      model,
       // 2.49 rad = chathead-style angle facing right, toward the name card.
       // Crop to the top half of the *body* (cropRef "body" ignores held
       // weapons/banners towering over the head); the baked bottom fade

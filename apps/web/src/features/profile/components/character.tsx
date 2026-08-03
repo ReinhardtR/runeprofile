@@ -1,26 +1,24 @@
 import { Center } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { Info, Pause, Play } from "lucide-react";
 import { useRef, useState } from "react";
 import React from "react";
-import {
-  BufferGeometry,
-  Euler,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-} from "three";
+import { Euler, Object3D } from "three";
 import { CanvasTexture } from "three";
 
+import {
+  ModelAnimator,
+  disposeModel,
+  loadModel,
+} from "@runeprofile/model-renderer";
 import { AccountType } from "@runeprofile/runescape";
 
-import { Group, getProfileModels } from "~/core/api";
+import { Group, getProfileModel, getProfilePetModel } from "~/core/api";
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";
 import ClanRankIcons from "~/core/assets/clan-rank-icons.json";
-import defaultPlayerModel from "~/core/assets/default-player-model.json";
 import { Card } from "~/features/profile/components/card";
 import { GameIcon } from "~/shared/components/icons";
 import {
@@ -34,12 +32,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
-import {
-  cn,
-  formatDate,
-  formatRelativeTime,
-  loadModelFromBase64,
-} from "~/shared/utils";
+import { loadDefaultModel } from "~/shared/model/default-model";
+import { cn, formatDate, formatRelativeTime } from "~/shared/utils";
 
 export const isAnimatingAtom = atomWithStorage<boolean>(
   "character-animation",
@@ -205,12 +199,66 @@ export function Character({
   );
 }
 
+/**
+ * Orientation and size that put a model where the card expects it. Shared rather
+ * than memoised per component: nothing mutates them, and the turntable spins the
+ * object's own rotation instead.
+ */
+const MODEL_ROTATION = new Euler(-1.55, 0, 0.1);
+const MODEL_SCALE = 0.028;
+
+/**
+ * Caps the render resolution. Without this the canvas renders at the device
+ * pixel ratio, which is 3 on many phones - nine times the pixels of a 1x render,
+ * for a small model in a card where the difference is invisible.
+ */
+const CANVAS_DPR: [number, number] = [1, 2];
+
+/**
+ * The soft blob under a character's feet.
+ *
+ * One texture for the whole page. It is identical every time, so building a
+ * canvas and uploading a texture per card was pure waste - a group page of five
+ * made five of them. Never disposed, deliberately: it outlives any one card.
+ */
+let sharedShadowTexture: CanvasTexture | undefined;
+
+function shadowTexture(): CanvasTexture {
+  sharedShadowTexture ??= createRadialTexture();
+  return sharedShadowTexture;
+}
+
+/**
+ * Loads a character's model, falling back to the bundled default if anything
+ * goes wrong - a profile that has never synced, a network failure, a corrupt
+ * file. Returns null only if even the fallback fails to parse.
+ */
+async function loadPlayerModel(username: string): Promise<Object3D | null> {
+  try {
+    return (await loadModel(await getProfileModel({ username }))).object;
+  } catch (error) {
+    console.error(
+      `Error loading model for ${username} - falling back to default model.`,
+      error,
+    );
+    try {
+      return (await loadDefaultModel()).object;
+    } catch {
+      return null;
+    }
+  }
+}
+
+/** An animator that stops tracking whatever it held when the scene goes away. */
+function useModelAnimator(): ModelAnimator {
+  const animator = React.useMemo(() => new ModelAnimator(), []);
+  React.useEffect(() => () => animator.clear(), [animator]);
+  return animator;
+}
+
 // The three.js canvas (and the scene hooks inside it) only work in the
 // browser — never render it during SSR.
-export function PlayerModel(props: {
-  username: string;
-  isAnimating: boolean;
-}) {
+export function PlayerModel(props: { username: string; isAnimating: boolean }) {
   return (
     <ClientOnly fallback={null}>
       <PlayerModelScene {...props} />
@@ -227,10 +275,13 @@ function PlayerModelScene({
 }) {
   return (
     <Canvas
-      gl={{
-        alpha: true,
-      }}
+      gl={{ alpha: true }}
+      dpr={CANVAS_DPR}
       flat
+      // Paused means nothing moves - not the turntable and not the animated
+      // textures - so there is no reason to keep redrawing an identical frame.
+      // Anything that does change while paused invalidates explicitly.
+      frameloop={isAnimating ? "always" : "demand"}
     >
       <Model username={username} isAnimating={isAnimating} />
     </Canvas>
@@ -239,56 +290,63 @@ function PlayerModelScene({
 
 const Model = React.memo(
   ({ username, isAnimating }: { username: string; isAnimating: boolean }) => {
-    const playerMeshRef =
-      useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
-    const petMeshRef =
-      useRef<Mesh<BufferGeometry, Material | Material[]>>(null);
+    const playerMeshRef = useRef<Object3D>(null);
+    const petMeshRef = useRef<Object3D>(null);
 
-    const [playerGeometry, setPlayerGeometry] = useState<BufferGeometry>();
-    const [petGeometry, setPetGeometry] = useState<BufferGeometry>();
+    const [playerModel, setPlayerModel] = useState<Object3D>();
+    const [petModel, setPetModel] = useState<Object3D>();
 
     const animationTimeRef = useRef(0);
-
-    const material = React.useMemo(
-      () => new MeshBasicMaterial({ vertexColors: true }),
-      [],
-    );
-
-    const initialModelRotation = React.useMemo(
-      () => new Euler(-1.55, 0, 0.1),
-      [],
-    );
+    const animator = useModelAnimator();
+    // Needed because the canvas stops drawing on its own while paused.
+    const invalidate = useThree((state) => state.invalidate);
 
     React.useEffect(() => {
-      // Clear previous models
-      setPlayerGeometry(undefined);
-      setPetGeometry(undefined);
+      // A load that finishes after the username has moved on must not replace
+      // the model of whoever is on screen now.
+      let current = true;
+      const loaded: Object3D[] = [];
 
-      getProfileModels({ username, includePet: true })
-        .then((models) => {
-          loadModelFromBase64(models.playerModelBase64).then((geometry) =>
-            setPlayerGeometry(geometry),
-          );
+      const show = (
+        object: Object3D | null,
+        set: (value: Object3D | undefined) => void,
+      ) => {
+        if (!object) return;
+        if (!current) {
+          disposeModel(object);
+          return;
+        }
+        loaded.push(object);
+        animator.track(object);
+        set(object);
+        invalidate();
+      };
 
-          if (models.petModelBase64) {
-            loadModelFromBase64(models.petModelBase64).then((geometry) =>
-              setPetGeometry(geometry),
-            );
-          }
+      setPlayerModel(undefined);
+      setPetModel(undefined);
+      animator.clear();
+
+      loadPlayerModel(username).then((object) => show(object, setPlayerModel));
+
+      getProfilePetModel({ username })
+        .then(async (bytes) => {
+          if (!bytes) return;
+          show((await loadModel(bytes)).object, setPetModel);
         })
         .catch((error) => {
-          console.error(
-            "Error loading models - falling back to default model.",
-            error,
-          );
-
-          loadModelFromBase64(defaultPlayerModel.base64).then((geometry) =>
-            setPlayerGeometry(geometry),
-          );
+          // A missing pet is answered 204 and handled above, so reaching here
+          // means the pet itself failed. The character still renders.
+          console.error(`Error loading pet model for ${username}.`, error);
         });
-    }, [username]);
 
-    useFrame((_, delta) => {
+      return () => {
+        current = false;
+        animator.clear();
+        loaded.forEach(disposeModel);
+      };
+    }, [username, animator, invalidate]);
+
+    useFrame((state, delta) => {
       if (!playerMeshRef.current) return;
 
       if (isAnimating) {
@@ -298,41 +356,37 @@ const Model = React.memo(
       const y = Math.sin(animationTimeRef.current);
       playerMeshRef.current.rotation.z = y;
 
-      if (!petMeshRef.current) return;
-      petMeshRef.current.rotation.z = y / 1.5;
+      if (petMeshRef.current) {
+        petMeshRef.current.rotation.z = y / 1.5;
+      }
+
+      // After the rotations above, so sorting sees where the geometry actually
+      // ended up this frame.
+      animator.update(state.camera, isAnimating ? delta : 0);
     });
 
-    const shadowTexture = React.useMemo(() => createRadialTexture(), []);
-
-    const modelScale = 0.028;
     const playerPosition = [0, -3, 0] as const;
     const petPosition = [2.5, -3.3, -3] as const;
 
     return (
-      <Center rotateX={Math.PI}>
-        {playerGeometry && (
+      <Center>
+        {playerModel && (
           <group>
             <Model3D
-              geometry={playerGeometry}
-              material={material}
+              object={playerModel}
               position={playerPosition}
-              rotation={initialModelRotation}
-              scale={modelScale}
-              showShadow
-              shadowTexture={shadowTexture}
+              rotation={MODEL_ROTATION}
+              scale={MODEL_SCALE}
               shadowPosition={[0, -3.01, 0]}
               meshRef={playerMeshRef}
             />
 
-            {petGeometry && (
+            {petModel && (
               <Model3D
-                geometry={petGeometry}
-                material={material}
+                object={petModel}
                 position={petPosition}
-                rotation={initialModelRotation}
-                scale={modelScale}
-                showShadow
-                shadowTexture={shadowTexture}
+                rotation={MODEL_ROTATION}
+                scale={MODEL_SCALE}
                 shadowPosition={[2.5, -3.31, -3]}
                 meshRef={petMeshRef}
               />
@@ -345,43 +399,57 @@ const Model = React.memo(
 );
 
 type Model3DProps = {
-  geometry: BufferGeometry;
-  material: MeshBasicMaterial;
+  object: Object3D;
   position: readonly [number, number, number];
   rotation: Euler;
   scale: number;
-  showShadow?: boolean;
-  shadowTexture?: CanvasTexture;
+  /** Omit to draw no shadow. */
   shadowPosition?: [number, number, number];
-  meshRef?: React.RefObject<Mesh<BufferGeometry, Material | Material[]> | null>;
+  meshRef?: React.RefObject<Object3D | null>;
 };
 
 function Model3D({
-  geometry,
-  material,
+  object,
   position,
   rotation,
   scale,
-  showShadow,
-  shadowTexture,
   shadowPosition,
   meshRef,
 }: Model3DProps) {
   return (
     <>
-      <mesh
+      {/* A loaded model is a whole subtree with its own materials, not a single
+          geometry, since a GLB splits by texture and by translucency.
+
+          Keyed on the object, because a primitive cannot have its object
+          swapped: switching profiles has to mount a new one. */}
+      <primitive
+        key={object.uuid}
         ref={meshRef}
-        geometry={geometry}
-        material={material}
+        object={object}
         scale={scale}
         position={position}
         rotation={rotation}
       />
 
-      {showShadow && shadowTexture && shadowPosition && (
-        <mesh rotation-x={-Math.PI / 2} position={shadowPosition} scale={1.4}>
+      {shadowPosition && (
+        // Drawn before the models and without writing depth. It is a soft decal
+        // on the ground, and a transparent surface that writes depth discards
+        // whatever translucent geometry happens to be drawn after it - which for
+        // a pet standing on its own glow meant the glow vanishing at whichever
+        // angles put the disc first in three's transparent ordering.
+        <mesh
+          renderOrder={-1}
+          rotation-x={-Math.PI / 2}
+          position={shadowPosition}
+          scale={1.4}
+        >
           <circleGeometry args={[1, 32]} />
-          <meshBasicMaterial map={shadowTexture} transparent />
+          <meshBasicMaterial
+            map={shadowTexture()}
+            transparent
+            depthWrite={false}
+          />
         </mesh>
       )}
     </>
@@ -396,67 +464,68 @@ export function GroupCharacters(props: { members: Group["members"] }) {
   );
 }
 
+/**
+ * Drives the per-frame model work from inside the canvas, which is the only
+ * place useFrame can be called. Sorting is guarded on the view having moved, so
+ * a still camera settles to doing nothing after the first frame.
+ */
+function SceneAnimator({ animator }: { animator: ModelAnimator }) {
+  useFrame((state, delta) => animator.update(state.camera, delta));
+  return null;
+}
+
 function GroupCharactersScene({ members }: { members: Group["members"] }) {
   const [loading, setLoading] = useState(true);
-  const [geometries, setGeometries] = useState<
-    Map<string, BufferGeometry | null>
-  >(new Map());
+  const [models, setModels] = useState<Map<string, Object3D | null>>(new Map());
 
-  const material = React.useMemo(
-    () => new MeshBasicMaterial({ vertexColors: true }),
-    [],
-  );
-
-  const initialModelRotation = React.useMemo(
-    () => new Euler(-1.55, 0, 0.1),
-    [],
-  );
-
-  const shadowTexture = React.useMemo(() => createRadialTexture(), []);
+  const animator = useModelAnimator();
 
   React.useEffect(() => {
+    let current = true;
+    const loaded: Object3D[] = [];
+
     setLoading(true);
-    setGeometries(new Map());
+    setModels(new Map());
+    animator.clear();
 
     const loadAllModels = async () => {
-      const promises = members.map(async (member) => {
-        try {
-          const models = await getProfileModels({
-            username: member.username,
-            includePet: false,
-          });
-          const geometry = await loadModelFromBase64(models.playerModelBase64);
-          return { username: member.username, geometry };
-        } catch (error) {
-          console.error(
-            `Error loading model for ${member.username} - falling back to default model.`,
-            error,
-          );
-          try {
-            const geometry = await loadModelFromBase64(
-              defaultPlayerModel.base64,
-            );
-            return { username: member.username, geometry };
-          } catch {
-            return { username: member.username, geometry: null };
-          }
+      // Pets are not shown here, so they are not fetched. Each member's model
+      // caches and revalidates on its own now that they are separate requests.
+      const results = await Promise.all(
+        members.map(async (member) => ({
+          username: member.username,
+          object: await loadPlayerModel(member.username),
+        })),
+      );
+      if (!current) {
+        // The member list changed while these were loading, so nothing here is
+        // going on screen.
+        results.forEach(({ object }) => object && disposeModel(object));
+        return;
+      }
+
+      const newModels = new Map<string, Object3D | null>();
+      results.forEach(({ username, object }) => {
+        newModels.set(username, object);
+        if (object) {
+          loaded.push(object);
+          animator.track(object);
         }
       });
 
-      const results = await Promise.all(promises);
-      const newGeometries = new Map<string, BufferGeometry | null>();
-      results.forEach(({ username, geometry }) => {
-        newGeometries.set(username, geometry);
-      });
-
-      setGeometries(newGeometries);
+      setModels(newModels);
       setLoading(false);
     };
 
     loadAllModels();
-  }, [members]);
 
-  const modelScale = 0.028;
+    return () => {
+      current = false;
+      animator.clear();
+      loaded.forEach(disposeModel);
+    };
+  }, [members, animator]);
+
   const memberCount = members.length;
 
   return (
@@ -501,18 +570,16 @@ function GroupCharactersScene({ members }: { members: Group["members"] }) {
         </div>
       )}
 
-      <Canvas
-        gl={{
-          alpha: true,
-        }}
-        flat
-      >
-        <Center rotateX={Math.PI}>
+      {/* Left drawing continuously: these models do not spin, but a fire cape's
+          texture still scrolls, and there is no pause control here. */}
+      <Canvas gl={{ alpha: true }} dpr={CANVAS_DPR} flat>
+        <SceneAnimator animator={animator} />
+        <Center>
           {!loading && (
             <group>
               {members.map((member, index) => {
-                const geometry = geometries.get(member.username);
-                if (!geometry) return null;
+                const object = models.get(member.username);
+                if (!object) return null;
 
                 const xPosition = (index - (memberCount - 1) / 2) * 3;
                 const position = [xPosition, -3, 0] as const;
@@ -523,18 +590,14 @@ function GroupCharactersScene({ members }: { members: Group["members"] }) {
                 ];
 
                 return (
-                  <group key={member.username}>
-                    <Model3D
-                      geometry={geometry}
-                      material={material}
-                      position={position}
-                      rotation={initialModelRotation}
-                      scale={modelScale}
-                      showShadow
-                      shadowTexture={shadowTexture}
-                      shadowPosition={shadowPosition}
-                    />
-                  </group>
+                  <Model3D
+                    key={member.username}
+                    object={object}
+                    position={position}
+                    rotation={MODEL_ROTATION}
+                    scale={MODEL_SCALE}
+                    shadowPosition={shadowPosition}
+                  />
                 );
               })}
             </group>

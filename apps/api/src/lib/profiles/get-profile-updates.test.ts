@@ -477,6 +477,73 @@ describe("ITEMS", () => {
       }),
     ).toEqual([]);
   });
+
+  test("force resync deletes missing items", () => {
+    expect(
+      getItemUpdates({
+        newData: { 1249: 1 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 1 },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 2366,
+        quantity: 0,
+        oldQuantity: 1,
+      },
+    ]);
+  });
+
+  test("force resync deletes zero-quantity items", () => {
+    expect(
+      getItemUpdates({
+        newData: { 1249: 1, 2366: 0 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 1 },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 2366,
+        quantity: 0,
+        oldQuantity: 1,
+      },
+    ]);
+  });
+
+  test("force resync lowers quantities", () => {
+    expect(
+      getItemUpdates({
+        newData: { 1249: 1, 2366: 2 },
+        oldData: [
+          { id: 1249, quantity: 1 },
+          { id: 2366, quantity: 5 },
+        ],
+        forceResync: true,
+      }),
+    ).toEqual([
+      {
+        id: 2366,
+        quantity: 2,
+        oldQuantity: 5,
+      },
+    ]);
+  });
+
+  test("force resync ignores items absent on both sides", () => {
+    expect(
+      getItemUpdates({
+        newData: { 1249: 1 },
+        oldData: [{ id: 1249, quantity: 1 }],
+        forceResync: true,
+      }),
+    ).toEqual([]);
+  });
 });
 
 describe("QUESTS", () => {

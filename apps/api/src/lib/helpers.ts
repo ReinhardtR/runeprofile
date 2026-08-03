@@ -6,17 +6,6 @@ import { STATUS } from "~/lib/status";
 
 export const newRouter = () => new Hono<{ Bindings: Env }>();
 
-export async function r2FileToBase64(file: R2ObjectBody) {
-  const arrayBuffer = await file.arrayBuffer();
-  const base64String = btoa(
-    new Uint8Array(arrayBuffer).reduce(
-      (data, byte) => data + String.fromCharCode(byte),
-      "",
-    ),
-  );
-  return base64String;
-}
-
 export const errorHandler: ErrorHandler = (err, c) => {
   console.error(err);
   if (err instanceof RuneProfileError) {

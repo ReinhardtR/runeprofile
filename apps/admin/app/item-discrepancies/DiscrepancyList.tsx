@@ -617,7 +617,7 @@ export function DiscrepancyList({
                     className="flex items-center gap-3 p-2 text-sm"
                   >
                     <Image
-                      src={`https://static.runelite.net/cache/item/icon/${item.itemId}.png`}
+                      src={`https://cdn.runeprofile.com/item/${item.itemId}.png`}
                       alt={item.itemName}
                       width={24}
                       height={24}

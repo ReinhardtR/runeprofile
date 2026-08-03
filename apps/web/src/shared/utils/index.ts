@@ -1,7 +1,3 @@
-import { BufferGeometry } from "three";
-// @ts-expect-error
-import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
-
 import { Profile } from "~/core/api";
 import COLLECTION_LOG_RANK_ICONS from "~/core/assets/collection-log-rank-icons.json";
 
@@ -23,9 +19,12 @@ function parseAsUTC(date: string | Date): Date {
     return date;
   }
   // If the date string doesn't have timezone info, treat it as UTC
-  const dateStr = date.includes('Z') || date.includes('+') || date.includes('T') && date.lastIndexOf('-') > 10
-    ? date
-    : date.replace(' ', 'T') + 'Z';
+  const dateStr =
+    date.includes("Z") ||
+    date.includes("+") ||
+    (date.includes("T") && date.lastIndexOf("-") > 10)
+      ? date
+      : date.replace(" ", "T") + "Z";
   return new Date(dateStr);
 }
 
@@ -108,37 +107,8 @@ export function capitalize(str: string) {
 }
 
 export const itemIconUrl = (itemId: number) =>
-  `https://static.runelite.net/cache/item/icon/${itemId}.png`;
+  `https://cdn.runeprofile.com/item/${itemId}.png`;
 
 export function base64ImgSrc(image: string) {
   return `data:image/png;base64,${image}`;
-}
-
-export function loadModelFromBase64(base64: string): Promise<BufferGeometry> {
-  const loader = new PLYLoader();
-
-  const tryLoad = (base64: string) => {
-    const arrayBuffer = base64ToArrayBuffer(base64);
-    return loader.parse(arrayBuffer);
-  };
-
-  return new Promise((resolve, reject) => {
-    try {
-      const geometry = tryLoad(base64);
-      resolve(geometry);
-    } catch (error) {
-      console.error("Error loading model:", error);
-      reject(error);
-    }
-  });
-}
-
-function base64ToArrayBuffer(base64: string) {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
 }

@@ -9,7 +9,10 @@ import { STATUS } from "~/lib/status";
 export const metricsRouter = newRouter().get(
   "/",
   cache({
-    cacheName: "metrics",
+    // Bumped when the row-count source changed from pg_stat_user_tables to
+    // pg_class — a new namespace orphans the entries holding the old counts,
+    // including the SSR one cached under the service-binding hostname.
+    cacheName: "metrics-v2",
     cacheControl: "public, max-age=3600, stale-while-revalidate=300",
   }),
   async (c) => {

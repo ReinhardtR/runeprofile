@@ -1,5 +1,8 @@
 import type { DiffProfile } from "~/lib/profiles/diff-cache";
-import type { UpdateProfileInput } from "~/lib/profiles/get-profile-updates";
+import {
+  MINIMUM_FULL_UPDATE_ITEMS,
+  type UpdateProfileInput,
+} from "~/lib/profiles/get-profile-updates";
 
 // ============================================================================
 // Types
@@ -36,12 +39,6 @@ export { ITEM_DISCREPANCY_PREFIX };
 // ============================================================================
 // Detection
 // ============================================================================
-
-/**
- * Minimum number of items required in the input to be considered a "full" update.
- * Small batches (autosync) with fewer items are ignored.
- */
-const MINIMUM_FULL_UPDATE_ITEMS = 20;
 
 /**
  * Detects item discrepancies between input data and stored profile data.

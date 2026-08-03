@@ -1,0 +1,54 @@
+name: Register Discord Commands
+
+# Discord bakes the command schema — names, descriptions, and the choice lists
+# derived from ACTIVITY_FILTER_META — in at registration time, so a new
+# activity type stays invisible in Discord until the commands are re-sent.
+# Workers Builds deploys the API with a bare `npx wrangler deploy`, so this is
+# the only thing that keeps the registered commands in step with main.
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/api/src/internal/discord/**
+      - packages/runescape/src/activity-filters.ts
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Registration is a bulk overwrite of every global command, so overlapping
+# runs would race to send different command sets.
+concurrency:
+  group: register-discord-commands
+
+jobs:
+  register-discord-commands:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # No build step — @runeprofile/runescape exports source TypeScript, and
+      # tsx reads the command definitions straight from it.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Runs alongside the Workers Builds deploy rather than after it. Either
+      # ordering is safe: channel filters store plain activity-type strings, so
+      # a choice registered before the matching deploy lands is recorded
+      # correctly and simply matches nothing until that deploy goes out.
+      - name: Register commands
+        working-directory: apps/api
+        env:
+          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: pnpm discord:register:ci

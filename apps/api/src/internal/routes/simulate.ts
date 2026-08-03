@@ -77,12 +77,13 @@ export const simulateRouter = newRouter()
         return c.json({ sent: files.length }, STATUS.OK);
       }
 
-      const embeds = activities.map((activity) =>
+      const embeds = activities.map((activity, index) =>
         createActivityEmbed({
           activity,
           discordApplicationId: c.env.DISCORD_APPLICATION_ID,
           rsn,
           accountType: acct,
+          index,
         }),
       );
 

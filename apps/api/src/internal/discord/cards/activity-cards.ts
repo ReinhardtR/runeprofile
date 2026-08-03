@@ -1,8 +1,8 @@
 import {
-  parsePly,
+  parseModel,
   renderScene,
   encodePng,
-} from "@runeprofile/model-renderer";
+} from "@runeprofile/model-rasterizer";
 import {
   AccountType,
   ActivityEvent,
@@ -41,21 +41,21 @@ export async function renderAvatarDataUri(
   bucket: R2Bucket,
   rsn: string,
 ): Promise<string> {
-  let ply: Uint8Array;
+  let bytes: Uint8Array;
   try {
     const file = await bucket.get(rsn.toLowerCase());
     if (file) {
-      ply = new Uint8Array(await file.arrayBuffer());
+      bytes = new Uint8Array(await file.arrayBuffer());
     } else {
-      ply = base64ToBytes(CardAssets.defaultPlayerModel);
+      bytes = base64ToBytes(CardAssets.defaultPlayerModel);
     }
   } catch {
-    ply = base64ToBytes(CardAssets.defaultPlayerModel);
+    bytes = base64ToBytes(CardAssets.defaultPlayerModel);
   }
 
   const width = 200 * S;
   const height = 240 * S;
-  const rgba = renderScene([{ model: parsePly(ply), yaw: 2.49 }], {
+  const rgba = renderScene([{ model: parseModel(bytes), yaw: 2.49 }], {
     width,
     height,
     // Tight head-and-shoulders framing: Discord scales the card down, so

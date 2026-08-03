@@ -30,3 +30,6 @@ yarn-error.log*
 
 # Playwright
 .playwright-mcp/
+
+# Claude Code
+.claude/worktrees/

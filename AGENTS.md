@@ -7,11 +7,11 @@ Operating rules for automated agents working in this repository.
 This project uses PlanetScale (`pscale` CLI). Targeting and safety rules for any
 agent running database commands here:
 
-| Setting  | Value        |
-|----------|--------------|
-| Org      | `runeprofile` |
+| Setting  | Value                   |
+| -------- | ----------------------- |
+| Org      | `runeprofile`           |
 | Database | `profiles` (PostgreSQL) |
-| Branch   | `main` (production) |
+| Branch   | `main` (production)     |
 
 ### Conventions
 

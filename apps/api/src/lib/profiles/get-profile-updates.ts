@@ -48,6 +48,9 @@ export type ProfileUpdates = {
   id: string;
   currentProfile: DiffProfile | null;
   forceResync: boolean;
+  // True when force resync was applied to items (requires a full clog payload).
+  // The forceResync flag is only consumed once this happens.
+  itemsForceResynced: boolean;
   username: string;
   pendingUsername: string | null;
   accountType: number;
@@ -89,6 +92,24 @@ export type ProfileUpdates = {
     oldXp: number;
   }>;
 };
+
+/**
+ * Minimum number of non-zero items required for a payload to be treated as a
+ * full collection log transmit. The plugin only knows the complete log after
+ * the player opens it in-game; autosync batches carry few or no items, so
+ * absence from a small payload means nothing.
+ */
+export const MINIMUM_FULL_UPDATE_ITEMS = 20;
+
+export function isFullItemPayload(
+  items: UpdateProfileInput["items"],
+): boolean {
+  let count = 0;
+  for (const quantity of Object.values(items)) {
+    if (quantity > 0) count++;
+  }
+  return count >= MINIMUM_FULL_UPDATE_ITEMS;
+}
 
 async function getProfileForDiff(
   db: Database,
@@ -197,13 +218,20 @@ export async function getProfileUpdates(
     }
   }
 
+  // Items can only be force resynced against a full clog payload — deleting
+  // stored items missing from a partial autosync batch would wipe the log.
+  const itemsForceResynced = forceResync && isFullItemPayload(input.items);
+
   if (forceResync) {
-    console.log(`Force resync enabled for account ID: ${input.id}`);
+    console.log(
+      `Force resync enabled for account ID: ${input.id} (items: ${itemsForceResynced})`,
+    );
   }
 
   return {
     id: input.id,
     forceResync,
+    itemsForceResynced,
     username: input.username,
     pendingUsername: null,
     accountType: input.accountType,
@@ -239,6 +267,7 @@ export async function getProfileUpdates(
     items: getItemUpdates({
       newData: input.items,
       oldData: diffProfile?.items || [],
+      forceResync: itemsForceResynced,
     }),
     quests: getQuestUpdates({
       newData: input.quests,
@@ -341,19 +370,27 @@ export function getCombatAchievementTierUpdates({
 export function getItemUpdates({
   newData,
   oldData,
+  forceResync,
 }: {
   newData: UpdateProfileInput["items"];
   oldData: DiffProfile["items"];
+  forceResync?: boolean;
 }): ProfileUpdates["items"] {
   const updates: ProfileUpdates["items"] = [];
 
   for (const itemId of COLLECTION_LOG_ITEM_IDS) {
-    const newQuantity = newData[itemId];
-    if (newQuantity === undefined || newQuantity === 0) {
+    const newQuantity = newData[itemId] ?? 0;
+    // Absence only means "not obtained" during a force resync, where the
+    // caller has verified the payload is a full clog transmit. A quantity of
+    // zero then emits a deletion for the stored item.
+    if (newQuantity === 0 && !forceResync) {
       continue;
     }
 
     const oldItem = oldData.find((item) => item.id === itemId);
+    if (newQuantity === 0 && !oldItem) {
+      continue;
+    }
     if (oldItem && oldItem.quantity === newQuantity) {
       continue;
     }
