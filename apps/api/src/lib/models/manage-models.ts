@@ -3,14 +3,22 @@
  */
 import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
 
+/** A model to store, with the content type to record alongside it. */
+export type ModelUpload = {
+  body: ReadableStream | ArrayBuffer | ArrayBufferView | string | Blob;
+  contentType: string;
+};
+
 export async function uploadPlayerModels(
   bucket: R2Bucket,
   username: string,
-  playerModel: ReadableStream | ArrayBuffer | ArrayBufferView | string | Blob,
-  petModel?: ReadableStream | ArrayBuffer | ArrayBufferView | string | Blob,
+  playerModel: ModelUpload,
+  petModel?: ModelUpload | null,
 ): Promise<void> {
   try {
-    await bucket.put(createPlayerModelKey(username), playerModel);
+    await bucket.put(createPlayerModelKey(username), playerModel.body, {
+      httpMetadata: { contentType: playerModel.contentType },
+    });
   } catch (error) {
     console.error("Failed to upload player model:", error);
     throw error;
@@ -18,7 +26,9 @@ export async function uploadPlayerModels(
 
   if (petModel) {
     try {
-      await bucket.put(createPetModelKey(username), petModel);
+      await bucket.put(createPetModelKey(username), petModel.body, {
+        httpMetadata: { contentType: petModel.contentType },
+      });
     } catch (error) {
       console.error("Failed to upload pet model:", error);
       throw error;

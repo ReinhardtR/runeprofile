@@ -19,6 +19,7 @@ import {
   KeyRound,
   ListChecks,
   MessageSquare,
+  Shirt,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,6 +28,7 @@ import { usePathname } from "next/navigation";
 const items = [
   { title: "Home", url: "/", icon: Home },
   { title: "Accounts", url: "/accounts", icon: Users },
+  { title: "Models", url: "/models", icon: Shirt },
   { title: "Pending Names", url: "/pending-names", icon: Hourglass },
   { title: "API Keys", url: "/api-keys", icon: KeyRound },
   { title: "Dup Activities", url: "/dup-activities", icon: ListChecks },

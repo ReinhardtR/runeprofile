@@ -107,9 +107,18 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.0
         version: 1.2.14(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-three/drei':
+        specifier: ^10.1.2
+        version: 10.7.7(@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.174.0))(@types/react@19.2.17)(@types/three@0.174.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.174.0)
+      '@react-three/fiber':
+        specifier: ^9.1.0
+        version: 9.6.1(@types/react@19.2.17)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.174.0)
       '@runeprofile/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@runeprofile/model-renderer':
+        specifier: workspace:*
+        version: link:../../packages/model-renderer
       '@runeprofile/runescape':
         specifier: workspace:*
         version: link:../../packages/runescape
@@ -176,6 +185,9 @@ importers:
       tailwind-merge:
         specifier: ^3.0.2
         version: 3.6.0
+      three:
+        specifier: ^0.174.0
+        version: 0.174.0
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -198,6 +210,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.17)
+      '@types/three':
+        specifier: ^0.174.0
+        version: 0.174.0
       eslint:
         specifier: ^9
         version: 9.39.5(jiti@2.7.0)
@@ -316,6 +331,9 @@ importers:
       '@react-three/fiber':
         specifier: ^9.1.0
         version: 9.6.1(@types/react@19.2.17)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.174.0)
+      '@runeprofile/model-renderer':
+        specifier: workspace:*
+        version: link:../../packages/model-renderer
       '@runeprofile/runescape':
         specifier: workspace:*
         version: link:../../packages/runescape
@@ -453,6 +471,16 @@ importers:
       wrangler:
         specifier: ^4.59.1
         version: 4.113.0(@cloudflare/workers-types@5.20260723.1)
+
+  packages/model-renderer:
+    dependencies:
+      three:
+        specifier: ^0.174.0
+        version: 0.174.0
+    devDependencies:
+      '@types/three':
+        specifier: ^0.174.0
+        version: 0.174.0
 
   packages/runescape:
     dependencies:

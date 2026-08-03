@@ -6,6 +6,7 @@ import { accounts, drizzle, lower } from "@runeprofile/db";
 import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
 
 import { sendActivityMessages } from "~/internal/discord/messages/send";
+import { modelsRouter } from "~/internal/routes/models";
 import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { deleteActivity } from "~/lib/activity-log/delete-activity";
@@ -16,13 +17,11 @@ import {
   RuneProfileFailedToUploadFileError,
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
-import { newRouter, r2FileToBase64 } from "~/lib/helpers";
+import { newRouter } from "~/lib/helpers";
 import {
   detectItemDiscrepancies,
   storeItemDiscrepancy,
 } from "~/lib/item-discrepancies";
-import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
-import { uploadPlayerModels } from "~/lib/models/manage-models";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
 import {
   buildUpdatedDiffProfile,
@@ -446,92 +445,4 @@ export const profilesRouter = newRouter()
       return c.json({ message: "Profile deleted successfully" });
     },
   )
-  .post(
-    "/models",
-    validator(
-      "form",
-      z.object({
-        accountId: accountIdSchema,
-        model: z
-          .instanceof(File)
-          .refine(
-            (file) => file.size > 0 && file.size < 1024 * 1024,
-            "Invalid file size",
-          )
-          .refine((file) => file.name.endsWith(".ply"), "Invalid file type"),
-        petModel: z
-          .instanceof(File)
-          .refine(
-            (file) => file.size > 0 && file.size < 1024 * 1024,
-            "Invalid file size",
-          )
-          .refine((file) => file.name.endsWith(".ply"), "Invalid file type")
-          .optional(),
-      }),
-    ),
-    async (c) => {
-      const db = drizzle(c.env.HYPERDRIVE);
-      const bucket = c.env.BUCKET;
-      const { accountId, model, petModel } = c.req.valid("form");
-
-      const account = await db.query.accounts.findFirst({
-        where: eq(accounts.id, accountId),
-        columns: { username: true },
-      });
-
-      if (!account) {
-        throw RuneProfileAccountNotFoundError;
-      }
-
-      try {
-        await uploadPlayerModels(
-          bucket,
-          account.username,
-          model.stream(),
-          petModel?.stream(),
-        );
-      } catch (error) {
-        throw RuneProfileFailedToUploadFileError;
-      }
-
-      return c.json({ message: "Model updated successfully" });
-    },
-  )
-  .get(
-    "/models/:username",
-    validator(
-      "param",
-      z.object({ username: usernameSchema.transform((v) => v.toLowerCase()) }),
-    ),
-    validator("query", z.object({ pet: z.coerce.boolean() })),
-    cache({
-      cacheName: "profile-model",
-      cacheControl: "public, max-age=0, s-maxage=60",
-    }),
-    async (c) => {
-      const bucket = c.env.BUCKET;
-      const { username } = c.req.valid("param");
-      const { pet: includePet } = c.req.valid("query");
-
-      const [playerFile, petFile] = await Promise.all([
-        bucket.get(createPlayerModelKey(username)),
-        includePet
-          ? bucket.get(createPetModelKey(username))
-          : Promise.resolve(null),
-      ]);
-
-      if (!playerFile) {
-        throw RuneProfileFileNotFoundError;
-      }
-
-      const [playerBase64, petBase64] = await Promise.all([
-        r2FileToBase64(playerFile),
-        petFile ? r2FileToBase64(petFile) : Promise.resolve(null),
-      ]);
-
-      return c.json({
-        playerModelBase64: playerBase64,
-        petModelBase64: petBase64,
-      });
-    },
-  );
+  .route("/models", modelsRouter);
