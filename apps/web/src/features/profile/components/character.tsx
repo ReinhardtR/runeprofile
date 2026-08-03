@@ -9,6 +9,11 @@ import React from "react";
 import { Euler, Object3D } from "three";
 import { CanvasTexture } from "three";
 
+import {
+  ModelAnimator,
+  disposeModel,
+  loadModel,
+} from "@runeprofile/model-renderer";
 import { AccountType } from "@runeprofile/runescape";
 
 import { Group, getProfileModel, getProfilePetModel } from "~/core/api";
@@ -27,12 +32,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
-import {
-  ModelAnimator,
-  disposeModel,
-  loadModel,
-} from "@runeprofile/model-renderer";
-
 import { loadDefaultModel } from "~/shared/model/default-model";
 import { cn, formatDate, formatRelativeTime } from "~/shared/utils";
 
@@ -434,9 +433,23 @@ function Model3D({
       />
 
       {shadowPosition && (
-        <mesh rotation-x={-Math.PI / 2} position={shadowPosition} scale={1.4}>
+        // Drawn before the models and without writing depth. It is a soft decal
+        // on the ground, and a transparent surface that writes depth discards
+        // whatever translucent geometry happens to be drawn after it - which for
+        // a pet standing on its own glow meant the glow vanishing at whichever
+        // angles put the disc first in three's transparent ordering.
+        <mesh
+          renderOrder={-1}
+          rotation-x={-Math.PI / 2}
+          position={shadowPosition}
+          scale={1.4}
+        >
           <circleGeometry args={[1, 32]} />
-          <meshBasicMaterial map={shadowTexture()} transparent />
+          <meshBasicMaterial
+            map={shadowTexture()}
+            transparent
+            depthWrite={false}
+          />
         </mesh>
       )}
     </>
