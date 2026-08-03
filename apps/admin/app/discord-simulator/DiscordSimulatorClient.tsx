@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Send } from "lucide-react";
+import { Eye, Loader2, Search, Send, X } from "lucide-react";
 import { useCallback, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ import {
 
 import {
   getRecentActivities,
+  previewDiscordCard,
   searchAccountsForSimulator,
   sendDiscordEmbeds,
 } from "./actions";
@@ -191,6 +192,30 @@ export function DiscordSimulatorClient({
 
   // ── Shared ──
   const [isSending, startSendTransition] = useTransition();
+  const [isPreviewing, startPreviewTransition] = useTransition();
+  const [preview, setPreview] = useState<{ src: string; label: string } | null>(
+    null,
+  );
+
+  const handlePreview = useCallback(
+    (activity: ActivityEvent, label: string, rsn?: string, type?: number) => {
+      startPreviewTransition(async () => {
+        try {
+          const src = await previewDiscordCard({
+            activity,
+            rsn: rsn ?? (manualRsn || "TestPlayer"),
+            accountType: type ?? Number(manualAccountType),
+          });
+          setPreview({ src, label });
+        } catch (err) {
+          toast.error(
+            err instanceof Error ? err.message : "Failed to render preview",
+          );
+        }
+      });
+    },
+    [manualRsn, manualAccountType],
+  );
 
   // ── Handlers ──
   const handleSearch = useCallback(() => {
@@ -447,6 +472,31 @@ export function DiscordSimulatorClient({
                     </Button>
                   )}
                   <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const first = accountActivities.find((a) =>
+                        selectedActivityIds.has(a.id),
+                      );
+                      if (!first || !selectedAccount) return;
+                      handlePreview(
+                        { type: first.type, data: first.data } as ActivityEvent,
+                        getActivityLabel(first),
+                        selectedAccount.username,
+                        selectedAccount.accountType,
+                      );
+                    }}
+                    disabled={isPreviewing || selectedActivityIds.size === 0}
+                  >
+                    {isPreviewing ? (
+                      <Loader2 className="size-4 animate-spin mr-1" />
+                    ) : (
+                      <Eye className="size-4 mr-1" />
+                    )}
+                    Preview
+                  </Button>
+                  <Button
                     size="sm"
                     onClick={handleSendFromAccount}
                     disabled={
@@ -607,23 +657,79 @@ export function DiscordSimulatorClient({
 
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
               {PRESET_ACTIVITIES.map((preset) => (
-                <Button
-                  key={preset.label}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="justify-start font-normal"
-                  onClick={() => handleSendManual(preset.activity)}
-                  disabled={isSending || !channelId.trim()}
-                >
-                  <Send className="size-3.5 mr-2 shrink-0 text-muted-foreground" />
-                  <span className="truncate">{preset.label}</span>
-                </Button>
+                <div key={preset.label} className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 justify-start font-normal min-w-0"
+                    onClick={() => handleSendManual(preset.activity)}
+                    disabled={isSending || !channelId.trim()}
+                  >
+                    <Send className="size-3.5 mr-2 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{preset.label}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="px-2 shrink-0"
+                    title={`Preview ${preset.label}`}
+                    onClick={() => handlePreview(preset.activity, preset.label)}
+                    disabled={isPreviewing}
+                  >
+                    <Eye className="size-3.5 text-muted-foreground" />
+                  </Button>
+                </div>
               ))}
             </div>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* ── Card preview ─────────────────────────────────────────── */}
+      {(preview || isPreviewing) && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium">
+              Card preview
+              {preview && (
+                <span className="text-muted-foreground font-normal">
+                  {" "}
+                  — {preview.label}
+                </span>
+              )}
+            </h3>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="px-2"
+              onClick={() => setPreview(null)}
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+          {isPreviewing ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            preview && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview.src}
+                alt={`Discord card preview: ${preview.label}`}
+                className="w-full max-w-2xl rounded-md border"
+              />
+            )
+          )}
+          <p className="text-xs text-muted-foreground">
+            Rendered by the same pipeline that posts to Discord. Discord shows
+            it at roughly this size inside an embed.
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

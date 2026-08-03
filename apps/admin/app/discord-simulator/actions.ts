@@ -88,3 +88,44 @@ export async function sendDiscordEmbeds(params: {
 
   return res.json() as Promise<{ sent: number }>;
 }
+
+// ── Preview a card without sending it ───────────────────────────────────
+
+/**
+ * Renders the card image exactly as the send path would and returns it as
+ * a data URL for display in the simulator.
+ */
+export async function previewDiscordCard(params: {
+  activity: ActivityEvent;
+  rsn: string;
+  accountType?: number;
+}) {
+  await requireAdmin();
+
+  const apiUrl = process.env.API_URL;
+  if (!apiUrl) {
+    throw new Error(
+      "API_URL is not configured. Add it to your environment variables (e.g. http://localhost:8787).",
+    );
+  }
+
+  const res = await fetch(`${apiUrl}/simulate/discord/card-preview`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      activities: [params.activity],
+      rsn: params.rsn,
+      accountType: params.accountType,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const message =
+      (body as { message?: string })?.message ?? `API error (${res.status})`;
+    throw new Error(message);
+  }
+
+  const bytes = Buffer.from(await res.arrayBuffer());
+  return `data:image/png;base64,${bytes.toString("base64")}`;
+}
