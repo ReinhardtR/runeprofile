@@ -34,13 +34,18 @@ Database access in production goes through the `HYPERDRIVE` binding (same config
    "ACCESS_TEAM_DOMAIN": "<team>.cloudflareaccess.com",
    "ACCESS_APP_AUD": "<the AUD tag>",
    ```
-6. **Deploy**:
+6. **Deploy**: push to `main` — Workers Builds deploys the admin worker
+   automatically (`npx opennextjs-cloudflare build` then `npx wrangler deploy`,
+   rooted at `/apps/admin`). The deploy registers the `admin.runeprofile.com`
+   custom domain and creates its DNS record automatically.
+
+   To deploy by hand instead — recovering from a broken build, say:
+
    ```sh
    npx wrangler login          # if not already logged in
    cd apps/admin
-   pnpm deploy
+   npx opennextjs-cloudflare build && npx opennextjs-cloudflare deploy
    ```
-   The deploy registers the `admin.runeprofile.com` custom domain and creates its DNS record automatically.
 
 ## Verify after deploying
 
