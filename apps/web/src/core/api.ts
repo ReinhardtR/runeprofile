@@ -47,19 +47,35 @@ export async function getProfile(params: { username: string }) {
   return await getResponseData(response);
 }
 
-export async function getProfileModels(params: {
-  username: string;
-  includePet: boolean;
-}) {
+/**
+ * Fetches a model as bytes.
+ *
+ * Not JSON: the API streams the file, so there is no base64 to inflate it by a
+ * third and nothing to parse. The format is decided from the leading bytes when
+ * the model is loaded, not from the content type.
+ */
+export async function getProfileModel(params: { username: string }) {
   const response = await api.profiles.models[":username"].$get({
-    param: {
-      username: params.username,
-    },
-    query: {
-      pet: String(params.includePet),
-    },
+    param: { username: params.username },
   });
-  return await getResponseData(response);
+  if (!response.ok) {
+    throw new Error(`Could not load model for ${params.username}`);
+  }
+  return await response.arrayBuffer();
+}
+
+/** Returns null when the character has no pet out, which the API answers 204. */
+export async function getProfilePetModel(params: { username: string }) {
+  const response = await api.profiles.models[":username"].pet.$get({
+    param: { username: params.username },
+  });
+  if (response.status === 204) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Could not load pet model for ${params.username}`);
+  }
+  return await response.arrayBuffer();
 }
 
 export async function getHiscoresData(params: {
