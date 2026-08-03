@@ -14,9 +14,9 @@
     "dev:api-client": "tsc -p tsconfig.build.json --watch",
     "discord:register": "tsx --env-file=.dev.vars src/internal/discord/register.ts",
     "discord:register:prod": "tsx --env-file=.env src/internal/discord/register.ts",
+    "discord:register:ci": "tsx src/internal/discord/register.ts",
     "ngrok": "ngrok http 8787",
     "build": "tsc -p tsconfig.build.json",
-    "deploy": "pnpm run typecheck && pnpm run discord:register:prod && wrangler deploy --minify",
     "test": "vitest --ui --watch"
   },
   "dependencies": {
