@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { Download, RotateCw, Search } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Download, FolderOpen, RotateCw, Search } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ModelCanvas, type ModelStats } from "./ModelCanvas";
 import { searchAccountsForModels } from "./actions";
@@ -17,7 +17,10 @@ import { searchAccountsForModels } from "./actions";
 type Account = Awaited<ReturnType<typeof searchAccountsForModels>>[number];
 
 type Loaded = {
-  username: string;
+  /** What to show in the toolbar. */
+  label: string;
+  /** Set when this came from an account, which is also the R2 download path. */
+  account?: string;
   player: ArrayBuffer;
   pet: ArrayBuffer | null;
 };
@@ -38,6 +41,8 @@ export function ModelViewerClient() {
 
   const [showPet, setShowPet] = useState(true);
   const [spin, setSpin] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   // Debounced so typing a username does not fire a query per keystroke.
   useEffect(() => {
@@ -85,7 +90,8 @@ export function ModelViewerClient() {
         }
 
         setLoaded({
-          username: selected.username,
+          label: selected.username,
+          account: selected.username,
           player: await player.arrayBuffer(),
           // 204 means the character had no pet out when they last synced.
           pet: pet.status === 200 ? await pet.arrayBuffer() : null,
@@ -107,6 +113,32 @@ export function ModelViewerClient() {
     (next: { player: ModelStats; pet: ModelStats | null }) => setStats(next),
     [],
   );
+
+  /**
+   * Shows a model straight off disk - a ::rpmodel dump, or a file someone sent
+   * over - without it having to be synced to a profile first.
+   */
+  const openFile = useCallback(async (file: File) => {
+    setSelected(null);
+    setError(null);
+    setStats(null);
+    setLoaded(null);
+
+    if (!/\.(glb|ply)$/i.test(file.name)) {
+      setError(`${file.name} is not a .glb or .ply file.`);
+      return;
+    }
+
+    try {
+      setLoaded({
+        label: file.name,
+        player: await file.arrayBuffer(),
+        pet: null,
+      });
+    } catch (cause) {
+      setError(String(cause));
+    }
+  }, []);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
@@ -153,6 +185,34 @@ export function ModelViewerClient() {
               )}
             </div>
           )}
+
+          <Separator />
+
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".glb,.ply"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              // Reset first, so picking the same file twice still fires.
+              event.target.value = "";
+              if (file) openFile(file);
+            }}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => fileInput.current?.click()}
+          >
+            <FolderOpen className="size-3.5" />
+            Open a file
+          </Button>
+          <p className="text-xs text-neutral-500">
+            A <code>::rpmodel</code> dump or any .glb/.ply, without syncing it
+            first. Drag onto the canvas works too.
+          </p>
         </Card>
 
         {stats && (
@@ -170,10 +230,25 @@ export function ModelViewerClient() {
         )}
       </div>
 
-      <Card className="flex flex-col overflow-hidden min-h-[620px] p-0">
+      <Card
+        className={`flex flex-col overflow-hidden min-h-[620px] p-0 ${
+          dragging ? "ring-2 ring-primary" : ""
+        }`}
+        onDragOver={(event) => {
+          event.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragging(false);
+          const file = event.dataTransfer.files?.[0];
+          if (file) openFile(file);
+        }}
+      >
         {loaded && (
           <div className="flex flex-wrap items-center gap-4 border-b p-3">
-            <span className="font-medium">{loaded.username}</span>
+            <span className="font-medium">{loaded.label}</span>
             {loaded.pet && (
               <label className="flex items-center gap-2 text-sm">
                 <Switch checked={showPet} onCheckedChange={setShowPet} />
@@ -185,28 +260,32 @@ export function ModelViewerClient() {
               <RotateCw className="size-3.5" />
               Spin
             </label>
-            <Button asChild size="sm" variant="outline" className="ml-auto">
-              <a
-                href={`/api/models/${encodeURIComponent(loaded.username)}`}
-                download={`${loaded.username}.${stats?.player.format ?? "glb"}`}
-              >
-                <Download className="size-3.5" />
-                Download
-              </a>
-            </Button>
+            {loaded.account && (
+              <Button asChild size="sm" variant="outline" className="ml-auto">
+                <a
+                  href={`/api/models/${encodeURIComponent(loaded.account)}`}
+                  download={`${loaded.account}.${stats?.player.format ?? "glb"}`}
+                >
+                  <Download className="size-3.5" />
+                  Download
+                </a>
+              </Button>
+            )}
           </div>
         )}
 
         <div className="relative flex-1">
-          {!selected && (
-            <Placeholder>Search for an account to view its model.</Placeholder>
+          {!selected && !loaded && !error && (
+            <Placeholder>
+              Search for an account, or drop a .glb/.ply file here.
+            </Placeholder>
           )}
           {selected && loading && <Placeholder>Loading model…</Placeholder>}
           {error && <Placeholder tone="error">{error}</Placeholder>}
           {loaded && !error && (
             <ModelCanvas
               // Remount on a new model: the canvas builds its scene on mount.
-              key={`${loaded.username}-${showPet}`}
+              key={`${loaded.label}-${showPet}`}
               player={loaded.player}
               pet={showPet ? loaded.pet : null}
               spin={spin}
