@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  MAX_ITEM_DELTA,
   getAchievementDiaryTierUpdates,
   getCombatAchievementTierUpdates,
+  getItemDeltaUpdates,
   getItemUpdates,
   getQuestUpdates,
   getSkillUpdates,
@@ -415,6 +417,31 @@ describe("ITEMS", () => {
 
   test("no progress", () => {
     expect(getItemUpdates({ newData: { 1249: 0 }, oldData: [] })).toEqual([]);
+  });
+
+  test("partial payload cannot lower a quantity", () => {
+    expect(
+      getItemUpdates({
+        newData: { 2366: 1 },
+        oldData: [{ id: 2366, quantity: 5 }],
+      }),
+    ).toEqual([]);
+  });
+
+  test("full payload lowers a quantity", () => {
+    expect(
+      getItemUpdates({
+        newData: { 2366: 1 },
+        oldData: [{ id: 2366, quantity: 5 }],
+        isFullPayload: true,
+      }),
+    ).toEqual([
+      {
+        id: 2366,
+        quantity: 1,
+        oldQuantity: 5,
+      },
+    ]);
   });
 
   test("progress", () => {
@@ -882,6 +909,55 @@ describe("SKILLS", () => {
           { name: "Strength", xp: 1 },
           { name: "Defence", xp: 1 },
         ],
+      }),
+    ).toEqual([]);
+  });
+});
+
+describe("ITEM DELTAS", () => {
+  test("no deltas", () => {
+    expect(getItemDeltaUpdates({ newDeltas: undefined, items: {} })).toEqual(
+      [],
+    );
+  });
+
+  test("records an increase", () => {
+    expect(
+      getItemDeltaUpdates({ newDeltas: { 1249: 1, 2366: 3 }, items: {} }),
+    ).toEqual([
+      { id: 1249, delta: 1 },
+      { id: 2366, delta: 3 },
+    ]);
+  });
+
+  test("collection log payload wins over a delta", () => {
+    expect(
+      getItemDeltaUpdates({ newDeltas: { 1249: 2 }, items: { 1249: 5 } }),
+    ).toEqual([]);
+  });
+
+  test("ignores items outside the collection log", () => {
+    expect(getItemDeltaUpdates({ newDeltas: { 0: 1 }, items: {} })).toEqual([]);
+  });
+
+  test("ignores non-positive deltas", () => {
+    expect(
+      getItemDeltaUpdates({ newDeltas: { 1249: 0, 2366: -3 }, items: {} }),
+    ).toEqual([]);
+  });
+
+  test("clamps oversized deltas", () => {
+    expect(
+      getItemDeltaUpdates({ newDeltas: { 1249: 999_999 }, items: {} }),
+    ).toEqual([{ id: 1249, delta: MAX_ITEM_DELTA }]);
+  });
+
+  test("ignored during a force resync", () => {
+    expect(
+      getItemDeltaUpdates({
+        newDeltas: { 1249: 1 },
+        items: {},
+        forceResync: true,
       }),
     ).toEqual([]);
   });

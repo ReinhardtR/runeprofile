@@ -38,6 +38,9 @@ export type UpdateProfileInput = {
   combatAchievementVarps?: Record<number, number>;
   // id -> quantity
   items: Record<number, number>;
+  // id -> quantity obtained since the last sync, reported by the in-game loot
+  // feed. Applied on top of the stored quantity instead of replacing it.
+  itemDeltas?: Record<number, number>;
   // id -> state
   quests: Record<number, number>;
   // name -> xp
@@ -81,6 +84,12 @@ export type ProfileUpdates = {
     quantity: number;
     oldQuantity: number;
   }>;
+  // Increments applied to already-obtained items, kept separate from `items`
+  // because the resulting quantity is only known once the row is updated.
+  itemDeltas: Array<{
+    id: number;
+    delta: number;
+  }>;
   quests: Array<{
     id: number;
     state: number;
@@ -100,6 +109,14 @@ export type ProfileUpdates = {
  * absence from a small payload means nothing.
  */
 export const MINIMUM_FULL_UPDATE_ITEMS = 20;
+
+/**
+ * Largest increase a single sync may apply to one item. A well behaved client
+ * reports a handful per sync; anything beyond this is a bug or a replay.
+ */
+export const MAX_ITEM_DELTA = 1000;
+
+const COLLECTION_LOG_ITEM_ID_SET = new Set(COLLECTION_LOG_ITEM_IDS);
 
 export function isFullItemPayload(
   items: UpdateProfileInput["items"],
@@ -220,7 +237,8 @@ export async function getProfileUpdates(
 
   // Items can only be force resynced against a full clog payload — deleting
   // stored items missing from a partial autosync batch would wipe the log.
-  const itemsForceResynced = forceResync && isFullItemPayload(input.items);
+  const fullItemPayload = isFullItemPayload(input.items);
+  const itemsForceResynced = forceResync && fullItemPayload;
 
   if (forceResync) {
     console.log(
@@ -268,6 +286,12 @@ export async function getProfileUpdates(
       newData: input.items,
       oldData: diffProfile?.items || [],
       forceResync: itemsForceResynced,
+      isFullPayload: fullItemPayload,
+    }),
+    itemDeltas: getItemDeltaUpdates({
+      newDeltas: input.itemDeltas,
+      items: input.items,
+      forceResync,
     }),
     quests: getQuestUpdates({
       newData: input.quests,
@@ -371,10 +395,13 @@ export function getItemUpdates({
   newData,
   oldData,
   forceResync,
+  isFullPayload,
 }: {
   newData: UpdateProfileInput["items"];
   oldData: DiffProfile["items"];
   forceResync?: boolean;
+  /** True when the payload is a complete clog transmit (see isFullItemPayload). */
+  isFullPayload?: boolean;
 }): ProfileUpdates["items"] {
   const updates: ProfileUpdates["items"] = [];
 
@@ -394,12 +421,73 @@ export function getItemUpdates({
     if (oldItem && oldItem.quantity === newQuantity) {
       continue;
     }
+    // Only a complete clog transmit is authoritative enough to lower a count.
+    // A partial autosync reporting a stale quantity would otherwise undo the
+    // increases applied from the loot feed.
+    if (
+      oldItem &&
+      oldItem.quantity > newQuantity &&
+      !forceResync &&
+      !isFullPayload
+    ) {
+      continue;
+    }
 
     updates.push({
       id: itemId,
       quantity: newQuantity,
       oldQuantity: oldItem?.quantity || 0,
     });
+  }
+
+  return updates;
+}
+
+/**
+ * Turns reported quantity increases into updates for items the profile already
+ * knows were obtained.
+ *
+ * The loot feed proves an item was looted, not that the collection log credited
+ * it, so deltas are never allowed to create a row — first obtains stay the job
+ * of the in-game collection log notification. Being wrong is therefore limited
+ * to an inflated count on an already obtained item, which the next full clog
+ * transmit corrects.
+ */
+export function getItemDeltaUpdates({
+  newDeltas,
+  items,
+  forceResync,
+}: {
+  newDeltas: UpdateProfileInput["itemDeltas"];
+  items: UpdateProfileInput["items"];
+  forceResync?: boolean;
+}): ProfileUpdates["itemDeltas"] {
+  // A force resync replaces quantities outright, so deltas would fight it
+  if (!newDeltas || forceResync) {
+    return [];
+  }
+
+  const updates: ProfileUpdates["itemDeltas"] = [];
+
+  for (const [rawId, rawDelta] of Object.entries(newDeltas)) {
+    const id = Number(rawId);
+    if (!COLLECTION_LOG_ITEM_ID_SET.has(id)) {
+      continue;
+    }
+    // The payload's own quantity comes from the collection log itself, so it
+    // wins over anything inferred from loot. A well behaved client resolves this
+    // before sending and never puts an item in both, so this is a safety net.
+    if (items[id] !== undefined) {
+      console.log(`Ignoring delta for item ${id}, payload carries a quantity`);
+      continue;
+    }
+
+    const delta = Math.floor(rawDelta);
+    if (!Number.isFinite(delta) || delta < 1) {
+      continue;
+    }
+
+    updates.push({ id, delta: Math.min(delta, MAX_ITEM_DELTA) });
   }
 
   return updates;

@@ -242,6 +242,7 @@ export const profilesRouter = newRouter()
           .record(z.coerce.number(), z.number())
           .optional(),
         items: z.record(z.coerce.number(), z.number()),
+        itemDeltas: z.record(z.coerce.number(), z.number()).optional(),
         quests: z.record(z.coerce.number(), z.number()),
         skills: z.record(z.string(), z.number()),
       }),
@@ -271,13 +272,19 @@ export const profilesRouter = newRouter()
         const activities = updates.forceResync
           ? []
           : checkActivityEvents(updates);
-        const { updatedAt } = await updateProfile(
+        const { updatedAt, appliedItemDeltas } = await updateProfile(
           db,
           bucket,
           updates,
           activities,
         );
-        return { updates, resolution, activities, updatedAt };
+        return {
+          updates,
+          resolution,
+          activities,
+          updatedAt,
+          appliedItemDeltas,
+        };
       };
 
       try {
@@ -292,7 +299,20 @@ export const profilesRouter = newRouter()
           await deleteDiffProfileCache(kv, data.id);
           result = await runUpdate();
         }
-        const { updates, resolution, activities, updatedAt } = result;
+        const { updates, resolution, activities, updatedAt, appliedItemDeltas } =
+          result;
+
+        // A delta only applies to an item already known to be obtained, so a
+        // shortfall means the loot feed saw a tracked item the collection log
+        // never credited — the measure of how far it can be trusted.
+        if (appliedItemDeltas.length < updates.itemDeltas.length) {
+          const unapplied = updates.itemDeltas
+            .filter((d) => !appliedItemDeltas.some((a) => a.id === d.id))
+            .map((d) => d.id);
+          console.log(
+            `Item deltas not applied for account ID ${data.id}, not obtained: ${unapplied.join(", ")}`,
+          );
+        }
         created = updates.currentProfile === null;
 
         // Grant the name this profile moved off of to any row waiting on it
@@ -313,6 +333,9 @@ export const profilesRouter = newRouter()
             buildUpdatedDiffProfile(updates.currentProfile, updatedAt, {
               ...updates,
               combatAchievementVarps: updates.combatAchievementVarps.newVarps,
+              // Delta rows carry their post-update quantity, which the cache
+              // needs to stay consistent with the database
+              items: [...updates.items, ...appliedItemDeltas],
             }),
           ).catch((err) => {
             console.error("Failed to update diff cache:", err);

@@ -1,4 +1,4 @@
-import { InferInsertModel, and, eq, inArray, sql } from "drizzle-orm";
+import { InferInsertModel, and, eq, gt, inArray, sql } from "drizzle-orm";
 
 import {
   Database,
@@ -24,7 +24,11 @@ export async function updateProfile(
   bucket: R2Bucket,
   updates: ProfileUpdates,
   activityEvents: ActivityEvent[],
-): Promise<{ updatedAt: string }> {
+): Promise<{
+  updatedAt: string;
+  /** Resulting quantities of the items a delta was applied to. */
+  appliedItemDeltas: Array<{ id: number; quantity: number }>;
+}> {
   const accountId = updates.id;
 
   if (!updates.currentProfile) {
@@ -65,6 +69,20 @@ export async function updateProfile(
   const deletedItemIds = updates.items
     .filter((item) => item.quantity === 0)
     .map((item) => item.id);
+
+  // Grouped by increment so the common "+1 to several items" case is a single
+  // statement instead of one per item
+  const itemIdsByDelta = new Map<number, number[]>();
+  for (const { id, delta } of updates.itemDeltas) {
+    const ids = itemIdsByDelta.get(delta);
+    if (ids) {
+      ids.push(id);
+    } else {
+      itemIdsByDelta.set(delta, [id]);
+    }
+  }
+
+  const appliedItemDeltas: Array<{ id: number; quantity: number }> = [];
 
   const questsValues: Array<InferInsertModel<typeof quests>> =
     updates.quests.map((quest) => ({
@@ -189,6 +207,26 @@ export async function updateProfile(
               ),
           ]
         : []),
+      // Quantity increases from the loot feed. `quantity > 0` restricts these
+      // to items already known to be obtained: a delta never inserts a row and
+      // can never drive a count to zero, so it cannot fabricate an obtained
+      // item or re-trigger a new item activity.
+      ...[...itemIdsByDelta].map(([delta, ids]) =>
+        tx
+          .update(items)
+          .set({ quantity: sql`${items.quantity} + ${delta}` })
+          .where(
+            and(
+              eq(items.accountId, accountId),
+              inArray(items.id, ids),
+              gt(items.quantity, 0),
+            ),
+          )
+          .returning({ id: items.id, quantity: items.quantity })
+          .then((rows) => {
+            appliedItemDeltas.push(...rows);
+          }),
+      ),
       withValues(questsValues, (values) =>
         tx
           .insert(quests)
@@ -232,5 +270,8 @@ export async function updateProfile(
     }
   }
 
-  return { updatedAt: resultUpdatedAt ?? new Date().toISOString() };
+  return {
+    updatedAt: resultUpdatedAt ?? new Date().toISOString(),
+    appliedItemDeltas,
+  };
 }

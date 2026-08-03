@@ -1,10 +1,18 @@
 import {
+  COLLECTION_LOG_ITEM_IDS,
   COLLECTION_LOG_TABS,
   COMBAT_ACHIEVEMENT_VARPS,
   QUESTS,
   SPECIAL_VALUABLE_DROPS,
   ValuableDropThreshold,
 } from "@runeprofile/runescape";
+
+/**
+ * Kill switch for the plugin reporting collection log quantity increases from
+ * the in-game loot feed. Deploying this as false stops clients sending deltas
+ * without needing a plugin release.
+ */
+const ITEM_QUANTITY_DELTAS_ENABLED = true;
 
 export type ManifestValuableDrop = {
   itemId: number;
@@ -28,6 +36,10 @@ export type Manifest = {
   valuableDropThreshold: number;
   /** Items with a fixed value used instead of their GE price. */
   specialValuableDrops: ManifestValuableDrop[];
+  /** Every item id tracked by the collection log. */
+  collectionLogItemIds: number[];
+  /** Whether clients should report collection log quantity increases. */
+  itemQuantityDeltasEnabled: boolean;
 };
 
 export function getManifest(): Manifest {
@@ -42,7 +54,9 @@ export function getManifest(): Manifest {
   return {
     // Bumped to 2 when special valuable drops + threshold were added.
     // Bumped to 3 when quest ids were added.
-    version: 3,
+    // Bumped to 4 when collection log item ids + the quantity delta kill switch
+    // were added.
+    version: 4,
     pages,
     combatAchievementVarps: [...COMBAT_ACHIEVEMENT_VARPS],
     questIds: QUESTS.map((quest) => quest.id),
@@ -51,5 +65,7 @@ export function getManifest(): Manifest {
       itemId,
       value,
     })),
+    collectionLogItemIds: COLLECTION_LOG_ITEM_IDS,
+    itemQuantityDeltasEnabled: ITEM_QUANTITY_DELTAS_ENABLED,
   };
 }
