@@ -12,6 +12,11 @@ import {
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
 
+import {
+  GAME_UNITS_PER_GLTF_UNIT,
+  type ModelFormat,
+  detectModelFormat,
+} from "./format";
 import { applyPriorityOffsets } from "./priority-offset";
 
 /**
@@ -30,7 +35,7 @@ import { applyPriorityOffsets } from "./priority-offset";
  * Both formats come back positioned and scaled identically, so callers do not
  * need to know which they got.
  */
-export type ModelFormat = "glb" | "ply";
+export type { ModelFormat } from "./format";
 
 export type LoadedModel = {
   object: Object3D;
@@ -41,35 +46,14 @@ const gltfLoader = new GLTFLoader();
 const plyLoader = new PLYLoader();
 const scratchColor = new Color();
 
-/** "glTF" - the first four bytes of every binary glTF file. */
-const GLB_MAGIC = 0x46546c67;
-
 export async function loadModel(buffer: ArrayBuffer): Promise<LoadedModel> {
-  const format = detectFormat(buffer);
+  const format = detectModelFormat(buffer);
 
   return {
     format,
     object: format === "glb" ? await loadGlb(buffer) : loadPly(buffer),
   };
 }
-
-function detectFormat(buffer: ArrayBuffer): ModelFormat {
-  if (buffer.byteLength >= 4) {
-    const magic = new DataView(buffer).getUint32(0, true);
-    if (magic === GLB_MAGIC) {
-      return "glb";
-    }
-  }
-  return "ply";
-}
-
-/**
- * How many game units the exporter puts in one glTF unit. The exporter scales
- * the root node by the reciprocal, keeping vertex positions exact small
- * integers; undoing it here hands callers raw game units, which is what the PLY
- * path has always given them.
- */
-const GAME_UNITS_PER_GLTF_UNIT = 128;
 
 async function loadGlb(buffer: ArrayBuffer): Promise<Object3D> {
   const gltf = await gltfLoader.parseAsync(buffer, "");

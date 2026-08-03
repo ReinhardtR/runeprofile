@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { renderModelToPng } from "@runeprofile/model-rasterizer";
+import { renderModelToPng } from "@runeprofile/model-renderer/rasterizer";
 import { SKILLS, getLevelFromXP } from "@runeprofile/runescape";
 
 import AccountTypeIcons from "~/core/assets/account-type-icons.json";

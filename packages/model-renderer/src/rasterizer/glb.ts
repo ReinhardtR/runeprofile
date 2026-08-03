@@ -1,3 +1,4 @@
+import { GAME_UNITS_PER_GLTF_UNIT, GLB_MAGIC } from "../format";
 import type { ParsedModel } from "./ply";
 
 /**
@@ -60,12 +61,8 @@ export function parseGlb(data: ArrayBuffer | Uint8Array): ParsedModel {
   };
 }
 
-const GLB_MAGIC = 0x46546c67; // "glTF"
 const CHUNK_JSON = 0x4e4f534a; // "JSON"
 const CHUNK_BIN = 0x004e4942; // "BIN\0"
-
-/** Game units per glTF unit — the exporter's root-node scale, undone. */
-const GAME_UNITS_PER_GLTF_UNIT = 128;
 
 /** Faces this transparent are dropped instead of drawn opaque. */
 const ALPHA_CUTOFF = 0.5;

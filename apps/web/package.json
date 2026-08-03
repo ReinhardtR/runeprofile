@@ -22,7 +22,6 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@react-three/drei": "^10.1.2",
     "@react-three/fiber": "^9.1.0",
-    "@runeprofile/model-rasterizer": "workspace:*",
     "@runeprofile/model-renderer": "workspace:*",
     "@runeprofile/runescape": "workspace:*",
     "@tailwindcss/vite": "^4.0.9",

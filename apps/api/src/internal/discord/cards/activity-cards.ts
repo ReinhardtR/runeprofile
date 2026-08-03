@@ -2,7 +2,7 @@ import {
   parseModel,
   renderScene,
   encodePng,
-} from "@runeprofile/model-rasterizer";
+} from "@runeprofile/model-renderer/rasterizer";
 import {
   AccountType,
   ActivityEvent,

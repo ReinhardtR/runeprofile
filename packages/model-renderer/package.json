@@ -11,6 +11,11 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts",
       "require": "./src/index.ts"
+    },
+    "./rasterizer": {
+      "types": "./src/rasterizer/index.ts",
+      "import": "./src/rasterizer/index.ts",
+      "require": "./src/rasterizer/index.ts"
     }
   },
   "dependencies": {
