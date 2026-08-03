@@ -47,13 +47,6 @@ export async function getProfile(params: { username: string }) {
   return await getResponseData(response);
 }
 
-/**
- * Fetches a model as bytes.
- *
- * Not JSON: the API streams the file, so there is no base64 to inflate it by a
- * third and nothing to parse. The format is decided from the leading bytes when
- * the model is loaded, not from the content type.
- */
 export async function getProfileModel(params: { username: string }) {
   const response = await api.profiles.models[":username"].$get({
     param: { username: params.username },
