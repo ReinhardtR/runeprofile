@@ -13,6 +13,7 @@ export default function NavItems() {
   const items = [
     { href: "/", label: "Home" },
     { href: "/accounts", label: "Accounts" },
+    { href: "/models", label: "Models" },
     { href: "/activities", label: "Activities" },
   ];
   return (

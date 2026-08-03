@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
+import { createPetModelKey, createPlayerModelKey } from "@/lib/model-keys";
 import { requireAdmin } from "@/lib/require-admin";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
@@ -48,12 +49,11 @@ export async function deleteAccount(id: string) {
   await invalidateDiffCache(id);
 
   // Delete player model files from R2 bucket
-  const username = account.username.toLowerCase();
   try {
     const { env } = getCloudflareContext();
     await Promise.all([
-      env.BUCKET.delete(username),
-      env.BUCKET.delete(`${username}-pet`),
+      env.BUCKET.delete(createPlayerModelKey(account.username)),
+      env.BUCKET.delete(createPetModelKey(account.username)),
     ]);
   } catch (error) {
     console.error("Failed to delete model files:", error);
@@ -105,15 +105,19 @@ export async function updateAccount(
 
   // Rename player model files if username changed
   if (updates.username && updates.username !== account.username) {
-    const oldKey = account.username.toLowerCase();
-    const newKey = updates.username.toLowerCase();
+    const oldKey = createPlayerModelKey(account.username);
+    const newKey = createPlayerModelKey(updates.username);
 
     if (oldKey !== newKey) {
       try {
         const bucket = getCloudflareContext().env.BUCKET;
         await Promise.all([
           renameFile(bucket, oldKey, newKey),
-          renameFile(bucket, `${oldKey}-pet`, `${newKey}-pet`),
+          renameFile(
+            bucket,
+            createPetModelKey(account.username),
+            createPetModelKey(updates.username),
+          ),
         ]);
       } catch {
         console.error("Failed to rename model files");
