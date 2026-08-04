@@ -83,6 +83,12 @@ jobs:
           OSRS_CACHE_DIR: ${{ steps.cache.outputs.cache_dir }}
         run: pnpm script:update-quests
 
+      - name: Update loot source and item name registries
+        if: steps.cache.outputs.new == 'true'
+        env:
+          OSRS_CACHE_DIR: ${{ steps.cache.outputs.cache_dir }}
+        run: pnpm script:update-loot-sources
+
       - name: Update sprite icons (hiscore, clan rank)
         if: steps.cache.outputs.new == 'true'
         env:
@@ -112,6 +118,7 @@ jobs:
             /tmp/clog-changes-summary.txt \
             /tmp/ca-changes-summary.txt \
             /tmp/quests-changes-summary.txt \
+            /tmp/loot-sources-changes-summary.txt \
             /tmp/sprite-icons-changes-summary.txt; do
             if [ -f "$f" ]; then
               cat "$f" >> "$body_file"

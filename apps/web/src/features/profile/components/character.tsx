@@ -208,6 +208,78 @@ const MODEL_ROTATION = new Euler(-1.55, 0, 0.1);
 const MODEL_SCALE = 0.028;
 
 /**
+ * How a group is arranged: a shallow arc with the ends set back, each member
+ * turned inward so the outer ones angle across the frame.
+ *
+ * Spacing closes up as the group grows, or five members run off the sides of a
+ * card that comfortably holds three.
+ */
+const GROUP_SPACING = (count: number) =>
+  count <= 3 ? 3 : count === 4 ? 2.7 : 2.4;
+
+function groupPlacement(index: number, count: number) {
+  const offset = index - (count - 1) / 2;
+  return {
+    position: [offset * GROUP_SPACING(count), 0, -Math.abs(offset) * 0.35] as [
+      number,
+      number,
+      number,
+    ],
+    /** Turn about the model's own up axis. */
+    spin: -offset * 0.38,
+  };
+}
+
+/**
+ * A fixed camera rather than one fitted to the group.
+ *
+ * Fitting sizes to total bounds, and a member mid-emote with geometry towering
+ * over their head inflates that box - so everyone shrinks and the row slides off
+ * centre because of what one person happens to be wearing. A character is about
+ * 5.6 units tall at MODEL_SCALE, so this shows roughly 8 units of height.
+ */
+const GROUP_CAMERA = {
+  position: [0, 0, 9.6] as [number, number, number],
+  fov: 45,
+};
+
+/** Drops the row so feet sit near the bottom of the card rather than the middle. */
+const GROUP_GROUND = -2.6;
+
+/** Where a member's name sits, above head height and the same for everyone. */
+const GROUP_LABEL_HEIGHT = 6.1;
+
+/**
+ * Where a member's label belongs on screen, in pixels within the canvas.
+ *
+ * Derived from the same placement and camera the models use, so the two cannot
+ * drift - the previous version positioned labels by a percentage of the
+ * container, which only ever lined up with an evenly spaced row.
+ *
+ * The labels stay in the DOM rather than going inside the canvas as drei <Html>:
+ * a Canvas is its own React reconciler root, so the router's context does not
+ * reach into it and <Link> throws.
+ *
+ * Perspective divide included, because the arc sets the outer members back and
+ * they would otherwise sit slightly wide of their character.
+ */
+function groupLabelOffset(
+  index: number,
+  count: number,
+  size: { width: number; height: number },
+) {
+  const { position } = groupPlacement(index, count);
+  const depth = GROUP_CAMERA.position[2] - position[2];
+  const pixelsPerUnit =
+    size.height / (2 * depth * Math.tan((GROUP_CAMERA.fov * Math.PI) / 360));
+
+  return {
+    left: size.width / 2 + position[0] * pixelsPerUnit,
+    top: size.height / 2 - (GROUP_GROUND + GROUP_LABEL_HEIGHT) * pixelsPerUnit,
+  };
+}
+
+/**
  * Caps the render resolution. Without this the canvas renders at the device
  * pixel ratio, which is 3 on many phones - nine times the pixels of a 1x render,
  * for a small model in a card where the difference is invisible.
@@ -476,6 +548,23 @@ function SceneAnimator({ animator }: { animator: ModelAnimator }) {
 
 function GroupCharactersScene({ members }: { members: Group["members"] }) {
   const [loading, setLoading] = useState(true);
+  const stage = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState<{ width: number; height: number } | null>(
+    null,
+  );
+
+  React.useEffect(() => {
+    const element = stage.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setSize({
+        width: entry!.contentRect.width,
+        height: entry!.contentRect.height,
+      }),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
   const [models, setModels] = useState<Map<string, Object3D | null>>(new Map());
 
   const animator = useModelAnimator();
@@ -529,80 +618,64 @@ function GroupCharactersScene({ members }: { members: Group["members"] }) {
   const memberCount = members.length;
 
   return (
-    <div className="relative w-full h-full">
-      {/* Labels positioned absolutely above the canvas */}
-      {!loading && (
-        <div className="absolute inset-x-0 top-4 z-20 flex justify-center gap-x-6">
-          {members.map((member, index) => {
-            const accountTypeIcon =
-              AccountTypeIcons[
-                member.accountType.key as keyof typeof AccountTypeIcons
-              ];
+    <div ref={stage} className="relative w-full h-full">
+      {!loading &&
+        size &&
+        members.map((member, index) => {
+          if (!models.get(member.username)) return null;
+          const { left, top } = groupLabelOffset(index, memberCount, size);
+          const accountTypeIcon =
+            AccountTypeIcons[
+              member.accountType.key as keyof typeof AccountTypeIcons
+            ];
 
-            // Calculate horizontal position to align with character model
-            // Each character takes up space proportional to memberCount
-            const centerOffset = index - (memberCount - 1) / 2;
-            const percentageOffset =
-              (centerOffset / Math.max(memberCount, 1)) * 40;
-
-            return (
-              <Link
-                key={member.username}
-                to="/$username"
-                params={{ username: member.username }}
-                style={{
-                  transform: `translateX(${percentageOffset}%)`,
-                }}
-                className="flex items-center space-x-1.5 font-runescape text-lg font-bold solid-text-shadow hover:underline cursor-pointer bg-background/80 px-3 py-1.5 rounded-md border border-border whitespace-nowrap"
-              >
-                {!!accountTypeIcon && (
-                  <GameIcon
-                    src={accountTypeIcon}
-                    alt={member.accountType.name}
-                    size={18}
-                    className="drop-shadow-solid"
-                  />
-                )}
-                <span className="text-osrs-white">{member.username}</span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+          return (
+            <Link
+              key={member.username}
+              to="/$username"
+              params={{ username: member.username }}
+              style={{ left, top, transform: "translate(-50%, -50%)" }}
+              className="absolute z-20 flex items-center space-x-1.5 font-runescape text-lg font-bold solid-text-shadow hover:underline cursor-pointer bg-background/80 px-3 py-1.5 rounded-md border border-border whitespace-nowrap"
+            >
+              {!!accountTypeIcon && (
+                <GameIcon
+                  src={accountTypeIcon}
+                  alt={member.accountType.name}
+                  size={18}
+                  className="drop-shadow-solid"
+                />
+              )}
+              <span className="text-osrs-white">{member.username}</span>
+            </Link>
+          );
+        })}
 
       {/* Left drawing continuously: these models do not spin, but a fire cape's
           texture still scrolls, and there is no pause control here. */}
-      <Canvas gl={{ alpha: true }} dpr={CANVAS_DPR} flat>
+      <Canvas camera={GROUP_CAMERA} gl={{ alpha: true }} dpr={CANVAS_DPR} flat>
         <SceneAnimator animator={animator} />
-        <Center>
-          {!loading && (
-            <group>
-              {members.map((member, index) => {
-                const object = models.get(member.username);
-                if (!object) return null;
+        {!loading && (
+          <group position={[0, GROUP_GROUND, 0]}>
+            {members.map((member, index) => {
+              const object = models.get(member.username);
+              if (!object) return null;
 
-                const xPosition = (index - (memberCount - 1) / 2) * 3;
-                const position = [xPosition, -3, 0] as const;
-                const shadowPosition: [number, number, number] = [
-                  xPosition,
-                  -3.01,
-                  0,
-                ];
+              const { position, spin } = groupPlacement(index, memberCount);
 
-                return (
+              return (
+                <group key={member.username} position={position}>
                   <Model3D
-                    key={member.username}
                     object={object}
-                    position={position}
-                    rotation={MODEL_ROTATION}
+                    position={[0, 0, 0]}
+                    rotation={new Euler(MODEL_ROTATION.x, 0, spin)}
                     scale={MODEL_SCALE}
-                    shadowPosition={shadowPosition}
+                    shadowPosition={[0, -0.01, 0]}
                   />
-                );
-              })}
-            </group>
-          )}
-        </Center>
+                </group>
+              );
+            })}
+          </group>
+        )}
       </Canvas>
     </div>
   );

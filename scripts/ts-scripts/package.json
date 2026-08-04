@@ -10,6 +10,8 @@
     "check-ca": "tsx check-combat-achievements.ts",
     "update-ca": "tsx check-combat-achievements.ts --write",
     "check-quests": "tsx check-quests.ts",
+    "check-loot-sources": "tsx check-loot-sources.ts",
+    "update-loot-sources": "tsx check-loot-sources.ts --write",
     "update-quests": "tsx check-quests.ts --write",
     "sync-item-icons": "tsx sync-item-icons.ts",
     "check-cache": "tsx check-cache-version.ts",
