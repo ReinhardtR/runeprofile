@@ -935,7 +935,7 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 637, tierId: 3, name: 'Maggot Squasher', description: 'Kill the Maggot King.', type: 'Kill Count', monster: 'Maggot King' },
   { index: 638, tierId: 4, name: 'Maggot Exterminator', description: 'Kill the Maggot King 25 times.', type: 'Kill Count', monster: 'Maggot King' },
   { index: 639, tierId: 5, name: 'Camping the King', description: 'Kill the Maggot King 12 times without leaving the arena.', type: 'Stamina', monster: 'Maggot King' },
-  { index: 640, tierId: 5, name: 'Maggot King Speed Chaser', description: 'Kill the Maggot King 5 times in 9 minutes.', type: 'Speed', monster: 'Maggot King' },
+  { index: 640, tierId: 5, name: 'Maggot King Speed Chaser', description: 'Complete the first 5 kills of the Maggot King within 9 minutes after entering the arena.', type: 'Speed', monster: 'Maggot King' },
   { index: 641, tierId: 4, name: 'Trying to fit in', description: 'Kill the Maggot King using only weapons that can be found in Vampyrium.', type: 'Restriction', monster: 'Maggot King' },
   { index: 642, tierId: 5, name: 'King-sized clobbering', description: 'Kill the Maggot King without missing a single melee punish.', type: 'Mechanical', monster: 'Maggot King' },
   { index: 643, tierId: 5, name: 'Digging in', description: 'Kill the Maggot King without moving more than 40 tiles.', type: 'Restriction', monster: 'Maggot King' },

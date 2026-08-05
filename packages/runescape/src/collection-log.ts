@@ -254,7 +254,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       },
       {
         name: "The Mad Angel",
-        items: [34027, 34033, 21726, 34042, 34030],
+        items: [34042, 34027, 34033, 21726, 34030],
         aliases: ["mad angel"],
       },
       {
