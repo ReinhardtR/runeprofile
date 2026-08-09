@@ -122,8 +122,33 @@ export const simulateRouter = newRouter()
   )
   .post(
     "/discord/card-preview",
-    validator("json", simulateBodySchema.omit({ channelId: true })),
+    validator(
+      "json",
+      simulateBodySchema.omit({ channelId: true }).extend({
+        // Experimental design switches so alternatives can be compared
+        // through the real pipeline; production sends use the defaults.
+        design: z
+          .object({
+            bg: z.enum(["texture", "smooth", "wash", "spotlight"]).optional(),
+            header: z.enum(["inline", "eyebrow"]).optional(),
+            footer: z.enum(["full", "minimal"]).optional(),
+          })
+          .optional(),
+        // Renders raw HTML instead of a card — for debugging the layout
+        // engine from the simulator. Dev-only like the rest of the route.
+        debugHtml: z.string().optional(),
+      }),
+    ),
     async (c) => {
+      if (c.req.valid("json").debugHtml) {
+        const { renderDebugHtml } = await import(
+          "~/internal/discord/cards/activity-cards"
+        );
+        const png = await renderDebugHtml(c.req.valid("json").debugHtml!);
+        return new Response(png as unknown as BodyInit, {
+          headers: { "Content-Type": "image/png" },
+        });
+      }
       // Block in production to prevent misuse
       if (isProdDiscordBot(c.env.DISCORD_APPLICATION_ID)) {
         return c.json(
@@ -135,7 +160,7 @@ export const simulateRouter = newRouter()
         );
       }
 
-      const { activities, rsn, accountType } = c.req.valid("json");
+      const { activities, rsn, accountType, design } = c.req.valid("json");
       const acct: AccountType | undefined =
         accountType != null ? AccountTypes[accountType] : undefined;
 
@@ -145,6 +170,7 @@ export const simulateRouter = newRouter()
         rsn,
         accountType: acct,
         avatarDataUri,
+        design,
       });
 
       return new Response(png as unknown as BodyInit, {
