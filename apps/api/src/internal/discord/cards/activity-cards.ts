@@ -67,6 +67,7 @@ export async function renderAvatarDataUri(
     cropRef: "body",
     headroomTop: 0.1,
     fit: "height",
+    centerOn: "head",
     supersample: 2,
     fadeBottom: 0.28,
     fadeFloor: 0.45,
@@ -187,6 +188,8 @@ type CardContent = {
   accent: [number, number, number];
   /** Overrides the default two-stop edge bar (pearlescent drops). */
   edgeGradient?: string;
+  /** Extra full-bleed gradient painted over the background (pearl sheen). */
+  sheen?: string;
   /** Colors the panel subtitle (drop values take their tier's color). */
   subtitleColor?: string;
   verb: string;
@@ -202,18 +205,30 @@ type CardContent = {
  * Experimental design switches, threaded through the simulator's preview
  * endpoint so alternatives render via the real pipeline. Production sends
  * use the defaults.
+ *
+ * The card carries no verb text — the event is obvious from the panel,
+ * and the send path puts a summary line above the image via the embed
+ * description instead.
  */
 export type CardDesign = {
-  bg?: "texture" | "smooth" | "wash" | "spotlight";
-  header?: "inline" | "eyebrow";
+  bg?: "wash" | "washSpot" | "washVertical" | "washDeep" | "texture";
+  name?: "gold" | "white" | "accent";
   footer?: "full" | "minimal";
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
-  bg: "texture",
-  header: "inline",
-  footer: "full",
+  bg: "wash",
+  name: "gold",
+  footer: "minimal",
 };
+
+/** The line the Discord message shows above the card image. */
+export function activitySummaryLine(
+  activity: ActivityEvent,
+  rsn: string,
+): string {
+  return `**${rsn}** ${buildCardContent(activity).verb}`;
+}
 
 const escapeHtml = (value: string) =>
   value
@@ -242,14 +257,17 @@ const DROP_PEARL: [number, number, number] = [205, 190, 255];
 
 function dropTier(value: number): Pick<
   CardContent,
-  "accent" | "edgeGradient" | "subtitleColor"
+  "accent" | "edgeGradient" | "subtitleColor" | "sheen"
 > {
   if (value >= 100_000_000) {
     return {
       accent: DROP_PEARL,
       subtitleColor: "#e8e2ff",
       edgeGradient:
-        "linear-gradient(to bottom, rgba(160,225,255,0.8), rgba(215,170,255,0.75), rgba(255,175,215,0.75), rgba(175,255,220,0.7))",
+        "linear-gradient(to bottom, rgba(110,235,255,1), rgba(205,130,255,0.95), rgba(255,125,205,0.95), rgba(125,255,205,0.9))",
+      // A diagonal iridescent sheen across the whole card — the 100m+
+      // flex deserves to be visible from across the channel.
+      sheen: `linear-gradient(115deg, rgba(0,0,0,0) 22%, rgba(120,225,255,0.12) 34%, rgba(210,140,255,0.13) 46%, rgba(255,150,215,0.12) 58%, rgba(140,255,215,0.10) 70%, rgba(0,0,0,0) 82%)`,
     };
   }
   if (value >= 10_000_000) {
@@ -412,7 +430,7 @@ function bgLayers(content: CardContent, bg: Required<CardDesign>["bg"]): string 
 
   switch (bg) {
     case "texture":
-      // Current look: card texture + accent glow left, warm glow right.
+      // The pre-wash look, kept for reference: texture + corner glows.
       return [
         texture(0.85),
         glow(
@@ -420,14 +438,6 @@ function bgLayers(content: CardContent, bg: Required<CardDesign>["bg"]): string 
         ),
         glow(
           "radial-gradient(circle at 88% 85%, rgba(255,152,31,0.08) 0%, rgba(255,152,31,0) 55%)",
-        ),
-      ].join("");
-    case "smooth":
-      // No texture: a quiet vertical ramp with one soft accent glow.
-      return [
-        glow("linear-gradient(to bottom, #161613 0%, #0b0b0a 100%)"),
-        glow(
-          `radial-gradient(circle at 15% 25%, ${rgba(content.accent, 0.12)} 0%, rgba(0,0,0,0) 50%)`,
         ),
       ].join("");
     case "wash":
@@ -441,12 +451,43 @@ function bgLayers(content: CardContent, bg: Required<CardDesign>["bg"]): string 
           "linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%)",
         ),
       ].join("");
-    case "spotlight":
-      // Clean dark card, all the color concentrated behind the player.
+    case "washSpot":
+      // The wash plus a soft spotlight pooled behind the player.
       return [
-        glow("linear-gradient(to bottom, #131311 0%, #0c0c0b 100%)"),
+        texture(0.5),
         glow(
-          `radial-gradient(circle at 16% 45%, ${rgba(content.accent, 0.22)} 0%, ${rgba(content.accent, 0.06)} 30%, rgba(0,0,0,0) 52%)`,
+          `linear-gradient(105deg, ${rgba(content.accent, 0.13)} 0%, ${rgba(content.accent, 0.04)} 30%, rgba(0,0,0,0) 55%)`,
+        ),
+        glow(
+          `radial-gradient(circle at 16% 48%, ${rgba(content.accent, 0.16)} 0%, rgba(0,0,0,0) 45%)`,
+        ),
+        glow(
+          "linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%)",
+        ),
+      ].join("");
+    case "washVertical":
+      // The wash falling from the top edge instead of the corner.
+      return [
+        texture(0.5),
+        glow(
+          `linear-gradient(to bottom, ${rgba(content.accent, 0.15)} 0%, ${rgba(content.accent, 0.04)} 35%, rgba(0,0,0,0) 60%)`,
+        ),
+        glow(
+          "linear-gradient(to top, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 35%)",
+        ),
+      ].join("");
+    case "washDeep":
+      // A stronger, further-reaching wash with heavier corner shading.
+      return [
+        texture(0.55),
+        glow(
+          `linear-gradient(105deg, ${rgba(content.accent, 0.24)} 0%, ${rgba(content.accent, 0.08)} 40%, rgba(0,0,0,0) 68%)`,
+        ),
+        glow(
+          "linear-gradient(to left, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 40%)",
+        ),
+        glow(
+          "linear-gradient(to top, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 25%)",
         ),
       ].join("");
   }
@@ -481,29 +522,22 @@ export function buildCardHtml(params: {
       ? `<img src="${png(accountTypeIcon)}" width="${size * S}" height="${size * S}" style="align-self: center;" />`
       : "";
 
-  // Inline: name and verb share a baseline row. Eyebrow: the verb sits as
-  // a small line above the name (sharing its row with the logo), so long
-  // names never collide with anything. Both are built from full-width rows
-  // — workers-og's bundled satori mis-centers intrinsic-width columns.
-  const header =
-    design.header === "eyebrow"
-      ? `
+  // The header is just the player: account icon + name, logo on the far
+  // right. No verb — the panel says what happened, and the Discord message
+  // carries a summary line above the card.
+  const nameColor =
+    design.name === "white"
+      ? "#f3f0e7"
+      : design.name === "accent"
+        ? rgba(content.accent, 1)
+        : "#ffff00";
+  const header = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-          <span style="font-size: ${22 * S}px; color: #ff981f; line-height: 1; ${shadowSm}">${content.verb.toUpperCase()}</span>
-          <img src="${png(CardAssets.logo)}" width="${30 * S}" height="${30 * S}" style="border-radius: ${6 * S}px; opacity: 0.9;" />
-        </div>
-        <div style="display: flex; align-items: center; gap: ${10 * S}px; width: 100%; margin-top: ${-6 * S}px;">
-          ${accountIcon(28)}
-          <span style="font-size: ${40 * S}px; font-weight: 700; color: #ffff00; line-height: 1; ${shadowSm}">${name}</span>
-        </div>`
-      : `
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-          <div style="display: flex; align-items: baseline; gap: ${10 * S}px;">
-            ${accountIcon(26)}
-            <span style="font-size: ${38 * S}px; font-weight: 700; color: #ffff00; line-height: 1; ${shadowSm}">${name}</span>
-            <span style="font-size: ${29 * S}px; color: #ff981f; line-height: 1; ${shadowSm}">${content.verb}</span>
+          <div style="display: flex; align-items: center; gap: ${12 * S}px;">
+            ${accountIcon(30)}
+            <span style="font-size: ${44 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
           </div>
-          <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="align-self: flex-start; border-radius: ${6 * S}px; opacity: 0.9;" />
+          <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="border-radius: ${6 * S}px; opacity: 0.9;" />
         </div>`;
 
   const footer =
@@ -525,6 +559,11 @@ export function buildCardHtml(params: {
   return `
     <div style="display: flex; position: relative; width: ${720 * S}px; height: ${240 * S}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
       ${bgLayers(content, design.bg)}
+      ${
+        content.sheen
+          ? `<div style="display: flex; ${FULL_BLEED} background-image: ${content.sheen};"></div>`
+          : ""
+      }
 
       <img src="${avatarDataUri}" width="${240 * S}" height="${240 * S}" style="position: absolute; left: 0; top: 0;" />
       <div style="display: flex; position: absolute; left: 0; top: 0; bottom: 0; width: ${3 * S}px; border-radius: ${10 * S}px 0 0 ${10 * S}px; background-image: ${edge};"></div>

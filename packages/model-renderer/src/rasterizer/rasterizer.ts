@@ -46,6 +46,13 @@ export type RenderOptions = {
    */
   fit?: "contain" | "height";
   /**
+   * Body-framed only: what the canvas centers on horizontally. "body"
+   * (default) uses the body's width extent, which a held weapon can skew;
+   * "head" pins the head to the canvas center so every portrait points
+   * the camera at the same spot.
+   */
+  centerOn?: "body" | "head";
+  /**
    * Render at N x the requested size and box-downsample, to anti-alias
    * edges. Default 2.
    */
@@ -134,19 +141,25 @@ export function renderScene(
   let topY = maxY;
   let minX = Infinity;
   let maxX = -Infinity;
+  let headCenterX: number | null = null;
   if (bodyFramed) {
     // Frame on the bodies alone: held items don't affect scale, position,
     // or centering — they overflow and get clipped by the canvas, so every
     // player's head lands at the same spot at the same size.
     let bodyTop = -Infinity;
+    let headCenterSum = 0;
     for (const { pts } of transformed) {
       const body = estimateBody(pts);
       if (body.top > bodyTop) bodyTop = body.top;
       if (body.left < minX) minX = body.left;
       if (body.right > maxX) maxX = body.right;
+      headCenterSum += body.headCenterX;
     }
     if (bodyTop > minY) {
       topY = Math.min(maxY, bodyTop + (bodyTop - minY) * 0.03);
+    }
+    if (options.centerOn === "head" && transformed.length > 0) {
+      headCenterX = headCenterSum / transformed.length;
     }
   } else {
     for (const { pts } of transformed) {
@@ -170,7 +183,7 @@ export function renderScene(
     options.fit === "height"
       ? heightScale
       : Math.min((width * (1 - padding * 2)) / spanX, heightScale);
-  const centerX = (minX + maxX) / 2;
+  const centerX = headCenterX ?? (minX + maxX) / 2;
 
   // Body-framed renders pin the head below the reserved headroom so heads
   // stay prominent even when the fit is width-constrained; otherwise the
@@ -272,6 +285,8 @@ type BodyEstimate = {
   /** Horizontal extent of the body itself, held items excluded. */
   left: number;
   right: number;
+  /** Horizontal center of the head band (top slices of the body). */
+  headCenterX: number;
 };
 
 /**
@@ -291,7 +306,7 @@ function estimateBody(pts: Float32Array): BodyEstimate {
     if (y > maxY) maxY = y;
   }
   if (maxY - minY <= 0) {
-    return { top: maxY, left: -Infinity, right: Infinity };
+    return { top: maxY, left: -Infinity, right: Infinity, headCenterX: 0 };
   }
 
   const BINS = 64;
@@ -346,11 +361,45 @@ function estimateBody(pts: Float32Array): BodyEstimate {
     if (binMaxX[b]! > right) right = binMaxX[b]!;
   }
 
-  return {
-    top: minY + ((topBin + 1) / BINS) * (maxY - minY),
-    left,
-    right,
-  };
+  // Head center: where the vertices actually cluster in the topmost body
+  // slices. The extent midpoint won't do — a weapon shouldered past the
+  // head stretches it sideways. The head is by far the densest blob at
+  // that height, so slide a window over the sorted x values and take the
+  // fullest one; a thin shaft crossing the band can't outvote a face.
+  const top = minY + ((topBin + 1) / BINS) * (maxY - minY);
+  // Sample the face band, 8-30% below the body top: the crown itself is
+  // where hat tips and shouldered weapon shafts crowd in.
+  const bodyHeight = top - (minY + (bottomBin / BINS) * (maxY - minY));
+  const bandTop = top - bodyHeight * 0.08;
+  const bandBottom = top - bodyHeight * 0.3;
+  const headXs: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const y = pts[i * 3 + 1]!;
+    if (y >= bandBottom && y <= bandTop) {
+      headXs.push(pts[i * 3]!);
+    }
+  }
+  headXs.sort((a, b) => a - b);
+
+  let headCenterX = (left + right) / 2;
+  if (headXs.length > 0) {
+    const window = Math.max(1, (right - left) * 0.3);
+    let bestStart = 0;
+    let bestCount = 0;
+    let hi = 0;
+    for (let lo = 0; lo < headXs.length; lo++) {
+      while (hi < headXs.length && headXs[hi]! - headXs[lo]! <= window) hi++;
+      if (hi - lo > bestCount) {
+        bestCount = hi - lo;
+        bestStart = lo;
+      }
+    }
+    let sum = 0;
+    for (let i = bestStart; i < bestStart + bestCount; i++) sum += headXs[i]!;
+    headCenterX = sum / bestCount;
+  }
+
+  return { top, left, right, headCenterX };
 }
 
 function downsample(

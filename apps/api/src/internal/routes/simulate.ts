@@ -9,6 +9,7 @@ import {
 
 import { isProdDiscordBot } from "~/internal/discord/constants";
 import {
+  activitySummaryLine,
   renderActivityCardPng,
   renderAvatarDataUri,
 } from "~/internal/discord/cards/activity-cards";
@@ -52,29 +53,30 @@ export const simulateRouter = newRouter()
         // One PNG per activity, attached directly to the message so no
         // public URL is needed. The avatar render is shared per player.
         const avatarDataUri = await renderAvatarDataUri(c.env.BUCKET, rsn);
-        const files: Uint8Array[] = [];
+        const cards: { file: Uint8Array; summary: string }[] = [];
         for (const activity of activities) {
-          files.push(
-            await renderActivityCardPng({
+          cards.push({
+            file: await renderActivityCardPng({
               activity,
               rsn,
               accountType: acct,
               avatarDataUri,
             }),
-          );
-        }
-
-        // Discord allows max 10 attachments per message
-        for (let i = 0; i < files.length; i += 10) {
-          const batch = files.slice(i, i + 10);
-          await postCardsMessage({
-            token: c.env.DISCORD_TOKEN,
-            channelId,
-            files: batch,
+            summary: activitySummaryLine(activity, rsn),
           });
         }
 
-        return c.json({ sent: files.length }, STATUS.OK);
+        // Discord allows max 10 attachments per message
+        for (let i = 0; i < cards.length; i += 10) {
+          const batch = cards.slice(i, i + 10);
+          await postCardsMessage({
+            token: c.env.DISCORD_TOKEN,
+            channelId,
+            cards: batch,
+          });
+        }
+
+        return c.json({ sent: cards.length }, STATUS.OK);
       }
 
       const embeds = activities.map((activity, index) =>
@@ -129,8 +131,10 @@ export const simulateRouter = newRouter()
         // through the real pipeline; production sends use the defaults.
         design: z
           .object({
-            bg: z.enum(["texture", "smooth", "wash", "spotlight"]).optional(),
-            header: z.enum(["inline", "eyebrow"]).optional(),
+            bg: z
+              .enum(["wash", "washSpot", "washVertical", "washDeep", "texture"])
+              .optional(),
+            name: z.enum(["gold", "white", "accent"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })
           .optional(),
@@ -182,9 +186,9 @@ export const simulateRouter = newRouter()
 async function postCardsMessage(params: {
   token: string;
   channelId: string;
-  files: Uint8Array[];
+  cards: { file: Uint8Array; summary: string }[];
 }) {
-  const { token, channelId, files } = params;
+  const { token, channelId, cards } = params;
 
   const form = new FormData();
   form.append(
@@ -193,21 +197,26 @@ async function postCardsMessage(params: {
       // Each card goes inside an embed: bare image attachments get
       // squeezed into a cropped mosaic gallery, while embeds stack
       // vertically and show the full image. The embed color matches the
-      // card background so Discord's embed chrome blends away.
-      embeds: files.map((_, i) => ({
+      // card background so Discord's embed chrome blends away, and the
+      // description puts the summary line above the image — the card
+      // itself carries no verb text.
+      embeds: cards.map((card, i) => ({
+        description: card.summary,
         image: { url: `attachment://activity-${i}.png` },
         color: 0x0d0d0c,
       })),
-      attachments: files.map((_, i) => ({
+      attachments: cards.map((_, i) => ({
         id: i,
         filename: `activity-${i}.png`,
       })),
     }),
   );
-  for (let i = 0; i < files.length; i++) {
+  for (let i = 0; i < cards.length; i++) {
     form.append(
       `files[${i}]`,
-      new Blob([files[i] as unknown as BlobPart], { type: "image/png" }),
+      new Blob([cards[i]!.file as unknown as BlobPart], {
+        type: "image/png",
+      }),
       `activity-${i}.png`,
     );
   }
