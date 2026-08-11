@@ -335,7 +335,11 @@ function estimateBody(pts: Float32Array): BodyEstimate {
     if (bins[b]! > bins[densest]!) densest = b;
   }
   const countThreshold = Math.max(4, bins[densest]! * 0.08);
-  const widthThreshold = (binMaxX[densest]! - binMinX[densest]!) * 0.22;
+  // 12% of the torso width: heads are near-constant size in game units
+  // while torsos vary hugely with gear, so a stricter fraction rejects
+  // narrow hooded heads on bulky costumes. Poles still fail the density
+  // test regardless.
+  const widthThreshold = (binMaxX[densest]! - binMinX[densest]!) * 0.12;
 
   const isBody = (b: number) =>
     bins[b]! >= countThreshold && binMaxX[b]! - binMinX[b]! >= widthThreshold;

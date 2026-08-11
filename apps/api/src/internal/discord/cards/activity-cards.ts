@@ -437,17 +437,15 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const tierName = task
         ? (getCombatAchievementTierName(task.tierId) ?? "Unknown")
         : "Unknown";
-      // Task descriptions can run long; keep the panel to at most two
-      // subtitle lines so the card never overflows.
-      const description = task?.description ?? `${tierName} task`;
+      // No description on the card — they're usually paragraph-length.
       return {
         accent: RED,
         nameColor: "#ff8578",
         verb: "completed a combat task",
         panelIcon: caTierIcon(task?.tierId),
         panelTitle: task?.name ?? "Unknown Task",
-        panelSubtitle: truncate(description, 68),
-        footerLeft: `${tierName} task`,
+        panelSubtitle: `${tierName} task`,
+        footerLeft: "Combat Achievements",
       };
     }
     case "maxed": {
@@ -578,11 +576,12 @@ export function buildCardHtml(params: {
 
   const shadowSm = `text-shadow: ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
 
-  // The baked pixel shadow makes the icon read as part of the pixel-font
-  // name next to it; scale from its native size so it stays sharp.
-  const accountIcon = (displayHeight: number) =>
+  // Baked rim light + pixel shadow make the icon tactile on the dark
+  // card. The asset is sized for a 1:1 blit into the 2x render — no
+  // resampling, true pixel art.
+  const accountIcon = () =>
     accountTypeIcon
-      ? `<img src="${png(accountTypeIcon.data)}" width="${Math.round((displayHeight * accountTypeIcon.width) / accountTypeIcon.height) * S}" height="${displayHeight * S}" style="align-self: center;" />`
+      ? `<img src="${png(accountTypeIcon.data)}" width="${accountTypeIcon.width}" height="${accountTypeIcon.height}" style="align-self: center;" />`
       : "";
 
   // The header is just the player: account icon + name, logo on the far
@@ -615,7 +614,7 @@ export function buildCardHtml(params: {
   const header = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <div style="display: flex; align-items: center; gap: ${11 * S}px;">
-            ${accountIcon(28)}
+            ${accountIcon()}
             ${nameHtml}
           </div>
           <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="opacity: 0.9;" />
@@ -675,7 +674,9 @@ export function buildCardHtml(params: {
         ${header}
 
         <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: rgba(0,0,0,0.55); border-style: solid; border-width: ${2 * S}px; border-top-color: #4b473d; border-left-color: #3b3831; border-right-color: #3b3831; border-bottom-color: #24221e; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
-          <img src="${content.panelIcon}" width="${50 * S}" height="${50 * S}" />
+          <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
+            <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
+          </div>
           <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">
             <span style="font-size: ${titleSize}px; font-weight: 700; color: #e2e2e2; line-height: 1.05; ${shadowSm}">${title}</span>
             <div style="display: flex;">${subtitleHtml}</div>
