@@ -134,7 +134,7 @@ export const simulateRouter = newRouter()
             bg: z
               .enum(["wash", "washSpot", "washVertical", "washDeep", "washDeepSoft", "washDeepStrong", "texture"])
               .optional(),
-            name: z.enum(["gold", "white", "accent"]).optional(),
+            name: z.enum(["gold", "white", "accent", "orange", "cyan", "cream"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })
           .optional(),

@@ -197,6 +197,10 @@ type CardContent = {
   subtitleColor?: string;
   /** Renders the subtitle with per-character pearlescent hues. */
   subtitlePearl?: boolean;
+  /** Curated name tint used by the "accent" name design. */
+  nameColor?: string;
+  /** Renders the name with per-character pearlescent hues. */
+  namePearl?: boolean;
   /**
    * The big moments — maxed, Grandmaster, 100m+ drops — get the heavier
    * background wash and an accent sheen without being asked.
@@ -222,13 +226,13 @@ type CardContent = {
  */
 export type CardDesign = {
   bg?: "wash" | "washSpot" | "washVertical" | "washDeep" | "washDeepSoft" | "washDeepStrong" | "texture";
-  name?: "gold" | "white" | "accent";
+  name?: "gold" | "white" | "accent" | "orange" | "cyan" | "cream";
   footer?: "full" | "minimal";
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
   bg: "wash",
-  name: "gold",
+  name: "accent",
   footer: "minimal",
 };
 
@@ -271,10 +275,12 @@ const DROP_PEARL: [number, number, number] = [205, 190, 255];
  */
 function pearlescent(): Pick<
   CardContent,
-  "accent" | "edgeGradient" | "sheen" | "flashy"
+  "accent" | "edgeGradient" | "sheen" | "flashy" | "nameColor" | "namePearl"
 > {
   return {
     accent: DROP_PEARL,
+    nameColor: "#e8e2ff",
+    namePearl: true,
     flashy: true,
     edgeGradient:
       "linear-gradient(to bottom, rgba(110,235,255,1), rgba(205,130,255,0.95), rgba(255,125,205,0.95), rgba(125,255,205,0.9))",
@@ -286,7 +292,7 @@ function pearlescent(): Pick<
 
 function dropTier(value: number): Pick<
   CardContent,
-  "accent" | "edgeGradient" | "subtitleColor" | "sheen" | "subtitlePearl" | "flashy"
+  "accent" | "edgeGradient" | "subtitleColor" | "sheen" | "subtitlePearl" | "flashy" | "nameColor" | "namePearl"
 > {
   if (value >= 100_000_000) {
     return {
@@ -296,9 +302,9 @@ function dropTier(value: number): Pick<
     };
   }
   if (value >= 10_000_000) {
-    return { accent: DROP_PINK, subtitleColor: "#ff5ca8" };
+    return { accent: DROP_PINK, subtitleColor: "#ff5ca8", nameColor: "#ff6eb2" };
   }
-  return { accent: DROP_GOLD, subtitleColor: "#ffd700" };
+  return { accent: DROP_GOLD, subtitleColor: "#ffd700", nameColor: "#ffd700" };
 }
 
 function skillIcon(name: string): string {
@@ -332,6 +338,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const { itemId } = activity.data;
       return {
         accent: ORANGE,
+        nameColor: "#ffb84d",
         verb: "filled a collection log slot",
         panelIcon: getItemIconUrl(itemId),
         panelTitle: getItemName(itemId),
@@ -343,6 +350,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const { name, level } = activity.data;
       return {
         accent: YELLOW,
+        nameColor: "#ffff00",
         verb: "reached a new level",
         panelIcon: skillIcon(name),
         panelTitle: name,
@@ -353,9 +361,13 @@ function buildCardContent(activity: ActivityEvent): CardContent {
     }
     case "xp_milestone": {
       const { name, xp } = activity.data;
+      // 200m is the XP cap — hitting it joins the pearlescent club.
+      const capped = xp >= 200_000_000;
       return {
-        accent: BLUE,
-        verb: "hit an XP milestone",
+        ...(capped
+          ? { ...pearlescent(), subtitlePearl: true, subtitleColor: "#e8e2ff" }
+          : { accent: BLUE, nameColor: "#8cc3ff" }),
+        verb: capped ? "maxed a skill's XP" : "hit an XP milestone",
         panelIcon: skillIcon(name),
         panelTitle: name,
         panelSubtitle: `${numberWithDelimiter(xp)} XP`,
@@ -376,6 +388,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       ].filter(Boolean);
       return {
         accent: PURPLE,
+        nameColor: "#b3a8ff",
         verb: "completed a quest",
         panelIcon: png(CardAssets.questIcon),
         panelTitle: quest?.name ?? "Unknown Quest",
@@ -389,6 +402,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const tierName = getAchievementDiaryTierName(tier) ?? "Unknown";
       return {
         accent: GOLD,
+        nameColor: "#f2ce63",
         verb: "completed a diary tier",
         panelIcon: png(CardAssets.diaryIcon),
         panelTitle: `${area} Diary`,
@@ -406,7 +420,9 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       // every task in a tier is a legacy achievement and stays plain.
       const grandmasterReached = reached && tierId >= 6;
       return {
-        ...(grandmasterReached ? pearlescent() : { accent: RED }),
+        ...(grandmasterReached
+          ? pearlescent()
+          : { accent: RED, nameColor: "#ff8578" }),
         verb: reached ? "reached a new CA tier" : "completed a CA tier",
         panelIcon: caTierIcon(tierId),
         panelTitle: tierName,
@@ -426,6 +442,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const description = task?.description ?? `${tierName} task`;
       return {
         accent: RED,
+        nameColor: "#ff8578",
         verb: "completed a combat task",
         panelIcon: caTierIcon(task?.tierId),
         panelTitle: task?.name ?? "Unknown Task",
@@ -573,15 +590,33 @@ export function buildCardHtml(params: {
   // carries a summary line above the card.
   const nameColor =
     design.name === "white"
-      ? "#f3f0e7"
-      : design.name === "accent"
-        ? rgba(content.accent, 1)
-        : "#ffff00";
+      ? "#ffffff"
+      : design.name === "cream"
+        ? "#f3f0e7"
+        : design.name === "orange"
+          ? "#ff981f"
+          : design.name === "cyan"
+            ? "#00ffff"
+            : design.name === "accent"
+              ? // Curated per-event tint, not the raw accent — some
+                // accents are too dark against the card for a name.
+                (content.nameColor ?? rgba(content.accent, 1))
+              : "#ffff00";
+  const PEARL_NAME_HUES = ["#a5ecff", "#dcb8ff", "#ffb8e0", "#b8ffdf"];
+  const nameHtml =
+    design.name === "accent" && content.namePearl
+      ? `<div style="display: flex;">${(name.match(/\S\s*/g) ?? [])
+          .map(
+            (chunk, i) =>
+              `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; ${shadowSm}">${chunk}</span>`,
+          )
+          .join("")}</div>`
+      : `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>`;
   const header = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <div style="display: flex; align-items: center; gap: ${11 * S}px;">
             ${accountIcon(28)}
-            <span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
+            ${nameHtml}
           </div>
           <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="opacity: 0.9;" />
         </div>`;
