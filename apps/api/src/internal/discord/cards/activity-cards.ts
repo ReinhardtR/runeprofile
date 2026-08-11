@@ -67,7 +67,7 @@ export async function renderAvatarDataUri(
     // shoulders bleed off instead of shrinking the head.
     cropTop: 0.32,
     cropRef: "body",
-    headroomTop: 0.06,
+    headroomTop: 0.03,
     fit: "height",
     centerOn: "head",
     anchorX: 120 / 720,
@@ -265,21 +265,34 @@ const DROP_GOLD: [number, number, number] = [255, 215, 0];
 const DROP_PINK: [number, number, number] = [255, 0, 110];
 const DROP_PEARL: [number, number, number] = [205, 190, 255];
 
+/**
+ * The pearlescent treatment — reserved for the rarest moments: 100m+
+ * drops, maxing, and reaching the Grandmaster CA tier.
+ */
+function pearlescent(): Pick<
+  CardContent,
+  "accent" | "edgeGradient" | "sheen" | "flashy"
+> {
+  return {
+    accent: DROP_PEARL,
+    flashy: true,
+    edgeGradient:
+      "linear-gradient(to bottom, rgba(110,235,255,1), rgba(205,130,255,0.95), rgba(255,125,205,0.95), rgba(125,255,205,0.9))",
+    // A diagonal iridescent sheen across the whole card — visible from
+    // across the channel.
+    sheen: `linear-gradient(115deg, rgba(0,0,0,0) 22%, rgba(120,225,255,0.12) 34%, rgba(210,140,255,0.13) 46%, rgba(255,150,215,0.12) 58%, rgba(140,255,215,0.10) 70%, rgba(0,0,0,0) 82%)`,
+  };
+}
+
 function dropTier(value: number): Pick<
   CardContent,
   "accent" | "edgeGradient" | "subtitleColor" | "sheen" | "subtitlePearl" | "flashy"
 > {
   if (value >= 100_000_000) {
     return {
-      accent: DROP_PEARL,
+      ...pearlescent(),
       subtitleColor: "#e8e2ff",
       subtitlePearl: true,
-      flashy: true,
-      edgeGradient:
-        "linear-gradient(to bottom, rgba(110,235,255,1), rgba(205,130,255,0.95), rgba(255,125,205,0.95), rgba(125,255,205,0.9))",
-      // A diagonal iridescent sheen across the whole card — the 100m+
-      // flex deserves to be visible from across the channel.
-      sheen: `linear-gradient(115deg, rgba(0,0,0,0) 22%, rgba(120,225,255,0.12) 34%, rgba(210,140,255,0.13) 46%, rgba(255,150,215,0.12) 58%, rgba(140,255,215,0.10) 70%, rgba(0,0,0,0) 82%)`,
     };
   }
   if (value >= 10_000_000) {
@@ -389,9 +402,11 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const { tierId } = activity.data;
       const tierName = getCombatAchievementTierName(tierId) ?? "Unknown";
       const reached = activity.type === "combat_achievement_tier_reached";
+      // Reaching Grandmaster gets the pearlescent treatment. Completing
+      // every task in a tier is a legacy achievement and stays plain.
+      const grandmasterReached = reached && tierId >= 6;
       return {
-        accent: RED,
-        flashy: tierId >= 6,
+        ...(grandmasterReached ? pearlescent() : { accent: RED }),
         verb: reached ? "reached a new CA tier" : "completed a CA tier",
         panelIcon: caTierIcon(tierId),
         panelTitle: tierName,
@@ -420,8 +435,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
     }
     case "maxed": {
       return {
-        accent: GOLD,
-        flashy: true,
+        ...pearlescent(),
         verb: "achieved max total level",
         panelIcon: png(CardAssets.maxCapeIcon),
         panelTitle: "Maxed",
@@ -495,13 +509,13 @@ function bgLayers(content: CardContent, bg: Required<CardDesign>["bg"]): string 
       return [
         texture(0.55),
         glow(
-          `linear-gradient(105deg, ${rgba(content.accent, 0.24)} 0%, ${rgba(content.accent, 0.08)} 40%, rgba(0,0,0,0) 68%)`,
+          `linear-gradient(105deg, ${rgba(content.accent, 0.19)} 0%, ${rgba(content.accent, 0.06)} 36%, rgba(0,0,0,0) 60%)`,
         ),
         glow(
-          "linear-gradient(to left, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 40%)",
+          "linear-gradient(to left, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 34%)",
         ),
         glow(
-          "linear-gradient(to top, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 25%)",
+          "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 22%)",
         ),
       ].join("");
   }
@@ -557,7 +571,7 @@ export function buildCardHtml(params: {
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <div style="display: flex; align-items: center; gap: ${11 * S}px;">
             ${accountIcon(28)}
-            <span style="font-size: ${38 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
+            <span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
           </div>
           <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="border-radius: ${6 * S}px; opacity: 0.9;" />
         </div>`;
