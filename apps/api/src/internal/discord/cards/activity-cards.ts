@@ -221,7 +221,7 @@ type CardContent = {
  * description instead.
  */
 export type CardDesign = {
-  bg?: "wash" | "washSpot" | "washVertical" | "washDeep" | "texture";
+  bg?: "wash" | "washSpot" | "washVertical" | "washDeep" | "washDeepSoft" | "washDeepStrong" | "texture";
   name?: "gold" | "white" | "accent";
   footer?: "full" | "minimal";
 };
@@ -240,11 +240,11 @@ export function activitySummaryLine(
   return `**${rsn}** ${buildCardContent(activity).verb}`;
 }
 
+// workers-og's parser does NOT decode entities — "&#160;" renders as
+// seven literal characters — so escaping "&" would leak "&amp;" into the
+// card. Only the angle brackets can break its parsing.
 const escapeHtml = (value: string) =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+  value.replaceAll("<", " ").replaceAll(">", " ");
 
 const rgba = (c: [number, number, number], a: number) =>
   `rgba(${c[0]},${c[1]},${c[2]},${a})`;
@@ -504,20 +504,30 @@ function bgLayers(content: CardContent, bg: Required<CardDesign>["bg"]): string 
           "linear-gradient(to top, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 35%)",
         ),
       ].join("");
+    case "washDeepSoft":
     case "washDeep":
-      // A stronger, further-reaching wash with heavier corner shading.
+    case "washDeepStrong": {
+      // A stronger, further-reaching wash with heavier corner shading,
+      // in three intensities for comparison; washDeep is the middle.
+      const [accent, reach, dark, bottom] =
+        bg === "washDeepSoft"
+          ? [0.19, 60, 0.38, 0.18]
+          : bg === "washDeepStrong"
+            ? [0.26, 70, 0.48, 0.26]
+            : [0.22, 65, 0.42, 0.22];
       return [
         texture(0.55),
         glow(
-          `linear-gradient(105deg, ${rgba(content.accent, 0.19)} 0%, ${rgba(content.accent, 0.06)} 36%, rgba(0,0,0,0) 60%)`,
+          `linear-gradient(105deg, ${rgba(content.accent, accent)} 0%, ${rgba(content.accent, accent / 3)} ${Math.round(reach * 0.6)}%, rgba(0,0,0,0) ${reach}%)`,
         ),
         glow(
-          "linear-gradient(to left, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 34%)",
+          `linear-gradient(to left, rgba(0,0,0,${dark}) 0%, rgba(0,0,0,0) 36%)`,
         ),
         glow(
-          "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 22%)",
+          `linear-gradient(to top, rgba(0,0,0,${bottom}) 0%, rgba(0,0,0,0) 24%)`,
         ),
       ].join("");
+    }
   }
 }
 
@@ -573,7 +583,7 @@ export function buildCardHtml(params: {
             ${accountIcon(28)}
             <span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
           </div>
-          <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="border-radius: ${6 * S}px; opacity: 0.9;" />
+          <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="opacity: 0.9;" />
         </div>`;
 
   const footer =
@@ -604,11 +614,12 @@ export function buildCardHtml(params: {
   // hues, since a text gradient isn't in satori's vocabulary.
   const PEARL_HUES = ["#7ee7ff", "#cf8cff", "#ff8cd2", "#8cffd2"];
   const subtitleHtml = content.subtitlePearl
-    ? [...content.panelSubtitle]
-        .map((char, i) =>
-          char === " "
-            ? `<span style="font-size: ${23 * S}px;">&#160;</span>`
-            : `<span style="font-size: ${23 * S}px; font-weight: 700; color: ${PEARL_HUES[i % PEARL_HUES.length]}; line-height: 1.1; ${shadowSm}">${escapeHtml(char)}</span>`,
+    ? (content.panelSubtitle.match(/\S\s*/g) ?? [])
+        .map(
+          // Spaces ride inside the preceding character's span - the
+          // renderer collapses whitespace-only nodes entirely.
+          (chunk, i) =>
+            `<span style="font-size: ${23 * S}px; font-weight: 700; color: ${PEARL_HUES[i % PEARL_HUES.length]}; line-height: 1.1; ${shadowSm}">${escapeHtml(chunk)}</span>`,
         )
         .join("")
     : `<span style="font-size: ${23 * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>`;

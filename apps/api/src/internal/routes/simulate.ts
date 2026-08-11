@@ -132,7 +132,7 @@ export const simulateRouter = newRouter()
         design: z
           .object({
             bg: z
-              .enum(["wash", "washSpot", "washVertical", "washDeep", "texture"])
+              .enum(["wash", "washSpot", "washVertical", "washDeep", "washDeepSoft", "washDeepStrong", "texture"])
               .optional(),
             name: z.enum(["gold", "white", "accent"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
@@ -144,15 +144,6 @@ export const simulateRouter = newRouter()
       }),
     ),
     async (c) => {
-      if (c.req.valid("json").debugHtml) {
-        const { renderDebugHtml } = await import(
-          "~/internal/discord/cards/activity-cards"
-        );
-        const png = await renderDebugHtml(c.req.valid("json").debugHtml!);
-        return new Response(png as unknown as BodyInit, {
-          headers: { "Content-Type": "image/png" },
-        });
-      }
       // Block in production to prevent misuse
       if (isProdDiscordBot(c.env.DISCORD_APPLICATION_ID)) {
         return c.json(
@@ -162,6 +153,16 @@ export const simulateRouter = newRouter()
           },
           STATUS.FORBIDDEN,
         );
+      }
+
+      if (c.req.valid("json").debugHtml) {
+        const { renderDebugHtml } = await import(
+          "~/internal/discord/cards/activity-cards"
+        );
+        const png = await renderDebugHtml(c.req.valid("json").debugHtml!);
+        return new Response(png as unknown as BodyInit, {
+          headers: { "Content-Type": "image/png" },
+        });
       }
 
       const { activities, rsn, accountType, design } = c.req.valid("json");
