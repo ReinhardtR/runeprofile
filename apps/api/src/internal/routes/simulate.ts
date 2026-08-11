@@ -143,7 +143,17 @@ export const simulateRouter = newRouter()
               ])
               .optional(),
             surface: z.enum(["dark", "lifted", "liftedStrong"]).optional(),
-            panel: z.enum(["dark", "darkSoft", "chip", "chipDim"]).optional(),
+            panel: z
+              .enum([
+                "dark",
+                "darkSoft",
+                "chip",
+                "chipDim",
+                "solid",
+                "solidDeep",
+                "iconTone",
+              ])
+              .optional(),
             name: z.enum(["gold", "white", "accent", "orange", "cyan", "cream"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })

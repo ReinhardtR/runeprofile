@@ -238,7 +238,14 @@ export type CardDesign = {
    * values use the same lit surface as the panel icon's chip, at
    * decreasing strength.
    */
-  panel?: "dark" | "darkSoft" | "chip" | "chipDim";
+  panel?:
+    | "dark"
+    | "darkSoft"
+    | "chip"
+    | "chipDim"
+    | "solid"
+    | "solidDeep"
+    | "iconTone";
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
@@ -249,15 +256,30 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
   panel: "chip",
 };
 
-/** Content panel fills, paired with a matching hairline border. */
+/**
+ * Content panel fills, paired with a matching hairline border.
+ *
+ * The opaque values are the point of the ladder: the model passes behind
+ * the panel, and anything translucent lets a weapon or a bright pauldron
+ * show through the text. "iconTone" is the exact colour the panel icon's
+ * chip renders as today (near-black card + two 8% white layers), applied
+ * across the whole panel - so the panel and the chip become one surface.
+ */
 const PANEL_FILLS: Record<
   Required<CardDesign>["panel"],
-  { fill: string; border: string }
+  { fill: string; border: string; flatIcon?: boolean }
 > = {
   dark: { fill: "rgba(0,0,0,0.55)", border: "rgba(255,255,255,0.06)" },
   darkSoft: { fill: "rgba(0,0,0,0.35)", border: "rgba(255,255,255,0.06)" },
   chip: { fill: "rgba(255,255,255,0.08)", border: "rgba(255,255,255,0.08)" },
   chipDim: { fill: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.06)" },
+  solid: { fill: "#141413", border: "rgba(255,255,255,0.07)" },
+  solidDeep: { fill: "#0b0b0a", border: "rgba(255,255,255,0.07)" },
+  iconTone: {
+    fill: "#323230",
+    border: "rgba(255,255,255,0.09)",
+    flatIcon: true,
+  },
 };
 
 /**
@@ -719,7 +741,7 @@ export function buildCardHtml(params: {
         ${header}
 
         <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILLS[design.panel].fill}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_FILLS[design.panel].border}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
-          <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
+          <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: ${PANEL_FILLS[design.panel].flatIcon ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.08)"}; border-radius: ${6 * S}px; border: ${1 * S}px solid ${PANEL_FILLS[design.panel].flatIcon ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.06)"};">
             <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
           </div>
           <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">
