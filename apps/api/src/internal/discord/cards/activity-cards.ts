@@ -53,21 +53,24 @@ export async function renderAvatarDataUri(
     bytes = base64ToBytes(CardAssets.defaultPlayerModel);
   }
 
-  // Wide enough that broad shoulders clip at the card's own left border
-  // instead of at a visible seam partway in.
-  const width = 240 * S;
+  // The canvas spans the whole card with the head anchored over the left
+  // section: weapons and banners extend across the card *behind* the
+  // content panel instead of being cut at a narrow canvas edge — the only
+  // hard clip left is the card border itself.
+  const width = 720 * S;
   const height = 240 * S;
   const rgba = renderScene([{ model: parseModel(bytes), yaw: 2.49 }], {
     width,
     height,
     // Tight head-and-shoulders framing: Discord scales the card down, so
     // the model has to read at a glance. Height-only fit lets broad
-    // shoulders bleed off the sides instead of shrinking the head.
-    cropTop: 0.34,
+    // shoulders bleed off instead of shrinking the head.
+    cropTop: 0.32,
     cropRef: "body",
-    headroomTop: 0.1,
+    headroomTop: 0.06,
     fit: "height",
     centerOn: "head",
+    anchorX: 120 / 720,
     supersample: 2,
     fadeBottom: 0.28,
     fadeFloor: 0.45,
@@ -192,6 +195,13 @@ type CardContent = {
   sheen?: string;
   /** Colors the panel subtitle (drop values take their tier's color). */
   subtitleColor?: string;
+  /** Renders the subtitle with per-character pearlescent hues. */
+  subtitlePearl?: boolean;
+  /**
+   * The big moments — maxed, Grandmaster, 100m+ drops — get the heavier
+   * background wash and an accent sheen without being asked.
+   */
+  flashy?: boolean;
   verb: string;
   panelIcon: string;
   panelTitle: string;
@@ -257,12 +267,14 @@ const DROP_PEARL: [number, number, number] = [205, 190, 255];
 
 function dropTier(value: number): Pick<
   CardContent,
-  "accent" | "edgeGradient" | "subtitleColor" | "sheen"
+  "accent" | "edgeGradient" | "subtitleColor" | "sheen" | "subtitlePearl" | "flashy"
 > {
   if (value >= 100_000_000) {
     return {
       accent: DROP_PEARL,
       subtitleColor: "#e8e2ff",
+      subtitlePearl: true,
+      flashy: true,
       edgeGradient:
         "linear-gradient(to bottom, rgba(110,235,255,1), rgba(205,130,255,0.95), rgba(255,125,205,0.95), rgba(125,255,205,0.9))",
       // A diagonal iridescent sheen across the whole card — the 100m+
@@ -379,6 +391,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
       const reached = activity.type === "combat_achievement_tier_reached";
       return {
         accent: RED,
+        flashy: tierId >= 6,
         verb: reached ? "reached a new CA tier" : "completed a CA tier",
         panelIcon: caTierIcon(tierId),
         panelTitle: tierName,
@@ -408,6 +421,7 @@ function buildCardContent(activity: ActivityEvent): CardContent {
     case "maxed": {
       return {
         accent: GOLD,
+        flashy: true,
         verb: "achieved max total level",
         panelIcon: png(CardAssets.maxCapeIcon),
         panelTitle: "Maxed",
@@ -501,13 +515,19 @@ export function buildCardHtml(params: {
   design?: CardDesign;
 }): string {
   const { activity, rsn, accountType, avatarDataUri } = params;
-  const design = { ...DESIGN_DEFAULTS, ...params.design };
   const content = buildCardContent(activity);
+  const design = {
+    ...DESIGN_DEFAULTS,
+    // The big moments upgrade themselves to the heavy wash unless the
+    // caller explicitly picked a background.
+    ...(content.flashy ? { bg: "washDeep" as const } : {}),
+    ...params.design,
+  };
   const name = escapeHtml(rsn);
   const accountTypeIcon =
     accountType &&
-    CardAssets.accountTypeIcons[
-      accountType.key as keyof typeof CardAssets.accountTypeIcons
+    CardAssets.accountTypeIconsShadowed[
+      accountType.key as keyof typeof CardAssets.accountTypeIconsShadowed
     ];
 
   const title = escapeHtml(content.panelTitle);
@@ -517,9 +537,11 @@ export function buildCardHtml(params: {
 
   const shadowSm = `text-shadow: ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
 
-  const accountIcon = (size: number) =>
+  // The baked pixel shadow makes the icon read as part of the pixel-font
+  // name next to it; scale from its native size so it stays sharp.
+  const accountIcon = (displayHeight: number) =>
     accountTypeIcon
-      ? `<img src="${png(accountTypeIcon)}" width="${size * S}" height="${size * S}" style="align-self: center;" />`
+      ? `<img src="${png(accountTypeIcon.data)}" width="${Math.round((displayHeight * accountTypeIcon.width) / accountTypeIcon.height) * S}" height="${displayHeight * S}" style="align-self: center;" />`
       : "";
 
   // The header is just the player: account icon + name, logo on the far
@@ -533,9 +555,9 @@ export function buildCardHtml(params: {
         : "#ffff00";
   const header = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-          <div style="display: flex; align-items: center; gap: ${12 * S}px;">
-            ${accountIcon(30)}
-            <span style="font-size: ${44 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
+          <div style="display: flex; align-items: center; gap: ${11 * S}px;">
+            ${accountIcon(28)}
+            <span style="font-size: ${38 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>
           </div>
           <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="border-radius: ${6 * S}px; opacity: 0.9;" />
         </div>`;
@@ -556,26 +578,47 @@ export function buildCardHtml(params: {
     content.edgeGradient ??
     `linear-gradient(to bottom, ${rgba(content.accent, 0.55)}, ${rgba(content.accent, 0.2)})`;
 
+  // Flashy events sweep an accent sheen across the card even when the
+  // event doesn't bring its own (pearl does).
+  const sheen =
+    content.sheen ??
+    (content.flashy
+      ? `linear-gradient(115deg, rgba(0,0,0,0) 25%, ${rgba(content.accent, 0.1)} 40%, ${rgba(content.accent, 0.14)} 52%, ${rgba(content.accent, 0.08)} 64%, rgba(0,0,0,0) 78%)`
+      : undefined);
+
+  // Pearl values shimmer: each character cycles through the pearlescent
+  // hues, since a text gradient isn't in satori's vocabulary.
+  const PEARL_HUES = ["#7ee7ff", "#cf8cff", "#ff8cd2", "#8cffd2"];
+  const subtitleHtml = content.subtitlePearl
+    ? [...content.panelSubtitle]
+        .map((char, i) =>
+          char === " "
+            ? `<span style="font-size: ${23 * S}px;">&#160;</span>`
+            : `<span style="font-size: ${23 * S}px; font-weight: 700; color: ${PEARL_HUES[i % PEARL_HUES.length]}; line-height: 1.1; ${shadowSm}">${escapeHtml(char)}</span>`,
+        )
+        .join("")
+    : `<span style="font-size: ${23 * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>`;
+
   return `
     <div style="display: flex; position: relative; width: ${720 * S}px; height: ${240 * S}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
       ${bgLayers(content, design.bg)}
       ${
-        content.sheen
-          ? `<div style="display: flex; ${FULL_BLEED} background-image: ${content.sheen};"></div>`
+        sheen
+          ? `<div style="display: flex; ${FULL_BLEED} background-image: ${sheen};"></div>`
           : ""
       }
 
-      <img src="${avatarDataUri}" width="${240 * S}" height="${240 * S}" style="position: absolute; left: 0; top: 0;" />
+      <img src="${avatarDataUri}" width="${720 * S}" height="${240 * S}" style="position: absolute; left: 0; top: 0;" />
       <div style="display: flex; position: absolute; left: 0; top: 0; bottom: 0; width: ${3 * S}px; border-radius: ${10 * S}px 0 0 ${10 * S}px; background-image: ${edge};"></div>
 
       <div style="display: flex; flex-direction: column; justify-content: center; gap: ${13 * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
         ${header}
 
-        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: rgba(0,0,0,0.4); border-style: solid; border-width: ${2 * S}px; border-top-color: #4b473d; border-left-color: #3b3831; border-right-color: #3b3831; border-bottom-color: #24221e; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
+        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: rgba(0,0,0,0.55); border-style: solid; border-width: ${2 * S}px; border-top-color: #4b473d; border-left-color: #3b3831; border-right-color: #3b3831; border-bottom-color: #24221e; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
           <img src="${content.panelIcon}" width="${50 * S}" height="${50 * S}" />
           <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">
             <span style="font-size: ${titleSize}px; font-weight: 700; color: #e2e2e2; line-height: 1.05; ${shadowSm}">${title}</span>
-            <span style="font-size: ${23 * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>
+            <div style="display: flex;">${subtitleHtml}</div>
           </div>
           ${
             content.badge

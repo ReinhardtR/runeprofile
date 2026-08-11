@@ -53,6 +53,13 @@ export type RenderOptions = {
    */
   centerOn?: "body" | "head";
   /**
+   * Where the horizontal center lands, as a fraction of canvas width
+   * (default 0.5). A portrait on a full-card-width canvas can anchor the
+   * head at 1/6 while weapons overflow across the rest instead of being
+   * cut at a narrow canvas edge.
+   */
+  anchorX?: number;
+  /**
    * Render at N x the requested size and box-downsample, to anti-alias
    * edges. Default 2.
    */
@@ -184,6 +191,7 @@ export function renderScene(
       ? heightScale
       : Math.min((width * (1 - padding * 2)) / spanX, heightScale);
   const centerX = headCenterX ?? (minX + maxX) / 2;
+  const anchorPx = width * (options.anchorX ?? 0.5);
 
   // Body-framed renders pin the head below the reserved headroom so heads
   // stay prominent even when the fit is width-constrained; otherwise the
@@ -202,13 +210,13 @@ export function renderScene(
       const ib = indices[f + 1]!;
       const ic = indices[f + 2]!;
 
-      const ax = width / 2 + (pts[ia * 3]! - centerX) * scale;
+      const ax = anchorPx + (pts[ia * 3]! - centerX) * scale;
       const ay = yBase - pts[ia * 3 + 1]! * scale;
       const az = pts[ia * 3 + 2]!;
-      const bx = width / 2 + (pts[ib * 3]! - centerX) * scale;
+      const bx = anchorPx + (pts[ib * 3]! - centerX) * scale;
       const by = yBase - pts[ib * 3 + 1]! * scale;
       const bz = pts[ib * 3 + 2]!;
-      const cx = width / 2 + (pts[ic * 3]! - centerX) * scale;
+      const cx = anchorPx + (pts[ic * 3]! - centerX) * scale;
       const cy = yBase - pts[ic * 3 + 1]! * scale;
       const cz = pts[ic * 3 + 2]!;
 
