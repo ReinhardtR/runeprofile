@@ -233,6 +233,12 @@ export type CardDesign = {
    * it to the same slightly-lit surface the panel icon chip sits on.
    */
   surface?: "dark" | "lifted" | "liftedStrong";
+  /**
+   * The content panel's fill. "dark" is the original black wash; the chip
+   * values use the same lit surface as the panel icon's chip, at
+   * decreasing strength.
+   */
+  panel?: "dark" | "darkSoft" | "chip" | "chipDim";
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
@@ -240,6 +246,18 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
   name: "accent",
   footer: "minimal",
   surface: "dark",
+  panel: "chip",
+};
+
+/** Content panel fills, paired with a matching hairline border. */
+const PANEL_FILLS: Record<
+  Required<CardDesign>["panel"],
+  { fill: string; border: string }
+> = {
+  dark: { fill: "rgba(0,0,0,0.55)", border: "rgba(255,255,255,0.06)" },
+  darkSoft: { fill: "rgba(0,0,0,0.35)", border: "rgba(255,255,255,0.06)" },
+  chip: { fill: "rgba(255,255,255,0.08)", border: "rgba(255,255,255,0.08)" },
+  chipDim: { fill: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.06)" },
 };
 
 /**
@@ -593,6 +611,10 @@ export function buildCardHtml(params: {
   const titleSize = content.panelTitle.length > 18 ? 25 * S : 32 * S;
 
   const shadowSm = `text-shadow: ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
+  // The name gets the same treatment as the account icon beside it: a
+  // black rim on every side plus the drop shadow, so it stays legible
+  // wherever the model or a wash sits behind it.
+  const shadowName = `text-shadow: ${S}px 0 0 #000, -${S}px 0 0 #000, 0 ${S}px 0 #000, 0 -${S}px 0 #000, ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
 
   // Baked rim light + pixel shadow make the icon tactile on the dark
   // card. The asset is sized for a 1:1 blit into the 2x render — no
@@ -625,10 +647,10 @@ export function buildCardHtml(params: {
       ? `<div style="display: flex;">${(name.match(/\S\s*/g) ?? [])
           .map(
             (chunk, i) =>
-              `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; ${shadowSm}">${chunk}</span>`,
+              `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; ${shadowName}">${chunk}</span>`,
           )
           .join("")}</div>`
-      : `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowSm}">${name}</span>`;
+      : `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowName}">${name}</span>`;
   const header = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <div style="display: flex; align-items: center; gap: ${11 * S}px;">
@@ -642,12 +664,12 @@ export function buildCardHtml(params: {
     design.footer === "minimal"
       ? `
         <div style="display: flex; align-items: center; justify-content: flex-end;">
-          <span style="font-size: ${19 * S}px; color: #7c7c74; line-height: 1; ${shadowSm}">runeprofile.com/${name}</span>
+          <span style="font-size: ${19 * S}px; color: #8b8b82; line-height: 1; ${shadowName}">runeprofile.com/${name}</span>
         </div>`
       : `
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowSm}">${escapeHtml(content.footerLeft)}</span>
-          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowSm}">runeprofile.com/${name}</span>
+          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowName}">${escapeHtml(content.footerLeft)}</span>
+          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowName}">runeprofile.com/${name}</span>
         </div>`;
 
   const edge =
@@ -696,7 +718,7 @@ export function buildCardHtml(params: {
       <div style="display: flex; flex-direction: column; justify-content: center; gap: ${13 * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
         ${header}
 
-        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: rgba(0,0,0,0.55); border-style: solid; border-width: ${2 * S}px; border-top-color: #4b473d; border-left-color: #3b3831; border-right-color: #3b3831; border-bottom-color: #24221e; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
+        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILLS[design.panel].fill}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_FILLS[design.panel].border}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
           <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
             <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
           </div>
