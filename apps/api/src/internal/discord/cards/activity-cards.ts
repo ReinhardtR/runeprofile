@@ -228,12 +228,30 @@ export type CardDesign = {
   bg?: "wash" | "washSpot" | "washVertical" | "washDeep" | "washDeepSoft" | "washDeepStrong" | "texture";
   name?: "gold" | "white" | "accent" | "orange" | "cyan" | "cream";
   footer?: "full" | "minimal";
+  /**
+   * The card's base tone. "dark" is near-black; the lifted values raise
+   * it to the same slightly-lit surface the panel icon chip sits on.
+   */
+  surface?: "dark" | "lifted" | "liftedStrong";
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
   bg: "wash",
   name: "accent",
   footer: "minimal",
+  surface: "dark",
+};
+
+/**
+ * How much the card surface is lifted out of near-black, matching the
+ * panel icon chip. Painted as an overlay above the texture rather than as
+ * a base colour - the texture is nearly opaque, so tinting underneath it
+ * barely shows.
+ */
+const SURFACE_LIFT: Record<Required<CardDesign>["surface"], number> = {
+  dark: 0,
+  lifted: 0.08,
+  liftedStrong: 0.14,
 };
 
 /** The line the Discord message shows above the card image. */
@@ -661,6 +679,11 @@ export function buildCardHtml(params: {
   return `
     <div style="display: flex; position: relative; width: ${720 * S}px; height: ${240 * S}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
       ${bgLayers(content, design.bg)}
+      ${
+        SURFACE_LIFT[design.surface] > 0
+          ? `<div style="display: flex; ${FULL_BLEED} background-color: rgba(255,255,255,${SURFACE_LIFT[design.surface]});"></div>`
+          : ""
+      }
       ${
         sheen
           ? `<div style="display: flex; ${FULL_BLEED} background-image: ${sheen};"></div>`

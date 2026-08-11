@@ -132,8 +132,17 @@ export const simulateRouter = newRouter()
         design: z
           .object({
             bg: z
-              .enum(["wash", "washSpot", "washVertical", "washDeep", "washDeepSoft", "washDeepStrong", "texture"])
+              .enum([
+                "wash",
+                "washSpot",
+                "washVertical",
+                "washDeep",
+                "washDeepSoft",
+                "washDeepStrong",
+                "texture",
+              ])
               .optional(),
+            surface: z.enum(["dark", "lifted", "liftedStrong"]).optional(),
             name: z.enum(["gold", "white", "accent", "orange", "cyan", "cream"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })
