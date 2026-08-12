@@ -103,6 +103,8 @@ const NAME_ICON_GAP = 4;
  * number on it.
  */
 const CHIP_FILL = "rgba(0,0,0,0.7)";
+/** The name, in the game's plain white. Chip values stay yellow. */
+const NAME_COLOR = "#ffffff";
 
 // Same thresholds as getCollectionLogRankIcon in the web UI (which lives in
 // a module that drags in three.js, so it isn't imported here).
@@ -259,7 +261,7 @@ async function generateOgImage({ request }: { request: Request }) {
           ? `<img src="data:image/png;base64,${accountTypeIcon.data}" width="${accountTypeIcon.width}" height="${accountTypeIcon.height}" />`
           : ""
       }
-      <span style="font-size: ${nameSize}px; font-weight: 700; color: #ffff00; line-height: 1; text-shadow: 4px 4px 0 rgba(0,0,0,0.9);">${name}</span>
+      <span style="font-size: ${nameSize}px; font-weight: 700; color: ${NAME_COLOR}; line-height: 1; text-shadow: 4px 4px 0 rgba(0,0,0,0.9);">${name}</span>
     </div>`;
 
   const chips = `
