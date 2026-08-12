@@ -37,9 +37,20 @@ const png = (base64: string) => `data:image/png;base64,${base64}`;
  * body with the standard chathead angle and the soft partial bottom fade.
  * Falls back to the default player model when none is uploaded.
  */
+/** How far the model dissolves at the bottom edge of the card. */
+const MODEL_FADES: Record<
+  NonNullable<CardDesign["modelFade"]>,
+  { fadeBottom: number; fadeFloor: number }
+> = {
+  soft: { fadeBottom: 0.28, fadeFloor: 0.45 },
+  light: { fadeBottom: 0.12, fadeFloor: 0.75 },
+  none: { fadeBottom: 0, fadeFloor: 1 },
+};
+
 export async function renderAvatarDataUri(
   bucket: R2Bucket,
   rsn: string,
+  modelFade: NonNullable<CardDesign["modelFade"]> = "soft",
 ): Promise<string> {
   let bytes: Uint8Array;
   try {
@@ -72,8 +83,7 @@ export async function renderAvatarDataUri(
     centerOn: "head",
     anchorX: 120 / 720,
     supersample: 2,
-    fadeBottom: 0.28,
-    fadeFloor: 0.45,
+    ...MODEL_FADES[modelFade],
   });
   return png(bytesToBase64(await encodePng(rgba, width, height)));
 }
@@ -240,12 +250,18 @@ export type CardDesign = {
    */
   panel?:
     | "dark"
+    | "dark70"
     | "darkSoft"
     | "chip"
     | "chipDim"
     | "solid"
-    | "solidDeep"
-    | "iconTone";
+    | "solidDeep";
+  /**
+   * How far the model dissolves at the bottom of the card. "soft" is the
+   * long partial fade; "light" barely veils the cut; "none" leaves the
+   * crop hard, clipped only by the card border.
+   */
+  modelFade?: "soft" | "light" | "none";
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
@@ -253,7 +269,8 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
   name: "accent",
   footer: "minimal",
   surface: "dark",
-  panel: "chip",
+  panel: "dark70",
+  modelFade: "soft",
 };
 
 /**
@@ -261,25 +278,19 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
  *
  * The opaque values are the point of the ladder: the model passes behind
  * the panel, and anything translucent lets a weapon or a bright pauldron
- * show through the text. "iconTone" is the exact colour the panel icon's
- * chip renders as today (near-black card + two 8% white layers), applied
- * across the whole panel - so the panel and the chip become one surface.
+ * show through the text.
  */
 const PANEL_FILLS: Record<
   Required<CardDesign>["panel"],
-  { fill: string; border: string; flatIcon?: boolean }
+  { fill: string; border: string }
 > = {
   dark: { fill: "rgba(0,0,0,0.55)", border: "rgba(255,255,255,0.06)" },
+  dark70: { fill: "rgba(0,0,0,0.7)", border: "rgba(255,255,255,0.06)" },
   darkSoft: { fill: "rgba(0,0,0,0.35)", border: "rgba(255,255,255,0.06)" },
   chip: { fill: "rgba(255,255,255,0.08)", border: "rgba(255,255,255,0.08)" },
   chipDim: { fill: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.06)" },
   solid: { fill: "#141413", border: "rgba(255,255,255,0.07)" },
   solidDeep: { fill: "#0b0b0a", border: "rgba(255,255,255,0.07)" },
-  iconTone: {
-    fill: "#323230",
-    border: "rgba(255,255,255,0.09)",
-    flatIcon: true,
-  },
 };
 
 /**
@@ -741,7 +752,7 @@ export function buildCardHtml(params: {
         ${header}
 
         <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILLS[design.panel].fill}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_FILLS[design.panel].border}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
-          <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: ${PANEL_FILLS[design.panel].flatIcon ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.08)"}; border-radius: ${6 * S}px; border: ${1 * S}px solid ${PANEL_FILLS[design.panel].flatIcon ? "rgba(0,0,0,0)" : "rgba(255,255,255,0.06)"};">
+          <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
             <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
           </div>
           <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">

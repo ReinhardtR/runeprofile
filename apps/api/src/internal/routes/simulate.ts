@@ -149,11 +149,12 @@ export const simulateRouter = newRouter()
                 "darkSoft",
                 "chip",
                 "chipDim",
+                "dark70",
                 "solid",
                 "solidDeep",
-                "iconTone",
               ])
               .optional(),
+            modelFade: z.enum(["soft", "light", "none"]).optional(),
             name: z.enum(["gold", "white", "accent", "orange", "cyan", "cream"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })
@@ -189,7 +190,11 @@ export const simulateRouter = newRouter()
       const acct: AccountType | undefined =
         accountType != null ? AccountTypes[accountType] : undefined;
 
-      const avatarDataUri = await renderAvatarDataUri(c.env.BUCKET, rsn);
+      const avatarDataUri = await renderAvatarDataUri(
+        c.env.BUCKET,
+        rsn,
+        design?.modelFade,
+      );
       const png = await renderActivityCardPng({
         activity: activities[0]!,
         rsn,
