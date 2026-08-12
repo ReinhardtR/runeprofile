@@ -79,7 +79,10 @@ type OgLayout = {
   /** Chip row spacing. */
   chipGap: number;
   frame: "corners" | "plain" | "none";
-  /** Brand row pinned to the top corner instead of stacked in the column. */
+  /**
+   * "column" stacks the logo and wordmark above the name; "header" puts the
+   * logo alone in the top corner, leaving the name and chips as a pair.
+   */
   brand: "column" | "header";
   /**
    * Where the model's head sits, as a fraction of the width. Lower moves
@@ -95,6 +98,13 @@ type OgLayout = {
  */
 const MODEL_ANCHOR_X = 0.25;
 
+/**
+ * The logo alone in the corner, without the wordmark beside it — the mark
+ * is the brand at this size, and the word repeated what the name and the
+ * whole look already say.
+ */
+const HEADER_LOGO = 52;
+
 const OG_LAYOUTS: Record<string, OgLayout> = {
   bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
   // Kept for comparison, all reachable with ?variant= in dev.
@@ -109,7 +119,7 @@ const OG_LAYOUTS: Record<string, OgLayout> = {
  * whose edges are a single black outline, so it never quite joins a visible
  * edge however it is aligned, and a border of its own adds nothing.
  */
-const DEFAULT_LAYOUT = "bare";
+const DEFAULT_LAYOUT = "header";
 
 // Same thresholds as getCollectionLogRankIcon in the web UI (which lives in
 // a module that drags in three.js, so it isn't imported here).
@@ -326,7 +336,7 @@ async function generateOgImage({ request }: { request: Request }) {
       <img src="${modelDataUri}" width="${OG_WIDTH}" height="${OG_HEIGHT}" style="position: absolute; left: 0; top: 0;" />
       ${
         layout.brand === "header"
-          ? `<div style="display: flex; position: absolute; right: 84px; top: 52px;">${brandRow}</div>`
+          ? `<img src="${logoImage}" width="${HEADER_LOGO}" height="${HEADER_LOGO}" style="position: absolute; right: 84px; top: 48px;" />`
           : ""
       }
       <div style="display: flex; flex-direction: column; justify-content: center; gap: ${layout.blockGap}px; position: absolute; right: 84px; top: 0; bottom: 0; max-width: 560px;">
