@@ -232,15 +232,34 @@ function collect(pairs: Array<[number, unknown]>): Map<number, string> {
     if (stripped.length === 0) continue;
     entries.set(id, stripped);
   }
+  for (const [id, name] of entries) {
+    // The stripper above is the only thing between cache markup and a
+    // rendered page. If it ever lets a bracket through, fail here rather
+    // than commit it.
+    if (name.includes("<") || name.includes(">")) {
+      throw new Error(`Name for ${id} still contains markup after stripping: ${JSON.stringify(name)}`);
+    }
+  }
   return new Map([...entries].sort((a, b) => a[0] - b[0]));
 }
 
 /**
  * Cache names carry colour markup — 297 npcs are wrapped in <col=00ffff>, and a
  * few locs too — which has no business reaching a profile page.
+ *
+ * Removes the tags, then any angle bracket left over. Stripping
+ * tag-shaped substrings is not a sanitiser on its own: removing an inner tag
+ * leaves whatever surrounded it behind, so "<<script>script>" comes out as
+ * "script>" — still a bracket, on its way to a page. Repeating the pass does
+ * not help, because what remains is no longer tag-shaped and the pattern
+ * cannot match it. Deleting the brackets is what makes the result safe, and
+ * the caller asserts on it.
  */
 function stripTags(name: string): string {
-  return name.replace(/<[^>]*>/g, "").trim();
+  return name
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>]/g, "")
+    .trim();
 }
 
 function isNamed(name: unknown): name is string {
