@@ -81,22 +81,31 @@ type OgLayout = {
   frame: "corners" | "plain" | "none";
   /** Brand row pinned to the top corner instead of stacked in the column. */
   brand: "column" | "header";
+  /**
+   * Where the model's head sits, as a fraction of the width. Lower moves
+   * the player left, closing the gap at that edge.
+   */
+  modelAnchorX: number;
 };
 
 const OG_LAYOUTS: Record<string, OgLayout> = {
-  roomy: { blockGap: 30, nameGap: 20, chipGap: 18, frame: "corners", brand: "column" },
-  tight: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "corners", brand: "column" },
-  plain: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "plain", brand: "column" },
-  bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column" },
-  header: { blockGap: 18, nameGap: 12, chipGap: 16, frame: "corners", brand: "header" },
+  roomy: { blockGap: 30, nameGap: 20, chipGap: 18, frame: "corners", brand: "column", modelAnchorX: 0.31 },
+  tight: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "corners", brand: "column", modelAnchorX: 0.31 },
+  plain: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "plain", brand: "column", modelAnchorX: 0.31 },
+  header: { blockGap: 18, nameGap: 12, chipGap: 16, frame: "corners", brand: "header", modelAnchorX: 0.31 },
+  // No frame, with the player at a few distances from the left edge.
+  bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.31 },
+  "bare-28": { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.28 },
+  "bare-25": { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.25 },
+  "bare-22": { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.22 },
 };
 
 /**
- * "plain" over the corner pieces: that art is a decorative diagonal wedge
- * drawn for a frame whose edges are a single black outline, so it never
- * quite joins a visible edge however it is aligned.
+ * No frame: the corner art is a decorative diagonal wedge drawn for a frame
+ * whose edges are a single black outline, so it never quite joins a visible
+ * edge however it is aligned, and a border of its own adds nothing.
  */
-const DEFAULT_LAYOUT = "plain";
+const DEFAULT_LAYOUT = "bare";
 
 // Same thresholds as getCollectionLogRankIcon in the web UI (which lives in
 // a module that drags in three.js, so it isn't imported here).
@@ -212,7 +221,7 @@ async function generateOgImage({ request }: { request: Request }) {
         fit: "height",
         centerOn: "head",
         headroomTop: 0.143,
-        anchorX: 0.31,
+        anchorX: layout.modelAnchorX,
         supersample: 2,
       },
     );
