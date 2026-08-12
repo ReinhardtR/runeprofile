@@ -104,8 +104,13 @@ async function generateOgImage({ request }: { request: Request }) {
     return new Response("Server only", { status: 500 });
   }
 
-  const cache = (caches as unknown as { default: Cache }).default;
-  const cached = await cache.match(request.url);
+  // Not in dev: the cache is keyed on the URL and holds for a day, so an
+  // image rendered before a change keeps coming back and every edit looks
+  // like it did nothing.
+  const cache = import.meta.env.DEV
+    ? null
+    : (caches as unknown as { default: Cache }).default;
+  const cached = await cache?.match(request.url);
   if (cached) return cached;
 
   // The route matches /og/$username; og:image links use a .png suffix for
@@ -292,7 +297,7 @@ async function generateOgImage({ request }: { request: Request }) {
 
   const response = new Response(image.body, image);
   response.headers.set("Cache-Control", CACHE_CONTROL);
-  await cache.put(request.url, response.clone());
+  await cache?.put(request.url, response.clone());
   return response;
 }
 
