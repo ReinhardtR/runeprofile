@@ -32,6 +32,24 @@ import {
 const CARD_AUTHORED_WIDTH = 720;
 
 /**
+ * Native size of one tile of the stone texture, and the only sizes it may
+ * be drawn at.
+ *
+ * A tile has to land on whole pixels or its edges show up as a grid: the
+ * texture wraps seamlessly, but only if adjacent copies meet exactly. At
+ * the old 1440px card the tile happened to come out at 120px — a clean 2x —
+ * and the seams were invisible. At 800px the same formula gives 66.67px,
+ * every edge falls mid-pixel, and the grid appears.
+ *
+ * Rounding the scale keeps the grain about the same relative to the card,
+ * because card width and tile size fall together.
+ */
+const TEXTURE_NATIVE = 60;
+
+const textureTile = (scale: number) =>
+  TEXTURE_NATIVE * Math.max(1, Math.round(scale));
+
+/**
  * Authored card heights, in grid units. Aspect ratio is what decides how
  * much of a channel a card occupies at a given width.
  */
@@ -655,7 +673,7 @@ function bgLayers(
 ): string {
   const FULL_BLEED = fullBleed(width, height);
   const texture = (opacity: number) =>
-    `<div style="display: flex; ${FULL_BLEED} background-image: url(${png(CardAssets.texture)}); background-repeat: repeat; background-size: ${60 * S}px ${60 * S}px; opacity: ${opacity};"></div>`;
+    `<div style="display: flex; ${FULL_BLEED} background-image: url(${png(CardAssets.texture)}); background-repeat: repeat; background-size: ${textureTile(S)}px ${textureTile(S)}px; opacity: ${opacity};"></div>`;
   const glow = (css: string) =>
     `<div style="display: flex; ${FULL_BLEED} background-image: ${css};"></div>`;
 
