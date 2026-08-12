@@ -1,8 +1,7 @@
+import * as cache from "@abextm/cache2";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-import * as cache from "@abextm/cache2";
 
 import {
   COLLECTION_LOG_ITEMS,
@@ -125,7 +124,9 @@ function verifyCollectionLogItems(registries: Registry[]) {
     if (found === undefined) {
       problems.push(`${id} (${name}) is missing`);
     } else if (found !== name) {
-      problems.push(`${id} is "${found}" here but "${name}" in the collection log`);
+      problems.push(
+        `${id} is "${found}" here but "${name}" in the collection log`,
+      );
     }
   }
 
@@ -237,7 +238,9 @@ function collect(pairs: Array<[number, unknown]>): Map<number, string> {
     // rendered page. If it ever lets a bracket through, fail here rather
     // than commit it.
     if (name.includes("<") || name.includes(">")) {
-      throw new Error(`Name for ${id} still contains markup after stripping: ${JSON.stringify(name)}`);
+      throw new Error(
+        `Name for ${id} still contains markup after stripping: ${JSON.stringify(name)}`,
+      );
     }
   }
   return new Map([...entries].sort((a, b) => a[0] - b[0]));
@@ -247,19 +250,28 @@ function collect(pairs: Array<[number, unknown]>): Map<number, string> {
  * Cache names carry colour markup — 297 npcs are wrapped in <col=00ffff>, and a
  * few locs too — which has no business reaching a profile page.
  *
- * Removes the tags, then any angle bracket left over. Stripping
- * tag-shaped substrings is not a sanitiser on its own: removing an inner tag
- * leaves whatever surrounded it behind, so "<<script>script>" comes out as
- * "script>" — still a bracket, on its way to a page. Repeating the pass does
- * not help, because what remains is no longer tag-shaped and the pattern
- * cannot match it. Deleting the brackets is what makes the result safe, and
- * the caller asserts on it.
+ * Scans a character at a time and keeps only what sits outside a tag, so a
+ * bracket can never be emitted: the result is markup-free by construction.
+ *
+ * Deleting tag-shaped substrings instead — the obvious `replace(/<[^>]*>/g,
+ * "")` — is not a sanitiser. Removing an inner tag leaves whatever surrounded
+ * it behind, so "<<script>script>" comes out as "script>": still a bracket, on
+ * its way to a page. Repeating the pass does not help either, because what
+ * remains is no longer tag-shaped and the pattern can no longer match it.
+ *
+ * An unbalanced "<" swallows the rest of the name rather than letting the
+ * remainder through, which for a build-time registry is the safer way to be
+ * wrong — and the caller asserts on the result regardless.
  */
 function stripTags(name: string): string {
-  return name
-    .replace(/<[^>]*>/g, "")
-    .replace(/[<>]/g, "")
-    .trim();
+  let out = "";
+  let depth = 0;
+  for (const char of name) {
+    if (char === "<") depth++;
+    else if (char === ">") depth = Math.max(0, depth - 1);
+    else if (depth === 0) out += char;
+  }
+  return out.trim();
 }
 
 function isNamed(name: unknown): name is string {
@@ -272,9 +284,7 @@ function isTemplateUnset(template: number | undefined): boolean {
 }
 
 function sizeKb(entries: Map<number, string>): string {
-  return (
-    JSON.stringify(Object.fromEntries(entries)).length / 1024
-  ).toFixed(0);
+  return (JSON.stringify(Object.fromEntries(entries)).length / 1024).toFixed(0);
 }
 
 function diffRegistry(current: string, registry: Registry): string[] {
