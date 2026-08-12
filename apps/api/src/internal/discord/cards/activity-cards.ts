@@ -42,27 +42,43 @@ const CARD_HEIGHTS = {
 } as const;
 
 /**
- * Output width in pixels, which in Discord is also the *displayed* width:
- * a media gallery renders an image at its own pixel width, only scaling
- * down when it would overflow the message column (around 550px). The two
- * cannot be separated, so this one number trades size against sharpness —
- * 1440 fills the column and is oversampled ~2.6x, staying crisp on
- * high-DPI screens, while 500 shows a smaller card that a retina display
- * has to upscale. Rendering natively at the target instead of shrinking a
- * large PNG keeps every pixel meaningful.
+ * Output width in pixels.
+ *
+ * Discord sizes an image from its own pixel width and scales it down only
+ * when it would overflow whatever column it sits in, so size and sharpness
+ * are the same number and a card can only be crisp where something else
+ * imposes the limit. Cards ship inside an embed for exactly that reason:
+ * the embed's image column is far narrower than the message, so a file at
+ * roughly twice the displayed width is scaled down to fit and lands around
+ * two device pixels per image pixel on a high-DPI screen. Sending a small
+ * file instead would be displayed small at 1:1 and then stretched by the
+ * display, which is what made 500px look soft.
+ *
+ * Beyond about twice the displayed width the extra pixels are thrown away,
+ * and they are not free: render cost tracks the pixels rasterised almost
+ * exactly.
  */
-const DEFAULT_DISPLAY_WIDTH = 500;
+const DEFAULT_DISPLAY_WIDTH = 800;
 
 /**
- * Cards are rasterised at this multiple of their final size and averaged
- * back down. Small text is the reason: rasterising a pixel-styled face
- * directly at 14px drops the thin strokes, where the same glyphs drawn at
- * 28px and area-averaged keep them as soft grey. The footer line is the
- * clearest case — legible when downsampled, nearly invisible when not.
+ * Rasterising above the output size and averaging back down rescues small
+ * text: a pixel-styled face drawn straight at 14px drops its thin strokes,
+ * where the same glyphs drawn at 28px and area-averaged keep them as soft
+ * grey. The footer line is the clearest case.
+ *
+ * It only earns that cost on a card small enough to be displayed at 1:1.
+ * A file wider than this is scaled down by the column it sits in, which
+ * does the same averaging for free, so the extra pass buys nothing visible
+ * while quadrupling the pixels rasterised — and rasterised pixels are most
+ * of what a card costs to make. The default width sits well above it.
  */
-const CARD_SUPERSAMPLE: number = 2;
+const SUPERSAMPLE_BELOW_WIDTH = 600;
+
+const supersampleFor = (displayWidth: number) =>
+  displayWidth < SUPERSAMPLE_BELOW_WIDTH ? 2 : 1;
 
 const cardSize = (design: Required<CardDesign>) => {
+  const supersample = design.supersample ?? supersampleFor(design.displayWidth);
   // Output dimensions are rounded first and the render size derived from
   // them, so the rasterised image is always an exact multiple of the
   // supersample factor — rounding the other way round yields an odd
@@ -71,12 +87,13 @@ const cardSize = (design: Required<CardDesign>) => {
   const outputHeight = Math.round(
     (CARD_HEIGHTS[design.size] * outputWidth) / CARD_AUTHORED_WIDTH,
   );
-  const width = outputWidth * CARD_SUPERSAMPLE;
-  const height = outputHeight * CARD_SUPERSAMPLE;
+  const width = outputWidth * supersample;
+  const height = outputHeight * supersample;
   // The scale the layout is authored against, so one number drives every
   // size in the markup.
   return {
     scale: width / CARD_AUTHORED_WIDTH,
+    supersample,
     width,
     height,
     outputWidth,
@@ -125,7 +142,7 @@ export async function renderAvatarDataUri(
   // section: weapons and banners extend across the card *behind* the
   // content panel instead of being cut at a narrow canvas edge — the only
   // hard clip left is the card border itself.
-  const { width, height } = cardSize(resolved);
+  const { width, height, supersample } = cardSize(resolved);
   const rgba = renderScene([{ model: parseModel(bytes), yaw: 2.49 }], {
     width,
     height,
@@ -141,7 +158,10 @@ export async function renderAvatarDataUri(
     fit: "height",
     centerOn: "head",
     anchorX: 120 / 720,
-    supersample: 2,
+    // Anti-aliasing the polygon edges matters at the size the card is
+    // shown, not the size it is drawn: a large file gets scaled down by
+    // Discord, which smooths them for free.
+    supersample,
     ...MODEL_FADES[resolved.modelFade],
   });
   return png(bytesToBase64(await encodePng(rgba, width, height)));
@@ -218,11 +238,16 @@ async function withoutInitNoise<T>(work: () => Promise<T>): Promise<T> {
 }
 
 /** Dev-only: renders arbitrary HTML through the same pipeline. */
-export async function renderDebugHtml(html: string): Promise<Uint8Array> {
+export async function renderDebugHtml(
+  html: string,
+  design?: CardDesign,
+): Promise<Uint8Array> {
+  const { width, height } = cardSize({ ...DESIGN_DEFAULTS, ...design });
   return withoutInitNoise(async () => {
     const { ImageResponse } = await import("workers-og");
     const image = new ImageResponse(html, {
-      ...cardSize(DESIGN_DEFAULTS),
+      width,
+      height,
       fonts: loadFonts(),
     });
     return new Uint8Array(await image.arrayBuffer());
@@ -241,7 +266,7 @@ export async function renderActivityCardPng(params: {
   // space-between row distributes its free space around phantom gaps and
   // nothing sits flush with an edge. Collapse them away.
   const html = buildCardHtml(params).replace(/>\s+</g, "><");
-  const { width, height, outputWidth, outputHeight } = cardSize({
+  const { width, height, outputWidth, outputHeight, supersample } = cardSize({
     ...DESIGN_DEFAULTS,
     ...params.design,
   });
@@ -255,13 +280,13 @@ export async function renderActivityCardPng(params: {
     return new Uint8Array(await image.arrayBuffer());
   });
 
-  if (CARD_SUPERSAMPLE === 1) return rendered;
+  if (supersample === 1) return rendered;
   const decoded = await decodePng(rendered);
   const reduced = downsample(
     decoded.rgba,
     decoded.width,
     decoded.height,
-    CARD_SUPERSAMPLE,
+    supersample,
   );
   return encodePng(reduced, outputWidth, outputHeight);
 }
@@ -341,6 +366,8 @@ export type CardDesign = {
   size?: "full" | "slim" | "compact";
   /** Output pixel width, which is also the width Discord displays. */
   displayWidth?: number;
+  /** Overrides {@link supersampleFor}. */
+  supersample?: 1 | 2;
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
@@ -352,6 +379,7 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
   modelFade: "none",
   size: "slim",
   displayWidth: DEFAULT_DISPLAY_WIDTH,
+  supersample: supersampleFor(DEFAULT_DISPLAY_WIDTH),
 };
 
 /**

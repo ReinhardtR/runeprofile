@@ -67,7 +67,7 @@ export const simulateRouter = newRouter()
 
       if (format === "cards") {
         // One PNG per activity, attached directly to the message so no
-        // public URL is needed. The avatar render is shared per player.
+        // public URL is needed. The portrait is rendered once and shared.
         const avatarDataUri = await renderAvatarDataUri(
           c.env.BUCKET,
           rsn,
@@ -178,6 +178,7 @@ export const simulateRouter = newRouter()
             modelFade: z.enum(["soft", "light", "none"]).optional(),
             size: z.enum(["full", "slim", "compact"]).optional(),
             displayWidth: z.number().int().min(320).max(1440).optional(),
+            supersample: z.union([z.literal(1), z.literal(2)]).optional(),
             name: z.enum(["gold", "white", "accent", "orange", "cyan", "cream"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })
@@ -203,7 +204,10 @@ export const simulateRouter = newRouter()
         const { renderDebugHtml } = await import(
           "~/internal/discord/cards/activity-cards"
         );
-        const png = await renderDebugHtml(c.req.valid("json").debugHtml!);
+        const png = await renderDebugHtml(
+          c.req.valid("json").debugHtml!,
+          c.req.valid("json").design,
+        );
         return new Response(png as unknown as BodyInit, {
           headers: { "Content-Type": "image/png" },
         });
@@ -228,11 +232,6 @@ export const simulateRouter = newRouter()
     },
   );
 
-/** Message flag that switches a message to fully component-driven layout. */
-const IS_COMPONENTS_V2 = 1 << 15;
-/** Component type for a media gallery. */
-const MEDIA_GALLERY = 12;
-
 async function postCardsMessage(params: {
   token: string;
   channelId: string;
@@ -244,29 +243,31 @@ async function postCardsMessage(params: {
   form.append(
     "payload_json",
     JSON.stringify({
-      // One media gallery per card, each holding a single item. This is the
-      // only layout that shows a card at full message width: a bare
-      // attachment list crops several images into a mosaic, and an embed
-      // shrinks the image to the embed's content column. A gallery of one
-      // spans the message, and separate galleries stack vertically.
+      // One embed per card, each holding just the image.
       //
-      // The flag is what makes galleries available, and it is exclusive:
-      // content and embeds are ignored on the message, so the card has to
-      // carry its own text. That suits it — the summary line above the
-      // image read as a caption bolted onto the artwork.
-      flags: IS_COMPONENTS_V2,
-      components: cards.map((card, i) => ({
-        type: MEDIA_GALLERY,
-        items: [
-          {
-            media: { url: `attachment://activity-${i}.png` },
-            description: card.alt,
-          },
-        ],
+      // An embed's image column is narrower than a components v2 media
+      // gallery, and that is the point: Discord sizes an image from its own
+      // pixel width, so a gallery big enough to stay sharp on a high-DPI
+      // screen is also as wide as the message column. An embed caps the
+      // image well below that and scales the file down to fit, which leaves
+      // room to send a card at twice its displayed size — small on screen
+      // and still crisp.
+      //
+      // One embed each rather than several images on one, because bare
+      // attachments get cropped into a mosaic gallery. No description and
+      // no content: the card carries its own text, and a caption above the
+      // artwork read as bolted on. The color matches the card background so
+      // the embed's accent strip blends away.
+      embeds: cards.map((_, i) => ({
+        image: { url: `attachment://activity-${i}.png` },
+        color: 0x0d0d0c,
       })),
-      attachments: cards.map((_, i) => ({
+      // Alt text lives on the attachment, the only place Discord accepts it
+      // for an embed image.
+      attachments: cards.map((card, i) => ({
         id: i,
         filename: `activity-${i}.png`,
+        description: card.alt,
       })),
     }),
   );
