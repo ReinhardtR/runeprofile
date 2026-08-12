@@ -2,6 +2,8 @@ import {
   parseModel,
   renderScene,
   encodePng,
+  decodePng,
+  downsample,
 } from "@runeprofile/model-renderer/rasterizer";
 import {
   AccountType,
@@ -22,11 +24,65 @@ import {
   numberWithDelimiter,
 } from "~/internal/discord/helpers";
 
-// Cards are authored at 720x240 and rendered at 2x so Discord shows them
-// crisp on high-DPI screens.
-const S = 2;
-export const CARD_WIDTH = 720 * S;
-export const CARD_HEIGHT = 240 * S;
+/**
+ * The card is laid out on a 720-unit-wide grid and every size in the
+ * markup is a multiple of the render scale, so one number sets the output
+ * resolution without touching the design.
+ */
+const CARD_AUTHORED_WIDTH = 720;
+
+/**
+ * Authored card heights, in grid units. Aspect ratio is what decides how
+ * much of a channel a card occupies at a given width.
+ */
+const CARD_HEIGHTS = {
+  full: 240,
+  slim: 208,
+  compact: 184,
+} as const;
+
+/**
+ * Output width in pixels, which in Discord is also the *displayed* width:
+ * a media gallery renders an image at its own pixel width, only scaling
+ * down when it would overflow the message column (around 550px). The two
+ * cannot be separated, so this one number trades size against sharpness —
+ * 1440 fills the column and is oversampled ~2.6x, staying crisp on
+ * high-DPI screens, while 500 shows a smaller card that a retina display
+ * has to upscale. Rendering natively at the target instead of shrinking a
+ * large PNG keeps every pixel meaningful.
+ */
+const DEFAULT_DISPLAY_WIDTH = 500;
+
+/**
+ * Cards are rasterised at this multiple of their final size and averaged
+ * back down. Small text is the reason: rasterising a pixel-styled face
+ * directly at 14px drops the thin strokes, where the same glyphs drawn at
+ * 28px and area-averaged keep them as soft grey. The footer line is the
+ * clearest case — legible when downsampled, nearly invisible when not.
+ */
+const CARD_SUPERSAMPLE: number = 2;
+
+const cardSize = (design: Required<CardDesign>) => {
+  // Output dimensions are rounded first and the render size derived from
+  // them, so the rasterised image is always an exact multiple of the
+  // supersample factor — rounding the other way round yields an odd
+  // height that cannot be halved.
+  const outputWidth = Math.round(design.displayWidth);
+  const outputHeight = Math.round(
+    (CARD_HEIGHTS[design.size] * outputWidth) / CARD_AUTHORED_WIDTH,
+  );
+  const width = outputWidth * CARD_SUPERSAMPLE;
+  const height = outputHeight * CARD_SUPERSAMPLE;
+  // The scale the layout is authored against, so one number drives every
+  // size in the markup.
+  return {
+    scale: width / CARD_AUTHORED_WIDTH,
+    width,
+    height,
+    outputWidth,
+    outputHeight,
+  };
+};
 
 const png = (base64: string) => `data:image/png;base64,${base64}`;
 
@@ -50,8 +106,9 @@ const MODEL_FADES: Record<
 export async function renderAvatarDataUri(
   bucket: R2Bucket,
   rsn: string,
-  modelFade: NonNullable<CardDesign["modelFade"]> = DESIGN_DEFAULTS.modelFade,
+  design?: CardDesign,
 ): Promise<string> {
+  const resolved = { ...DESIGN_DEFAULTS, ...design };
   let bytes: Uint8Array;
   try {
     const file = await bucket.get(rsn.toLowerCase());
@@ -68,22 +125,24 @@ export async function renderAvatarDataUri(
   // section: weapons and banners extend across the card *behind* the
   // content panel instead of being cut at a narrow canvas edge — the only
   // hard clip left is the card border itself.
-  const width = 720 * S;
-  const height = 240 * S;
+  const { width, height } = cardSize(resolved);
   const rgba = renderScene([{ model: parseModel(bytes), yaw: 2.49 }], {
     width,
     height,
     // Tight head-and-shoulders framing: Discord scales the card down, so
     // the model has to read at a glance. Height-only fit lets broad
     // shoulders bleed off instead of shrinking the head.
-    cropTop: 0.32,
+    //
+    // Scaled with the card so the head stays the same size on a slimmer
+    // card and simply shows less chest, rather than zooming out with it.
+    cropTop: 0.32 * (CARD_HEIGHTS[resolved.size] / CARD_HEIGHTS.full),
     cropRef: "body",
     headroomTop: 0.03,
     fit: "height",
     centerOn: "head",
     anchorX: 120 / 720,
     supersample: 2,
-    ...MODEL_FADES[modelFade],
+    ...MODEL_FADES[resolved.modelFade],
   });
   return png(bytesToBase64(await encodePng(rgba, width, height)));
 }
@@ -163,8 +222,7 @@ export async function renderDebugHtml(html: string): Promise<Uint8Array> {
   return withoutInitNoise(async () => {
     const { ImageResponse } = await import("workers-og");
     const image = new ImageResponse(html, {
-      width: CARD_WIDTH,
-      height: CARD_HEIGHT,
+      ...cardSize(DESIGN_DEFAULTS),
       fonts: loadFonts(),
     });
     return new Uint8Array(await image.arrayBuffer());
@@ -183,15 +241,29 @@ export async function renderActivityCardPng(params: {
   // space-between row distributes its free space around phantom gaps and
   // nothing sits flush with an edge. Collapse them away.
   const html = buildCardHtml(params).replace(/>\s+</g, "><");
-  return withoutInitNoise(async () => {
+  const { width, height, outputWidth, outputHeight } = cardSize({
+    ...DESIGN_DEFAULTS,
+    ...params.design,
+  });
+  const rendered = await withoutInitNoise(async () => {
     const { ImageResponse } = await import("workers-og");
     const image = new ImageResponse(html, {
-      width: CARD_WIDTH,
-      height: CARD_HEIGHT,
+      width,
+      height,
       fonts: loadFonts(),
     });
     return new Uint8Array(await image.arrayBuffer());
   });
+
+  if (CARD_SUPERSAMPLE === 1) return rendered;
+  const decoded = await decodePng(rendered);
+  const reduced = downsample(
+    decoded.rgba,
+    decoded.width,
+    decoded.height,
+    CARD_SUPERSAMPLE,
+  );
+  return encodePng(reduced, outputWidth, outputHeight);
 }
 
 // ---------------------------------------------------------------- layout
@@ -262,6 +334,13 @@ export type CardDesign = {
    * crop hard, clipped only by the card border.
    */
   modelFade?: "soft" | "light" | "none";
+  /**
+   * How tall the card is authored, which is what decides how much of a
+   * Discord channel it takes up. See {@link CARD_HEIGHTS}.
+   */
+  size?: "full" | "slim" | "compact";
+  /** Output pixel width, which is also the width Discord displays. */
+  displayWidth?: number;
 };
 
 const DESIGN_DEFAULTS: Required<CardDesign> = {
@@ -271,6 +350,8 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
   surface: "dark",
   panel: "dark70",
   modelFade: "none",
+  size: "slim",
+  displayWidth: DEFAULT_DISPLAY_WIDTH,
 };
 
 /**
@@ -533,10 +614,18 @@ function buildCardContent(activity: ActivityEvent): CardContent {
   }
 }
 
-const FULL_BLEED = `position: absolute; left: 0; top: 0; width: ${720 * S}px; height: ${240 * S}px;`;
+const fullBleed = (width: number, height: number) =>
+  `position: absolute; left: 0; top: 0; width: ${width}px; height: ${height}px;`;
 
 /** Background layers, painted below the avatar and content. */
-function bgLayers(content: CardContent, bg: Required<CardDesign>["bg"]): string {
+function bgLayers(
+  content: CardContent,
+  bg: Required<CardDesign>["bg"],
+  width: number,
+  height: number,
+  S: number,
+): string {
+  const FULL_BLEED = fullBleed(width, height);
   const texture = (opacity: number) =>
     `<div style="display: flex; ${FULL_BLEED} background-image: url(${png(CardAssets.texture)}); background-repeat: repeat; background-size: ${60 * S}px ${60 * S}px; opacity: ${opacity};"></div>`;
   const glow = (css: string) =>
@@ -633,6 +722,10 @@ export function buildCardHtml(params: {
     ...(content.flashy ? { bg: "washDeep" as const } : {}),
     ...params.design,
   };
+  const { scale: S, width, height } = cardSize(design);
+  // Rows sit closer together on a slimmer card. Type sizes stay put, since
+  // they are what makes the card readable once Discord scales it down.
+  const rowGap = design.size === "full" ? 13 : design.size === "slim" ? 10 : 7;
   const name = escapeHtml(rsn);
   const accountTypeIcon =
     accountType &&
@@ -734,23 +827,23 @@ export function buildCardHtml(params: {
     : `<span style="font-size: ${23 * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>`;
 
   return `
-    <div style="display: flex; position: relative; width: ${720 * S}px; height: ${240 * S}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
-      ${bgLayers(content, design.bg)}
+    <div style="display: flex; position: relative; width: ${width}px; height: ${height}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
+      ${bgLayers(content, design.bg, width, height, S)}
       ${
         SURFACE_LIFT[design.surface] > 0
-          ? `<div style="display: flex; ${FULL_BLEED} background-color: rgba(255,255,255,${SURFACE_LIFT[design.surface]});"></div>`
+          ? `<div style="display: flex; ${fullBleed(width, height)} background-color: rgba(255,255,255,${SURFACE_LIFT[design.surface]});"></div>`
           : ""
       }
       ${
         sheen
-          ? `<div style="display: flex; ${FULL_BLEED} background-image: ${sheen};"></div>`
+          ? `<div style="display: flex; ${fullBleed(width, height)} background-image: ${sheen};"></div>`
           : ""
       }
 
-      <img src="${avatarDataUri}" width="${720 * S}" height="${240 * S}" style="position: absolute; left: 0; top: 0;" />
+      <img src="${avatarDataUri}" width="${width}" height="${height}" style="position: absolute; left: 0; top: 0;" />
       <div style="display: flex; position: absolute; left: 0; top: 0; bottom: 0; width: ${3 * S}px; border-radius: ${10 * S}px 0 0 ${10 * S}px; background-image: ${edge};"></div>
 
-      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${13 * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${rowGap * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
         ${header}
 
         <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILLS[design.panel].fill}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_FILLS[design.panel].border}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">

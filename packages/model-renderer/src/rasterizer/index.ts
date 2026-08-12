@@ -10,9 +10,9 @@ export { type ModelFormat, detectModelFormat } from "../format";
 export { parseGlb } from "./glb";
 export { parsePly } from "./ply";
 export type { ParsedModel } from "./ply";
-export { renderScene, estimateBody } from "./rasterizer";
+export { renderScene, estimateBody, downsample } from "./rasterizer";
 export type { ModelInstance, RenderOptions, BodyEstimate } from "./rasterizer";
-export { encodePng } from "./png";
+export { encodePng, decodePng } from "./png";
 
 /**
  * Parses a plugin-exported model in whichever format the profile holds:

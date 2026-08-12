@@ -35,6 +35,112 @@ export async function encodePng(
   ]);
 }
 
+/**
+ * Minimal PNG decoder, enough to read back what a renderer just produced:
+ * 8-bit, non-interlaced, RGB or RGBA. Exists so an image can be rendered
+ * larger than it will be shown and then area-averaged down — small text
+ * rasterised directly at its final size loses its thin strokes, where the
+ * same text drawn big and averaged down keeps them as soft grey.
+ */
+export async function decodePng(
+  data: Uint8Array,
+): Promise<{ width: number; height: number; rgba: Uint8ClampedArray }> {
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  let width = 0;
+  let height = 0;
+  let channels = 0;
+  const idat: Uint8Array[] = [];
+
+  let offset = 8; // skip the signature
+  while (offset + 8 <= data.length) {
+    const length = view.getUint32(offset);
+    const type = String.fromCharCode(
+      data[offset + 4]!,
+      data[offset + 5]!,
+      data[offset + 6]!,
+      data[offset + 7]!,
+    );
+    const body = data.subarray(offset + 8, offset + 8 + length);
+    if (type === "IHDR") {
+      width = view.getUint32(offset + 8);
+      height = view.getUint32(offset + 12);
+      const depth = body[8]!;
+      const colorType = body[9]!;
+      const interlace = body[12]!;
+      if (depth !== 8 || interlace !== 0 || (colorType !== 6 && colorType !== 2)) {
+        throw new Error(
+          `Unsupported PNG: depth ${depth}, color type ${colorType}, interlace ${interlace}`,
+        );
+      }
+      channels = colorType === 6 ? 4 : 3;
+    } else if (type === "IDAT") {
+      idat.push(body);
+    } else if (type === "IEND") {
+      break;
+    }
+    offset += 12 + length;
+  }
+  if (width === 0 || height === 0) throw new Error("PNG has no IHDR");
+
+  const raw = await inflate(concat(idat));
+  const stride = width * channels;
+  const rgba = new Uint8ClampedArray(width * height * 4);
+  let prior = new Uint8Array(stride);
+  for (let y = 0; y < height; y++) {
+    const filter = raw[y * (stride + 1)]!;
+    const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
+    const current = new Uint8Array(line);
+    // Undo the per-scanline filter. Byte distance to the pixel on the left
+    // is the channel count, per the PNG spec.
+    for (let i = 0; i < stride; i++) {
+      const a = i >= channels ? current[i - channels]! : 0;
+      const b = prior[i]!;
+      switch (filter) {
+        case 0:
+          break;
+        case 1:
+          current[i] = (current[i]! + a) & 0xff;
+          break;
+        case 2:
+          current[i] = (current[i]! + b) & 0xff;
+          break;
+        case 3:
+          current[i] = (current[i]! + ((a + b) >> 1)) & 0xff;
+          break;
+        case 4: {
+          const c = i >= channels ? prior[i - channels]! : 0;
+          const p = a + b - c;
+          const pa = Math.abs(p - a);
+          const pb = Math.abs(p - b);
+          const pc = Math.abs(p - c);
+          const pred = pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+          current[i] = (current[i]! + pred) & 0xff;
+          break;
+        }
+        default:
+          throw new Error(`Unknown PNG filter ${filter}`);
+      }
+    }
+    for (let x = 0; x < width; x++) {
+      const s = x * channels;
+      const d = (y * width + x) * 4;
+      rgba[d] = current[s]!;
+      rgba[d + 1] = current[s + 1]!;
+      rgba[d + 2] = current[s + 2]!;
+      rgba[d + 3] = channels === 4 ? current[s + 3]! : 255;
+    }
+    prior = current;
+  }
+  return { width, height, rgba };
+}
+
+async function inflate(data: Uint8Array): Promise<Uint8Array> {
+  const stream = new Blob([data as BlobPart])
+    .stream()
+    .pipeThrough(new DecompressionStream("deflate"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
 async function deflate(data: Uint8Array): Promise<Uint8Array> {
   // "deflate" = zlib-wrapped stream, which is what PNG's IDAT expects.
   const stream = new Blob([data as BlobPart])

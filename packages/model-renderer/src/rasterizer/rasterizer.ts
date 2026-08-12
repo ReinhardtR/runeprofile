@@ -571,7 +571,11 @@ export function estimateBody(
     recognised: true,
   };
 }
-function downsample(
+/**
+ * Box-averages an RGBA buffer down by an integer factor, weighting colour
+ * by alpha so transparent samples do not darken edges.
+ */
+export function downsample(
   src: Uint8ClampedArray,
   srcWidth: number,
   srcHeight: number,

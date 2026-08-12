@@ -9,6 +9,7 @@ import {
 
 import { isProdDiscordBot } from "~/internal/discord/constants";
 import {
+  type CardDesign,
   activityAltText,
   renderActivityCardPng,
   renderAvatarDataUri,
@@ -25,6 +26,8 @@ const simulateBodySchema = z.object({
   rsn: z.string().min(1).max(12),
   accountType: z.number().int().min(0).max(6).optional(),
   format: z.enum(["embeds", "cards"]).default("embeds"),
+  size: z.enum(["full", "slim", "compact"]).optional(),
+  displayWidth: z.number().int().min(320).max(1440).optional(),
 });
 
 export const simulateRouter = newRouter()
@@ -43,16 +46,33 @@ export const simulateRouter = newRouter()
         );
       }
 
-      const { channelId, activities, rsn, accountType, format } =
-        c.req.valid("json");
+      const {
+        channelId,
+        activities,
+        rsn,
+        accountType,
+        format,
+        size,
+        displayWidth,
+      } = c.req.valid("json");
 
       const acct: AccountType | undefined =
         accountType != null ? AccountTypes[accountType] : undefined;
 
+      // Only the keys that were actually sent: spreading an explicit
+      // undefined over the card defaults would erase them.
+      const design: CardDesign = {};
+      if (size) design.size = size;
+      if (displayWidth) design.displayWidth = displayWidth;
+
       if (format === "cards") {
         // One PNG per activity, attached directly to the message so no
         // public URL is needed. The avatar render is shared per player.
-        const avatarDataUri = await renderAvatarDataUri(c.env.BUCKET, rsn);
+        const avatarDataUri = await renderAvatarDataUri(
+          c.env.BUCKET,
+          rsn,
+          design,
+        );
         const cards: { file: Uint8Array; alt: string }[] = [];
         for (const activity of activities) {
           cards.push({
@@ -61,6 +81,7 @@ export const simulateRouter = newRouter()
               rsn,
               accountType: acct,
               avatarDataUri,
+              design,
             }),
             alt: activityAltText(activity, rsn),
           });
@@ -155,6 +176,8 @@ export const simulateRouter = newRouter()
               ])
               .optional(),
             modelFade: z.enum(["soft", "light", "none"]).optional(),
+            size: z.enum(["full", "slim", "compact"]).optional(),
+            displayWidth: z.number().int().min(320).max(1440).optional(),
             name: z.enum(["gold", "white", "accent", "orange", "cyan", "cream"]).optional(),
             footer: z.enum(["full", "minimal"]).optional(),
           })
@@ -190,11 +213,7 @@ export const simulateRouter = newRouter()
       const acct: AccountType | undefined =
         accountType != null ? AccountTypes[accountType] : undefined;
 
-      const avatarDataUri = await renderAvatarDataUri(
-        c.env.BUCKET,
-        rsn,
-        design?.modelFade,
-      );
+      const avatarDataUri = await renderAvatarDataUri(c.env.BUCKET, rsn, design);
       const png = await renderActivityCardPng({
         activity: activities[0]!,
         rsn,
