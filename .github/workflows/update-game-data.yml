@@ -85,6 +85,12 @@ jobs:
           OSRS_CACHE_COMMIT: ${{ steps.cache.outputs.commit_sha }}
         run: pnpm script:update-quests
 
+      - name: Update loot source and item name registries
+        if: steps.cache.outputs.new == 'true'
+        env:
+          OSRS_CACHE_COMMIT: ${{ steps.cache.outputs.commit_sha }}
+        run: pnpm script:update-loot-sources
+
       - name: Build PR body
         id: summary
         if: steps.cache.outputs.new == 'true'

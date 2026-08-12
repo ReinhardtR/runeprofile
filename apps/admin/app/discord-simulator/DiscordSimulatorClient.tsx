@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Send } from "lucide-react";
+import { Eye, Loader2, Search, Send, X } from "lucide-react";
 import { useCallback, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ import {
 
 import {
   getRecentActivities,
+  previewDiscordCard,
   searchAccountsForSimulator,
   sendDiscordEmbeds,
 } from "./actions";
@@ -108,12 +109,69 @@ function getActivityLabel(activity: { type: string; data: unknown }): string {
   }
 }
 
+// One representative event per activity type, for one-click test sends.
+const PRESET_ACTIVITIES: { label: string; activity: ActivityEvent }[] = [
+  {
+    label: "Level Up · 99 Slayer",
+    activity: { type: "level_up", data: { name: "Slayer", level: 99 } },
+  },
+  {
+    label: "XP Milestone · 50M Slayer",
+    activity: { type: "xp_milestone", data: { name: "Slayer", xp: 50_000_000 } },
+  },
+  {
+    label: "Collection Log · Twisted bow",
+    activity: { type: "new_item_obtained", data: { itemId: 20997 } },
+  },
+  {
+    label: "Valuable Drop · Twisted bow",
+    activity: {
+      type: "valuable_drop",
+      data: { itemId: 20997, value: 1_450_000_000 },
+    },
+  },
+  {
+    label: "Quest · Desert Treasure II",
+    activity: { type: "quest_completed", data: { questId: 2343 } },
+  },
+  {
+    label: "Diary · Elite Desert",
+    activity: {
+      type: "achievement_diary_tier_completed",
+      data: { areaId: 5, tier: 3 },
+    },
+  },
+  {
+    label: "CA Tier Completed · Grandmaster",
+    activity: {
+      type: "combat_achievement_tier_completed",
+      data: { tierId: 6 },
+    },
+  },
+  {
+    label: "CA Tier Reached · Master",
+    activity: { type: "combat_achievement_tier_reached", data: { tierId: 5 } },
+  },
+  {
+    label: "CA Task · The Worst Ranged Weapon",
+    activity: {
+      type: "combat_achievement_task_completed",
+      data: { taskIndex: 14 },
+    },
+  },
+  {
+    label: "Maxed",
+    activity: { type: "maxed", data: {} },
+  },
+];
+
 export function DiscordSimulatorClient({
   defaultChannelId,
 }: {
   defaultChannelId: string;
 }) {
   const [channelId, setChannelId] = useState(defaultChannelId);
+  const [format, setFormat] = useState<"embeds" | "cards">("cards");
 
   // ── From Account state ──
   const [query, setQuery] = useState("");
@@ -134,6 +192,30 @@ export function DiscordSimulatorClient({
 
   // ── Shared ──
   const [isSending, startSendTransition] = useTransition();
+  const [isPreviewing, startPreviewTransition] = useTransition();
+  const [preview, setPreview] = useState<{ src: string; label: string } | null>(
+    null,
+  );
+
+  const handlePreview = useCallback(
+    (activity: ActivityEvent, label: string, rsn?: string, type?: number) => {
+      startPreviewTransition(async () => {
+        try {
+          const src = await previewDiscordCard({
+            activity,
+            rsn: rsn ?? (manualRsn || "TestPlayer"),
+            accountType: type ?? Number(manualAccountType),
+          });
+          setPreview({ src, label });
+        } catch (err) {
+          toast.error(
+            err instanceof Error ? err.message : "Failed to render preview",
+          );
+        }
+      });
+    },
+    [manualRsn, manualAccountType],
+  );
 
   // ── Handlers ──
   const handleSearch = useCallback(() => {
@@ -191,15 +273,16 @@ export function DiscordSimulatorClient({
           ),
           rsn: selectedAccount.username,
           accountType: selectedAccount.accountType,
+          format,
         });
-        toast.success(`Sent ${result.sent} embed(s) to Discord`);
+        toast.success(`Sent ${result.sent} ${format} to Discord`);
       } catch (err) {
         toast.error(
           err instanceof Error ? err.message : "Failed to send embeds",
         );
       }
     });
-  }, [selectedAccount, selectedActivityIds, accountActivities, channelId]);
+  }, [selectedAccount, selectedActivityIds, accountActivities, channelId, format]);
 
   const handleSendManual = useCallback(
     async (activityData: ActivityEvent) => {
@@ -210,8 +293,9 @@ export function DiscordSimulatorClient({
             activities: [activityData],
             rsn: manualRsn || "TestPlayer",
             accountType: Number(manualAccountType),
+            format,
           });
-          toast.success(`Sent ${result.sent} embed(s) to Discord`);
+          toast.success(`Sent ${result.sent} ${format} to Discord`);
         } catch (err) {
           toast.error(
             err instanceof Error ? err.message : "Failed to send embeds",
@@ -219,7 +303,29 @@ export function DiscordSimulatorClient({
         }
       });
     },
-    [channelId, manualRsn, manualAccountType],
+    [channelId, manualRsn, manualAccountType, format],
+  );
+
+  const handleSendPresets = useCallback(
+    async (presets: ActivityEvent[]) => {
+      startSendTransition(async () => {
+        try {
+          const result = await sendDiscordEmbeds({
+            channelId,
+            activities: presets,
+            rsn: manualRsn || "TestPlayer",
+            accountType: Number(manualAccountType),
+            format,
+          });
+          toast.success(`Sent ${result.sent} ${format} to Discord`);
+        } catch (err) {
+          toast.error(
+            err instanceof Error ? err.message : "Failed to send presets",
+          );
+        }
+      });
+    },
+    [channelId, manualRsn, manualAccountType, format],
   );
 
   const getActivityTypeLabel = (type: string) =>
@@ -230,21 +336,41 @@ export function DiscordSimulatorClient({
 
   return (
     <div className="space-y-6">
-      {/* Channel ID */}
+      {/* Channel ID + format */}
       <Card className="p-4">
-        <div className="space-y-2">
-          <Label htmlFor="channel-id">Discord Channel ID</Label>
-          <Input
-            id="channel-id"
-            value={channelId}
-            onChange={(e) => setChannelId(e.target.value)}
-            placeholder="Paste a Discord channel ID"
-            className="max-w-md font-mono"
-          />
-          <p className="text-xs text-muted-foreground">
-            Right-click a channel in Discord → Copy Channel ID. Overrides the
-            default from your environment.
-          </p>
+        <div className="flex flex-wrap gap-6">
+          <div className="space-y-2 flex-1 min-w-64">
+            <Label htmlFor="channel-id">Discord Channel ID</Label>
+            <Input
+              id="channel-id"
+              value={channelId}
+              onChange={(e) => setChannelId(e.target.value)}
+              placeholder="Paste a Discord channel ID"
+              className="max-w-md font-mono"
+            />
+            <p className="text-xs text-muted-foreground">
+              Right-click a channel in Discord → Copy Channel ID. Overrides
+              the default from your environment.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="message-format">Message Format</Label>
+            <Select
+              value={format}
+              onValueChange={(v) => setFormat(v as "embeds" | "cards")}
+            >
+              <SelectTrigger id="message-format" className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cards">Cards (images)</SelectItem>
+                <SelectItem value="embeds">Embeds</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Cards render the player model into a styled image.
+            </p>
+          </div>
         </div>
       </Card>
 
@@ -253,6 +379,7 @@ export function DiscordSimulatorClient({
         <TabsList>
           <TabsTrigger value="from-account">From Account</TabsTrigger>
           <TabsTrigger value="manual">Manual</TabsTrigger>
+          <TabsTrigger value="presets">Presets</TabsTrigger>
         </TabsList>
 
         {/* ── From Account ─────────────────────────────────────── */}
@@ -344,6 +471,31 @@ export function DiscordSimulatorClient({
                         : "Select All"}
                     </Button>
                   )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const first = accountActivities.find((a) =>
+                        selectedActivityIds.has(a.id),
+                      );
+                      if (!first || !selectedAccount) return;
+                      handlePreview(
+                        { type: first.type, data: first.data } as ActivityEvent,
+                        getActivityLabel(first),
+                        selectedAccount.username,
+                        selectedAccount.accountType,
+                      );
+                    }}
+                    disabled={isPreviewing || selectedActivityIds.size === 0}
+                  >
+                    {isPreviewing ? (
+                      <Loader2 className="size-4 animate-spin mr-1" />
+                    ) : (
+                      <Eye className="size-4 mr-1" />
+                    )}
+                    Preview
+                  </Button>
                   <Button
                     size="sm"
                     onClick={handleSendFromAccount}
@@ -449,7 +601,135 @@ export function DiscordSimulatorClient({
             />
           </Card>
         </TabsContent>
+
+        {/* ── Presets ──────────────────────────────────────────── */}
+        <TabsContent value="presets" className="space-y-4">
+          <Card className="p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="preset-rsn">Player Name (RSN)</Label>
+                <Input
+                  id="preset-rsn"
+                  value={manualRsn}
+                  onChange={(e) => setManualRsn(e.target.value)}
+                  placeholder="TestPlayer"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="preset-account-type">Account Type</Label>
+                <Select
+                  value={manualAccountType}
+                  onValueChange={setManualAccountType}
+                >
+                  <SelectTrigger id="preset-account-type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AccountTypes.map((t) => (
+                      <SelectItem key={t.id} value={String(t.id)}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                One click sends a representative event of that type.
+              </p>
+              <Button
+                size="sm"
+                onClick={() =>
+                  handleSendPresets(PRESET_ACTIVITIES.map((p) => p.activity))
+                }
+                disabled={isSending || !channelId.trim()}
+              >
+                {isSending ? (
+                  <Loader2 className="size-4 animate-spin mr-1" />
+                ) : (
+                  <Send className="size-4 mr-1" />
+                )}
+                Send All ({PRESET_ACTIVITIES.length})
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+              {PRESET_ACTIVITIES.map((preset) => (
+                <div key={preset.label} className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 justify-start font-normal min-w-0"
+                    onClick={() => handleSendManual(preset.activity)}
+                    disabled={isSending || !channelId.trim()}
+                  >
+                    <Send className="size-3.5 mr-2 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{preset.label}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="px-2 shrink-0"
+                    title={`Preview ${preset.label}`}
+                    onClick={() => handlePreview(preset.activity, preset.label)}
+                    disabled={isPreviewing}
+                  >
+                    <Eye className="size-3.5 text-muted-foreground" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      {/* ── Card preview ─────────────────────────────────────────── */}
+      {(preview || isPreviewing) && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium">
+              Card preview
+              {preview && (
+                <span className="text-muted-foreground font-normal">
+                  {" "}
+                  — {preview.label}
+                </span>
+              )}
+            </h3>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="px-2"
+              onClick={() => setPreview(null)}
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+          {isPreviewing ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            preview && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview.src}
+                alt={`Discord card preview: ${preview.label}`}
+                className="w-full max-w-2xl rounded-md border"
+              />
+            )
+          )}
+          <p className="text-xs text-muted-foreground">
+            Rendered by the same pipeline that posts to Discord. Discord shows
+            it at roughly this size inside an embed.
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

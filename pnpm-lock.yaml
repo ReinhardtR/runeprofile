@@ -243,6 +243,9 @@ importers:
       '@runeprofile/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@runeprofile/model-renderer':
+        specifier: workspace:*
+        version: link:../../packages/model-renderer
       '@runeprofile/runescape':
         specifier: workspace:*
         version: link:../../packages/runescape
@@ -270,6 +273,9 @@ importers:
       hono-rate-limiter:
         specifier: ^0.5.3
         version: 0.5.3(hono@4.12.31)
+      workers-og:
+        specifier: ^0.0.27
+        version: 0.0.27
       zod:
         specifier: ^3.24.2
         version: 3.25.76
