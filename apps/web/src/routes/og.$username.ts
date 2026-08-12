@@ -3,10 +3,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { renderModelToPng } from "@runeprofile/model-renderer/rasterizer";
 import { SKILLS, getLevelFromXP } from "@runeprofile/runescape";
 
-import AccountTypeIcons from "~/core/assets/account-type-icons.json";
+import AccountTypeIconsShadowed from "~/core/assets/account-type-icons-shadowed.json";
 import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-icons.json";
 import CollectionLogRankIcons from "~/core/assets/collection-log-rank-icons.json";
-import OgFrameCorners from "~/core/assets/og-frame-corners.json";
+import OgFrame from "~/core/assets/og-frame.json";
 import { RuneProfileApiError, getProfile, getProfileModel } from "~/core/api";
 // Satori needs raw TTF bytes. The fonts are inlined into the bundle as data
 // URIs (a Worker can't fetch() its own hostname to load them as assets).
@@ -63,6 +63,9 @@ function loadFonts() {
 }
 
 const CACHE_CONTROL = "public, max-age=3600, s-maxage=86400";
+
+const OG_WIDTH = 1200;
+const OG_HEIGHT = 630;
 
 // Same thresholds as getCollectionLogRankIcon in the web UI (which lives in
 // a module that drags in three.js, so it isn't imported here).
@@ -148,19 +151,28 @@ async function generateOgImage({ request }: { request: Request }) {
     const png = await renderModelToPng(
       model,
       // 2.49 rad = chathead-style angle facing right, toward the name card.
-      // Crop to the top half of the *body* (cropRef "body" ignores held
-      // weapons/banners towering over the head); the baked bottom fade
-      // blends the crop line into the background. 675x600 is the exact
-      // size the image is placed at; supersampling handles anti-aliasing.
+      //
+      // The canvas is the whole image, with the head anchored over the left
+      // third: a canvas only as wide as the model's own column cut off
+      // whatever reached past it, so a scythe or a banner ended in mid-air.
+      // Given the full width, held gear simply carries on behind the name
+      // and chips, and the only thing that clips it is the image edge.
+      //
+      // Crop to the top half of the *body* — cropRef "body" ignores what a
+      // player is holding, which would otherwise dominate the framing.
       {
-        width: 675,
-        height: 600,
+        width: OG_WIDTH,
+        height: OG_HEIGHT,
         yaw: 2.49,
         cropTop: 0.5,
         cropRef: "body",
-        headroomTop: 0.1,
+        // Fits the crop vertically and lets broad shoulders run off the
+        // sides, rather than shrinking the head to fit them in.
+        fit: "height",
+        centerOn: "head",
+        headroomTop: 0.143,
+        anchorX: 0.31,
         supersample: 2,
-        fadeBottom: 0.2,
       },
     );
     modelDataUri = `data:image/png;base64,${bytesToBase64(png)}`;
@@ -168,8 +180,13 @@ async function generateOgImage({ request }: { request: Request }) {
     modelDataUri = null;
   }
 
+  // Baked pixel art: whole-pixel upscale plus a black rim and drop shadow,
+  // drawn at its own size so nothing resamples it. The raw 13px sprite
+  // stretched to 54px was a blur, and had nothing to lift it off the card.
   const accountTypeIcon =
-    AccountTypeIcons[profile.accountType.key as keyof typeof AccountTypeIcons];
+    AccountTypeIconsShadowed[
+      profile.accountType.key as keyof typeof AccountTypeIconsShadowed
+    ];
   const caTierIcon =
     CombatAchievementTierIcons[
       String(
@@ -190,12 +207,22 @@ async function generateOgImage({ request }: { request: Request }) {
       <span style="font-size: 42px; font-weight: 700; color: #ffff00; line-height: 1; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">${value}</span>
     </div>`;
 
-  const corner = (key: keyof typeof OgFrameCorners, position: string) => `
-    <img src="data:image/png;base64,${OgFrameCorners[key]}" width="14" height="14" style="position: absolute; ${position};" />`;
+  // The stone frame, drawn as its four corner pieces over a plain edge in
+  // the same stone tone. The art joins its corners with a single black
+  // outline, which against a near-black card is invisible — so the corners
+  // read as four marks floating in space unless the edges are painted in.
+  // Corners go up in whole pixels to stay crisp.
+  const FRAME_INSET = 10;
+  const FRAME_SCALE = 2;
+  const cornerSize = OgFrame.corner * FRAME_SCALE;
+  const corner = (key: "tl" | "tr" | "bl" | "br", position: string) => `
+    <img src="data:image/png;base64,${OgFrame[key]}" width="${cornerSize}" height="${cornerSize}" style="position: absolute; ${position};" />`;
+  const frameEdges = `
+    <div style="display: flex; position: absolute; left: ${FRAME_INSET}px; top: ${FRAME_INSET}px; right: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px; border-style: solid; border-width: ${FRAME_SCALE}px; border-color: ${OgFrame.edge};"></div>`;
 
   const brandRow = `
     <div style="display: flex; align-items: center; gap: 14px;">
-      <img src="${logoImage}" width="42" height="42" style="border-radius: 8px;" />
+      <img src="${logoImage}" width="42" height="42" />
       <span style="font-size: 30px; font-weight: 700; color: #ff981f; letter-spacing: 2px; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">RUNEPROFILE</span>
     </div>`;
 
@@ -203,7 +230,7 @@ async function generateOgImage({ request }: { request: Request }) {
     <div style="display: flex; align-items: center; gap: 18px;">
       ${
         accountTypeIcon
-          ? `<img src="data:image/png;base64,${accountTypeIcon}" width="54" height="54" />`
+          ? `<img src="data:image/png;base64,${accountTypeIcon.data}" width="${accountTypeIcon.width}" height="${accountTypeIcon.height}" />`
           : ""
       }
       <span style="font-size: ${nameSize}px; font-weight: 700; color: #ffff00; line-height: 1; text-shadow: 4px 4px 0 rgba(0,0,0,0.9);">${name}</span>
@@ -222,7 +249,7 @@ async function generateOgImage({ request }: { request: Request }) {
 
   const content = modelDataUri
     ? `
-      <img src="${modelDataUri}" width="675" height="600" style="position: absolute; left: 36px; bottom: 0;" />
+      <img src="${modelDataUri}" width="${OG_WIDTH}" height="${OG_HEIGHT}" style="position: absolute; left: 0; top: 0;" />
       <div style="display: flex; flex-direction: column; justify-content: center; gap: 30px; position: absolute; right: 84px; top: 0; bottom: 0; max-width: 560px;">
         ${brandRow}
         <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -243,22 +270,23 @@ async function generateOgImage({ request }: { request: Request }) {
       </div>`;
 
   const html = `
-    <div style="display: flex; position: relative; width: 1200px; height: 630px; background-color: #0d0d0c; font-family: 'RuneScape';">
-      <div style="display: flex; position: absolute; left: 0; top: 0; width: 1200px; height: 630px; background-image: url(${cardTexture}); background-repeat: repeat; background-size: 60px 60px; opacity: 0.9;"></div>
-      <div style="display: flex; position: absolute; left: 0; top: 0; width: 1200px; height: 630px; background-image: radial-gradient(circle at 86% 10%, rgba(255,152,31,0.10) 0%, rgba(255,152,31,0) 45%);"></div>
-      <div style="display: flex; position: absolute; left: 0; top: 0; width: 1200px; height: 630px; background-image: radial-gradient(circle at 18% 46%, rgba(93,74,214,0.20) 0%, rgba(93,74,214,0) 40%);"></div>
-      <div style="display: flex; position: absolute; left: 0; top: 0; width: 1200px; height: 630px; background-image: radial-gradient(circle at 45% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);"></div>
+    <div style="display: flex; position: relative; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-color: #0d0d0c; font-family: 'RuneScape';">
+      <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: url(${cardTexture}); background-repeat: repeat; background-size: 60px 60px; opacity: 0.9;"></div>
+      <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 86% 10%, rgba(255,152,31,0.10) 0%, rgba(255,152,31,0) 45%);"></div>
+      <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 18% 46%, rgba(93,74,214,0.20) 0%, rgba(93,74,214,0) 40%);"></div>
+      <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 45% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);"></div>
       ${content}
-      ${corner("tl", "left: 10px; top: 10px")}
-      ${corner("tr", "right: 10px; top: 10px")}
-      ${corner("bl", "left: 10px; bottom: 10px")}
-      ${corner("br", "right: 10px; bottom: 10px")}
+      ${frameEdges}
+      ${corner("tl", `left: ${FRAME_INSET}px; top: ${FRAME_INSET}px`)}
+      ${corner("tr", `right: ${FRAME_INSET}px; top: ${FRAME_INSET}px`)}
+      ${corner("bl", `left: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`)}
+      ${corner("br", `right: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`)}
     </div>`;
 
   const { ImageResponse } = await import("workers-og");
   const image = new ImageResponse(html, {
-    width: 1200,
-    height: 630,
+    width: OG_WIDTH,
+    height: OG_HEIGHT,
     fonts: loadFonts(),
   });
 
