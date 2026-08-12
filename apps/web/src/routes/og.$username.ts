@@ -6,7 +6,6 @@ import { SKILLS, getLevelFromXP } from "@runeprofile/runescape";
 import AccountTypeIconsShadowed from "~/core/assets/account-type-icons-shadowed.json";
 import CombatAchievementTierIcons from "~/core/assets/combat-achievement-tier-icons.json";
 import CollectionLogRankIcons from "~/core/assets/collection-log-rank-icons.json";
-import OgFrame from "~/core/assets/og-frame.json";
 import { RuneProfileApiError, getProfile, getProfileModel } from "~/core/api";
 // Satori needs raw TTF bytes. The fonts are inlined into the bundle as data
 // URIs (a Worker can't fetch() its own hostname to load them as assets).
@@ -68,58 +67,42 @@ const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 
 /**
- * Layout variants, for comparing spacing and frame treatments. Selected
- * with ?variant= in dev only; production always uses DEFAULT_LAYOUT.
- */
-type OgLayout = {
-  /** Between the brand row, the name block and the chips. */
-  blockGap: number;
-  /** Between the name and the rule under it. */
-  nameGap: number;
-  /** Chip row spacing. */
-  chipGap: number;
-  frame: "corners" | "plain" | "none";
-  /**
-   * "column" stacks the logo and wordmark above the name; "header" puts the
-   * logo alone in the top corner, leaving the name and chips as a pair.
-   */
-  brand: "column" | "header";
-  /**
-   * Where the model's head sits, as a fraction of the width. Lower moves
-   * the player left, closing the gap at that edge.
-   */
-  modelAnchorX: number;
-};
-
-/**
- * Head at 0.25 of the width: far enough left that the gap beside the player
- * does not read as empty, and not so far that a broad shoulder leaves the
- * frame.
+ * Head at a quarter of the width: far enough left that the gap beside the
+ * player does not read as empty, and not so far that a broad shoulder
+ * leaves the frame.
  */
 const MODEL_ANCHOR_X = 0.25;
 
 /**
- * The logo alone in the corner, without the wordmark beside it — the mark
- * is the brand at this size, and the word repeated what the name and the
- * whole look already say.
+ * The logo sits alone in the corner. The wordmark beside it repeated what
+ * the name and the whole look already say, and stacking both above the name
+ * pushed the blocks apart.
  */
 const HEADER_LOGO = 52;
-
-const OG_LAYOUTS: Record<string, OgLayout> = {
-  bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
-  // Kept for comparison, all reachable with ?variant= in dev.
-  plain: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "plain", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
-  corners: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "corners", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
-  header: { blockGap: 18, nameGap: 12, chipGap: 16, frame: "none", brand: "header", modelAnchorX: MODEL_ANCHOR_X },
-  roomy: { blockGap: 30, nameGap: 20, chipGap: 18, frame: "corners", brand: "column", modelAnchorX: 0.31 },
-};
-
 /**
- * No frame: the corner art is a decorative diagonal wedge drawn for a frame
- * whose edges are a single black outline, so it never quite joins a visible
- * edge however it is aligned, and a border of its own adds nothing.
+ * Held back from full strength: it is a mark in the corner, not something
+ * to look at before the player's name.
  */
-const DEFAULT_LAYOUT = "header";
+const HEADER_LOGO_OPACITY = 0.62;
+
+/** Between the brand, the name block and the chips. */
+const BLOCK_GAP = 18;
+/** Between the name and the rule under it. */
+const NAME_GAP = 12;
+/** Between chips. */
+const CHIP_GAP = 16;
+/**
+ * Between the account type icon and the name. Small because the icon is
+ * baked with its rim and drop shadow inside its own bounds, so it already
+ * carries about six transparent pixels on that side.
+ */
+const NAME_ICON_GAP = 4;
+/**
+ * Chip fill, matching the activity cards' panel: black at 70%, opaque
+ * enough that a model passing behind a chip does not compete with the
+ * number on it.
+ */
+const CHIP_FILL = "rgba(0,0,0,0.7)";
 
 // Same thresholds as getCollectionLogRankIcon in the web UI (which lives in
 // a module that drags in three.js, so it isn't imported here).
@@ -170,11 +153,6 @@ async function generateOgImage({ request }: { request: Request }) {
   // The route matches /og/$username; og:image links use a .png suffix for
   // crawler-friendliness, so strip it from the param segment.
   const url = new URL(request.url);
-  const layout =
-    OG_LAYOUTS[
-      (import.meta.env.DEV ? url.searchParams.get("variant") : null) ??
-        DEFAULT_LAYOUT
-    ] ?? OG_LAYOUTS[DEFAULT_LAYOUT]!;
   const username = decodeURIComponent(
     url.pathname.replace(/^\/og\//, "").replace(/\.png$/, ""),
   );
@@ -235,7 +213,7 @@ async function generateOgImage({ request }: { request: Request }) {
         fit: "height",
         centerOn: "head",
         headroomTop: 0.143,
-        anchorX: layout.modelAnchorX,
+        anchorX: MODEL_ANCHOR_X,
         supersample: 2,
       },
     );
@@ -263,7 +241,7 @@ async function generateOgImage({ request }: { request: Request }) {
     profile.username.length > 11 ? 68 : profile.username.length > 9 ? 80 : 92;
 
   const chip = (icon: string, label: string, value: string) => `
-    <div style="display: flex; flex-direction: column; gap: 8px; background-color: rgba(0,0,0,0.38); padding: 16px 22px 14px 22px; border-radius: 4px; border-style: solid; border-width: 2px; border-top-color: #4b473d; border-left-color: #45413a; border-bottom-color: #24221e; border-right-color: #2b2924;">
+    <div style="display: flex; flex-direction: column; gap: 8px; background-color: ${CHIP_FILL}; padding: 16px 22px 14px 22px; border-radius: 4px; border-style: solid; border-width: 2px; border-top-color: #4b473d; border-left-color: #45413a; border-bottom-color: #24221e; border-right-color: #2b2924;">
       <div style="display: flex; align-items: center; gap: 9px;">
         <img src="${icon}" width="24" height="24" />
         <span style="font-size: 21px; color: #ff981f; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">${label}</span>
@@ -271,44 +249,11 @@ async function generateOgImage({ request }: { request: Request }) {
       <span style="font-size: 42px; font-weight: 700; color: #ffff00; line-height: 1; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">${value}</span>
     </div>`;
 
-  // The stone frame: four corner pieces joined by a drawn edge, because
-  // what the art joins them with is a single black outline that is
-  // invisible against a near-black card. Corners go up in whole pixels to
-  // stay crisp.
-  //
-  // The edge is inset one whole pixel further than the corners. The corner
-  // art carries that black outline on its own outer edge, so a line at the
-  // same inset as the corner runs alongside its stone instead of continuing
-  // it, and the frame reads as chevrons laid over a separate rectangle.
-  const FRAME_INSET = 10;
-  const FRAME_SCALE = 2;
-  const cornerSize = OgFrame.corner * FRAME_SCALE;
-  const edgeInset = FRAME_INSET + FRAME_SCALE;
-  const corner = (key: "tl" | "tr" | "bl" | "br", position: string) => `
-    <img src="data:image/png;base64,${OgFrame[key]}" width="${cornerSize}" height="${cornerSize}" style="position: absolute; ${position};" />`;
-  const frameEdges = `
-    <div style="display: flex; position: absolute; left: ${edgeInset}px; top: ${edgeInset}px; right: ${edgeInset}px; bottom: ${edgeInset}px; border-style: solid; border-width: ${FRAME_SCALE}px; border-color: ${OgFrame.edge};"></div>`;
-  const frame =
-    layout.frame === "none"
-      ? ""
-      : layout.frame === "plain"
-        ? frameEdges
-        : [
-            frameEdges,
-            corner("tl", `left: ${FRAME_INSET}px; top: ${FRAME_INSET}px`),
-            corner("tr", `right: ${FRAME_INSET}px; top: ${FRAME_INSET}px`),
-            corner("bl", `left: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`),
-            corner("br", `right: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`),
-          ].join("");
-
-  const brandRow = `
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="${logoImage}" width="42" height="42" />
-      <span style="font-size: 30px; font-weight: 700; color: #ff981f; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">RuneProfile</span>
-    </div>`;
+  const cornerLogo = `
+    <img src="${logoImage}" width="${HEADER_LOGO}" height="${HEADER_LOGO}" style="position: absolute; right: 84px; top: 48px; opacity: ${HEADER_LOGO_OPACITY};" />`;
 
   const nameRow = `
-    <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: ${NAME_ICON_GAP}px;">
       ${
         accountTypeIcon
           ? `<img src="data:image/png;base64,${accountTypeIcon.data}" width="${accountTypeIcon.width}" height="${accountTypeIcon.height}" />`
@@ -318,7 +263,7 @@ async function generateOgImage({ request }: { request: Request }) {
     </div>`;
 
   const chips = `
-    <div style="display: flex; gap: ${layout.chipGap}px;">
+    <div style="display: flex; gap: ${CHIP_GAP}px;">
       ${chip(skillsIcon, "Total Lvl", totalLevel.toLocaleString("en-US"))}
       ${chip(collectionLogRankIcon(clogCount), "Clog", clogCount.toLocaleString("en-US"))}
       ${chip(
@@ -334,23 +279,18 @@ async function generateOgImage({ request }: { request: Request }) {
   const content = modelDataUri
     ? `
       <img src="${modelDataUri}" width="${OG_WIDTH}" height="${OG_HEIGHT}" style="position: absolute; left: 0; top: 0;" />
-      ${
-        layout.brand === "header"
-          ? `<img src="${logoImage}" width="${HEADER_LOGO}" height="${HEADER_LOGO}" style="position: absolute; right: 84px; top: 48px;" />`
-          : ""
-      }
-      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${layout.blockGap}px; position: absolute; right: 84px; top: 0; bottom: 0; max-width: 560px;">
-        ${layout.brand === "column" ? brandRow : ""}
-        <div style="display: flex; flex-direction: column; gap: ${layout.nameGap}px;">
+      ${cornerLogo}
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${BLOCK_GAP}px; position: absolute; right: 84px; top: 0; bottom: 0; max-width: 560px;">
+        <div style="display: flex; flex-direction: column; gap: ${NAME_GAP}px;">
           ${nameRow}
           ${rule}
         </div>
         ${chips}
       </div>`
     : `
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${layout.blockGap}px; position: absolute; left: 0; right: 0; top: 0; bottom: 0;">
-        ${brandRow}
-        <div style="display: flex; flex-direction: column; align-items: center; gap: ${layout.nameGap}px;">
+      ${cornerLogo}
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${BLOCK_GAP}px; position: absolute; left: 0; right: 0; top: 0; bottom: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: ${NAME_GAP}px;">
           ${nameRow}
           <div style="display: flex; width: 520px; height: 2px; background-image: linear-gradient(to right, rgba(255,152,31,0), rgba(255,152,31,0.85), rgba(255,152,31,0));"></div>
         </div>
@@ -365,7 +305,6 @@ async function generateOgImage({ request }: { request: Request }) {
       <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 18% 46%, rgba(93,74,214,0.20) 0%, rgba(93,74,214,0) 40%);"></div>
       <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 45% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);"></div>
       ${content}
-      ${frame}
     </div>`;
 
   const { ImageResponse } = await import("workers-og");
