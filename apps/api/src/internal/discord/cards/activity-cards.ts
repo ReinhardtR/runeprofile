@@ -50,7 +50,7 @@ const MODEL_FADES: Record<
 export async function renderAvatarDataUri(
   bucket: R2Bucket,
   rsn: string,
-  modelFade: NonNullable<CardDesign["modelFade"]> = "soft",
+  modelFade: NonNullable<CardDesign["modelFade"]> = DESIGN_DEFAULTS.modelFade,
 ): Promise<string> {
   let bytes: Uint8Array;
   try {
@@ -270,7 +270,7 @@ const DESIGN_DEFAULTS: Required<CardDesign> = {
   footer: "minimal",
   surface: "dark",
   panel: "dark70",
-  modelFade: "soft",
+  modelFade: "none",
 };
 
 /**
@@ -305,12 +305,14 @@ const SURFACE_LIFT: Record<Required<CardDesign>["surface"], number> = {
   liftedStrong: 0.14,
 };
 
-/** The line the Discord message shows above the card image. */
-export function activitySummaryLine(
-  activity: ActivityEvent,
-  rsn: string,
-): string {
-  return `**${rsn}** ${buildCardContent(activity).verb}`;
+/**
+ * Alt text for the card image. Everything the card says is drawn into a
+ * PNG, so this is the only form a screen reader — or anyone with images
+ * turned off — can read. Plain text, not markdown: Discord shows it as a
+ * description rather than rendering it.
+ */
+export function activityAltText(activity: ActivityEvent, rsn: string): string {
+  return `${rsn} ${buildCardContent(activity).verb}`;
 }
 
 // workers-og's parser does NOT decode entities — "&#160;" renders as

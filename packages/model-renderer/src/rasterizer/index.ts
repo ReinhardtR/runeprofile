@@ -10,8 +10,8 @@ export { type ModelFormat, detectModelFormat } from "../format";
 export { parseGlb } from "./glb";
 export { parsePly } from "./ply";
 export type { ParsedModel } from "./ply";
-export { renderScene } from "./rasterizer";
-export type { ModelInstance, RenderOptions } from "./rasterizer";
+export { renderScene, estimateBody } from "./rasterizer";
+export type { ModelInstance, RenderOptions, BodyEstimate } from "./rasterizer";
 export { encodePng } from "./png";
 
 /**

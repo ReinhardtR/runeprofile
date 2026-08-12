@@ -9,7 +9,7 @@ import {
 
 import { isProdDiscordBot } from "~/internal/discord/constants";
 import {
-  activitySummaryLine,
+  activityAltText,
   renderActivityCardPng,
   renderAvatarDataUri,
 } from "~/internal/discord/cards/activity-cards";
@@ -53,7 +53,7 @@ export const simulateRouter = newRouter()
         // One PNG per activity, attached directly to the message so no
         // public URL is needed. The avatar render is shared per player.
         const avatarDataUri = await renderAvatarDataUri(c.env.BUCKET, rsn);
-        const cards: { file: Uint8Array; summary: string }[] = [];
+        const cards: { file: Uint8Array; alt: string }[] = [];
         for (const activity of activities) {
           cards.push({
             file: await renderActivityCardPng({
@@ -62,7 +62,7 @@ export const simulateRouter = newRouter()
               accountType: acct,
               avatarDataUri,
             }),
-            summary: activitySummaryLine(activity, rsn),
+            alt: activityAltText(activity, rsn),
           });
         }
 
@@ -209,10 +209,15 @@ export const simulateRouter = newRouter()
     },
   );
 
+/** Message flag that switches a message to fully component-driven layout. */
+const IS_COMPONENTS_V2 = 1 << 15;
+/** Component type for a media gallery. */
+const MEDIA_GALLERY = 12;
+
 async function postCardsMessage(params: {
   token: string;
   channelId: string;
-  cards: { file: Uint8Array; summary: string }[];
+  cards: { file: Uint8Array; alt: string }[];
 }) {
   const { token, channelId, cards } = params;
 
@@ -220,16 +225,25 @@ async function postCardsMessage(params: {
   form.append(
     "payload_json",
     JSON.stringify({
-      // Each card goes inside an embed: bare image attachments get
-      // squeezed into a cropped mosaic gallery, while embeds stack
-      // vertically and show the full image. The embed color matches the
-      // card background so Discord's embed chrome blends away, and the
-      // description puts the summary line above the image — the card
-      // itself carries no verb text.
-      embeds: cards.map((card, i) => ({
-        description: card.summary,
-        image: { url: `attachment://activity-${i}.png` },
-        color: 0x0d0d0c,
+      // One media gallery per card, each holding a single item. This is the
+      // only layout that shows a card at full message width: a bare
+      // attachment list crops several images into a mosaic, and an embed
+      // shrinks the image to the embed's content column. A gallery of one
+      // spans the message, and separate galleries stack vertically.
+      //
+      // The flag is what makes galleries available, and it is exclusive:
+      // content and embeds are ignored on the message, so the card has to
+      // carry its own text. That suits it — the summary line above the
+      // image read as a caption bolted onto the artwork.
+      flags: IS_COMPONENTS_V2,
+      components: cards.map((card, i) => ({
+        type: MEDIA_GALLERY,
+        items: [
+          {
+            media: { url: `attachment://activity-${i}.png` },
+            description: card.alt,
+          },
+        ],
       })),
       attachments: cards.map((_, i) => ({
         id: i,

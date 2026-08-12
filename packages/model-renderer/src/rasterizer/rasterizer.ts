@@ -155,15 +155,20 @@ export function renderScene(
     // player's head lands at the same spot at the same size.
     let bodyTop = -Infinity;
     let headCenterSum = 0;
-    for (const { pts } of transformed) {
-      const body = estimateBody(pts);
+    for (const { pts, model } of transformed) {
+      const body = estimateBody(pts, model.indices);
       if (body.top > bodyTop) bodyTop = body.top;
       if (body.left < minX) minX = body.left;
       if (body.right > maxX) maxX = body.right;
       headCenterSum += body.headCenterX;
     }
     if (bodyTop > minY) {
-      topY = Math.min(maxY, bodyTop + (bodyTop - minY) * 0.03);
+      // Taken as-is: the estimate is already the shoulder line plus a
+      // nominal head, so it carries its own headroom. Clamping it to the
+      // bounding box or padding it by a fraction of the model's height
+      // would put the framing back under the influence of whatever the
+      // player is wearing or holding.
+      topY = bodyTop;
     }
     if (options.centerOn === "head" && transformed.length > 0) {
       headCenterX = headCenterSum / transformed.length;
@@ -287,133 +292,285 @@ export function renderScene(
   return out;
 }
 
-type BodyEstimate = {
-  /** Top of the head — hat tips and held items excluded. */
+export type BodyEstimate = {
+  /**
+   * Framing top: the player's own head, with hat tips and held gear
+   * excluded, placed at a fixed height above the feet so it lands in the
+   * same spot for everyone. Tall headgear reaches past it and overflows —
+   * see {@link RenderOptions.headroomTop}.
+   */
   top: number;
-  /** Horizontal extent of the body itself, held items excluded. */
+  /** Horizontal extent of the trunk, held items excluded. */
   left: number;
   right: number;
-  /** Horizontal center of the head band (top slices of the body). */
+  /** Horizontal center of the head. */
   headCenterX: number;
+  /** Height of the detected body above the ground plane. */
+  bodyHeight: number;
+  /** The ground plane the framing is measured from. */
+  feetY: number;
+  /** Whether the anatomy was recognised, or the bounding box was used. */
+  recognised: boolean;
 };
 
+/** Silhouette resolution. Finer than a limb, coarser than modelling noise. */
+const CELL = 4;
 /**
- * Estimates the extent of a model's body, ignoring anything held that
- * sticks out: weapon blades, banner poles, hat tips. Head and body
- * slices are both dense and wide; protrusions are sparse (poles, blades)
- * or narrow (hat tips). Starting from the densest slice (the torso),
- * walk out until the slices stop looking like body.
+ * Anything whose horizontal run is thinner than this is not part of a
+ * player: sword blades, scythe shafts, banner poles, bow limbs, the tip of
+ * a wizard hat. A neck is about 16 units and an arm about 20, so this
+ * keeps every real body part.
  */
-function estimateBody(pts: Float32Array): BodyEstimate {
+const MIN_LIMB = 12;
+/**
+ * Framing height above the feet — where the top of a plain head sits.
+ * Every player model is exported from the same skeleton in the same idle
+ * stance, so this is a fixed distance rather than a proportion of a
+ * particular model: gear changes a silhouette enormously (a scythe
+ * doubles the height, a banner doubles it again) but it cannot move the
+ * shoulders. Measured across real profiles: bare heads top out at
+ * 192-208 and hooded ones reach 230, so framing here puts every head in
+ * the same place and lets tall headgear overflow.
+ */
+const HEAD_TOP = 202;
+/** Band the head is looked for in, above the feet. */
+const HEAD_BAND_LOW = 150;
+const HEAD_BAND_HIGH = 215;
+/** Band used for trunk width, above the feet. */
+const TRUNK_LOW = 80;
+const TRUNK_HIGH = 140;
+/**
+ * A recognised body must be at least this tall, and its height must be in
+ * this ratio of the whole model, or the anatomy above does not apply and
+ * the bounding box is used instead.
+ */
+const MIN_BODY_HEIGHT = 150;
+
+/**
+ * Estimates how to frame a model's body, ignoring anything held that
+ * sticks out: weapon blades, banner poles, hat tips.
+ *
+ * Two ideas do the work.
+ *
+ * The first is to measure silhouette *area* rather than vertex counts.
+ * Density is a decoy — tessellation follows how a garment was modelled,
+ * so a detailed hood or a texture-split cape outvotes the big flat quads
+ * of a torso, and a model's own bounding box is no better because a held
+ * scythe or banner owns most of it.
+ *
+ * The second is that a player is the thick, connected part of that
+ * silhouette. Gear attaches through something thin — a shaft, a pole, a
+ * string — so thinning the silhouette by {@link MIN_LIMB} severs held
+ * items from the body, and the largest surviving component is the player.
+ * Width alone cannot tell them apart: a hood or a hat brim is as wide as
+ * the trunk it sits on, which is why "the neck is the narrow part" fails
+ * on exactly the models it needs to handle.
+ *
+ * With the body isolated, its feet give a ground plane that gear dangling
+ * below cannot shift, and the framing height above that plane is fixed —
+ * so every player is framed identically instead of being zoomed by
+ * whatever they happen to be wearing.
+ */
+export function estimateBody(
+  pts: Float32Array,
+  indices: Uint32Array,
+): BodyEstimate {
   const count = pts.length / 3;
+  let minX = Infinity;
+  let maxX = -Infinity;
   let minY = Infinity;
   let maxY = -Infinity;
   for (let i = 0; i < count; i++) {
+    const x = pts[i * 3]!;
     const y = pts[i * 3 + 1]!;
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
   }
-  if (maxY - minY <= 0) {
-    return { top: maxY, left: -Infinity, right: Infinity, headCenterX: 0 };
-  }
 
-  const BINS = 64;
-  const bins = new Uint32Array(BINS);
-  const binMinX = new Float32Array(BINS).fill(Infinity);
-  const binMaxX = new Float32Array(BINS).fill(-Infinity);
-  for (let i = 0; i < count; i++) {
-    const t = (pts[i * 3 + 1]! - minY) / (maxY - minY);
-    const b = Math.min(BINS - 1, Math.floor(t * BINS));
-    bins[b] = bins[b]! + 1;
-    const x = pts[i * 3]!;
-    if (x < binMinX[b]!) binMinX[b] = x;
-    if (x > binMaxX[b]!) binMaxX[b] = x;
-  }
+  const bounds = (): BodyEstimate => ({
+    top: maxY,
+    left: minX,
+    right: maxX,
+    headCenterX: (minX + maxX) / 2,
+    bodyHeight: maxY - minY,
+    feetY: minY,
+    recognised: false,
+  });
 
-  let densest = 0;
-  for (let b = 1; b < BINS; b++) {
-    if (bins[b]! > bins[densest]!) densest = b;
-  }
-  const countThreshold = Math.max(4, bins[densest]! * 0.08);
-  // 12% of the torso width: heads are near-constant size in game units
-  // while torsos vary hugely with gear, so a stricter fraction rejects
-  // narrow hooded heads on bulky costumes. Poles still fail the density
-  // test regardless.
-  const widthThreshold = (binMaxX[densest]! - binMinX[densest]!) * 0.12;
+  if (!(maxY - minY >= MIN_BODY_HEIGHT) || !(maxX > minX)) return bounds();
 
-  const isBody = (b: number) =>
-    bins[b]! >= countThreshold && binMaxX[b]! - binMinX[b]! >= widthThreshold;
-
-  // A single failing slice can be a neck or a gap in a hood — only a
-  // sustained run marks the transition from body to protrusion.
-  const walk = (dir: 1 | -1): number => {
-    let last = densest;
-    let failRun = 0;
-    for (let b = densest + dir; b >= 0 && b < BINS; b += dir) {
-      if (isBody(b)) {
-        last = b;
-        failRun = 0;
-      } else if (++failRun >= 3) {
-        break;
+  const cols = Math.ceil((maxX - minX) / CELL) + 1;
+  const rows = Math.ceil((maxY - minY) / CELL) + 1;
+  const grid = new Uint8Array(cols * rows);
+  for (let t = 0; t < indices.length; t += 3) {
+    const ia = indices[t]!;
+    const ib = indices[t + 1]!;
+    const ic = indices[t + 2]!;
+    const ax = (pts[ia * 3]! - minX) / CELL;
+    const ay = (pts[ia * 3 + 1]! - minY) / CELL;
+    const bx = (pts[ib * 3]! - minX) / CELL;
+    const by = (pts[ib * 3 + 1]! - minY) / CELL;
+    const cx = (pts[ic * 3]! - minX) / CELL;
+    const cy = (pts[ic * 3 + 1]! - minY) / CELL;
+    const denom = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
+    if (Math.abs(denom) < 1e-9) continue;
+    const x0 = Math.max(0, Math.floor(Math.min(ax, bx, cx)));
+    const x1 = Math.min(cols - 1, Math.ceil(Math.max(ax, bx, cx)));
+    const y0 = Math.max(0, Math.floor(Math.min(ay, by, cy)));
+    const y1 = Math.min(rows - 1, Math.ceil(Math.max(ay, by, cy)));
+    for (let py = y0; py <= y1; py++) {
+      for (let px = x0; px <= x1; px++) {
+        const x = px + 0.5;
+        const y = py + 0.5;
+        const l0 = ((by - cy) * (x - cx) + (cx - bx) * (y - cy)) / denom;
+        if (l0 < 0) continue;
+        const l1 = ((cy - ay) * (x - cx) + (ax - cx) * (y - cy)) / denom;
+        if (l1 < 0) continue;
+        if (1 - l0 - l1 < 0) continue;
+        grid[py * cols + px] = 1;
       }
     }
-    return last;
+  }
+
+  // Thin the silhouette: clear every horizontal run narrower than a limb,
+  // which severs held gear from the body it is attached to.
+  const minRun = Math.max(1, Math.round(MIN_LIMB / CELL));
+  const thick = new Uint8Array(cols * rows);
+  for (let r = 0; r < rows; r++) {
+    let run = 0;
+    for (let c = 0; c <= cols; c++) {
+      const filled = c < cols && grid[r * cols + c] === 1;
+      if (filled) {
+        run++;
+        continue;
+      }
+      if (run >= minRun) {
+        for (let k = c - run; k < c; k++) thick[r * cols + k] = 1;
+      }
+      run = 0;
+    }
+  }
+
+  // Largest connected component of what survived: the player.
+  const label = new Int32Array(cols * rows).fill(-1);
+  const stack: number[] = [];
+  let bestLabel = -1;
+  let bestArea = 0;
+  let nextLabel = 0;
+  for (let start = 0; start < cols * rows; start++) {
+    if (thick[start] !== 1 || label[start] !== -1) continue;
+    const id = nextLabel++;
+    let area = 0;
+    stack.push(start);
+    label[start] = id;
+    while (stack.length > 0) {
+      const cell = stack.pop()!;
+      area++;
+      const cr = (cell / cols) | 0;
+      const cc = cell % cols;
+      const push = (nr: number, nc: number) => {
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) return;
+        const n = nr * cols + nc;
+        if (thick[n] !== 1 || label[n] !== -1) return;
+        label[n] = id;
+        stack.push(n);
+      };
+      push(cr - 1, cc);
+      push(cr + 1, cc);
+      push(cr, cc - 1);
+      push(cr, cc + 1);
+    }
+    if (area > bestArea) {
+      bestArea = area;
+      bestLabel = id;
+    }
+  }
+  if (bestLabel < 0) return bounds();
+
+  /** Widest contiguous run of the body in a row: width and center. */
+  const bodyRun = (row: number): { width: number; midX: number } => {
+    let run = 0;
+    let best = 0;
+    let start = -1;
+    let bestStart = -1;
+    for (let c = 0; c < cols; c++) {
+      if (label[row * cols + c] === bestLabel) {
+        if (run === 0) start = c;
+        run++;
+        if (run > best) {
+          best = run;
+          bestStart = start;
+        }
+      } else {
+        run = 0;
+      }
+    }
+    return {
+      width: best * CELL,
+      midX: bestStart < 0 ? 0 : minX + (bestStart + best / 2) * CELL,
+    };
   };
 
-  const topBin = walk(1);
-  const bottomBin = walk(-1);
+  // The ground plane is the bottom of the model, not the bottom of the
+  // body component: thinning removes the legs, which are the narrowest
+  // part of a standing player. The plugin exports a character standing on
+  // the ground, and gear hangs from the body rather than below the feet —
+  // checked against real profiles including a planted banner pole and a
+  // grounded bow, whose lowest points sit level with the boots.
+  let bodyTopRow = -1;
+  for (let r = rows - 1; r >= 0; r--) {
+    if (bodyRun(r).width > 0) {
+      bodyTopRow = r;
+      break;
+    }
+  }
+  const bodyHeight = bodyTopRow < 0 ? 0 : bodyTopRow * CELL;
+  if (bodyHeight < MIN_BODY_HEIGHT) return bounds();
+  const feetY = minY;
 
-  // Body width: widest body slice within the contiguous body region.
-  // Slices outside it (a banner's cloth above the pole gap) don't count.
+  const rowAt = (heightAboveFeet: number) =>
+    Math.min(rows - 1, Math.max(0, Math.round(heightAboveFeet / CELL)));
+
+  // Head center: the median run center across the head band. Median rather
+  // than mean so a brim, or a row where a weapon merges into the head's
+  // run, cannot drag the camera sideways.
+  const headMids: number[] = [];
+  for (let r = rowAt(HEAD_BAND_LOW); r <= rowAt(HEAD_BAND_HIGH); r++) {
+    const { width, midX } = bodyRun(r);
+    if (width > 0) headMids.push(midX);
+  }
+  headMids.sort((a, b) => a - b);
+  const headCenterX =
+    headMids.length > 0
+      ? headMids[Math.floor(headMids.length / 2)]!
+      : (minX + maxX) / 2;
+
+  // Trunk extent, for callers that center on the body instead of the head.
   let left = Infinity;
   let right = -Infinity;
-  for (let b = bottomBin; b <= topBin; b++) {
-    if (!isBody(b)) continue;
-    if (binMinX[b]! < left) left = binMinX[b]!;
-    if (binMaxX[b]! > right) right = binMaxX[b]!;
+  for (let r = rowAt(TRUNK_LOW); r <= rowAt(TRUNK_HIGH); r++) {
+    const { width, midX } = bodyRun(r);
+    if (width <= 0) continue;
+    if (midX - width / 2 < left) left = midX - width / 2;
+    if (midX + width / 2 > right) right = midX + width / 2;
+  }
+  if (left > right) {
+    left = minX;
+    right = maxX;
   }
 
-  // Head center: where the vertices actually cluster in the topmost body
-  // slices. The extent midpoint won't do — a weapon shouldered past the
-  // head stretches it sideways. The head is by far the densest blob at
-  // that height, so slide a window over the sorted x values and take the
-  // fullest one; a thin shaft crossing the band can't outvote a face.
-  const top = minY + ((topBin + 1) / BINS) * (maxY - minY);
-  // Sample the face band, 8-30% below the body top: the crown itself is
-  // where hat tips and shouldered weapon shafts crowd in.
-  const bodyHeight = top - (minY + (bottomBin / BINS) * (maxY - minY));
-  const bandTop = top - bodyHeight * 0.08;
-  const bandBottom = top - bodyHeight * 0.3;
-  const headXs: number[] = [];
-  for (let i = 0; i < count; i++) {
-    const y = pts[i * 3 + 1]!;
-    if (y >= bandBottom && y <= bandTop) {
-      headXs.push(pts[i * 3]!);
-    }
-  }
-  headXs.sort((a, b) => a - b);
-
-  let headCenterX = (left + right) / 2;
-  if (headXs.length > 0) {
-    const window = Math.max(1, (right - left) * 0.3);
-    let bestStart = 0;
-    let bestCount = 0;
-    let hi = 0;
-    for (let lo = 0; lo < headXs.length; lo++) {
-      while (hi < headXs.length && headXs[hi]! - headXs[lo]! <= window) hi++;
-      if (hi - lo > bestCount) {
-        bestCount = hi - lo;
-        bestStart = lo;
-      }
-    }
-    let sum = 0;
-    for (let i = bestStart; i < bestStart + bestCount; i++) sum += headXs[i]!;
-    headCenterX = sum / bestCount;
-  }
-
-  return { top, left, right, headCenterX };
+  return {
+    top: feetY + HEAD_TOP,
+    left,
+    right,
+    headCenterX,
+    bodyHeight,
+    feetY,
+    recognised: true,
+  };
 }
-
 function downsample(
   src: Uint8ClampedArray,
   srcWidth: number,
