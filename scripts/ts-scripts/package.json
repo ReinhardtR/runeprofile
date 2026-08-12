@@ -13,6 +13,7 @@
     "update-quests": "tsx check-quests.ts --write",
     "sync-item-icons": "tsx sync-item-icons.ts",
     "check-cache": "tsx check-cache-version.ts",
+    "check-data-cache": "tsx check-data-cache.ts",
     "update-sprite-icons": "tsx update-sprite-icons.ts"
   },
   "devDependencies": {
