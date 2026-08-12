@@ -3,13 +3,28 @@ import {
   ActivityEvent,
   COLLECTION_LOG_ITEMS,
   COLLECTION_LOG_TABS,
+  TRACKED_ITEM_NAMES,
   getCombatAchievementTaskByIndex,
 } from "@runeprofile/runescape";
 
 import { getAccountTypeEmoji } from "~/internal/discord/emojis";
 
+/**
+ * Names for the items an activity can mention.
+ *
+ * The collection log alone is not enough: a valuable drop can be any item
+ * with a price on it, and those showed as "Unknown Item (22486)". The
+ * tracked-item registry covers anything tradeable plus the hand-priced
+ * untradeables, and is regenerated from the game cache daily, so an item
+ * added today is named today. Both registries come from that same cache and
+ * are cross-checked when generated, so where they overlap they agree.
+ */
 export function getItemName(itemId: number): string {
-  return COLLECTION_LOG_ITEMS[itemId] ?? `Unknown Item (${itemId})`;
+  return (
+    TRACKED_ITEM_NAMES[itemId] ??
+    COLLECTION_LOG_ITEMS[itemId] ??
+    `Unknown Item (${itemId})`
+  );
 }
 
 const ITEM_ICON_BASE_URL = "https://cdn.runeprofile.com/item";

@@ -83,6 +83,12 @@ jobs:
           OSRS_CACHE_DIR: ${{ steps.cache.outputs.cache_dir }}
         run: pnpm script:update-quests
 
+      - name: Update loot source and item name registries
+        if: steps.cache.outputs.new == 'true'
+        env:
+          OSRS_CACHE_DIR: ${{ steps.cache.outputs.cache_dir }}
+        run: pnpm script:update-loot-sources
+
       - name: Update sprite icons (hiscore, clan rank)
         if: steps.cache.outputs.new == 'true'
         env:

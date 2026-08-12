@@ -15,6 +15,8 @@
     "script:check-ca": "pnpm --filter ts-scripts run check-ca",
     "script:update-ca": "pnpm --filter ts-scripts run update-ca",
     "script:check-quests": "pnpm --filter ts-scripts run check-quests",
+    "script:check-loot-sources": "pnpm --filter ts-scripts run check-loot-sources",
+    "script:update-loot-sources": "pnpm --filter ts-scripts run update-loot-sources",
     "script:update-quests": "pnpm --filter ts-scripts run update-quests",
     "script:sync-item-icons": "pnpm --filter ts-scripts run sync-item-icons",
     "script:check-cache": "pnpm --filter ts-scripts run check-cache",
