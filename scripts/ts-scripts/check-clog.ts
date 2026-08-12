@@ -94,11 +94,15 @@ async function checkClog() {
   const removedPages: Array<{ tab: string; pageName: string }> = [];
 
   const newItems: Record<number, string> = {};
-  const changedItemNames: Array<{
-    id: number;
-    oldName: string;
-    newName: string;
-  }> = [];
+
+  // Keyed by item ID because the item loop below runs per page, and an item can
+  // sit on several pages (every pet is on its boss page and on Pets). The name
+  // comes from the item def, so every page agrees on it - keying by ID reports
+  // one rename per item instead of one per page it appears on.
+  const changedItemNamesById = new Map<
+    number,
+    { oldName: string; newName: string }
+  >();
 
   for (const tabId of tabIds) {
     const tabStruct = await cache.Struct.load(provider, tabId);
@@ -197,8 +201,7 @@ async function checkClog() {
             // Check if the name has changed (use the appropriate ID for lookup)
             const existingName = COLLECTION_LOG_ITEMS[itemIdToCheck];
             if (existingName !== itemName) {
-              changedItemNames.push({
-                id: itemIdToCheck,
+              changedItemNamesById.set(itemIdToCheck, {
                 oldName: existingName,
                 newName: itemName,
               });
@@ -312,6 +315,10 @@ async function checkClog() {
     }
   }
 
+  const changedItemNames = [...changedItemNamesById]
+    .map(([id, names]) => ({ id, ...names }))
+    .sort((a, b) => a.id - b.id);
+
   const hasChanges =
     pagesWithChanges.length > 0 ||
     reorderedTabs.length > 0 ||
@@ -397,8 +404,7 @@ async function checkClog() {
 
       if (changedItemNames.length > 0) {
         console.log("// NAME CHANGES - Update these in COLLECTION_LOG_ITEMS:");
-        const sortedChangedItems = changedItemNames.sort((a, b) => a.id - b.id);
-        for (const { id, oldName, newName } of sortedChangedItems) {
+        for (const { id, oldName, newName } of changedItemNames) {
           console.log(`  ${id}: "${newName}", // was: "${oldName}"`);
         }
         console.log("");
@@ -494,9 +500,8 @@ function buildChangeSummary(
   }
 
   if (changedItemNames.length > 0) {
-    const sorted = [...changedItemNames].sort((a, b) => a.id - b.id);
-    lines.push(`### Item Name Changes (${sorted.length})\n`);
-    for (const { id, oldName, newName } of sorted) {
+    lines.push(`### Item Name Changes (${changedItemNames.length})\n`);
+    for (const { id, oldName, newName } of changedItemNames) {
       lines.push(`- \`${id}\`: ~~${oldName}~~ → ${newName}`);
     }
     lines.push("");
