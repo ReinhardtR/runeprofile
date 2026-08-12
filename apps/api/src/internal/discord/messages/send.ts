@@ -89,11 +89,17 @@ export async function sendActivityMessages(params: {
   const discordApi = createDiscordApi(discordToken);
 
   // Cards are in beta, limited to the clans in the allow list; everyone
-  // else keeps the embeds. Rendered once per activity here and reused for
-  // every channel, since only which activities pass the filters differs.
-  const cards = usesActivityCards(clanName)
-    ? await renderCards({ bucket, activities, rsn, accountType })
-    : null;
+  // else keeps the embeds.
+  //
+  // A card costs real CPU to draw and this runs inside the request that
+  // triggered it, so a big batch goes out as embeds instead. Nothing caps
+  // how many events one sync can produce - level ups alone can be one per
+  // skill - and a player returning after months is a backlog to summarise,
+  // not a set of moments worth a card each.
+  const cards =
+    usesActivityCards(clanName) && activities.length <= MAX_CARD_BATCH
+      ? createCardRenderer({ bucket, activities, rsn, accountType })
+      : null;
 
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
@@ -106,9 +112,15 @@ export async function sendActivityMessages(params: {
 
       try {
         if (cards) {
-          const allowed = allowedActivities
-            .map((activity) => cards.get(activity))
-            .filter((card): card is NonNullable<typeof card> => card != null);
+          const rendered = await Promise.all(allowedActivities.map(cards));
+          const allowed = rendered.filter(
+            (card): card is NonNullable<typeof card> => card != null,
+          );
+          // Every card failing means the renderer is broken rather than one
+          // model being odd, so fall through to the embeds.
+          if (allowed.length === 0 && allowedActivities.length > 0) {
+            throw new Error("no activity cards could be rendered");
+          }
           for (let i = 0; i < allowed.length; i += MAX_CARDS_PER_MESSAGE) {
             await postCardsMessage({
               token: discordToken,
@@ -148,39 +160,58 @@ export async function sendActivityMessages(params: {
 }
 
 /**
- * Renders a card per activity, keyed by the activity it came from.
- *
- * Returns null if rendering fails at all, so a beta clan falls back to the
- * embeds rather than losing the message: a missing model, a bad export or a
- * renderer bug should not cost anyone their activity feed.
+ * Above this many activities in one batch, cards are skipped for embeds.
+ * Ten is also what fits in a single Discord message.
  */
-async function renderCards(params: {
+const MAX_CARD_BATCH = MAX_CARDS_PER_MESSAGE;
+
+type Card = { file: Uint8Array; alt: string };
+
+/**
+ * Makes a card renderer for one player's batch of activities.
+ *
+ * Renders lazily and memoises, so an activity every channel filters out is
+ * never drawn, and one that several channels want is drawn once. The
+ * player's portrait is shared by all of them. Promises are cached rather
+ * than results, because channels are served concurrently and would
+ * otherwise each start the same render.
+ *
+ * A card that fails resolves to null and that activity falls out of the
+ * message: a missing model or a bad export should cost a nicer image, not
+ * the player's activity feed.
+ */
+function createCardRenderer(params: {
   bucket: R2Bucket;
   activities: ActivityEvent[];
   rsn: string;
   accountType?: AccountType;
-}): Promise<Map<ActivityEvent, { file: Uint8Array; alt: string }> | null> {
-  const { bucket, activities, rsn, accountType } = params;
-  try {
-    // The portrait is the same on every card, so it is rendered once.
-    const avatarDataUri = await renderAvatarDataUri(bucket, rsn);
-    const cards = new Map<ActivityEvent, { file: Uint8Array; alt: string }>();
-    for (const activity of activities) {
-      cards.set(activity, {
-        file: await renderActivityCardPng({
-          activity,
-          rsn,
-          accountType,
-          avatarDataUri,
-        }),
-        alt: activityAltText(activity, rsn),
+}): (activity: ActivityEvent) => Promise<Card | null> {
+  const { bucket, rsn, accountType } = params;
+  let portrait: Promise<string> | null = null;
+  const cards = new Map<ActivityEvent, Promise<Card | null>>();
+
+  return (activity) => {
+    let card = cards.get(activity);
+    if (!card) {
+      card = (async () => {
+        portrait ??= renderAvatarDataUri(bucket, rsn);
+        return {
+          file: await renderActivityCardPng({
+            activity,
+            rsn,
+            accountType,
+            avatarDataUri: await portrait,
+          }),
+          alt: activityAltText(activity, rsn),
+        };
+      })().catch((error: unknown) => {
+        console.error(`Failed to render an activity card for ${rsn}:`, error);
+        return null;
       });
+      cards.set(activity, card);
     }
-    return cards;
-  } catch (error) {
-    console.error(`Failed to render activity cards for ${rsn}:`, error);
-    return null;
-  }
+    return card;
+  };
 }
 
 function getWatchCondition(params: {
