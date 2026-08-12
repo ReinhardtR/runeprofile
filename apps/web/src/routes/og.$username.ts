@@ -67,6 +67,37 @@ const CACHE_CONTROL = "public, max-age=3600, s-maxage=86400";
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 
+/**
+ * Layout variants, for comparing spacing and frame treatments. Selected
+ * with ?variant= in dev only; production always uses DEFAULT_LAYOUT.
+ */
+type OgLayout = {
+  /** Between the brand row, the name block and the chips. */
+  blockGap: number;
+  /** Between the name and the rule under it. */
+  nameGap: number;
+  /** Chip row spacing. */
+  chipGap: number;
+  frame: "corners" | "plain" | "none";
+  /** Brand row pinned to the top corner instead of stacked in the column. */
+  brand: "column" | "header";
+};
+
+const OG_LAYOUTS: Record<string, OgLayout> = {
+  roomy: { blockGap: 30, nameGap: 20, chipGap: 18, frame: "corners", brand: "column" },
+  tight: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "corners", brand: "column" },
+  plain: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "plain", brand: "column" },
+  bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column" },
+  header: { blockGap: 18, nameGap: 12, chipGap: 16, frame: "corners", brand: "header" },
+};
+
+/**
+ * "plain" over the corner pieces: that art is a decorative diagonal wedge
+ * drawn for a frame whose edges are a single black outline, so it never
+ * quite joins a visible edge however it is aligned.
+ */
+const DEFAULT_LAYOUT = "plain";
+
 // Same thresholds as getCollectionLogRankIcon in the web UI (which lives in
 // a module that drags in three.js, so it isn't imported here).
 function collectionLogRankIcon(uniqueItemsObtained: number): string {
@@ -116,6 +147,11 @@ async function generateOgImage({ request }: { request: Request }) {
   // The route matches /og/$username; og:image links use a .png suffix for
   // crawler-friendliness, so strip it from the param segment.
   const url = new URL(request.url);
+  const layout =
+    OG_LAYOUTS[
+      (import.meta.env.DEV ? url.searchParams.get("variant") : null) ??
+        DEFAULT_LAYOUT
+    ] ?? OG_LAYOUTS[DEFAULT_LAYOUT]!;
   const username = decodeURIComponent(
     url.pathname.replace(/^\/og\//, "").replace(/\.png$/, ""),
   );
@@ -212,27 +248,44 @@ async function generateOgImage({ request }: { request: Request }) {
       <span style="font-size: 42px; font-weight: 700; color: #ffff00; line-height: 1; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">${value}</span>
     </div>`;
 
-  // The stone frame, drawn as its four corner pieces over a plain edge in
-  // the same stone tone. The art joins its corners with a single black
-  // outline, which against a near-black card is invisible — so the corners
-  // read as four marks floating in space unless the edges are painted in.
-  // Corners go up in whole pixels to stay crisp.
+  // The stone frame: four corner pieces joined by a drawn edge, because
+  // what the art joins them with is a single black outline that is
+  // invisible against a near-black card. Corners go up in whole pixels to
+  // stay crisp.
+  //
+  // The edge is inset one whole pixel further than the corners. The corner
+  // art carries that black outline on its own outer edge, so a line at the
+  // same inset as the corner runs alongside its stone instead of continuing
+  // it, and the frame reads as chevrons laid over a separate rectangle.
   const FRAME_INSET = 10;
   const FRAME_SCALE = 2;
   const cornerSize = OgFrame.corner * FRAME_SCALE;
+  const edgeInset = FRAME_INSET + FRAME_SCALE;
   const corner = (key: "tl" | "tr" | "bl" | "br", position: string) => `
     <img src="data:image/png;base64,${OgFrame[key]}" width="${cornerSize}" height="${cornerSize}" style="position: absolute; ${position};" />`;
   const frameEdges = `
-    <div style="display: flex; position: absolute; left: ${FRAME_INSET}px; top: ${FRAME_INSET}px; right: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px; border-style: solid; border-width: ${FRAME_SCALE}px; border-color: ${OgFrame.edge};"></div>`;
+    <div style="display: flex; position: absolute; left: ${edgeInset}px; top: ${edgeInset}px; right: ${edgeInset}px; bottom: ${edgeInset}px; border-style: solid; border-width: ${FRAME_SCALE}px; border-color: ${OgFrame.edge};"></div>`;
+  const frame =
+    layout.frame === "none"
+      ? ""
+      : layout.frame === "plain"
+        ? frameEdges
+        : [
+            frameEdges,
+            corner("tl", `left: ${FRAME_INSET}px; top: ${FRAME_INSET}px`),
+            corner("tr", `right: ${FRAME_INSET}px; top: ${FRAME_INSET}px`),
+            corner("bl", `left: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`),
+            corner("br", `right: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`),
+          ].join("");
 
   const brandRow = `
-    <div style="display: flex; align-items: center; gap: 14px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
       <img src="${logoImage}" width="42" height="42" />
-      <span style="font-size: 30px; font-weight: 700; color: #ff981f; letter-spacing: 2px; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">RUNEPROFILE</span>
+      <span style="font-size: 30px; font-weight: 700; color: #ff981f; text-shadow: 2px 2px 0 rgba(0,0,0,0.9);">RuneProfile</span>
     </div>`;
 
   const nameRow = `
-    <div style="display: flex; align-items: center; gap: 18px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
       ${
         accountTypeIcon
           ? `<img src="data:image/png;base64,${accountTypeIcon.data}" width="${accountTypeIcon.width}" height="${accountTypeIcon.height}" />`
@@ -242,7 +295,7 @@ async function generateOgImage({ request }: { request: Request }) {
     </div>`;
 
   const chips = `
-    <div style="display: flex; gap: 18px;">
+    <div style="display: flex; gap: ${layout.chipGap}px;">
       ${chip(skillsIcon, "Total Lvl", totalLevel.toLocaleString("en-US"))}
       ${chip(collectionLogRankIcon(clogCount), "Clog", clogCount.toLocaleString("en-US"))}
       ${chip(
@@ -252,21 +305,29 @@ async function generateOgImage({ request }: { request: Request }) {
       )}
     </div>`;
 
+  const rule = `
+          <div style="display: flex; width: 460px; height: 2px; background-image: linear-gradient(to right, rgba(255,152,31,0.85), rgba(255,152,31,0));"></div>`;
+
   const content = modelDataUri
     ? `
       <img src="${modelDataUri}" width="${OG_WIDTH}" height="${OG_HEIGHT}" style="position: absolute; left: 0; top: 0;" />
-      <div style="display: flex; flex-direction: column; justify-content: center; gap: 30px; position: absolute; right: 84px; top: 0; bottom: 0; max-width: 560px;">
-        ${brandRow}
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+      ${
+        layout.brand === "header"
+          ? `<div style="display: flex; position: absolute; right: 84px; top: 52px;">${brandRow}</div>`
+          : ""
+      }
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${layout.blockGap}px; position: absolute; right: 84px; top: 0; bottom: 0; max-width: 560px;">
+        ${layout.brand === "column" ? brandRow : ""}
+        <div style="display: flex; flex-direction: column; gap: ${layout.nameGap}px;">
           ${nameRow}
-          <div style="display: flex; width: 460px; height: 2px; background-image: linear-gradient(to right, rgba(255,152,31,0.85), rgba(255,152,31,0));"></div>
+          ${rule}
         </div>
         ${chips}
       </div>`
     : `
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; position: absolute; left: 0; right: 0; top: 0; bottom: 0;">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${layout.blockGap}px; position: absolute; left: 0; right: 0; top: 0; bottom: 0;">
         ${brandRow}
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: ${layout.nameGap}px;">
           ${nameRow}
           <div style="display: flex; width: 520px; height: 2px; background-image: linear-gradient(to right, rgba(255,152,31,0), rgba(255,152,31,0.85), rgba(255,152,31,0));"></div>
         </div>
@@ -281,11 +342,7 @@ async function generateOgImage({ request }: { request: Request }) {
       <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 18% 46%, rgba(93,74,214,0.20) 0%, rgba(93,74,214,0) 40%);"></div>
       <div style="display: flex; position: absolute; left: 0; top: 0; width: ${OG_WIDTH}px; height: ${OG_HEIGHT}px; background-image: radial-gradient(circle at 45% 42%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);"></div>
       ${content}
-      ${frameEdges}
-      ${corner("tl", `left: ${FRAME_INSET}px; top: ${FRAME_INSET}px`)}
-      ${corner("tr", `right: ${FRAME_INSET}px; top: ${FRAME_INSET}px`)}
-      ${corner("bl", `left: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`)}
-      ${corner("br", `right: ${FRAME_INSET}px; bottom: ${FRAME_INSET}px`)}
+      ${frame}
     </div>`;
 
   const { ImageResponse } = await import("workers-og");
