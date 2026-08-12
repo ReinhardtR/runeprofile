@@ -1,9 +1,7 @@
 import {
+  encodePng,
   parseModel,
   renderScene,
-  encodePng,
-  decodePng,
-  downsample,
 } from "@runeprofile/model-renderer/rasterizer";
 import {
   AccountType,
@@ -53,18 +51,13 @@ const TEXTURE_NATIVE = 60;
  */
 const ACCOUNT_ICON_BAKE_SCALE = 2;
 
-const textureTile = (scale: number) =>
-  TEXTURE_NATIVE * Math.max(1, Math.round(scale));
+const textureTile = () => TEXTURE_NATIVE * Math.max(1, Math.round(S));
 
 /**
- * Authored card heights, in grid units. Aspect ratio is what decides how
- * much of a channel a card occupies at a given width.
+ * Authored card height, in grid units. The aspect ratio is what decides
+ * how much of a channel a card takes up at a given width.
  */
-const CARD_HEIGHTS = {
-  full: 240,
-  slim: 208,
-  compact: 184,
-} as const;
+const CARD_AUTHORED_HEIGHT = 208;
 
 /**
  * Output width in pixels.
@@ -79,78 +72,53 @@ const CARD_HEIGHTS = {
  * file instead would be displayed small at 1:1 and then stretched by the
  * display, which is what made 500px look soft.
  *
- * Beyond about twice the displayed width the extra pixels are thrown away,
- * and they are not free: render cost tracks the pixels rasterised almost
- * exactly.
+ * It also means nothing here needs to rasterise above the output size: the
+ * embed column's own downscale is the same area-average a supersampling
+ * pass would do, for free. Beyond about twice the displayed width the
+ * extra pixels are simply thrown away, and they are not free — render cost
+ * tracks the pixels rasterised almost exactly.
  */
-const DEFAULT_DISPLAY_WIDTH = 800;
+const CARD_WIDTH = 800;
+const CARD_HEIGHT = Math.round(
+  (CARD_AUTHORED_HEIGHT * CARD_WIDTH) / CARD_AUTHORED_WIDTH,
+);
 
 /**
- * Rasterising above the output size and averaging back down rescues small
- * text: a pixel-styled face drawn straight at 14px drops its thin strokes,
- * where the same glyphs drawn at 28px and area-averaged keep them as soft
- * grey. The footer line is the clearest case.
- *
- * It only earns that cost on a card small enough to be displayed at 1:1.
- * A file wider than this is scaled down by the column it sits in, which
- * does the same averaging for free, so the extra pass buys nothing visible
- * while quadrupling the pixels rasterised — and rasterised pixels are most
- * of what a card costs to make. The default width sits well above it.
+ * The scale the layout is authored against, so one number drives every
+ * size in the markup.
  */
-const SUPERSAMPLE_BELOW_WIDTH = 600;
+const S = CARD_WIDTH / CARD_AUTHORED_WIDTH;
 
-const supersampleFor = (displayWidth: number) =>
-  displayWidth < SUPERSAMPLE_BELOW_WIDTH ? 2 : 1;
-
-const cardSize = (design: Required<CardDesign>) => {
-  const supersample = design.supersample ?? supersampleFor(design.displayWidth);
-  // Output dimensions are rounded first and the render size derived from
-  // them, so the rasterised image is always an exact multiple of the
-  // supersample factor — rounding the other way round yields an odd
-  // height that cannot be halved.
-  const outputWidth = Math.round(design.displayWidth);
-  const outputHeight = Math.round(
-    (CARD_HEIGHTS[design.size] * outputWidth) / CARD_AUTHORED_WIDTH,
-  );
-  const width = outputWidth * supersample;
-  const height = outputHeight * supersample;
-  // The scale the layout is authored against, so one number drives every
-  // size in the markup.
-  return {
-    scale: width / CARD_AUTHORED_WIDTH,
-    supersample,
-    width,
-    height,
-    outputWidth,
-    outputHeight,
-  };
-};
+/** Vertical gap between the header, the panel and the footer. */
+const ROW_GAP = 10;
 
 const png = (base64: string) => `data:image/png;base64,${base64}`;
 
 // ---------------------------------------------------------------- avatar
 
 /**
+ * How much of the model is kept above the crop: head, shoulders and a
+ * little chest, with the rest cut off by the bottom of the card. Discord
+ * scales the card down, so the head has to read at a glance, and a
+ * height-only fit lets broad shoulders bleed off the sides rather than
+ * shrinking the head to fit them in.
+ *
+ * Left as a product: 0.32 was tuned when the card was 240 units tall, and
+ * rounding the result to a decimal shifts the framing by a fraction of a
+ * pixel.
+ */
+const MODEL_CROP_TOP = 0.32 * (CARD_AUTHORED_HEIGHT / 240);
+
+/**
  * Chest-up portrait of the player's model straight from R2, framed on the
- * body with the standard chathead angle and the soft partial bottom fade.
+ * body with the standard chathead angle. The crop is left hard: it is
+ * clipped by the card border, and fading it out only made it look hazy.
  * Falls back to the default player model when none is uploaded.
  */
-/** How far the model dissolves at the bottom edge of the card. */
-const MODEL_FADES: Record<
-  NonNullable<CardDesign["modelFade"]>,
-  { fadeBottom: number; fadeFloor: number }
-> = {
-  soft: { fadeBottom: 0.28, fadeFloor: 0.45 },
-  light: { fadeBottom: 0.12, fadeFloor: 0.75 },
-  none: { fadeBottom: 0, fadeFloor: 1 },
-};
-
 export async function renderAvatarDataUri(
   bucket: R2Bucket,
   rsn: string,
-  design?: CardDesign,
 ): Promise<string> {
-  const resolved = { ...DESIGN_DEFAULTS, ...design };
   let bytes: Uint8Array;
   try {
     const file = await bucket.get(rsn.toLowerCase());
@@ -167,17 +135,10 @@ export async function renderAvatarDataUri(
   // section: weapons and banners extend across the card *behind* the
   // content panel instead of being cut at a narrow canvas edge — the only
   // hard clip left is the card border itself.
-  const { width, height, supersample } = cardSize(resolved);
   const rgba = renderScene([{ model: parseModel(bytes), yaw: 2.49 }], {
-    width,
-    height,
-    // Tight head-and-shoulders framing: Discord scales the card down, so
-    // the model has to read at a glance. Height-only fit lets broad
-    // shoulders bleed off instead of shrinking the head.
-    //
-    // Scaled with the card so the head stays the same size on a slimmer
-    // card and simply shows less chest, rather than zooming out with it.
-    cropTop: 0.32 * (CARD_HEIGHTS[resolved.size] / CARD_HEIGHTS.full),
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    cropTop: MODEL_CROP_TOP,
     cropRef: "body",
     headroomTop: 0.03,
     fit: "height",
@@ -185,11 +146,11 @@ export async function renderAvatarDataUri(
     anchorX: 120 / 720,
     // Anti-aliasing the polygon edges matters at the size the card is
     // shown, not the size it is drawn: a large file gets scaled down by
-    // Discord, which smooths them for free.
-    supersample,
-    ...MODEL_FADES[resolved.modelFade],
+    // Discord, which smooths them for free. This overrides the renderer's
+    // default of 2 — four times the pixels for nothing visible here.
+    supersample: 1,
   });
-  return png(bytesToBase64(await encodePng(rgba, width, height)));
+  return png(bytesToBase64(await encodePng(rgba, CARD_WIDTH, CARD_HEIGHT)));
 }
 
 function base64ToBytes(base64: string): Uint8Array {
@@ -262,58 +223,26 @@ async function withoutInitNoise<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Dev-only: renders arbitrary HTML through the same pipeline. */
-export async function renderDebugHtml(
-  html: string,
-  design?: CardDesign,
-): Promise<Uint8Array> {
-  const { width, height } = cardSize({ ...DESIGN_DEFAULTS, ...design });
-  return withoutInitNoise(async () => {
-    const { ImageResponse } = await import("workers-og");
-    const image = new ImageResponse(html, {
-      width,
-      height,
-      fonts: loadFonts(),
-    });
-    return new Uint8Array(await image.arrayBuffer());
-  });
-}
-
 export async function renderActivityCardPng(params: {
   activity: ActivityEvent;
   rsn: string;
   accountType?: AccountType;
   avatarDataUri: string;
-  design?: CardDesign;
 }): Promise<Uint8Array> {
   // workers-og's HTML parser keeps whitespace between tags as text nodes.
   // They render zero-width but still count as flex children, so a
   // space-between row distributes its free space around phantom gaps and
   // nothing sits flush with an edge. Collapse them away.
   const html = buildCardHtml(params).replace(/>\s+</g, "><");
-  const { width, height, outputWidth, outputHeight, supersample } = cardSize({
-    ...DESIGN_DEFAULTS,
-    ...params.design,
-  });
-  const rendered = await withoutInitNoise(async () => {
+  return withoutInitNoise(async () => {
     const { ImageResponse } = await import("workers-og");
     const image = new ImageResponse(html, {
-      width,
-      height,
+      width: CARD_WIDTH,
+      height: CARD_HEIGHT,
       fonts: loadFonts(),
     });
     return new Uint8Array(await image.arrayBuffer());
   });
-
-  if (supersample === 1) return rendered;
-  const decoded = await decodePng(rendered);
-  const reduced = downsample(
-    decoded.rgba,
-    decoded.width,
-    decoded.height,
-    supersample,
-  );
-  return encodePng(reduced, outputWidth, outputHeight);
 }
 
 // ---------------------------------------------------------------- layout
@@ -329,7 +258,7 @@ type CardContent = {
   subtitleColor?: string;
   /** Renders the subtitle with per-character pearlescent hues. */
   subtitlePearl?: boolean;
-  /** Curated name tint used by the "accent" name design. */
+  /** Curated tint for the player's name, in place of the raw accent. */
   nameColor?: string;
   /** Renders the name with per-character pearlescent hues. */
   namePearl?: boolean;
@@ -344,100 +273,17 @@ type CardContent = {
   panelSubtitle: string;
   /** Big number on the panel's right side (level, XP, tier). */
   badge?: string;
-  footerLeft: string;
 };
 
 /**
- * Experimental design switches, threaded through the simulator's preview
- * endpoint so alternatives render via the real pipeline. Production sends
- * use the defaults.
+ * The content panel's fill, with a matching hairline border.
  *
- * The card carries no verb text — the event is obvious from the panel,
- * and the send path puts a summary line above the image via the embed
- * description instead.
+ * Near-opaque on purpose: the model passes behind the panel, and anything
+ * more translucent lets a weapon or a bright pauldron show through the
+ * text. It matches the 70% black the OG images use for their stat chips.
  */
-export type CardDesign = {
-  bg?: "wash" | "washSpot" | "washVertical" | "washDeep" | "washDeepSoft" | "washDeepStrong" | "texture";
-  name?: "gold" | "white" | "accent" | "orange" | "cyan" | "cream";
-  footer?: "full" | "minimal";
-  /**
-   * The card's base tone. "dark" is near-black; the lifted values raise
-   * it to the same slightly-lit surface the panel icon chip sits on.
-   */
-  surface?: "dark" | "lifted" | "liftedStrong";
-  /**
-   * The content panel's fill. "dark" is the original black wash; the chip
-   * values use the same lit surface as the panel icon's chip, at
-   * decreasing strength.
-   */
-  panel?:
-    | "dark"
-    | "dark70"
-    | "darkSoft"
-    | "chip"
-    | "chipDim"
-    | "solid"
-    | "solidDeep";
-  /**
-   * How far the model dissolves at the bottom of the card. "soft" is the
-   * long partial fade; "light" barely veils the cut; "none" leaves the
-   * crop hard, clipped only by the card border.
-   */
-  modelFade?: "soft" | "light" | "none";
-  /**
-   * How tall the card is authored, which is what decides how much of a
-   * Discord channel it takes up. See {@link CARD_HEIGHTS}.
-   */
-  size?: "full" | "slim" | "compact";
-  /** Output pixel width, which is also the width Discord displays. */
-  displayWidth?: number;
-  /** Overrides {@link supersampleFor}. */
-  supersample?: 1 | 2;
-};
-
-const DESIGN_DEFAULTS: Required<CardDesign> = {
-  bg: "wash",
-  name: "accent",
-  footer: "minimal",
-  surface: "dark",
-  panel: "dark70",
-  modelFade: "none",
-  size: "slim",
-  displayWidth: DEFAULT_DISPLAY_WIDTH,
-  supersample: supersampleFor(DEFAULT_DISPLAY_WIDTH),
-};
-
-/**
- * Content panel fills, paired with a matching hairline border.
- *
- * The opaque values are the point of the ladder: the model passes behind
- * the panel, and anything translucent lets a weapon or a bright pauldron
- * show through the text.
- */
-const PANEL_FILLS: Record<
-  Required<CardDesign>["panel"],
-  { fill: string; border: string }
-> = {
-  dark: { fill: "rgba(0,0,0,0.55)", border: "rgba(255,255,255,0.06)" },
-  dark70: { fill: "rgba(0,0,0,0.7)", border: "rgba(255,255,255,0.06)" },
-  darkSoft: { fill: "rgba(0,0,0,0.35)", border: "rgba(255,255,255,0.06)" },
-  chip: { fill: "rgba(255,255,255,0.08)", border: "rgba(255,255,255,0.08)" },
-  chipDim: { fill: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.06)" },
-  solid: { fill: "#141413", border: "rgba(255,255,255,0.07)" },
-  solidDeep: { fill: "#0b0b0a", border: "rgba(255,255,255,0.07)" },
-};
-
-/**
- * How much the card surface is lifted out of near-black, matching the
- * panel icon chip. Painted as an overlay above the texture rather than as
- * a base colour - the texture is nearly opaque, so tinting underneath it
- * barely shows.
- */
-const SURFACE_LIFT: Record<Required<CardDesign>["surface"], number> = {
-  dark: 0,
-  lifted: 0.08,
-  liftedStrong: 0.14,
-};
+const PANEL_FILL = "rgba(0,0,0,0.7)";
+const PANEL_BORDER = "rgba(255,255,255,0.06)";
 
 /**
  * Alt text for the card image. Everything the card says is drawn into a
@@ -457,9 +303,6 @@ const escapeHtml = (value: string) =>
 
 const rgba = (c: [number, number, number], a: number) =>
   `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-
-const truncate = (value: string, max: number) =>
-  value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value;
 
 const YELLOW: [number, number, number] = [255, 255, 0];
 const ORANGE: [number, number, number] = [255, 152, 31];
@@ -495,9 +338,18 @@ function pearlescent(): Pick<
   };
 }
 
-function dropTier(value: number): Pick<
+function dropTier(
+  value: number,
+): Pick<
   CardContent,
-  "accent" | "edgeGradient" | "subtitleColor" | "sheen" | "subtitlePearl" | "flashy" | "nameColor" | "namePearl"
+  | "accent"
+  | "edgeGradient"
+  | "subtitleColor"
+  | "sheen"
+  | "subtitlePearl"
+  | "flashy"
+  | "nameColor"
+  | "namePearl"
 > {
   if (value >= 100_000_000) {
     return {
@@ -507,7 +359,11 @@ function dropTier(value: number): Pick<
     };
   }
   if (value >= 10_000_000) {
-    return { accent: DROP_PINK, subtitleColor: "#ff5ca8", nameColor: "#ff6eb2" };
+    return {
+      accent: DROP_PINK,
+      subtitleColor: "#ff5ca8",
+      nameColor: "#ff6eb2",
+    };
   }
   return { accent: DROP_GOLD, subtitleColor: "#ffd700", nameColor: "#ffd700" };
 }
@@ -536,7 +392,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelIcon: getItemIconUrl(itemId),
         panelTitle: getItemName(itemId),
         panelSubtitle: `${numberWithDelimiter(value)} gp`,
-        footerLeft: "Valuable Drop",
       };
     }
     case "new_item_obtained": {
@@ -548,7 +403,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelIcon: getItemIconUrl(itemId),
         panelTitle: getItemName(itemId),
         panelSubtitle: "New collection log item",
-        footerLeft: "Collection Log",
       };
     }
     case "level_up": {
@@ -561,7 +415,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelTitle: name,
         panelSubtitle: `Level ${level}`,
         badge: String(level),
-        footerLeft: "Level Up",
       };
     }
     case "xp_milestone": {
@@ -577,7 +430,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelTitle: name,
         panelSubtitle: `${numberWithDelimiter(xp)} XP`,
         badge: String(numberWithAbbreviation(xp)),
-        footerLeft: "XP Milestone",
       };
     }
     case "quest_completed": {
@@ -598,7 +450,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelIcon: png(CardAssets.questIcon),
         panelTitle: quest?.name ?? "Unknown Quest",
         panelSubtitle: subtitleParts.join("  ·  ") || "Quest complete",
-        footerLeft: "Quest Completed",
       };
     }
     case "achievement_diary_tier_completed": {
@@ -613,7 +464,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelTitle: `${area} Diary`,
         panelSubtitle: `${tierName} tier complete`,
         badge: tierName,
-        footerLeft: "Achievement Diary",
       };
     }
     case "combat_achievement_tier_completed":
@@ -634,7 +484,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelSubtitle: reached
           ? `Unlocked ${tierName} tier rewards`
           : `Every ${tierName} task complete`,
-        footerLeft: "Combat Achievements",
       };
     }
     case "combat_achievement_task_completed": {
@@ -650,7 +499,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelIcon: caTierIcon(task?.tierId),
         panelTitle: task?.name ?? "Unknown Task",
         panelSubtitle: `${tierName} task`,
-        footerLeft: "Combat Achievements",
       };
     }
     case "maxed": {
@@ -661,7 +509,6 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         panelTitle: "Maxed",
         panelSubtitle: "All skills 99",
         badge: "2,277",
-        footerLeft: "Maxed",
       };
     }
   }
@@ -670,93 +517,39 @@ function buildCardContent(activity: ActivityEvent): CardContent {
 const fullBleed = (width: number, height: number) =>
   `position: absolute; left: 0; top: 0; width: ${width}px; height: ${height}px;`;
 
-/** Background layers, painted below the avatar and content. */
-function bgLayers(
-  content: CardContent,
-  bg: Required<CardDesign>["bg"],
-  width: number,
-  height: number,
-  S: number,
-): string {
-  const FULL_BLEED = fullBleed(width, height);
+/**
+ * Background layers, painted below the avatar and content: a faint stone
+ * texture under a diagonal accent wash that dies out before it reaches the
+ * panel, with the far edge shaded down.
+ *
+ * Flashy events — maxed, Grandmaster, 100m+ drops — get a stronger wash
+ * that reaches further across the card, plus heavier corner shading.
+ */
+function bgLayers(content: CardContent): string {
+  const FULL_BLEED = fullBleed(CARD_WIDTH, CARD_HEIGHT);
   const texture = (opacity: number) =>
-    `<div style="display: flex; ${FULL_BLEED} background-image: url(${png(CardAssets.texture)}); background-repeat: repeat; background-size: ${textureTile(S)}px ${textureTile(S)}px; opacity: ${opacity};"></div>`;
+    `<div style="display: flex; ${FULL_BLEED} background-image: url(${png(CardAssets.texture)}); background-repeat: repeat; background-size: ${textureTile()}px ${textureTile()}px; opacity: ${opacity};"></div>`;
   const glow = (css: string) =>
     `<div style="display: flex; ${FULL_BLEED} background-image: ${css};"></div>`;
 
-  switch (bg) {
-    case "texture":
-      // The pre-wash look, kept for reference: texture + corner glows.
-      return [
-        texture(0.85),
-        glow(
-          `radial-gradient(circle at 12% 30%, ${rgba(content.accent, 0.13)} 0%, rgba(0,0,0,0) 55%)`,
-        ),
-        glow(
-          "radial-gradient(circle at 88% 85%, rgba(255,152,31,0.08) 0%, rgba(255,152,31,0) 55%)",
-        ),
-      ].join("");
-    case "wash":
-      // Faint texture under a diagonal accent wash that dies out mid-card.
-      return [
-        texture(0.5),
-        glow(
-          `linear-gradient(105deg, ${rgba(content.accent, 0.16)} 0%, ${rgba(content.accent, 0.05)} 30%, rgba(0,0,0,0) 55%)`,
-        ),
-        glow(
-          "linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%)",
-        ),
-      ].join("");
-    case "washSpot":
-      // The wash plus a soft spotlight pooled behind the player.
-      return [
-        texture(0.5),
-        glow(
-          `linear-gradient(105deg, ${rgba(content.accent, 0.13)} 0%, ${rgba(content.accent, 0.04)} 30%, rgba(0,0,0,0) 55%)`,
-        ),
-        glow(
-          `radial-gradient(circle at 16% 48%, ${rgba(content.accent, 0.16)} 0%, rgba(0,0,0,0) 45%)`,
-        ),
-        glow(
-          "linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%)",
-        ),
-      ].join("");
-    case "washVertical":
-      // The wash falling from the top edge instead of the corner.
-      return [
-        texture(0.5),
-        glow(
-          `linear-gradient(to bottom, ${rgba(content.accent, 0.15)} 0%, ${rgba(content.accent, 0.04)} 35%, rgba(0,0,0,0) 60%)`,
-        ),
-        glow(
-          "linear-gradient(to top, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 35%)",
-        ),
-      ].join("");
-    case "washDeepSoft":
-    case "washDeep":
-    case "washDeepStrong": {
-      // A stronger, further-reaching wash with heavier corner shading,
-      // in three intensities for comparison; washDeep is the middle.
-      const [accent, reach, dark, bottom] =
-        bg === "washDeepSoft"
-          ? [0.19, 60, 0.38, 0.18]
-          : bg === "washDeepStrong"
-            ? [0.26, 70, 0.48, 0.26]
-            : [0.22, 65, 0.42, 0.22];
-      return [
-        texture(0.55),
-        glow(
-          `linear-gradient(105deg, ${rgba(content.accent, accent)} 0%, ${rgba(content.accent, accent / 3)} ${Math.round(reach * 0.6)}%, rgba(0,0,0,0) ${reach}%)`,
-        ),
-        glow(
-          `linear-gradient(to left, rgba(0,0,0,${dark}) 0%, rgba(0,0,0,0) 36%)`,
-        ),
-        glow(
-          `linear-gradient(to top, rgba(0,0,0,${bottom}) 0%, rgba(0,0,0,0) 24%)`,
-        ),
-      ].join("");
-    }
+  if (content.flashy) {
+    return [
+      texture(0.55),
+      glow(
+        `linear-gradient(105deg, ${rgba(content.accent, 0.22)} 0%, ${rgba(content.accent, 0.22 / 3)} 39%, rgba(0,0,0,0) 65%)`,
+      ),
+      glow("linear-gradient(to left, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0) 36%)"),
+      glow("linear-gradient(to top, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 24%)"),
+    ].join("");
   }
+
+  return [
+    texture(0.5),
+    glow(
+      `linear-gradient(105deg, ${rgba(content.accent, 0.16)} 0%, ${rgba(content.accent, 0.05)} 30%, rgba(0,0,0,0) 55%)`,
+    ),
+    glow("linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%)"),
+  ].join("");
 }
 
 export function buildCardHtml(params: {
@@ -764,21 +557,9 @@ export function buildCardHtml(params: {
   rsn: string;
   accountType?: AccountType;
   avatarDataUri: string;
-  design?: CardDesign;
 }): string {
   const { activity, rsn, accountType, avatarDataUri } = params;
   const content = buildCardContent(activity);
-  const design = {
-    ...DESIGN_DEFAULTS,
-    // The big moments upgrade themselves to the heavy wash unless the
-    // caller explicitly picked a background.
-    ...(content.flashy ? { bg: "washDeep" as const } : {}),
-    ...params.design,
-  };
-  const { scale: S, width, height } = cardSize(design);
-  // Rows sit closer together on a slimmer card. Type sizes stay put, since
-  // they are what makes the card readable once Discord scales it down.
-  const rowGap = design.size === "full" ? 13 : design.size === "slim" ? 10 : 7;
   const name = escapeHtml(rsn);
   const accountTypeIcon =
     accountType &&
@@ -811,32 +592,21 @@ export function buildCardHtml(params: {
   };
 
   // The header is just the player: account icon + name, logo on the far
-  // right. No verb — the panel says what happened, and the Discord message
-  // carries a summary line above the card.
-  const nameColor =
-    design.name === "white"
-      ? "#ffffff"
-      : design.name === "cream"
-        ? "#f3f0e7"
-        : design.name === "orange"
-          ? "#ff981f"
-          : design.name === "cyan"
-            ? "#00ffff"
-            : design.name === "accent"
-              ? // Curated per-event tint, not the raw accent — some
-                // accents are too dark against the card for a name.
-                (content.nameColor ?? rgba(content.accent, 1))
-              : "#ffff00";
+  // right. No verb — the panel says what happened, and the alt text on the
+  // attachment carries a summary for anyone who can't see the image.
+  //
+  // The name takes the event's curated tint rather than the raw accent:
+  // some accents are too dark against the card to read as a name.
+  const nameColor = content.nameColor ?? rgba(content.accent, 1);
   const PEARL_NAME_HUES = ["#a5ecff", "#dcb8ff", "#ffb8e0", "#b8ffdf"];
-  const nameHtml =
-    design.name === "accent" && content.namePearl
-      ? `<div style="display: flex;">${(name.match(/\S\s*/g) ?? [])
-          .map(
-            (chunk, i) =>
-              `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; ${shadowName}">${chunk}</span>`,
-          )
-          .join("")}</div>`
-      : `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowName}">${name}</span>`;
+  const nameHtml = content.namePearl
+    ? `<div style="display: flex;">${(name.match(/\S\s*/g) ?? [])
+        .map(
+          (chunk, i) =>
+            `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; ${shadowName}">${chunk}</span>`,
+        )
+        .join("")}</div>`
+    : `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowName}">${name}</span>`;
   const header = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <div style="display: flex; align-items: center; gap: ${11 * S}px;">
@@ -846,16 +616,11 @@ export function buildCardHtml(params: {
           <img src="${png(CardAssets.logo)}" width="${32 * S}" height="${32 * S}" style="opacity: 0.9;" />
         </div>`;
 
-  const footer =
-    design.footer === "minimal"
-      ? `
+  // Just the profile link, right-aligned under the panel. Naming the event
+  // type on the left was redundant with the panel above it.
+  const footer = `
         <div style="display: flex; align-items: center; justify-content: flex-end;">
           <span style="font-size: ${19 * S}px; color: #8b8b82; line-height: 1; ${shadowName}">runeprofile.com/${name}</span>
-        </div>`
-      : `
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowName}">${escapeHtml(content.footerLeft)}</span>
-          <span style="font-size: ${22 * S}px; color: #9f9f9f; line-height: 1; ${shadowName}">runeprofile.com/${name}</span>
         </div>`;
 
   const edge =
@@ -885,26 +650,21 @@ export function buildCardHtml(params: {
     : `<span style="font-size: ${23 * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>`;
 
   return `
-    <div style="display: flex; position: relative; width: ${width}px; height: ${height}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
-      ${bgLayers(content, design.bg, width, height, S)}
-      ${
-        SURFACE_LIFT[design.surface] > 0
-          ? `<div style="display: flex; ${fullBleed(width, height)} background-color: rgba(255,255,255,${SURFACE_LIFT[design.surface]});"></div>`
-          : ""
-      }
+    <div style="display: flex; position: relative; width: ${CARD_WIDTH}px; height: ${CARD_HEIGHT}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
+      ${bgLayers(content)}
       ${
         sheen
-          ? `<div style="display: flex; ${fullBleed(width, height)} background-image: ${sheen};"></div>`
+          ? `<div style="display: flex; ${fullBleed(CARD_WIDTH, CARD_HEIGHT)} background-image: ${sheen};"></div>`
           : ""
       }
 
-      <img src="${avatarDataUri}" width="${width}" height="${height}" style="position: absolute; left: 0; top: 0;" />
+      <img src="${avatarDataUri}" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" style="position: absolute; left: 0; top: 0;" />
       <div style="display: flex; position: absolute; left: 0; top: 0; bottom: 0; width: ${3 * S}px; border-radius: ${10 * S}px 0 0 ${10 * S}px; background-image: ${edge};"></div>
 
-      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${rowGap * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${ROW_GAP * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
         ${header}
 
-        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILLS[design.panel].fill}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_FILLS[design.panel].border}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
+        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILL}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_BORDER}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
           <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
             <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
           </div>
