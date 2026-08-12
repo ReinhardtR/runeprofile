@@ -88,16 +88,20 @@ type OgLayout = {
   modelAnchorX: number;
 };
 
+/**
+ * Head at 0.25 of the width: far enough left that the gap beside the player
+ * does not read as empty, and not so far that a broad shoulder leaves the
+ * frame.
+ */
+const MODEL_ANCHOR_X = 0.25;
+
 const OG_LAYOUTS: Record<string, OgLayout> = {
+  bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
+  // Kept for comparison, all reachable with ?variant= in dev.
+  plain: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "plain", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
+  corners: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "corners", brand: "column", modelAnchorX: MODEL_ANCHOR_X },
+  header: { blockGap: 18, nameGap: 12, chipGap: 16, frame: "none", brand: "header", modelAnchorX: MODEL_ANCHOR_X },
   roomy: { blockGap: 30, nameGap: 20, chipGap: 18, frame: "corners", brand: "column", modelAnchorX: 0.31 },
-  tight: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "corners", brand: "column", modelAnchorX: 0.31 },
-  plain: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "plain", brand: "column", modelAnchorX: 0.31 },
-  header: { blockGap: 18, nameGap: 12, chipGap: 16, frame: "corners", brand: "header", modelAnchorX: 0.31 },
-  // No frame, with the player at a few distances from the left edge.
-  bare: { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.31 },
-  "bare-28": { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.28 },
-  "bare-25": { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.25 },
-  "bare-22": { blockGap: 20, nameGap: 12, chipGap: 16, frame: "none", brand: "column", modelAnchorX: 0.22 },
 };
 
 /**
