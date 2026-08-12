@@ -11,6 +11,7 @@ import {
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
 import { newRouter } from "~/lib/helpers";
+import { purgeOgImage } from "~/lib/og-cache";
 import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
 import { uploadPlayerModels } from "~/lib/models/manage-models";
 import { modelContentType, modelFileSchema } from "~/lib/models/uploads";
@@ -85,6 +86,11 @@ export const modelsRouter = newRouter()
       } catch (error) {
         throw RuneProfileFailedToUploadFileError;
       }
+
+      // The player's OG image has their old character rendered into it, and
+      // it is cached for a day. Stale stats can wait; a character that no
+      // longer looks like them should not.
+      c.executionCtx.waitUntil(purgeOgImage(c.env, account.username));
 
       return c.json({ message: "Model updated successfully" });
     },

@@ -3,6 +3,13 @@
   "name": "runeprofile-web",
   "compatibility_date": "2026-07-23",
   "compatibility_flags": ["nodejs_compat"],
+  // Same region as the api worker and the database. Nearly every render
+  // waits on a profile from the api, so running next to it beats running
+  // next to the visitor - and it puts the cache the og route writes to in
+  // one place instead of one copy per data centre.
+  "placement": {
+    "region": "aws:us-east-1"
+  },
   "main": "@tanstack/react-start/server-entry",
   // Zone routes rather than custom domains: they intercept traffic at the
   // zone layer above the Pages project, which made the cutover atomic (no
