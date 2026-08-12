@@ -14,8 +14,18 @@ import {
   parseDiscordChannelSettings,
 } from "@runeprofile/runescape";
 
+import {
+  activityAltText,
+  renderActivityCardPng,
+  renderAvatarDataUri,
+} from "~/internal/discord/cards/activity-cards";
+import { usesActivityCards } from "~/internal/discord/constants";
 import { createDiscordApi } from "~/internal/discord/factory";
 import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
+import {
+  MAX_CARDS_PER_MESSAGE,
+  postCardsMessage,
+} from "~/internal/discord/messages/send-cards";
 import { filterActivities } from "~/internal/discord/watch/filter";
 
 export async function sendActivityMessages(params: {
@@ -27,6 +37,8 @@ export async function sendActivityMessages(params: {
   rsn: string;
   accountType?: AccountType;
   clanName: string | null;
+  /** Player model store, for the card renderer. */
+  bucket: R2Bucket;
 }) {
   const {
     db,
@@ -37,6 +49,7 @@ export async function sendActivityMessages(params: {
     activities,
     rsn,
     accountType,
+    bucket,
   } = params;
 
   if (activities.length === 0) return;
@@ -75,6 +88,13 @@ export async function sendActivityMessages(params: {
 
   const discordApi = createDiscordApi(discordToken);
 
+  // Cards are in beta, limited to the clans in the allow list; everyone
+  // else keeps the embeds. Rendered once per activity here and reused for
+  // every channel, since only which activities pass the filters differs.
+  const cards = usesActivityCards(clanName)
+    ? await renderCards({ bucket, activities, rsn, accountType })
+    : null;
+
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
     channelIds.map(async (channelId) => {
@@ -84,20 +104,32 @@ export async function sendActivityMessages(params: {
 
       if (allowedActivities.length === 0) return;
 
-      const embeds = allowedActivities.map((activity, index) =>
-        createActivityEmbed({
-          activity,
-          discordApplicationId,
-          rsn,
-          accountType,
-          index,
-        }),
-      );
-
-      if (embeds.length === 0) return;
-
-      // Discord allows max 10 embeds per message
       try {
+        if (cards) {
+          const allowed = allowedActivities
+            .map((activity) => cards.get(activity))
+            .filter((card): card is NonNullable<typeof card> => card != null);
+          for (let i = 0; i < allowed.length; i += MAX_CARDS_PER_MESSAGE) {
+            await postCardsMessage({
+              token: discordToken,
+              channelId,
+              cards: allowed.slice(i, i + MAX_CARDS_PER_MESSAGE),
+            });
+          }
+          return;
+        }
+
+        const embeds = allowedActivities.map((activity, index) =>
+          createActivityEmbed({
+            activity,
+            discordApplicationId,
+            rsn,
+            accountType,
+            index,
+          }),
+        );
+
+        // Discord allows max 10 embeds per message
         for (let i = 0; i < embeds.length; i += 10) {
           await discordApi(
             "POST",
@@ -113,6 +145,42 @@ export async function sendActivityMessages(params: {
   );
 
   console.log(`Sent activity messages to ${channelIds.length} channels`);
+}
+
+/**
+ * Renders a card per activity, keyed by the activity it came from.
+ *
+ * Returns null if rendering fails at all, so a beta clan falls back to the
+ * embeds rather than losing the message: a missing model, a bad export or a
+ * renderer bug should not cost anyone their activity feed.
+ */
+async function renderCards(params: {
+  bucket: R2Bucket;
+  activities: ActivityEvent[];
+  rsn: string;
+  accountType?: AccountType;
+}): Promise<Map<ActivityEvent, { file: Uint8Array; alt: string }> | null> {
+  const { bucket, activities, rsn, accountType } = params;
+  try {
+    // The portrait is the same on every card, so it is rendered once.
+    const avatarDataUri = await renderAvatarDataUri(bucket, rsn);
+    const cards = new Map<ActivityEvent, { file: Uint8Array; alt: string }>();
+    for (const activity of activities) {
+      cards.set(activity, {
+        file: await renderActivityCardPng({
+          activity,
+          rsn,
+          accountType,
+          avatarDataUri,
+        }),
+        alt: activityAltText(activity, rsn),
+      });
+    }
+    return cards;
+  } catch (error) {
+    console.error(`Failed to render activity cards for ${rsn}:`, error);
+    return null;
+  }
 }
 
 function getWatchCondition(params: {

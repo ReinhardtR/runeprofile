@@ -343,6 +343,7 @@ export const profilesRouter = newRouter()
               rsn: updates.username,
               accountType: AccountTypes[data.accountType],
               clanName: data.clan?.name ?? null,
+              bucket: c.env.BUCKET,
             }),
           );
         }
@@ -418,6 +419,7 @@ export const profilesRouter = newRouter()
             rsn: account.username,
             accountType: AccountTypes[account.accountType],
             clanName: account.clanName,
+            bucket: c.env.BUCKET,
           });
         })(),
       );

@@ -46,6 +46,13 @@ const CARD_AUTHORED_WIDTH = 720;
  */
 const TEXTURE_NATIVE = 60;
 
+/**
+ * Render scale the account type icons are baked for. They are pixel art
+ * upscaled with nearest-neighbour and given their rim and shadow in output
+ * space, so the baked pixels only line up 1:1 at this scale.
+ */
+const ACCOUNT_ICON_BAKE_SCALE = 2;
+
 const textureTile = (scale: number) =>
   TEXTURE_NATIVE * Math.max(1, Math.round(scale));
 
@@ -790,13 +797,18 @@ export function buildCardHtml(params: {
   // wherever the model or a wash sits behind it.
   const shadowName = `text-shadow: ${S}px 0 0 #000, -${S}px 0 0 #000, 0 ${S}px 0 #000, 0 -${S}px 0 #000, ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
 
-  // Baked rim light + pixel shadow make the icon tactile on the dark
-  // card. The asset is sized for a 1:1 blit into the 2x render — no
-  // resampling, true pixel art.
-  const accountIcon = () =>
-    accountTypeIcon
-      ? `<img src="${png(accountTypeIcon.data)}" width="${accountTypeIcon.width}" height="${accountTypeIcon.height}" style="align-self: center;" />`
-      : "";
+  // Baked rim light + pixel shadow make the icon tactile on the dark card.
+  // The asset is baked for a 1:1 blit at ACCOUNT_ICON_BAKE_SCALE, so its
+  // pixel size has to be divided back out and re-scaled: drawn at its own
+  // dimensions it keeps that size while the type beside it scales, which on
+  // an 800px card left it half again too tall for the name.
+  const accountIcon = () => {
+    if (!accountTypeIcon) return "";
+    const scale = S / ACCOUNT_ICON_BAKE_SCALE;
+    const width = Math.round(accountTypeIcon.width * scale);
+    const height = Math.round(accountTypeIcon.height * scale);
+    return `<img src="${png(accountTypeIcon.data)}" width="${width}" height="${height}" style="align-self: center;" />`;
+  };
 
   // The header is just the player: account icon + name, logo on the far
   // right. No verb — the panel says what happened, and the Discord message
