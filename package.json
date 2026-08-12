@@ -20,6 +20,7 @@
     "script:update-quests": "pnpm --filter ts-scripts run update-quests",
     "script:sync-item-icons": "pnpm --filter ts-scripts run sync-item-icons",
     "script:check-cache": "pnpm --filter ts-scripts run check-cache",
+    "script:check-data-cache": "pnpm --filter ts-scripts run check-data-cache",
     "script:update-sprite-icons": "pnpm --filter ts-scripts run update-sprite-icons"
   },
   "packageManager": "pnpm@9.0.0",
