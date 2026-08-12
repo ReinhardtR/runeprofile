@@ -20,6 +20,12 @@
       "enabled": true,
     },
   },
+  // Not a secret: a zone id identifies the zone, it does not authorise
+  // anything. The token that goes with it is a secret, set with
+  // `wrangler secret put CLOUDFLARE_API_TOKEN`.
+  "vars": {
+    "CLOUDFLARE_ZONE_ID": "d650f3f90dabac1b3c98ed0c309346b9",
+  },
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
