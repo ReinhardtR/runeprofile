@@ -34,7 +34,7 @@ export async function findStalePendingNames(limit: number) {
     .where(
       and(
         isNotNull(accounts.pendingUsername),
-        sql`${holder.updatedAt} < now() - make_interval(days => ${STALE_HOLDER_DAYS})`,
+        sql`${holder.updatedAt} < now() - ${sql.raw(`interval '${STALE_HOLDER_DAYS} days'`)}`,
       ),
     )
     .orderBy(sql`${holder.updatedAt} ASC`)
