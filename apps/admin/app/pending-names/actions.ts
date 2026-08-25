@@ -1,45 +1,27 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
+import { type PendingNameRow } from "@/lib/pending-names";
+import {
+  findStalePendingNames,
+  grantPendingName,
+  holder,
+  holderJoin,
+  pendingNameFields,
+} from "@/lib/pending-names.server";
 import { requireAdmin } from "@/lib/require-admin";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { aliasedTable, and, eq, isNotNull, ne, sql } from "drizzle-orm";
+import { and, eq, isNotNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { accounts, lower } from "@runeprofile/db";
-import { placeholderUsername } from "@runeprofile/runescape";
-
-export type PendingNameRow = {
-  id: string;
-  username: string;
-  pendingUsername: string;
-  updatedAt: string;
-  holderUsername: string | null;
-  holderUpdatedAt: string | null;
-};
+import { accounts } from "@runeprofile/db";
 
 export async function getPendingNames(): Promise<PendingNameRow[]> {
   await requireAdmin();
 
-  const holder = aliasedTable(accounts, "holder");
   const rows = await db
-    .select({
-      id: accounts.id,
-      username: accounts.username,
-      pendingUsername: accounts.pendingUsername,
-      updatedAt: accounts.updatedAt,
-      holderUsername: holder.username,
-      holderUpdatedAt: holder.updatedAt,
-    })
+    .select(pendingNameFields)
     .from(accounts)
-    .leftJoin(
-      holder,
-      and(
-        eq(lower(holder.username), lower(accounts.pendingUsername)),
-        ne(holder.id, accounts.id),
-      ),
-    )
+    .leftJoin(holder, holderJoin)
     .where(isNotNull(accounts.pendingUsername))
     // Free names first (grantable without archiving anyone), then the holders
     // that have been dead the longest.
@@ -48,90 +30,68 @@ export async function getPendingNames(): Promise<PendingNameRow[]> {
   return rows as PendingNameRow[];
 }
 
-/**
- * Grants an account its pending username. If another row still holds the name,
- * it is archived under a placeholder first (same convention as the Archive
- * button) — only use this when you're confident the holder is a stale row.
- *
- * Mirrors the API's rename bookkeeping: R2 models move with the username and
- * both diff caches are invalidated. No freed-name cascade is needed here — a
- * row pending on the claimant's old name picks it up on its own next sync.
- */
+/** See `grantPendingName`. */
 export async function resolvePendingName(claimantId: string) {
   await requireAdmin();
 
-  const claimant = await db.query.accounts.findFirst({
-    where: eq(accounts.id, claimantId),
-    columns: { id: true, username: true, pendingUsername: true },
-  });
-  if (!claimant) {
-    throw new Error("Account not found");
-  }
-  const wanted = claimant.pendingUsername;
-  if (!wanted) {
-    throw new Error("Account has no pending username");
-  }
-
-  const holder = await db.query.accounts.findFirst({
-    where: and(
-      eq(lower(accounts.username), wanted.toLowerCase()),
-      ne(accounts.id, claimant.id),
-    ),
-    columns: { id: true, username: true },
-  });
-
-  const holderPlaceholder = placeholderUsername();
-
-  await db.transaction(async (tx) => {
-    if (holder) {
-      // Free the name first so the unique index never collides mid-move.
-      const archived = await tx
-        .update(accounts)
-        .set({
-          username: holderPlaceholder,
-          clanName: null,
-          clanRank: null,
-          clanIcon: null,
-          clanTitle: null,
-          groupName: null,
-        })
-        .where(
-          and(eq(accounts.id, holder.id), eq(accounts.username, holder.username)),
-        )
-        .returning({ id: accounts.id });
-      if (archived.length === 0) {
-        throw new Error("Holder row changed concurrently, aborting");
-      }
-    }
-
-    const granted = await tx
-      .update(accounts)
-      .set({ username: wanted, pendingUsername: null })
-      .where(
-        and(
-          eq(accounts.id, claimant.id),
-          eq(accounts.pendingUsername, wanted),
-        ),
-      )
-      .returning({ id: accounts.id });
-    if (granted.length === 0) {
-      throw new Error("Claimant row changed concurrently, aborting");
-    }
-  });
-
-  const bucket = getCloudflareContext().env.BUCKET;
-  await Promise.all([
-    renameModelFiles(bucket, claimant.username, wanted),
-    invalidateDiffCache(claimant.id),
-    ...(holder
-      ? [
-          renameModelFiles(bucket, holder.username, holderPlaceholder),
-          invalidateDiffCache(holder.id),
-        ]
-      : []),
-  ]);
+  await grantPendingName(claimantId);
 
   revalidatePath("/pending-names");
+  revalidatePath("/accounts");
+}
+
+// Each grant costs a transaction plus up to four R2 moves and two KV deletes;
+// keep one action well inside Worker subrequest/CPU limits.
+const STALE_BATCH_SIZE = 25;
+
+export type ResolveStaleResult = {
+  resolved: { username: string; pendingUsername: string }[];
+  failed: { username: string; pendingUsername: string; error: string }[];
+  /** Stale claims still left after this batch (0 when finished). */
+  remaining: number;
+};
+
+/**
+ * Grants every pending name whose holder has been inactive for at least
+ * STALE_HOLDER_DAYS, one batch at a time. Claims are processed sequentially so
+ * a chain (A wants B's name, B wants C's) settles in order.
+ */
+export async function resolveStalePendingNames(): Promise<ResolveStaleResult> {
+  await requireAdmin();
+
+  const batch = await findStalePendingNames(STALE_BATCH_SIZE);
+  const result: ResolveStaleResult = { resolved: [], failed: [], remaining: 0 };
+
+  for (const row of batch) {
+    try {
+      await grantPendingName(row.id);
+      result.resolved.push({
+        username: row.username,
+        pendingUsername: row.pendingUsername,
+      });
+    } catch (err) {
+      result.failed.push({
+        username: row.username,
+        pendingUsername: row.pendingUsername,
+        error: err instanceof Error ? err.message : "Failed to resolve",
+      });
+    }
+  }
+
+  const remaining = await findStalePendingNames(STALE_BATCH_SIZE + 1);
+  // Rows that failed this round would be counted again; report only new work.
+  result.remaining = Math.max(0, remaining.length - result.failed.length);
+
+  console.log({
+    event: "stale-pending-names-resolved",
+    resolved: result.resolved.length,
+    failed: result.failed.length,
+    remaining: result.remaining,
+  });
+
+  revalidatePath("/pending-names");
+  revalidatePath("/accounts");
+  return result;
 }
 
 /**
@@ -144,34 +104,10 @@ export async function clearPendingName(claimantId: string) {
   await db
     .update(accounts)
     .set({ pendingUsername: null })
-    .where(and(eq(accounts.id, claimantId), isNotNull(accounts.pendingUsername)));
+    .where(
+      and(eq(accounts.id, claimantId), isNotNull(accounts.pendingUsername)),
+    );
 
   revalidatePath("/pending-names");
-}
-
-async function renameModelFiles(
-  bucket: R2Bucket,
-  oldUsername: string,
-  newUsername: string,
-) {
-  const oldKey = oldUsername.toLowerCase();
-  const newKey = newUsername.toLowerCase();
-  if (oldKey === newKey) return;
-
-  try {
-    await Promise.all([
-      renameFile(bucket, oldKey, newKey),
-      renameFile(bucket, `${oldKey}-pet`, `${newKey}-pet`),
-    ]);
-  } catch {
-    console.error("Failed to rename model files");
-  }
-}
-
-async function renameFile(bucket: R2Bucket, oldKey: string, newKey: string) {
-  const file = await bucket.get(oldKey);
-  if (!file) return;
-  const data = await file.arrayBuffer();
-  await bucket.put(newKey, data);
-  await bucket.delete(oldKey);
+  revalidatePath("/accounts");
 }

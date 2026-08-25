@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { invalidateDiffCache } from "@/lib/invalidate-diff-cache";
 import { createPetModelKey, createPlayerModelKey } from "@/lib/model-keys";
+import { holder, holderJoin } from "@/lib/pending-names.server";
 import { requireAdmin } from "@/lib/require-admin";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, like, sql } from "drizzle-orm";
@@ -156,6 +157,10 @@ export async function searchAccounts(q: string) {
     groupName: accounts.groupName,
     forceResync: accounts.forceResync,
     updatedAt: accounts.updatedAt,
+    // Name conflict: the name this account wants, and who currently holds it.
+    pendingUsername: accounts.pendingUsername,
+    holderUsername: holder.username,
+    holderUpdatedAt: holder.updatedAt,
   };
 
   // If it looks like a full UUID, search by id.
@@ -163,6 +168,7 @@ export async function searchAccounts(q: string) {
     return db
       .select(selectFields)
       .from(accounts)
+      .leftJoin(holder, holderJoin)
       .where(eq(accounts.id, raw))
       .limit(1);
   }
@@ -172,6 +178,7 @@ export async function searchAccounts(q: string) {
     return db
       .select(selectFields)
       .from(accounts)
+      .leftJoin(holder, holderJoin)
       .where(like(accounts.id, `${raw}%`))
       .limit(25);
   }
@@ -182,6 +189,7 @@ export async function searchAccounts(q: string) {
   return db
     .select(selectFields)
     .from(accounts)
+    .leftJoin(holder, holderJoin)
     .where(sql`lower(${accounts.username}) like ${`%${term}%`}`)
     .orderBy(
       sql`CASE
