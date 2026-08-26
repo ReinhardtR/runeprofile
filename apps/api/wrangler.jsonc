@@ -9,6 +9,11 @@
   "placement": {
     "region": "aws:us-east-1"
   },
+  // Daily sweep of pending usernames whose holder has gone stale
+  // (src/lib/profiles/sweep-stale-names.ts via the scheduled handler).
+  "triggers": {
+    "crons": ["15 4 * * *"]
+  },
   "routes": [
     {
       "pattern": "api.runeprofile.com",
