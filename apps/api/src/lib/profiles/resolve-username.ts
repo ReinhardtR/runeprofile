@@ -3,6 +3,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { Database, accounts, lower } from "@runeprofile/db";
 import {
   isPlaceholderUsername,
+  isStaleHolder,
   placeholderUsername,
 } from "@runeprofile/runescape";
 
@@ -23,11 +24,15 @@ import { deleteDiffProfileCache } from "~/lib/profiles/diff-cache";
  *    all names in the cycle rotate at once.
  *  - cascade: after a row moves off a name, any row pending on that name is
  *    granted it (repeated until no more grants).
+ *  - evict: the chain ends at a holder that has not synced for
+ *    STALE_HOLDER_DAYS. The plugin reports the real in-game name, so the
+ *    claimant provably owns it now; the stale holder is archived under a
+ *    placeholder and the chain settles as an unwind.
  *
- * A name is only ever taken from a row by that row's own account reporting a
- * different name — never by another account — so names cannot be stolen.
+ * Otherwise a name is only ever taken from a row by that row's own account
+ * reporting a different name — never by another account — so an active
+ * player's name cannot be stolen.
  */
-
 
 export type UsernameResolution = {
   // What the claimant's row should hold after this sync.
@@ -42,6 +47,7 @@ type AccountNameRow = {
   id: string;
   username: string;
   pendingUsername: string | null;
+  updatedAt: string;
 };
 
 const MAX_CHAIN_LENGTH = 10;
@@ -56,6 +62,7 @@ async function findHolder(
       id: accounts.id,
       username: accounts.username,
       pendingUsername: accounts.pendingUsername,
+      updatedAt: accounts.updatedAt,
     })
     .from(accounts)
     .where(
@@ -78,6 +85,7 @@ async function findClaimant(
       id: accounts.id,
       username: accounts.username,
       pendingUsername: accounts.pendingUsername,
+      updatedAt: accounts.updatedAt,
     })
     .from(accounts)
     .where(eq(lower(accounts.pendingUsername), username.toLowerCase()))
@@ -153,12 +161,15 @@ export async function resolveUsername(
   // holder to see whether the whole chain can be settled right now.
   const chain: AccountNameRow[] = [holder];
   const seenIds = new Set([id, holder.id]);
-  let outcome: "park" | "rotate" | "unwind" = "park";
+  let outcome: "park" | "rotate" | "unwind" | "evict" = "park";
 
   let cursor = holder;
   while (chain.length <= MAX_CHAIN_LENGTH) {
     const wanted = cursor.pendingUsername;
     if (!wanted) {
+      if (isStaleHolder(cursor.updatedAt)) {
+        outcome = "evict";
+      }
       break;
     }
 
@@ -203,10 +214,39 @@ export async function resolveUsername(
 
   // Every row in the chain moves to its pending name, and the claimant takes
   // the reported name. Temp-rename first so the unique index never collides
-  // mid-move, then assign the final names.
+  // mid-move, then assign the final names. An evicted holder simply stays on
+  // its placeholder (its clan fields are dropped like any archived row).
   const claimantHasRow = currentUsername !== null;
+  const evicted = outcome === "evict" ? chain.pop()! : null;
+  const evictedPlaceholder = placeholderUsername();
 
-  await db.transaction(async (tx) => {
+  const moveChain = db.transaction(async (tx) => {
+    if (evicted) {
+      const archived = await tx
+        .update(accounts)
+        .set({
+          username: evictedPlaceholder,
+          clanName: null,
+          clanRank: null,
+          clanIcon: null,
+          clanTitle: null,
+          groupName: null,
+        })
+        .where(
+          and(
+            eq(accounts.id, evicted.id),
+            eq(accounts.username, evicted.username),
+            // Re-check under the transaction: a sync since we looked means the
+            // holder is alive after all.
+            eq(accounts.updatedAt, evicted.updatedAt),
+          ),
+        )
+        .returning({ id: accounts.id });
+      if (archived.length === 0) {
+        throw new StaleHolderRevivedError(evicted.id);
+      }
+    }
+
     for (const row of chain) {
       await tx
         .update(accounts)
@@ -236,8 +276,31 @@ export async function resolveUsername(
     }
   });
 
+  try {
+    await moveChain;
+  } catch (error) {
+    if (!(error instanceof StaleHolderRevivedError)) throw error;
+    console.log({
+      event: "username-parked",
+      accountId: id,
+      wantedUsername: reportedUsername,
+      heldBy: holder.id,
+      reason: "stale holder synced concurrently",
+    });
+    return {
+      username: currentUsername ?? placeholderUsername(),
+      pendingUsername: reportedUsername,
+      freedName: null,
+    };
+  }
+
   console.log({
-    event: outcome === "rotate" ? "username-rotation" : "username-unwind",
+    event:
+      outcome === "rotate"
+        ? "username-rotation"
+        : outcome === "evict"
+          ? "username-evict-stale-holder"
+          : "username-unwind",
     accountId: id,
     username: reportedUsername,
     moved: chain.map((row) => ({
@@ -245,27 +308,50 @@ export async function resolveUsername(
       from: row.username,
       to: row.pendingUsername,
     })),
+    ...(evicted && {
+      evicted: {
+        accountId: evicted.id,
+        from: evicted.username,
+        lastSyncedAt: evicted.updatedAt,
+      },
+    }),
   });
 
   // R2/KV bookkeeping for the moved rows. The claimant's own models and cache
   // are handled by the regular profile update that follows.
-  await Promise.all(
-    chain.map((row) =>
+  await Promise.all([
+    ...chain.map((row) =>
       applyRename(bucket, kv, {
         id: row.id,
         oldUsername: row.username,
         newUsername: row.pendingUsername!,
       }),
     ),
-  );
+    ...(evicted
+      ? [
+          applyRename(bucket, kv, {
+            id: evicted.id,
+            oldUsername: evicted.username,
+            newUsername: evictedPlaceholder,
+          }),
+        ]
+      : []),
+  ]);
 
   // In a rotation the claimant's old name was consumed by the last chain row;
-  // in an unwind it is now free.
+  // in an unwind or eviction it is now free.
   return {
     username: reportedUsername,
     pendingUsername: null,
-    freedName: outcome === "unwind" ? currentUsername : null,
+    freedName: outcome === "rotate" ? null : currentUsername,
   };
+}
+
+/** The holder synced between our read and the archive; treat as "park". */
+class StaleHolderRevivedError extends Error {
+  constructor(public readonly holderId: string) {
+    super("Stale holder synced concurrently");
+  }
 }
 
 /**

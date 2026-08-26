@@ -10,6 +10,7 @@ import {
   isUsernameUniqueViolation,
   resolveUsername,
 } from "~/lib/profiles/resolve-username";
+import { sweepStalePendingNames } from "~/lib/profiles/sweep-stale-names";
 
 // In-memory Postgres with just the accounts table — the resolution logic
 // only ever touches accounts.
@@ -43,6 +44,21 @@ async function getRow(id: string) {
 
 async function seed(id: string, username: string) {
   await db.insert(accounts).values({ id, username, accountType: 0 });
+}
+
+const DAY = 86400000;
+
+/** Backdates a row's last sync by `days`, as an account that stopped syncing. */
+async function lastSynced(id: string, daysAgo: number) {
+  await db
+    .update(accounts)
+    .set({ updatedAt: new Date(Date.now() - daysAgo * DAY).toISOString() })
+    .where(eq(accounts.id, id));
+}
+
+async function getFullRow(id: string) {
+  const rows = await db.select().from(accounts).where(eq(accounts.id, id));
+  return rows[0] ?? null;
 }
 
 // Mimics the POST /profiles flow: resolve, apply the resolution to the
@@ -224,9 +240,18 @@ describe("resolveUsername", () => {
     const last = await sync(acc(3), "A");
 
     expect(last.username).toBe("A");
-    expect(await getRow(acc(1))).toEqual({ username: "B", pendingUsername: null });
-    expect(await getRow(acc(2))).toEqual({ username: "C", pendingUsername: null });
-    expect(await getRow(acc(3))).toEqual({ username: "A", pendingUsername: null });
+    expect(await getRow(acc(1))).toEqual({
+      username: "B",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "C",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(3))).toEqual({
+      username: "A",
+      pendingUsername: null,
+    });
   });
 
   test("chain unwinds when its last wanted name frees up", async () => {
@@ -244,9 +269,18 @@ describe("resolveUsername", () => {
       pendingUsername: null,
       freedName: "N3",
     });
-    expect(await getRow(acc(1))).toEqual({ username: "N2", pendingUsername: null });
-    expect(await getRow(acc(2))).toEqual({ username: "N3", pendingUsername: null });
-    expect(await getRow(acc(3))).toEqual({ username: "N4", pendingUsername: null });
+    expect(await getRow(acc(1))).toEqual({
+      username: "N2",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "N3",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(3))).toEqual({
+      username: "N4",
+      pendingUsername: null,
+    });
   });
 
   test("chain unwind triggered by the waiting account's own sync", async () => {
@@ -267,8 +301,14 @@ describe("resolveUsername", () => {
       pendingUsername: null,
       freedName: "N1",
     });
-    expect(await getRow(acc(1))).toEqual({ username: "N2", pendingUsername: null });
-    expect(await getRow(acc(2))).toEqual({ username: "N3", pendingUsername: null });
+    expect(await getRow(acc(1))).toEqual({
+      username: "N2",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "N3",
+      pendingUsername: null,
+    });
   });
 
   test("new account with a taken name gets a placeholder + pending", async () => {
@@ -310,8 +350,217 @@ describe("resolveUsername", () => {
     const resolution = await sync(acc(3), "A");
 
     expect(resolution.pendingUsername).toBe("A");
-    expect(await getRow(acc(1))).toEqual({ username: "A", pendingUsername: "B" });
-    expect(await getRow(acc(2))).toEqual({ username: "B", pendingUsername: "A" });
+    expect(await getRow(acc(1))).toEqual({
+      username: "A",
+      pendingUsername: "B",
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "B",
+      pendingUsername: "A",
+    });
+  });
+});
+
+describe("resolveUsername — stale holders", () => {
+  test("holder idle under the window still parks the claimant", async () => {
+    await seed(acc(1), "Foo");
+    await seed(acc(2), "Bar");
+    await lastSynced(acc(1), 29);
+
+    const resolution = await sync(acc(2), "Foo");
+
+    expect(resolution.pendingUsername).toBe("Foo");
+    expect(await getRow(acc(1))).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+    });
+  });
+
+  test("stale holder is archived and the claimant granted the name", async () => {
+    await seed(acc(1), "Foo");
+    await seed(acc(2), "Bar");
+    await db
+      .update(accounts)
+      .set({ clanName: "Clan", clanRank: 3 })
+      .where(eq(accounts.id, acc(1)));
+    await lastSynced(acc(1), 31);
+
+    const resolution = await sync(acc(2), "Foo");
+
+    expect(resolution).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+      freedName: "Bar",
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+    });
+
+    const archived = await getFullRow(acc(1));
+    expect(archived!.username).toMatch(/^archive_[0-9a-f]{8}$/);
+    expect(archived!.pendingUsername).toBeNull();
+    expect(archived!.clanName).toBeNull();
+    expect(archived!.clanRank).toBeNull();
+  });
+
+  test("new account claiming a stale holder's name gets it outright", async () => {
+    await seed(acc(1), "Foo");
+    await lastSynced(acc(1), 60);
+
+    const resolution = await sync(acc(2), "Foo");
+
+    expect(resolution).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+      freedName: null,
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+    });
+    expect((await getRow(acc(1)))!.username).toMatch(/^archive_/);
+  });
+
+  test("a stale row at the end of a chain unblocks the whole chain", async () => {
+    // acc3 (dead) holds N3. acc2 renamed N2 -> N3 and is parked behind acc3.
+    // acc1 renamed N1 -> N2 and syncs: the chain acc1 -> acc2 -> acc3 ends at a
+    // stale row, so acc3 is archived, acc2 gets N3 and acc1 gets N2.
+    await seed(acc(1), "N1");
+    await seed(acc(2), "N2");
+    await seed(acc(3), "N3");
+    await sync(acc(2), "N3"); // parked: acc3 was still active at the time
+    expect(await getRow(acc(2))).toEqual({
+      username: "N2",
+      pendingUsername: "N3",
+    });
+    await lastSynced(acc(3), 45); // ...and has since gone quiet
+
+    const resolution = await sync(acc(1), "N2");
+
+    expect(resolution).toEqual({
+      username: "N2",
+      pendingUsername: null,
+      freedName: "N1",
+    });
+    expect(await getRow(acc(1))).toEqual({
+      username: "N2",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "N3",
+      pendingUsername: null,
+    });
+    expect((await getRow(acc(3)))!.username).toMatch(/^archive_/);
+  });
+
+  test("a stale row that is itself waiting on an active holder is not evicted", async () => {
+    // acc1 (stale) holds A and wants B; acc2 (active) holds B. acc3 wants A.
+    // Only chain-end rows with nothing pending are evicted — acc1 is still
+    // part of a live chain, so acc3 parks.
+    await seed(acc(1), "A");
+    await seed(acc(2), "B");
+    await seed(acc(3), "C");
+    await db
+      .update(accounts)
+      .set({ pendingUsername: "B" })
+      .where(eq(accounts.id, acc(1)));
+    await lastSynced(acc(1), 90);
+
+    const resolution = await sync(acc(3), "A");
+
+    expect(resolution.pendingUsername).toBe("A");
+    expect(await getRow(acc(1))).toEqual({
+      username: "A",
+      pendingUsername: "B",
+    });
+  });
+
+  test("an evicted row that comes back syncs onto its new name normally", async () => {
+    await seed(acc(1), "Foo");
+    await seed(acc(2), "Bar");
+    await lastSynced(acc(1), 40);
+    await sync(acc(2), "Foo");
+
+    // The old holder returns having renamed to Baz in game.
+    const resolution = await sync(acc(1), "Baz");
+
+    expect(resolution.username).toBe("Baz");
+    expect(resolution.pendingUsername).toBeNull();
+    expect(await getRow(acc(1))).toEqual({
+      username: "Baz",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(2))).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+    });
+  });
+});
+
+describe("sweepStalePendingNames", () => {
+  test("grants claims whose holder went stale after parking", async () => {
+    await seed(acc(1), "Foo");
+    await seed(acc(2), "Bar");
+    await sync(acc(2), "Foo"); // parked: holder active
+    await lastSynced(acc(1), 31);
+    await lastSynced(acc(2), 20); // claimant newer than holder, but also quiet
+
+    const result = await sweepStalePendingNames(db, bucket, kv);
+
+    expect(result.granted).toEqual([
+      { accountId: acc(2), from: "Bar", to: "Foo" },
+    ]);
+    expect(result.skipped).toBe(0);
+    expect(result.failed).toBe(0);
+    expect(await getRow(acc(2))).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+    });
+    expect((await getRow(acc(1)))!.username).toMatch(/^archive_/);
+  });
+
+  test("cascades the claimant's freed name", async () => {
+    await seed(acc(1), "Foo");
+    await seed(acc(2), "Bar");
+    await seed(acc(3), "Baz");
+    await sync(acc(2), "Foo"); // acc2 parked behind acc1
+    await sync(acc(3), "Bar"); // acc3 parked behind acc2
+    await lastSynced(acc(1), 31);
+
+    await sweepStalePendingNames(db, bucket, kv);
+
+    expect(await getRow(acc(2))).toEqual({
+      username: "Foo",
+      pendingUsername: null,
+    });
+    expect(await getRow(acc(3))).toEqual({
+      username: "Bar",
+      pendingUsername: null,
+    });
+  });
+
+  test("leaves claims on active holders and claims older than the holder alone", async () => {
+    await seed(acc(1), "Foo");
+    await seed(acc(2), "Bar");
+    await seed(acc(3), "Qux");
+    await seed(acc(4), "Zed");
+    await sync(acc(2), "Foo"); // holder acc1 active
+    await sync(acc(4), "Qux"); // holder acc3 stale, but claim is even older
+    await lastSynced(acc(3), 40);
+    await lastSynced(acc(4), 50);
+
+    const result = await sweepStalePendingNames(db, bucket, kv);
+
+    expect(result.granted).toEqual([]);
+    expect(await getRow(acc(2))).toEqual({
+      username: "Bar",
+      pendingUsername: "Foo",
+    });
+    expect(await getRow(acc(4))).toEqual({
+      username: "Zed",
+      pendingUsername: "Qux",
+    });
   });
 });
 

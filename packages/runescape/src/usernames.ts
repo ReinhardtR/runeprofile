@@ -12,3 +12,17 @@ export function placeholderUsername(): string {
 export function isPlaceholderUsername(username: string): boolean {
   return username.startsWith("archive_");
 }
+
+// A row that has not synced for this long is treated as no longer owning its
+// name: the plugin reports the actual in-game name, so a claimant reporting a
+// held name proves the holder has either renamed or gone. This window only
+// has to cover the lag between a holder renaming and their next login.
+export const STALE_HOLDER_DAYS = 30;
+
+export function isStaleHolder(
+  lastSyncedAt: string | Date | null,
+  now: number = Date.now(),
+): boolean {
+  if (!lastSyncedAt) return false;
+  return now - new Date(lastSyncedAt).getTime() >= STALE_HOLDER_DAYS * 86400000;
+}
