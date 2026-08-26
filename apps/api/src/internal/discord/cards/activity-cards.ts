@@ -16,6 +16,10 @@ import {
 
 import CardAssets from "~/internal/discord/cards/card-assets.json";
 import {
+  initFontMetrics,
+  measureText,
+} from "~/internal/discord/cards/font-metrics";
+import {
   getItemIconUrl,
   getItemName,
   numberWithAbbreviation,
@@ -89,8 +93,108 @@ const CARD_HEIGHT = Math.round(
  */
 const S = CARD_WIDTH / CARD_AUTHORED_WIDTH;
 
-/** Vertical gap between the header, the panel and the footer. */
-const ROW_GAP = 10;
+/**
+ * Where the three rows sit, in authored units.
+ *
+ * The header and footer are placed against the card rather than sharing a
+ * centred column with the panel, so a tall panel can never push the
+ * player's name off the top or the profile link off the bottom - it is
+ * bounded by the band between them instead.
+ *
+ * The band is deep enough for a two-line title over a one-line subtitle,
+ * which is what the longest CA task and quest names need.
+ */
+const HEADER_TOP = 14;
+const FOOTER_BOTTOM = 14;
+const BAND_TOP = 53;
+const BAND_HEIGHT = 118;
+
+/**
+ * Width the panel has for its contents: the content column, less the
+ * card's own borders, the panel's border and its padding.
+ *
+ * satori positions an absolute child against the border box but sizes it
+ * inside the padding box, so the card's 2-unit borders come off the column
+ * width as well - which is why this is 394 and not 398.
+ */
+const PANEL_INNER = 440 - 2 * 2 - 2 * 2 - 2 * 19;
+
+/** A unit of slack, so a string measured to the edge does not wrap. */
+const FIT_SLACK = 2;
+
+/** Sizes the title may be set at, largest first. */
+const TITLE_SIZES = [32, 29, 26, 23, 21];
+const MIN_TITLE_SIZE = 21;
+
+const SUBTITLE_SIZE = 23;
+const TITLE_LINE_HEIGHT = 1.05;
+const SUBTITLE_LINE_HEIGHT = 1.1;
+
+/** Panel padding and border, vertically. */
+const PANEL_CHROME = 13 * 2 + 2 * 2;
+
+/**
+ * Width left for the title and subtitle once the icon tile, the row gaps
+ * and anything on the right are paid for.
+ */
+function textColumnWidth(rightWidth: number): number {
+  const gaps = rightWidth > 0 ? 15 * 2 : 15;
+  return PANEL_INNER - 64 - gaps - rightWidth - FIT_SLACK;
+}
+
+/** Largest title size whose two lines still fit the band with a subtitle. */
+const TWO_LINE_MAX_SIZE = Math.floor(
+  (BAND_HEIGHT - PANEL_CHROME - SUBTITLE_SIZE * SUBTITLE_LINE_HEIGHT - 3) /
+    (2 * TITLE_LINE_HEIGHT),
+);
+
+/** Cuts a string down until it fits, marking the cut with an ellipsis. */
+function ellipsize(
+  text: string,
+  weight: "regular" | "bold",
+  size: number,
+  available: number,
+): string {
+  if (measureText(text, weight, size) <= available) return text;
+  let out = text;
+  while (out.length > 1 && measureText(`${out}...`, weight, size) > available) {
+    out = out.slice(0, -1);
+  }
+  return `${out.trimEnd()}...`;
+}
+
+/**
+ * Fits the title to the column: the largest size that holds it on one
+ * line, or failing that two lines at a size the band can take, and only
+ * as a last resort an ellipsis.
+ *
+ * One line is preferred while the size is still respectable rather than
+ * jumping straight to two at full size, because the card is read at a
+ * glance in a channel and a single line scans faster. Wrapping is only
+ * offered when nothing sits to the right of the text: sharing the row with
+ * a value leaves a column too narrow for two lines to read as one title.
+ */
+function fitTitle(title: string, available: number, mayWrap: boolean) {
+  for (const size of TITLE_SIZES) {
+    if (measureText(title, "bold", size) <= available) return { title, size };
+  }
+
+  if (mayWrap) {
+    for (const size of TITLE_SIZES) {
+      if (size > TWO_LINE_MAX_SIZE) continue;
+      // Word wrapping cannot fill both lines to the edge, so only claim
+      // most of the second line.
+      if (measureText(title, "bold", size) <= available * 1.9) {
+        return { title, size };
+      }
+    }
+  }
+
+  return {
+    title: ellipsize(title, "bold", MIN_TITLE_SIZE, available),
+    size: MIN_TITLE_SIZE,
+  };
+}
 
 const png = (base64: string) => `data:image/png;base64,${base64}`;
 
@@ -178,6 +282,12 @@ let fonts:
   | null = null;
 
 function loadFonts() {
+  if (!fonts) {
+    initFontMetrics({
+      regular: base64ToBytes(CardAssets.fontRegular),
+      bold: base64ToBytes(CardAssets.fontBold),
+    });
+  }
   fonts ??= [
     {
       name: "RuneScape",
@@ -271,7 +381,12 @@ type CardContent = {
   panelIcon: string;
   panelTitle: string;
   panelSubtitle: string;
-  /** Big number on the panel's right side (level, XP, tier). */
+  /**
+   * Big number on the panel's right side: a level, an XP total, a total
+   * level. Numbers only - a word here (a diary or CA tier) takes so much
+   * of the row that the title has to wrap, and it only repeats what the
+   * title or the subtitle already says.
+   */
   badge?: string;
 };
 
@@ -461,9 +576,12 @@ function buildCardContent(activity: ActivityEvent): CardContent {
         nameColor: "#f2ce63",
         verb: "completed a diary tier",
         panelIcon: png(CardAssets.diaryIcon),
-        panelTitle: `${area} Diary`,
-        panelSubtitle: `${tierName} tier complete`,
-        badge: tierName,
+        // The tier rides in the title and "Diary" comes off it, because
+        // the subtitle says that already. As a badge the tier word was
+        // wide enough ("Medium" alone takes 156 of the 304 units the row
+        // had) to squeeze the title into wrapping.
+        panelTitle: `${area} ${tierName}`,
+        panelSubtitle: "Achievement Diary",
       };
     }
     case "combat_achievement_tier_completed":
@@ -567,10 +685,23 @@ export function buildCardHtml(params: {
       accountType.key as keyof typeof CardAssets.accountTypeIconsShadowed
     ];
 
-  const title = escapeHtml(content.panelTitle);
-  // Long titles (quests, CA tasks) drop to a smaller size so they stay
-  // on one line-ish; satori wraps if they still overflow.
-  const titleSize = content.panelTitle.length > 18 ? 25 * S : 32 * S;
+  // The right-hand value is resolved first, because what it leaves is the
+  // width everything else has to be fitted into.
+  const badgeWidth = content.badge ? measureText(content.badge, "bold", 52) : 0;
+  const available = textColumnWidth(badgeWidth);
+
+  // A title may take a second line only when nothing shares its row: CA
+  // task and quest names run past 40 characters, and reading them in full
+  // beats truncating them.
+  const fitted = fitTitle(content.panelTitle, available, !content.badge);
+  const title = escapeHtml(fitted.title);
+  const titleSize = fitted.size * S;
+  const subtitle = ellipsize(
+    content.panelSubtitle,
+    content.subtitlePearl ? "bold" : "regular",
+    SUBTITLE_SIZE,
+    available,
+  );
 
   const shadowSm = `text-shadow: ${2 * S}px ${2 * S}px 0 rgba(0,0,0,0.9);`;
   // The name gets the same treatment as the account icon beside it: a
@@ -639,7 +770,7 @@ export function buildCardHtml(params: {
   // hues, since a text gradient isn't in satori's vocabulary.
   const PEARL_HUES = ["#7ee7ff", "#cf8cff", "#ff8cd2", "#8cffd2"];
   const subtitleHtml = content.subtitlePearl
-    ? (content.panelSubtitle.match(/\S\s*/g) ?? [])
+    ? (subtitle.match(/\S\s*/g) ?? [])
         .map(
           // Spaces ride inside the preceding character's span - the
           // renderer collapses whitespace-only nodes entirely.
@@ -647,7 +778,7 @@ export function buildCardHtml(params: {
             `<span style="font-size: ${23 * S}px; font-weight: 700; color: ${PEARL_HUES[i % PEARL_HUES.length]}; line-height: 1.1; ${shadowSm}">${escapeHtml(chunk)}</span>`,
         )
         .join("")
-    : `<span style="font-size: ${23 * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: 1.1; ${shadowSm}">${escapeHtml(content.panelSubtitle)}</span>`;
+    : `<span style="font-size: ${SUBTITLE_SIZE * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: ${SUBTITLE_LINE_HEIGHT}; ${shadowSm}">${escapeHtml(subtitle)}</span>`;
 
   return `
     <div style="display: flex; position: relative; width: ${CARD_WIDTH}px; height: ${CARD_HEIGHT}px; overflow: hidden; background-color: #0d0d0c; font-family: 'RuneScape'; border-radius: ${10 * S}px; border: ${2 * S}px solid #3b3831;">
@@ -661,25 +792,31 @@ export function buildCardHtml(params: {
       <img src="${avatarDataUri}" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" style="position: absolute; left: 0; top: 0;" />
       <div style="display: flex; position: absolute; left: 0; top: 0; bottom: 0; width: ${3 * S}px; border-radius: ${10 * S}px 0 0 ${10 * S}px; background-image: ${edge};"></div>
 
-      <div style="display: flex; flex-direction: column; justify-content: center; gap: ${ROW_GAP * S}px; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
-        ${header}
-
-        <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILL}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_BORDER}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
-          <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
-            <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
-          </div>
-          <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">
-            <span style="font-size: ${titleSize}px; font-weight: 700; color: #e2e2e2; line-height: 1.05; ${shadowSm}">${title}</span>
-            <div style="display: flex;">${subtitleHtml}</div>
-          </div>
-          ${
-            content.badge
-              ? `<span style="font-size: ${52 * S}px; font-weight: 700; color: ${rgba(content.accent, 1)}; line-height: 1; ${shadowSm}">${escapeHtml(content.badge)}</span>`
-              : ""
-          }
+      <div style="display: flex; position: absolute; left: ${256 * S}px; top: 0; bottom: 0; right: ${24 * S}px;">
+        <div style="display: flex; flex-direction: column; position: absolute; left: 0; right: 0; top: ${HEADER_TOP * S}px;">
+          ${header}
         </div>
 
-        ${footer}
+        <div style="display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: absolute; left: 0; right: 0; top: ${BAND_TOP * S}px; height: ${BAND_HEIGHT * S}px;">
+          <div style="display: flex; align-items: center; gap: ${15 * S}px; background-color: ${PANEL_FILL}; border-style: solid; border-width: ${2 * S}px; border-color: ${PANEL_BORDER}; border-radius: ${6 * S}px; padding: ${13 * S}px ${19 * S}px;">
+            <div style="display: flex; align-items: center; justify-content: center; width: ${64 * S}px; height: ${64 * S}px; background-color: rgba(255,255,255,0.08); border-radius: ${6 * S}px; border: ${1 * S}px solid rgba(255,255,255,0.06);">
+              <img src="${content.panelIcon}" width="${48 * S}" height="${48 * S}" />
+            </div>
+            <div style="display: flex; flex-direction: column; gap: ${3 * S}px; flex: 1;">
+              <span style="font-size: ${titleSize}px; font-weight: 700; color: #e2e2e2; line-height: ${TITLE_LINE_HEIGHT}; ${shadowSm}">${title}</span>
+              <div style="display: flex;">${subtitleHtml}</div>
+            </div>
+            ${
+              content.badge
+                ? `<span style="font-size: ${52 * S}px; font-weight: 700; color: ${rgba(content.accent, 1)}; line-height: 1; ${shadowSm}">${escapeHtml(content.badge)}</span>`
+                : ""
+            }
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; position: absolute; left: 0; right: 0; bottom: ${FOOTER_BOTTOM * S}px;">
+          ${footer}
+        </div>
       </div>
     </div>`;
 }
