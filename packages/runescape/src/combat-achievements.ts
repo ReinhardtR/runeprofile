@@ -941,6 +941,15 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 643, tierId: 5, name: 'Digging in', description: 'Kill the Maggot King without moving more than 40 tiles.', type: 'Restriction', monster: 'Maggot King' },
   { index: 644, tierId: 5, name: 'Cordoned Off', description: 'Kill the Maggot King without moving beyond the back row of tiles.', type: 'Restriction', monster: 'Maggot King' },
   { index: 645, tierId: 5, name: 'Perfect Maggot King', description: 'Kill the Maggot King without taking any avoidable damage or him ever being healed.', type: 'Perfection', monster: 'Maggot King' },
+  { index: 646, tierId: 2, name: 'Mad Angel Adept', description: 'Kill the Mad Angel 25 times.', type: 'Kill Count', monster: 'The Mad Angel' },
+  { index: 647, tierId: 3, name: 'Mad Angel Veteran', description: 'Kill the Mad Angel 50 times.', type: 'Kill Count', monster: 'The Mad Angel' },
+  { index: 648, tierId: 3, name: 'Perfect Mad Angel', description: 'Kill the Mad Angel without taking any avoidable damage.', type: 'Perfection', monster: 'The Mad Angel' },
+  { index: 649, tierId: 4, name: 'This Is Madness', description: 'Kill the Mad Angel 15 times without leaving her arena.', type: 'Stamina', monster: 'The Mad Angel' },
+  { index: 650, tierId: 3, name: 'Mad Angel Speed-Runner', description: 'Kill the Mad Angel 5 times within 10 minutes of entering her arena.', type: 'Speed', monster: 'The Mad Angel' },
+  { index: 651, tierId: 2, name: 'Dancing Queen', description: 'Kill the Mad Angel after getting 6 consecutive enhanced attacks by dodging the sweep attack successfully during her enrage phase.', type: 'Mechanical', monster: 'The Mad Angel' },
+  { index: 652, tierId: 2, name: 'Smite Fight', description: 'Kill the Mad Angel after getting 3 consecutive enhanced attacks by successfully praying against the smite attacks during her enrage phase.', type: 'Mechanical', monster: 'The Mad Angel' },
+  { index: 653, tierId: 2, name: 'Juggling Act', description: 'Kill the Mad Angel after attacking her between each bounce of the blast attack during her enrage phase.', type: 'Mechanical', monster: 'The Mad Angel' },
+  { index: 654, tierId: 4, name: 'The Pen Is Mightier', description: 'Kill the Mad Angel without equipping any weapon.', type: 'Restriction', monster: 'The Mad Angel' },
 ] as const;
 
 // Cumulative point thresholds to reach each tier reward, derived from task list

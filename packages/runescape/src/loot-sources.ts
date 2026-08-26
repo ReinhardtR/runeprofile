@@ -13583,6 +13583,7 @@ export const NPC_SOURCE_NAMES: Record<number, string> = {
   16344: "Vampyre Snail",
   16345: "Combat Test",
   16346: "Frenzied fishing spot",
+  16347: "Lowerniel Drakan",
 };
 
 /** Objects that look like something loot comes out of, reported by loot script 7194. */
