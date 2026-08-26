@@ -1,5 +1,7 @@
 import { cors } from "hono/cors";
 
+import { drizzle } from "@runeprofile/db";
+
 import { clansRouter } from "~/internal/routes/clans";
 import { discordRouter } from "~/internal/routes/discord";
 import { groupsRouter } from "~/internal/routes/groups";
@@ -9,9 +11,10 @@ import { metricsRouter } from "~/internal/routes/metrics";
 import { profilesRouter } from "~/internal/routes/profiles";
 import { simulateRouter } from "~/internal/routes/simulate";
 import { errorHandler, logger, newRouter } from "~/lib/helpers";
+import { sweepStalePendingNames } from "~/lib/profiles/sweep-stale-names";
 import { publicApiV1 } from "~/public/v1/index";
 
-export default newRouter()
+export const app = newRouter()
   .onError(errorHandler)
   .use(
     "*",
@@ -37,3 +40,12 @@ export default newRouter()
   .route("/metrics", metricsRouter)
   .route("/discord", discordRouter)
   .route("/simulate", simulateRouter);
+
+export default {
+  fetch: app.fetch,
+  scheduled(_event, env, ctx) {
+    ctx.waitUntil(
+      sweepStalePendingNames(drizzle(env.HYPERDRIVE), env.BUCKET, env.KV),
+    );
+  },
+} satisfies ExportedHandler<Env>;
