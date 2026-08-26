@@ -733,8 +733,10 @@ export function buildCardHtml(params: {
   const nameHtml = content.namePearl
     ? `<div style="display: flex;">${(name.match(/\S\s*/g) ?? [])
         .map(
+          // As with the subtitle: preserve the spaces, or a two-word name
+          // renders as one.
           (chunk, i) =>
-            `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; ${shadowName}">${chunk}</span>`,
+            `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${PEARL_NAME_HUES[i % PEARL_NAME_HUES.length]}; line-height: 1; white-space: pre; ${shadowName}">${chunk}</span>`,
         )
         .join("")}</div>`
     : `<span style="font-size: ${35 * S}px; font-weight: 700; color: ${nameColor}; line-height: 1; ${shadowName}">${name}</span>`;
@@ -772,10 +774,12 @@ export function buildCardHtml(params: {
   const subtitleHtml = content.subtitlePearl
     ? (subtitle.match(/\S\s*/g) ?? [])
         .map(
-          // Spaces ride inside the preceding character's span - the
-          // renderer collapses whitespace-only nodes entirely.
+          // Spaces ride inside the preceding character's span, since a
+          // whitespace-only node is collapsed away entirely - and the span
+          // has to preserve them, or the trailing space is trimmed and the
+          // words run together ("200,000,000XP").
           (chunk, i) =>
-            `<span style="font-size: ${23 * S}px; font-weight: 700; color: ${PEARL_HUES[i % PEARL_HUES.length]}; line-height: 1.1; ${shadowSm}">${escapeHtml(chunk)}</span>`,
+            `<span style="font-size: ${SUBTITLE_SIZE * S}px; font-weight: 700; color: ${PEARL_HUES[i % PEARL_HUES.length]}; line-height: ${SUBTITLE_LINE_HEIGHT}; white-space: pre; ${shadowSm}">${escapeHtml(chunk)}</span>`,
         )
         .join("")
     : `<span style="font-size: ${SUBTITLE_SIZE * S}px; color: ${content.subtitleColor ?? "#9f9f9f"}; line-height: ${SUBTITLE_LINE_HEIGHT}; ${shadowSm}">${escapeHtml(subtitle)}</span>`;
