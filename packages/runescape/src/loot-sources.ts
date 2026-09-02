@@ -13584,6 +13584,17 @@ export const NPC_SOURCE_NAMES: Record<number, string> = {
   16345: "Combat Test",
   16346: "Frenzied fishing spot",
   16347: "Lowerniel Drakan",
+  16348: "Durial321",
+  16349: "Wise Old Man",
+  16350: "Aggressive black dragon",
+  16351: "Aggressive black dragon",
+  16352: "Aggressive black dragon",
+  16353: "Gary Gilbert",
+  16354: "Giant Mole (Zamorak)",
+  16355: "Giant Mole (Saradomin)",
+  16356: "Giant Mole (Guthix)",
+  16357: "Giant Mole (Bandos)",
+  16358: "Mud",
 };
 
 /** Objects that look like something loot comes out of, reported by loot script 7194. */
@@ -21850,6 +21861,18 @@ export const TRACKED_ITEM_NAMES: Record<number, string> = {
   34040: "Mr McGroot",
   34042: "Aggy",
   34065: "Shark lure pack",
+  34388: "Big red button",
+  34390: "Lanscape coins",
+  34401: "Necklace of fangs",
+  34404: "Air diamond",
+  34407: "Amulet of air",
+  34410: "Water sapphire",
+  34413: "Amulet of water",
+  34416: "Earth emerald",
+  34419: "Amulet of earth",
+  34422: "Fire ruby",
+  34425: "Amulet of fire",
+  34428: "Elemental amulet",
 };
 
 /** Event sources reported by loot script 7198, from enum 4976. */
