@@ -1,5 +1,4 @@
 import { ErrorHandler, Hono } from "hono";
-import { createMiddleware } from "hono/factory";
 
 import { RuneProfileError } from "~/lib/errors";
 import { STATUS } from "~/lib/status";
@@ -16,11 +15,6 @@ export const errorHandler: ErrorHandler = (err, c) => {
     STATUS.INTERNAL_SERVER_ERROR,
   );
 };
-
-export const logger = createMiddleware(async (c, next) => {
-  console.log({ UserAgent: c.req.header("User-Agent") });
-  await next();
-});
 
 export type PaginationParams = {
   page?: number;

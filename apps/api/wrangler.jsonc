@@ -75,6 +75,17 @@
         "limit": 600,
         "period": 60
       }
+    },
+    {
+      // Per-IP limit for the internal profile search endpoint. Generous
+      // enough for a human typing in the search box (fires per keystroke),
+      // tight enough that it can't be used to hammer the database.
+      "name": "SEARCH_RATE_LIMIT",
+      "namespace_id": "1004",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
     }
   ]
 }

@@ -88,11 +88,16 @@ export async function updateProfile(
       data: activity.data,
     }));
 
+  // The plugin reports "no clan" as an empty-string clan name — normalize to
+  // null so '' never reaches the database (empty-string clan names previously
+  // accumulated in accounts and bloated the clan_activities indexes).
+  const clanName = updates.clan?.name || null;
+
   const clanActivitiesValues: Array<InferInsertModel<typeof clanActivities>> =
-    updates.clan?.name
+    clanName
       ? activitiesValues.map((activity) => ({
           activityId: activity.id,
-          clanName: updates.clan?.name?.toLowerCase() ?? "",
+          clanName: clanName.toLowerCase(),
           activityType: activity.type,
         }))
       : [];
@@ -108,10 +113,10 @@ export async function updateProfile(
           pendingUsername: updates.pendingUsername,
           accountType: updates.accountType,
           ...(updates.clan !== undefined && {
-            clanName: updates.clan?.name ?? null,
-            clanRank: updates.clan?.rank ?? null,
-            clanIcon: updates.clan?.icon ?? null,
-            clanTitle: updates.clan?.title ?? null,
+            clanName,
+            clanRank: clanName ? (updates.clan?.rank ?? null) : null,
+            clanIcon: clanName ? (updates.clan?.icon ?? null) : null,
+            clanTitle: clanName ? updates.clan?.title || null : null,
           }),
           groupName: updates.groupName ?? null,
           // Keep the flag armed until items have been force resynced, which

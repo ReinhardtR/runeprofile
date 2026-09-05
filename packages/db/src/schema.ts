@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 
 import {
@@ -29,11 +29,13 @@ export const accounts = t.pgTable(
   }),
   (table) => [
     t.uniqueIndex("accounts_username_unique_index").on(lower(table.username)),
+    // text_pattern_ops so prefix LIKE searches ('foo%') can range-scan the
+    // btree; the unique index above can't serve LIKE under a non-C collation.
     t
-      .index("accounts_pending_username_index")
-      .on(lower(table.pendingUsername)),
+      .index("accounts_username_pattern_index")
+      .using("btree", sql`${lower(table.username)} text_pattern_ops`),
+    t.index("accounts_pending_username_index").on(lower(table.pendingUsername)),
     t.index("accounts_clan_name_index").on(lower(table.clanName)),
-    t.index("accounts_clan_name_id_index").on(lower(table.clanName), table.id),
     t.index("accounts_group_name_index").on(lower(table.groupName)),
     t
       .index("accounts_clan_members_sorted_index")
@@ -81,9 +83,7 @@ export const combatAchievementTiers = t.pgTable(
     id: t.integer().notNull(),
     completedCount: t.integer().notNull(),
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.id] }),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
 );
 export const combatAchievementTiersRelations = relations(
   combatAchievementTiers,
@@ -95,13 +95,10 @@ export const combatAchievementTiersRelations = relations(
   }),
 );
 
-export const combatAchievementVarps = t.pgTable(
-  "combat_achievement_varps",
-  {
-    accountId: t.text().notNull().primaryKey().references(account),
-    varps: t.jsonb().notNull().$type<Record<string, number>>(),
-  },
-);
+export const combatAchievementVarps = t.pgTable("combat_achievement_varps", {
+  accountId: t.text().notNull().primaryKey().references(account),
+  varps: t.jsonb().notNull().$type<Record<string, number>>(),
+});
 export const combatAchievementVarpsRelations = relations(
   combatAchievementVarps,
   ({ one }) => ({
@@ -120,9 +117,7 @@ export const items = t.pgTable(
     quantity: t.integer().notNull(),
     createdAt,
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.id] }),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
 );
 export const itemsRelations = relations(items, ({ one }) => ({
   account: one(accounts, {
@@ -138,9 +133,7 @@ export const quests = t.pgTable(
     id: t.integer().notNull(),
     state: t.integer().notNull(),
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.id] }),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
 );
 export const questsRelations = relations(quests, ({ one }) => ({
   account: one(accounts, {
@@ -156,9 +149,7 @@ export const skills = t.pgTable(
     name: t.text().notNull(),
     xp: t.integer().notNull(),
   },
-  (table) => [
-    t.primaryKey({ columns: [table.accountId, table.name] }),
-  ],
+  (table) => [t.primaryKey({ columns: [table.accountId, table.name] })],
 );
 export const skillsRelations = relations(skills, ({ one }) => ({
   account: one(accounts, {
@@ -177,9 +168,6 @@ export const activities = t.pgTable(
     createdAt,
   },
   (table) => [
-    t
-      .index("activities_account_id_created_at_id_desc_index")
-      .on(table.accountId, table.createdAt.desc(), table.id.desc()),
     t
       .index("activities_account_id_created_at_id_index")
       .on(table.accountId, table.createdAt, table.id),
@@ -210,15 +198,15 @@ export const clanActivities = t.pgTable(
   },
   (table) => [
     t
-      .index("clan_activities_name_created_at_id_desc_index")
-      .on(table.clanName, table.createdAt.desc(), table.activityId.desc()),
+      .index("clan_activities_name_created_at_id_index")
+      .on(table.clanName, table.createdAt, table.activityId),
     t
-      .index("clan_activities_name_type_created_at_id_desc_index")
+      .index("clan_activities_name_type_created_at_id_index")
       .on(
         table.clanName,
         table.activityType,
-        table.createdAt.desc(),
-        table.activityId.desc(),
+        table.createdAt,
+        table.activityId,
       ),
   ],
 );

@@ -111,10 +111,13 @@ export async function getClanActivities(
   const hasMore =
     direction === "next" ? hasMoreInDirection : cursor !== undefined;
 
+  // Cursors must encode clan_activities.created_at (what the keyset
+  // predicate compares against), not activities.created_at — the two
+  // timestamps are set independently and can differ.
   const nextCursor =
     hasMore && lastItem
       ? encodeCursor({
-          createdAt: lastItem.createdAt,
+          createdAt: lastItem.clanActivityCreatedAt,
           id: lastItem.id,
         })
       : null;
@@ -122,7 +125,7 @@ export async function getClanActivities(
   const prevCursor =
     hasPrev && firstItem
       ? encodeCursor({
-          createdAt: firstItem.createdAt,
+          createdAt: firstItem.clanActivityCreatedAt,
           id: firstItem.id,
         })
       : null;

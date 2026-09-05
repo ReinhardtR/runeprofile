@@ -57,7 +57,7 @@ export const clansRouter = newRouter()
       }),
     ),
     cache({
-      cacheName: "profile-model",
+      cacheName: "clan-activities",
       cacheControl: "public, max-age=0, s-maxage=600",
     }),
     async (c) => {

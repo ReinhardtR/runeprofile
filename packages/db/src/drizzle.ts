@@ -9,7 +9,9 @@ export const drizzle = (
   opts: DrizzleConfig = {},
   pgOpts: postgres.Options<any> = {},
 ) => {
-  const { logger = true, casing = "snake_case" } = opts;
+  // SQL logging is opt-in: with logger on by default every production query
+  // was written to Workers Logs (millions of log lines per day).
+  const { logger = false, casing = "snake_case" } = opts;
 
   const sql = postgres(database.connectionString, {
     max: 5,
