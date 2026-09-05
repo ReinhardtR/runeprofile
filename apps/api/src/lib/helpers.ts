@@ -6,7 +6,9 @@ import { STATUS } from "~/lib/status";
 export const newRouter = () => new Hono<{ Bindings: Env }>();
 
 export const errorHandler: ErrorHandler = (err, c) => {
-  console.error(err);
+  // Log the stack, not just the message — Workers Logs' console.error(err)
+  // renders only the first line otherwise.
+  console.error(err instanceof Error ? (err.stack ?? String(err)) : err);
   if (err instanceof RuneProfileError) {
     return c.json({ code: err.code, message: err.message }, err.status);
   }

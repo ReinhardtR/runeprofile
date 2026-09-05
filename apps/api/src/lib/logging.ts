@@ -1,5 +1,4 @@
 import type { Context } from "hono";
-import { cache } from "hono/cache";
 import { createMiddleware } from "hono/factory";
 import { routePath } from "hono/route";
 
@@ -27,20 +26,66 @@ export const logFields = (c: Context, fields: WideEvent) => {
 };
 
 /**
- * hono/cache with the outcome recorded on the wide event as `cache_status`:
- * on a hit the handler never runs and the response comes from the colo cache.
+ * Edge caching with the outcome recorded on the wide event as `cache_status`.
+ *
+ * Not hono/cache: on custom domains the Cache API operates on the zone cache,
+ * where match() honours the client's conditional headers (If-Modified-Since /
+ * If-None-Match) and can return a bodyless 304 whose internals break when
+ * passed through Hono's response handling as-is — hono/cache 500'd on every
+ * plugin revalidation poll. This implementation rebuilds cached responses
+ * with fresh headers and is fail-open: any cache error falls through to the
+ * origin handler instead of failing the request.
  */
-export const edgeCache = (options: Parameters<typeof cache>[0]) => {
-  const middleware = cache(options);
-  return createMiddleware(async (c, next) => {
-    let missed = false;
-    await middleware(c, async () => {
-      missed = true;
+export const edgeCache = (options: {
+  cacheName: string;
+  cacheControl?: string;
+}) =>
+  createMiddleware(async (c, next) => {
+    if (c.req.method !== "GET" || !globalThis.caches) {
       await next();
-    });
-    logFields(c, { cache_status: missed ? "miss" : "hit" });
+      return;
+    }
+
+    let store: Cache | undefined;
+    let cached: Response | undefined;
+    try {
+      store = await caches.open(options.cacheName);
+      cached = await store.match(c.req.url);
+    } catch (error) {
+      console.error("Edge cache lookup failed:", error);
+    }
+
+    if (cached) {
+      try {
+        const headers = new Headers(cached.headers);
+        const response =
+          cached.status === 304
+            ? new Response(null, { status: 304, headers })
+            : new Response(cached.body, { status: cached.status, headers });
+        logFields(c, {
+          cache_status: cached.status === 304 ? "revalidated" : "hit",
+        });
+        return response;
+      } catch (error) {
+        console.error("Serving from edge cache failed:", error);
+        // fall through to the origin handler
+      }
+    }
+
+    logFields(c, { cache_status: "miss" });
+    await next();
+
+    if (!store || c.res.status !== 200) return;
+    if (options.cacheControl && !c.res.headers.has("Cache-Control")) {
+      c.res.headers.set("Cache-Control", options.cacheControl);
+    }
+    const toStore = c.res.clone();
+    c.executionCtx.waitUntil(
+      store.put(c.req.url, toStore).catch((error) => {
+        console.error("Edge cache write failed:", error);
+      }),
+    );
   });
-};
 
 // Tail sampling: always keep errors, slow requests, and writes; keep a small
 // sample of the huge volume of fast successful reads (plugin polling alone is
