@@ -8,7 +8,8 @@ import { manifestRouter } from "~/internal/routes/manifest";
 import { metricsRouter } from "~/internal/routes/metrics";
 import { profilesRouter } from "~/internal/routes/profiles";
 import { simulateRouter } from "~/internal/routes/simulate";
-import { errorHandler, logger, newRouter } from "~/lib/helpers";
+import { errorHandler, newRouter } from "~/lib/helpers";
+import { wideEventLogger } from "~/lib/logging";
 import { publicApiV1 } from "~/public/v1/index";
 
 export default newRouter()
@@ -27,7 +28,7 @@ export default newRouter()
       allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
     }),
   )
-  .use(logger)
+  .use(wideEventLogger)
   .route("/v1", publicApiV1)
   .route("/profiles", profilesRouter)
   .route("/clans", clansRouter)

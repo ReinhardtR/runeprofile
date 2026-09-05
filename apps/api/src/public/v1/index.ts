@@ -1,4 +1,5 @@
 import { Scalar } from "@scalar/hono-api-reference";
+import { cache } from "hono/cache";
 import { cors } from "hono/cors";
 
 import { InvalidCursorError } from "~/lib/helpers";
@@ -24,6 +25,11 @@ v1.use("*", cors({ origin: "*" }));
 v1.use("*", apiKeyMiddleware);
 v1.use("/accounts/*", v1RateLimiter);
 v1.use("/clans/*", v1RateLimiter);
+// Edge cache for GET responses. The routes already send
+// `Cache-Control: public, max-age=60` (CACHE_HEADER), but without this
+// middleware nothing was cached server-side — every request hit Postgres.
+v1.get("/accounts/*", cache({ cacheName: "v1-api" }));
+v1.get("/clans/*", cache({ cacheName: "v1-api" }));
 
 // --- Mount routes ---
 v1.route("/", accountsRouter);

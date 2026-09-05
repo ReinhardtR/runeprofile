@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { rateLimiter } from "hono-rate-limiter";
 import { cache } from "hono/cache";
 import { z } from "zod";
 
@@ -22,6 +23,7 @@ import {
   detectItemDiscrepancies,
   storeItemDiscrepancy,
 } from "~/lib/item-discrepancies";
+import { logFields } from "~/lib/logging";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
 import {
   buildUpdatedDiffProfile,
@@ -48,18 +50,44 @@ import {
   validator,
 } from "~/lib/validation";
 
+// Per-IP limit on search
+const searchRateLimiter = rateLimiter<{ Bindings: Env }>({
+  binding: (c) => c.env.SEARCH_RATE_LIMIT,
+  keyGenerator: (c) =>
+    c.req.header("cf-connecting-ip") ??
+    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "",
+  message: { code: "RateLimitExceeded", message: "Too many requests" },
+  statusCode: 429,
+});
+
 export const profilesRouter = newRouter()
-  .get("/", validator("query", z.object({ q: z.string() })), async (c) => {
-    const db = drizzle(c.env.HYPERDRIVE);
-    const { q } = c.req.valid("query");
+  .get(
+    "/",
+    searchRateLimiter,
+    validator("query", z.object({ q: z.string() })),
+    cache({
+      cacheName: "profile-search",
+      cacheControl: "public, max-age=30, s-maxage=60",
+    }),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { q } = c.req.valid("query");
 
-    const profiles = await searchProfiles(db, q);
+      const profiles = await searchProfiles(db, q);
 
-    return c.json(profiles, STATUS.OK);
-  })
+      return c.json(profiles, STATUS.OK);
+    },
+  )
   .get(
     "/accounts/:id",
     validator("param", z.object({ id: accountIdSchema })),
+    // max-age lets the RuneLite plugin's OkHttp disk cache serve repeat polls
+    // without any network round-trip
+    cache({
+      cacheName: "account-info",
+      cacheControl: "public, max-age=300, s-maxage=60",
+    }),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { id } = c.req.valid("param");
@@ -169,7 +197,6 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const { username, page } = c.req.valid("param");
 
-      console.log("Fetching collection log page for: ", username, page);
       const collectionLogPage = await getCollectionLogPage(db, username, page);
 
       return c.json(collectionLogPage, STATUS.OK);
@@ -252,7 +279,10 @@ export const profilesRouter = newRouter()
       const kv = c.env.KV;
       const data = c.req.valid("json");
 
-      console.log({ EventSource: data.eventSource ?? "unknown", Data: data });
+      logFields(c, {
+        account_id: data.id,
+        event_source: data.eventSource ?? "unknown",
+      });
 
       let created = false;
 
@@ -294,6 +324,11 @@ export const profilesRouter = newRouter()
         }
         const { updates, resolution, activities, updatedAt } = result;
         created = updates.currentProfile === null;
+        logFields(c, {
+          username: updates.username,
+          profile_created: created,
+          activities_count: activities.length,
+        });
 
         // Grant the name this profile moved off of to any row waiting on it
         if (resolution.freedName) {
@@ -347,7 +382,7 @@ export const profilesRouter = newRouter()
           );
         }
       } catch (error) {
-        console.log("Data: ", data);
+        logFields(c, { username: data.username });
         throw error;
       }
 
