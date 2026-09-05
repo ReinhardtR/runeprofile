@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import { rateLimiter } from "hono-rate-limiter";
-import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle, lower } from "@runeprofile/db";
@@ -23,7 +22,7 @@ import {
   detectItemDiscrepancies,
   storeItemDiscrepancy,
 } from "~/lib/item-discrepancies";
-import { logFields } from "~/lib/logging";
+import { edgeCache, logFields } from "~/lib/logging";
 import { deleteProfile } from "~/lib/profiles/delete-profile";
 import {
   buildUpdatedDiffProfile,
@@ -66,7 +65,7 @@ export const profilesRouter = newRouter()
     "/",
     searchRateLimiter,
     validator("query", z.object({ q: z.string() })),
-    cache({
+    edgeCache({
       cacheName: "profile-search",
       cacheControl: "public, max-age=30, s-maxage=60",
     }),
@@ -75,6 +74,7 @@ export const profilesRouter = newRouter()
       const { q } = c.req.valid("query");
 
       const profiles = await searchProfiles(db, q);
+      logFields(c, { search_query: q, result_count: profiles.length });
 
       return c.json(profiles, STATUS.OK);
     },
@@ -84,13 +84,14 @@ export const profilesRouter = newRouter()
     validator("param", z.object({ id: accountIdSchema })),
     // max-age lets the RuneLite plugin's OkHttp disk cache serve repeat polls
     // without any network round-trip
-    cache({
+    edgeCache({
       cacheName: "account-info",
       cacheControl: "public, max-age=300, s-maxage=60",
     }),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { id } = c.req.valid("param");
+      logFields(c, { account_id: id });
 
       const account = await db.query.accounts.findFirst({
         where: eq(accounts.id, id),
@@ -134,6 +135,7 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const { id } = c.req.valid("param");
       const { activityTypes, limit, cursor } = c.req.valid("query");
+      logFields(c, { account_id: id });
 
       const result = await getActivities(db, {
         accountId: id,
@@ -157,6 +159,7 @@ export const profilesRouter = newRouter()
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { id, activityId } = c.req.valid("param");
+      logFields(c, { account_id: id, activity_id: activityId });
 
       await deleteActivity(db, { accountId: id, activityId });
 
@@ -166,13 +169,14 @@ export const profilesRouter = newRouter()
   .get(
     "/:username",
     validator("param", z.object({ username: usernameSchema })),
-    cache({
+    edgeCache({
       cacheName: "profile",
       cacheControl: "public, max-age=0, s-maxage=60",
     }),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { username } = c.req.valid("param");
+      logFields(c, { username });
 
       const profile = await getProfileByUsername(db, username);
 
@@ -189,13 +193,14 @@ export const profilesRouter = newRouter()
         page: z.string(),
       }),
     ),
-    cache({
+    edgeCache({
       cacheName: "clog-page",
       cacheControl: "public, max-age=0, s-maxage=10",
     }),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { username, page } = c.req.valid("param");
+      logFields(c, { username, clog_page: page });
 
       const collectionLogPage = await getCollectionLogPage(db, username, page);
 
@@ -217,6 +222,7 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const { username } = c.req.valid("param");
       const { activityTypes, limit, cursor } = c.req.valid("query");
+      logFields(c, { username });
 
       const account = await db.query.accounts.findFirst({
         where: eq(lower(accounts.username), username.toLowerCase()),
@@ -318,7 +324,7 @@ export const profilesRouter = newRouter()
           if (!isUsernameUniqueViolation(error)) throw error;
           // Lost a race for the name to a concurrent request — re-resolve
           // against fresh state, which parks the name as pending instead.
-          console.log("Username conflict race detected, retrying update");
+          logFields(c, { username_conflict_retry: true });
           await deleteDiffProfileCache(kv, data.id);
           result = await runUpdate();
         }
@@ -470,6 +476,7 @@ export const profilesRouter = newRouter()
       const bucket = c.env.BUCKET;
       const kv = c.env.KV;
       const { id } = c.req.valid("param");
+      logFields(c, { account_id: id });
 
       await deleteProfile(db, bucket, id);
 

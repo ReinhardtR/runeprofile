@@ -1,14 +1,13 @@
-import { cache } from "hono/cache";
-
 import { drizzle } from "@runeprofile/db";
 
 import { newRouter } from "~/lib/helpers";
+import { edgeCache } from "~/lib/logging";
 import { getMetrics } from "~/lib/metrics/get-metrics";
 import { STATUS } from "~/lib/status";
 
 export const metricsRouter = newRouter().get(
   "/",
-  cache({
+  edgeCache({
     // Bumped when the row-count source changed from pg_stat_user_tables to
     // pg_class — a new namespace orphans the entries holding the old counts,
     // including the SSR one cached under the service-binding hostname.

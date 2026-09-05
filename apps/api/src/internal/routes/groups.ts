@@ -1,9 +1,9 @@
-import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { drizzle } from "@runeprofile/db";
 
 import { newRouter } from "~/lib/helpers";
+import { edgeCache, logFields } from "~/lib/logging";
 import { getGroup } from "~/lib/profiles/get-group";
 import { getGroupActivities } from "~/lib/profiles/get-group-activities";
 import { STATUS } from "~/lib/status";
@@ -13,13 +13,14 @@ export const groupsRouter = newRouter()
   .get(
     "/:name",
     validator("param", z.object({ name: z.string() })),
-    cache({
+    edgeCache({
       cacheName: "group",
       cacheControl: "public, max-age=0, s-maxage=60",
     }),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
+      logFields(c, { group_name: name });
 
       const group = await getGroup(db, name);
 
@@ -35,7 +36,7 @@ export const groupsRouter = newRouter()
         page: paginationPageSchema,
       }),
     ),
-    cache({
+    edgeCache({
       cacheName: "group-activities",
       cacheControl: "public, max-age=0, s-maxage=600",
     }),
@@ -43,6 +44,7 @@ export const groupsRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
       const { page } = c.req.valid("query");
+      logFields(c, { group_name: name });
 
       const result = await getGroupActivities(db, name, { page });
 

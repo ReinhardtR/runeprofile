@@ -1,4 +1,3 @@
-import { cache } from "hono/cache";
 import { z } from "zod";
 
 import {
@@ -9,6 +8,7 @@ import {
 
 import { RuneProfileHiscoresError } from "~/lib/errors";
 import { newRouter } from "~/lib/helpers";
+import { edgeCache, logFields } from "~/lib/logging";
 import { STATUS } from "~/lib/status";
 import { usernameSchema, validator } from "~/lib/validation";
 
@@ -27,9 +27,10 @@ export const hiscoresRouter = newRouter()
         username: usernameSchema,
       }),
     ),
-    cache({ cacheName: "hiscores", cacheControl: "max-age=300" }),
+    edgeCache({ cacheName: "hiscores", cacheControl: "max-age=300" }),
     async (c) => {
       const { leaderboard, username } = c.req.valid("param");
+      logFields(c, { username, leaderboard });
 
       const url = `${HISCORE_LEADERBOARDS[leaderboard].url}?player=${username}`;
 
@@ -60,6 +61,7 @@ export const hiscoresRouter = newRouter()
     ),
     async (c) => {
       const { usernames, leaderboard } = c.req.valid("json");
+      logFields(c, { leaderboard, username_count: usernames.length });
 
       const TIMEOUT_MS = 30000;
 

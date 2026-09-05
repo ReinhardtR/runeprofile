@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { cache } from "hono/cache";
 import { createMiddleware } from "hono/factory";
 import { routePath } from "hono/route";
 
@@ -23,6 +24,22 @@ declare module "hono" {
 export const logFields = (c: Context, fields: WideEvent) => {
   const event = c.get("wideEvent");
   if (event) Object.assign(event, fields);
+};
+
+/**
+ * hono/cache with the outcome recorded on the wide event as `cache_status`:
+ * on a hit the handler never runs and the response comes from the colo cache.
+ */
+export const edgeCache = (options: Parameters<typeof cache>[0]) => {
+  const middleware = cache(options);
+  return createMiddleware(async (c, next) => {
+    let missed = false;
+    await middleware(c, async () => {
+      missed = true;
+      await next();
+    });
+    logFields(c, { cache_status: missed ? "miss" : "hit" });
+  });
 };
 
 // Tail sampling: always keep errors, slow requests, and writes; keep a small

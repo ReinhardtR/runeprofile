@@ -57,7 +57,6 @@ export async function sendActivityMessages(params: {
   // Find channels watching this player or clan
   const condition = getWatchCondition({ accountId, clanName });
   if (!condition) {
-    console.log("No watch condition found");
     return;
   }
 
@@ -65,7 +64,6 @@ export async function sendActivityMessages(params: {
     where: condition,
   });
   if (watches.length === 0) {
-    console.log("No watches found for this activity");
     return;
   }
 
@@ -156,7 +154,11 @@ export async function sendActivityMessages(params: {
     }),
   );
 
-  console.log(`Sent activity messages to ${channelIds.length} channels`);
+  console.log({
+    event: "discord_activity_messages_sent",
+    channel_count: channelIds.length,
+    activity_count: activities.length,
+  });
 }
 
 /**

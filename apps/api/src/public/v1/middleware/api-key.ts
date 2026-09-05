@@ -3,6 +3,7 @@ import { createMiddleware } from "hono/factory";
 
 import { drizzle } from "@runeprofile/db";
 
+import { logFields } from "~/lib/logging";
 import { STATUS } from "~/lib/status";
 
 export type ApiKeyContext = {
@@ -35,7 +36,13 @@ export const apiKeyMiddleware = createMiddleware<{
   const cacheKey = `api_key:${keyHash}`;
   const cached = await c.env.KV.get(cacheKey, "json");
   if (cached) {
-    c.set("apiKey", cached as { id: string; name: string; tier: string });
+    const cachedKey = cached as { id: string; name: string; tier: string };
+    c.set("apiKey", cachedKey);
+    logFields(c, {
+      api_key_id: cachedKey.id,
+      api_key_name: cachedKey.name,
+      api_key_tier: cachedKey.tier,
+    });
     return next();
   }
 
@@ -51,6 +58,7 @@ export const apiKeyMiddleware = createMiddleware<{
   });
 
   if (!result || !result.active) {
+    logFields(c, { api_key_invalid: true });
     return c.json(
       { error: "Invalid or inactive API key", code: "UNAUTHORIZED" },
       STATUS.UNAUTHORIZED,
@@ -65,5 +73,10 @@ export const apiKeyMiddleware = createMiddleware<{
   });
 
   c.set("apiKey", apiKeyData);
+  logFields(c, {
+    api_key_id: apiKeyData.id,
+    api_key_name: apiKeyData.name,
+    api_key_tier: apiKeyData.tier,
+  });
   return next();
 });

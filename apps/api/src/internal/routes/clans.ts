@@ -1,4 +1,3 @@
-import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { drizzle } from "@runeprofile/db";
@@ -6,6 +5,7 @@ import { drizzle } from "@runeprofile/db";
 import { getClanActivities } from "~/lib/clan/get-clan-activities";
 import { getClanMembersWithPagination } from "~/lib/clan/get-clan-members";
 import { newRouter } from "~/lib/helpers";
+import { edgeCache, logFields } from "~/lib/logging";
 import {
   activityTypesSchema,
   clanNameSchema,
@@ -31,6 +31,7 @@ export const clansRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
       const { cursor, direction, limit } = c.req.valid("query");
+      logFields(c, { clan_name: name });
 
       const result = await getClanMembersWithPagination(db, name, {
         cursor,
@@ -56,7 +57,7 @@ export const clansRouter = newRouter()
         activityTypes: activityTypesSchema,
       }),
     ),
-    cache({
+    edgeCache({
       cacheName: "clan-activities",
       cacheControl: "public, max-age=0, s-maxage=600",
     }),
@@ -64,6 +65,7 @@ export const clansRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const { name } = c.req.valid("param");
       const { cursor, direction, limit, activityTypes } = c.req.valid("query");
+      logFields(c, { clan_name: name });
 
       const result = await getClanActivities(db, name, {
         cursor,

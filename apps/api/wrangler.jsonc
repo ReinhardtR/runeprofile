@@ -23,6 +23,10 @@
   "observability": {
     "logs": {
       "enabled": true,
+      // One stored event per invocation is ~6M events/day of plugin polls.
+      // The wide event (src/lib/logging.ts) is the canonical per-request
+      // record: errors/slow/writes always, fast reads tail-sampled.
+      "invocation_logs": false,
     },
   },
   // Not a secret: a zone id identifies the zone, it does not authorise

@@ -101,9 +101,7 @@ export type ProfileUpdates = {
  */
 export const MINIMUM_FULL_UPDATE_ITEMS = 20;
 
-export function isFullItemPayload(
-  items: UpdateProfileInput["items"],
-): boolean {
+export function isFullItemPayload(items: UpdateProfileInput["items"]): boolean {
   let count = 0;
   for (const quantity of Object.values(items)) {
     if (quantity > 0) count++;
@@ -166,12 +164,9 @@ export async function getProfileUpdates(
 
   try {
     diffProfile = await getDiffProfileFromCache(kv, input.id);
-    console.log(
-      `Cache ${diffProfile ? "hit" : "miss"} for profile diff with ID: ${input.id}`,
-    );
   } catch {
     // KV read failed, fall through to DB
-    console.log(`Failed to read diff profile from cache for ID: ${input.id}`);
+    console.log({ event: "diff_cache_read_failed", account_id: input.id });
   }
 
   if (diffProfile) {
@@ -191,9 +186,12 @@ export async function getProfileUpdates(
 
       if (!dbRow?.updatedAt || dbRow.updatedAt !== diffProfile.updatedAt) {
         // Cache is inconsistent with DB — discard and fetch fresh
-        console.log(
-          `Cache invalid for ID: ${input.id}. DB updatedAt: ${dbRow?.updatedAt}, Cache updatedAt: ${diffProfile.updatedAt}`,
-        );
+        console.log({
+          event: "diff_cache_invalid",
+          account_id: input.id,
+          db_updated_at: dbRow?.updatedAt ?? null,
+          cache_updated_at: diffProfile.updatedAt,
+        });
         diffProfile = null;
       }
     } catch {
@@ -213,7 +211,7 @@ export async function getProfileUpdates(
         await setDiffProfileCache(kv, input.id, diffProfile);
       } catch {
         // Non-critical: cache will be populated after successful update
-        console.log(`Failed to set diff profile cache for ID: ${input.id}`);
+        console.log({ event: "diff_cache_write_failed", account_id: input.id });
       }
     }
   }
@@ -223,9 +221,11 @@ export async function getProfileUpdates(
   const itemsForceResynced = forceResync && isFullItemPayload(input.items);
 
   if (forceResync) {
-    console.log(
-      `Force resync enabled for account ID: ${input.id} (items: ${itemsForceResynced})`,
-    );
+    console.log({
+      event: "force_resync",
+      account_id: input.id,
+      items_force_resynced: itemsForceResynced,
+    });
   }
 
   return {

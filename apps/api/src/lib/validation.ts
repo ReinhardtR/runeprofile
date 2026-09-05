@@ -88,8 +88,17 @@ export const validator = <
 ) =>
   zv(target, schema, (result, c) => {
     if (!result.success) {
-      console.error(result.error);
-      console.error(result.data);
+      // Log the issues, not the payload — a failed profile sync body can be
+      // 100KB+ of collection log data.
+      console.log({
+        event: "validation_failed",
+        target,
+        issues: result.error.issues.slice(0, 10).map((issue) => ({
+          path: issue.path.join("."),
+          code: issue.code,
+          message: issue.message,
+        })),
+      });
       return c.json(result.error, 400);
     }
   });

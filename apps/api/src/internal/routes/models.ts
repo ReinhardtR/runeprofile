@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import type { Context } from "hono";
-import { cache } from "hono/cache";
 import { z } from "zod";
 
 import { accounts, drizzle } from "@runeprofile/db";
@@ -11,10 +10,11 @@ import {
   RuneProfileFileNotFoundError,
 } from "~/lib/errors";
 import { newRouter } from "~/lib/helpers";
-import { purgeOgImage } from "~/lib/og-cache";
+import { edgeCache, logFields } from "~/lib/logging";
 import { createPetModelKey, createPlayerModelKey } from "~/lib/models/keys";
 import { uploadPlayerModels } from "~/lib/models/manage-models";
 import { modelContentType, modelFileSchema } from "~/lib/models/uploads";
+import { purgeOgImage } from "~/lib/og-cache";
 import { STATUS } from "~/lib/status";
 import { accountIdSchema, usernameSchema, validator } from "~/lib/validation";
 
@@ -63,6 +63,11 @@ export const modelsRouter = newRouter()
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const { accountId, model, petModel } = c.req.valid("form");
+      logFields(c, {
+        account_id: accountId,
+        model_bytes: model?.size ?? null,
+        pet_model_bytes: petModel?.size ?? null,
+      });
 
       const account = await db.query.accounts.findFirst({
         where: eq(accounts.id, accountId),
@@ -98,7 +103,7 @@ export const modelsRouter = newRouter()
   .get(
     "/:username",
     usernameParam,
-    cache({ cacheName: "profile-model", cacheControl: CACHE_CONTROL }),
+    edgeCache({ cacheName: "profile-model", cacheControl: CACHE_CONTROL }),
     async (c) =>
       serveModel(c, createPlayerModelKey(c.req.valid("param").username), {
         onMissing: "error",
@@ -107,7 +112,7 @@ export const modelsRouter = newRouter()
   .get(
     "/:username/pet",
     usernameParam,
-    cache({ cacheName: "profile-pet-model", cacheControl: CACHE_CONTROL }),
+    edgeCache({ cacheName: "profile-pet-model", cacheControl: CACHE_CONTROL }),
     async (c) =>
       serveModel(c, createPetModelKey(c.req.valid("param").username), {
         onMissing: "empty",

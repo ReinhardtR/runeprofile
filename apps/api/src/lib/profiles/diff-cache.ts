@@ -47,7 +47,6 @@ export async function setDiffProfileCache(
   await kv.put(`${DIFF_CACHE_PREFIX}${accountId}`, JSON.stringify(profile), {
     expirationTtl: DIFF_CACHE_TTL,
   });
-  console.log(`Diff profile cache set for account ID: ${accountId}`);
 }
 
 export async function deleteDiffProfileCache(
@@ -157,7 +156,8 @@ export function buildUpdatedDiffProfile(
     updatedAt,
     achievementDiaryTiers: [...diaryMap.values()],
     combatAchievementTiers: [...combatMap.values()],
-    combatAchievementVarps: updates.combatAchievementVarps ?? current.combatAchievementVarps ?? null,
+    combatAchievementVarps:
+      updates.combatAchievementVarps ?? current.combatAchievementVarps ?? null,
     items: [...itemsMap.values()],
     quests: [...questsMap.values()],
     skills: [...skillsMap.values()],
