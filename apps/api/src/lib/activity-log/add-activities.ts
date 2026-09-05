@@ -31,11 +31,12 @@ export async function addActivities(
       .where(eq(accounts.id, input.accountId))
       .limit(1);
 
+    const clanName = account?.clanName || null;
     const clanActivitiesValues: Array<InferInsertModel<typeof clanActivities>> =
-      account?.clanName
+      clanName
         ? activitiesValues.map((activity) => ({
             activityId: activity.id,
-            clanName: account.clanName?.toLowerCase() ?? "",
+            clanName: clanName.toLowerCase(),
             activityType: activity.type,
           }))
         : [];
