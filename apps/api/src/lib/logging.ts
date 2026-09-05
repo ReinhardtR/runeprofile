@@ -118,7 +118,10 @@ export const wideEventLogger = createMiddleware(async (c, next) => {
   const sampleRate = isError || isSlow || isWrite ? 1 : FAST_READ_SAMPLE_RATE;
 
   if (sampleRate === 1 || Math.random() < sampleRate) {
-    const cf = (c.req.raw as { cf?: { country?: string; colo?: string } }).cf;
+    // Only infrastructure-side context is logged: colo is the Cloudflare
+    // datacenter that served the request (edge caches are per-colo).
+    // Deliberately no user-location fields (country, IP).
+    const cf = (c.req.raw as { cf?: { colo?: string } }).cf;
     console.log({
       event: "http_request",
       method,
@@ -128,7 +131,6 @@ export const wideEventLogger = createMiddleware(async (c, next) => {
       duration_ms: durationMs,
       sample_rate: sampleRate,
       ray: c.req.header("cf-ray") ?? null,
-      country: cf?.country ?? null,
       colo: cf?.colo ?? null,
       user_agent: c.req.header("user-agent") ?? null,
       ...(error !== undefined && {
