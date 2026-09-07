@@ -5,6 +5,14 @@ import { STATUS } from "~/lib/status";
 
 export const newRouter = () => new Hono<{ Bindings: Env }>();
 
+/**
+ * Escape LIKE/ILIKE metacharacters in user input so a search term is matched
+ * literally. Without this, a term containing % or _ turns an indexed prefix
+ * scan into a full-table scan (and _ appears in real RSNs).
+ */
+export const escapeLikePattern = (term: string) =>
+  term.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+
 export const errorHandler: ErrorHandler = (err, c) => {
   // Log the stack, not just the message — Workers Logs' console.error(err)
   // renders only the first line otherwise.

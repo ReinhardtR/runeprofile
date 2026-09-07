@@ -36,6 +36,9 @@ export const accounts = t.pgTable(
       .using("btree", sql`${lower(table.username)} text_pattern_ops`),
     t.index("accounts_pending_username_index").on(lower(table.pendingUsername)),
     t.index("accounts_clan_name_index").on(lower(table.clanName)),
+    t
+      .index("accounts_clan_name_pattern_index")
+      .using("btree", sql`${lower(table.clanName)} text_pattern_ops`),
     t.index("accounts_group_name_index").on(lower(table.groupName)),
     t
       .index("accounts_clan_members_sorted_index")
