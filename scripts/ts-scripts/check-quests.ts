@@ -249,6 +249,17 @@ function typeCode(type: QuestType): string {
       : "QuestType.FREE";
 }
 
+// The in-game quest list alphabetizes ignoring a leading "The", "A" or "An"
+// (like a library catalog), so e.g. "A Ruff Situation" sorts as "Ruff
+// Situation" - between "Royal Trouble" and "Rum Deal" - rather than with
+// the other "A ..." quests. Strip that prefix before comparing so our
+// order matches the client's.
+const LEADING_ARTICLE = /^(?:The|An?)\s+/;
+
+function sortKey(name: string): string {
+  return name.replace(LEADING_ARTICLE, "");
+}
+
 /** Regenerates the QUESTS array in quests.ts from the cache data. */
 function writeQuests(sourceQuests: SourceQuest[]) {
   console.log(`\nWriting changes to ${QUESTS_PATH}...`);
@@ -265,7 +276,7 @@ function writeQuests(sourceQuests: SourceQuest[]) {
   const section = (title: string, type: QuestType) => {
     const quests = sourceQuests
       .filter((q) => q.type === type)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name)));
     const entries = quests.map(
       (q) =>
         `  { id: ${q.id}, name: ${JSON.stringify(q.name)}, points: ${q.points}, difficulty: ${DIFFICULTY_CODE[q.difficulty]}, type: ${typeCode(q.type)} },`,
