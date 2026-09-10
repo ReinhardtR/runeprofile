@@ -45,8 +45,12 @@ export const collectionLogPageSchema = z.string().transform((val, ctx) => {
   return pageId;
 });
 
+// Bounded because the page feeds an OFFSET and getGroupActivities' inner LIMIT.
 export const paginationPageSchema = z.coerce
   .number()
+  .int()
+  .min(1)
+  .max(1000)
   .optional()
   .catch(undefined);
 

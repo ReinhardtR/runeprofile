@@ -29,22 +29,38 @@ export async function getGroupActivities(
 
   const accountIds = groupAccounts.map((a) => a.id);
 
-  const activitiesQuery = db
+  // One ordered index scan per member, merged. `account_id in (...)` can't use
+  // activities_account_id_created_at_id_index for the sort, so it would read
+  // the group's whole history to return a page.
+  const recent = db
     .select({
       id: activities.id,
       type: activities.type,
       data: activities.data,
       createdAt: activities.createdAt,
+    })
+    .from(activities)
+    .where(eq(activities.accountId, accounts.id))
+    .orderBy(desc(activities.createdAt), desc(activities.id))
+    .limit(offset + pageSize)
+    .as("recent");
+
+  const activitiesQuery = db
+    .select({
+      id: recent.id,
+      type: recent.type,
+      data: recent.data,
+      createdAt: recent.createdAt,
       username: accounts.username,
       accountType: accounts.accountType,
       clanName: accounts.clanName,
       clanRank: accounts.clanRank,
       clanIcon: accounts.clanIcon,
     })
-    .from(activities)
-    .innerJoin(accounts, eq(activities.accountId, accounts.id))
-    .where(inArray(activities.accountId, accountIds))
-    .orderBy(desc(activities.createdAt), desc(activities.id))
+    .from(accounts)
+    .crossJoinLateral(recent)
+    .where(inArray(accounts.id, accountIds))
+    .orderBy(desc(recent.createdAt), desc(recent.id))
     .limit(pageSize)
     .offset(offset);
 
