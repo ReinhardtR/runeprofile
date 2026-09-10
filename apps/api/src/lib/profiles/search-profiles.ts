@@ -1,3 +1,5 @@
+import { sql } from "drizzle-orm";
+
 import { Database, lower } from "@runeprofile/db";
 import { AccountTypes } from "@runeprofile/runescape";
 
@@ -11,7 +13,10 @@ export async function searchProfiles(db: Database, query: string) {
     columns: { username: true, accountType: true },
     where: (accounts, { like }) =>
       like(lower(accounts.username), `${escapeLikePattern(term)}%`),
-    orderBy: (accounts, { asc }) => [asc(lower(accounts.username))],
+    // `~<~` is text_pattern_ops' less-than; only an ORDER BY in that operator
+    // family lets accounts_username_pattern_index serve the sort as well as
+    // the prefix match.
+    orderBy: (accounts) => [sql`${lower(accounts.username)} using ~<~`],
     limit: 10,
   });
   return profiles.map((profile) => ({
