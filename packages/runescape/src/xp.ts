@@ -104,8 +104,8 @@ export const getCombatLevel = ({
 }: CombatSkills) => {
   const base = 0.25 * (defence + hitpoints + Math.floor(prayer / 2));
   const melee = 0.325 * (attack + strength);
-  const range = 0.325 * Math.floor(ranged / 2);
-  const mage = 0.325 * Math.floor(magic / 2);
+  const range = 0.325 * Math.floor((ranged * 3) / 2);
+  const mage = 0.325 * Math.floor((magic * 3) / 2);
   return Math.floor(base + Math.max(melee, range, mage));
 };
 
