@@ -1,6 +1,8 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import React from "react";
 
+import { CombatAchievementAccount } from "@runeprofile/runescape";
+
 import AchievementDiariesIcon from "~/core/assets/icons/achievement-diaries.png";
 import CombatAchievementsIcon from "~/core/assets/icons/combat-achievements.png";
 import QuestsIcon from "~/core/assets/icons/quest.png";
@@ -18,7 +20,7 @@ type DataTabsCardProps = {
   quests: React.ComponentProps<typeof QuestList>["data"];
   achievementDiaries: React.ComponentProps<typeof AchievementDiaries>["data"];
   combatAchievements: React.ComponentProps<typeof CombatAchievements>["data"];
-  accountTypeId: number;
+  caAccount: CombatAchievementAccount;
   selectedCaTierId: number;
   onCaTierChange: (tierId: number) => void;
 };
@@ -30,7 +32,7 @@ export function DataTabsCard({
   quests,
   achievementDiaries,
   combatAchievements,
-  accountTypeId,
+  caAccount,
   selectedCaTierId,
   onCaTierChange,
 }: DataTabsCardProps) {
@@ -63,7 +65,7 @@ export function DataTabsCard({
         <Tabs.Content value="cas" className="h-full">
           <CombatAchievements
             data={combatAchievements}
-            accountTypeId={accountTypeId}
+            caAccount={caAccount}
             selectedTierId={selectedCaTierId}
             onTierClick={onCaTierChange}
           />

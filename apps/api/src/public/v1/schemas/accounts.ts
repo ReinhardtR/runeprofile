@@ -55,11 +55,13 @@ export const CombatAchievementTierSchema = z
       description:
         "Tier name (e.g. Easy, Medium, Hard, Elite, Master, Grandmaster)",
     }),
-    completed: z
-      .number()
-      .openapi({ description: "Number of tasks completed in this tier" }),
+    completed: z.number().openapi({
+      description:
+        "Number of tasks completed in this tier, excluding exempt tasks",
+    }),
     total: z.number().openapi({
-      description: "Total number of tasks in this tier for this account type",
+      description:
+        "Total number of tasks in this tier for this account, excluding exempt tasks (Group Ironman tasks that need a bigger team than the group)",
     }),
   })
   .openapi("CombatAchievementTier");
@@ -166,20 +168,22 @@ export const CombatAchievementTaskSchema = z
     completed: z
       .boolean()
       .openapi({ description: "Whether the task is completed" }),
+    exempt: z.boolean().openapi({
+      description:
+        "Whether the task is disabled for this account (Group Ironman tasks that need a bigger team than the group). Exempt tasks don't count towards points, tier totals or tier thresholds.",
+    }),
   })
   .openapi("CombatAchievementTask");
 
 export const CombatAchievementTasksResponseSchema = z
   .object({
-    totalPoints: z
-      .number()
-      .openapi({ description: "Total combat achievement points earned" }),
-    tierReached: z
-      .string()
-      .nullable()
-      .openapi({
-        description: "Highest tier name where points threshold is met",
-      }),
+    totalPoints: z.number().openapi({
+      description:
+        "Total combat achievement points earned, excluding exempt tasks",
+    }),
+    tierReached: z.string().nullable().openapi({
+      description: "Highest tier name where points threshold is met",
+    }),
     data: z.array(CombatAchievementTaskSchema),
   })
   .openapi("CombatAchievementTasksResponse");

@@ -27,9 +27,15 @@ const writeMode = process.argv.includes("--write");
 
 type TaskChange = {
   index: number;
-  field: "tierId" | "name" | "description" | "type" | "monster";
-  oldValue: string | number;
-  newValue: string | number;
+  field:
+    | "tierId"
+    | "name"
+    | "description"
+    | "type"
+    | "monster"
+    | "gimExemptMaxGroupSize";
+  oldValue: string | number | undefined;
+  newValue: string | number | undefined;
 };
 
 checkCombatAchievements()
@@ -89,6 +95,7 @@ async function checkCombatAchievements() {
       "description",
       "type",
       "monster",
+      "gimExemptMaxGroupSize",
     ] as const;
     for (const field of fields) {
       if (existing[field] !== task[field]) {
@@ -195,7 +202,7 @@ function buildSummary(
     lines.push(`### Changed Tasks (${changedTasks.length})\n`);
     for (const c of changedTasks) {
       lines.push(
-        `- \`${c.index}\` ${c.field}: ~~${c.oldValue}~~ → ${c.newValue}`,
+        `- \`${c.index}\` ${c.field}: ~~${c.oldValue ?? "none"}~~ → ${c.newValue ?? "none"}`,
       );
     }
     lines.push("");
@@ -274,7 +281,7 @@ function writeChanges(
   const tasksBlock = `export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [\n${tasks
     .map(
       (t) =>
-        `  { index: ${t.index}, tierId: ${t.tierId}, name: ${singleQuote(t.name)}, description: ${singleQuote(t.description)}, type: ${singleQuote(t.type)}, monster: ${singleQuote(t.monster)} },`,
+        `  { index: ${t.index}, tierId: ${t.tierId}, name: ${singleQuote(t.name)}, description: ${singleQuote(t.description)}, type: ${singleQuote(t.type)}, monster: ${singleQuote(t.monster)}${t.gimExemptMaxGroupSize !== undefined ? `, gimExemptMaxGroupSize: ${t.gimExemptMaxGroupSize}` : ""} },`,
     )
     .join("\n")}\n] as const;`;
 

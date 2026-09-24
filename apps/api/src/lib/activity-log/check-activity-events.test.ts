@@ -7,6 +7,8 @@ import {
   MAX_SKILL_XP,
   QuestState,
   getAchievementDiaryTierTaskCount,
+  getCombatAchievementTaskByIndex,
+  getCombatAchievementTasksForAccount,
   getLevelXpThreshold,
 } from "@runeprofile/runescape";
 
@@ -20,6 +22,7 @@ import {
   checkNewItemObtainedEvents,
   checkQuestCompletedEvents,
   checkXpMilestoneEvents,
+  getCombatAchievementAccountForUpdate,
 } from "~/lib/activity-log/check-activity-events";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
@@ -553,5 +556,61 @@ describe("COMBAT ACHIEVEMENT TASK COMPLETED EVENTS", () => {
     ).toEqual([
       { type: "combat_achievement_tier_reached", data: { tierId: 1 } },
     ]);
+  });
+});
+
+describe("GROUP IRONMAN COMBAT ACHIEVEMENT TIER EVENTS", () => {
+  const gim = (gimGroupSize: number | null) => ({
+    accountTypeId: 4,
+    gimGroupSize,
+  });
+
+  test("fires when a GIM completes their last required task", () => {
+    const account = gim(4);
+    const required = getCombatAchievementTasksForAccount(account).map(
+      (t) => t.index,
+    );
+    const lastGm = required.find(
+      (i) => getCombatAchievementTaskByIndex(i)!.tierId === 6,
+    )!;
+    expect(
+      checkCombatAchievementTierReachedEvents(
+        varpsFromIndices(required.filter((i) => i !== lastGm)),
+        varpsFromIndices(required),
+        account,
+      ),
+    ).toEqual([
+      { type: "combat_achievement_tier_reached", data: { tierId: 6 } },
+    ]);
+  });
+
+  test("uses the reported group size over the stored one", () => {
+    expect(
+      getCombatAchievementAccountForUpdate({
+        accountType: 4,
+        gimGroupSize: 3,
+        storedGimGroupSize: 4,
+      }),
+    ).toEqual(gim(3));
+  });
+
+  test("falls back to the stored group size when none was reported", () => {
+    expect(
+      getCombatAchievementAccountForUpdate({
+        accountType: 4,
+        gimGroupSize: undefined,
+        storedGimGroupSize: 4,
+      }),
+    ).toEqual(gim(4));
+  });
+
+  test("a reported 0 isn't replaced by the stored group size", () => {
+    expect(
+      getCombatAchievementAccountForUpdate({
+        accountType: 4,
+        gimGroupSize: 0,
+        storedGimGroupSize: 4,
+      }),
+    ).toEqual(gim(0));
   });
 });

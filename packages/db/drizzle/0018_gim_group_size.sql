@@ -1,0 +1,1 @@
+ALTER TABLE "accounts" ADD COLUMN "gim_group_size" smallint;

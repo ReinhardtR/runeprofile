@@ -1,6 +1,7 @@
 import {
   AchievementDiaryTierCompletedEvent,
   ActivityEvent,
+  CombatAchievementAccount,
   CombatAchievementTaskCompletedEvent,
   CombatAchievementTierReachedEvent,
   LevelUpEvent,
@@ -20,12 +21,33 @@ import {
   getLevelFromXP,
   getQuestById,
   legacy_calculateCombatAchievementPoints,
+  toCombatAchievementAccount,
 } from "@runeprofile/runescape";
 
 import type { DiffProfile } from "~/lib/profiles/diff-cache";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
 const TEMP_IGNORED_QUEST_COMPLETION_ACTIVITY_IDS = new Set([9643]);
+
+/**
+ * The account to judge combat achievement tiers against. Falls back to the
+ * stored group size when the plugin didn't report one, so thresholds match
+ * what the profile page shows and tiers aren't re-announced (or missed).
+ */
+export function getCombatAchievementAccountForUpdate(
+  updates: Pick<
+    ProfileUpdates,
+    "accountType" | "gimGroupSize" | "storedGimGroupSize"
+  >,
+): CombatAchievementAccount {
+  return toCombatAchievementAccount({
+    accountType: updates.accountType,
+    gimGroupSize:
+      updates.gimGroupSize !== undefined
+        ? updates.gimGroupSize
+        : updates.storedGimGroupSize,
+  });
+}
 
 export function checkActivityEvents(updates: ProfileUpdates) {
   if (!updates.currentProfile) return [];
@@ -38,6 +60,7 @@ export function checkActivityEvents(updates: ProfileUpdates) {
     ...checkCombatAchievementEvents(
       updates.combatAchievementVarps,
       updates.currentProfile.combatAchievementTiers,
+      getCombatAchievementAccountForUpdate(updates),
     ),
     ...checkQuestCompletedEvents(updates.quests),
 
@@ -182,6 +205,7 @@ export function checkAchievementDiaryTierCompletedEvents(
 export function checkCombatAchievementEvents(
   varps: ProfileUpdates["combatAchievementVarps"],
   legacyTiers: DiffProfile["combatAchievementTiers"],
+  account?: CombatAchievementAccount,
 ): Array<
   CombatAchievementTierReachedEvent | CombatAchievementTaskCompletedEvent
 > {
@@ -197,6 +221,7 @@ export function checkCombatAchievementEvents(
       ...checkCombatAchievementTierReachedEvents(
         varps.oldVarps,
         varps.newVarps,
+        account,
       ),
     ];
   }
@@ -204,11 +229,11 @@ export function checkCombatAchievementEvents(
   // First update with varps — estimate old tier from legacy completion counts
   const oldEstimatedPoints =
     legacy_calculateCombatAchievementPoints(legacyTiers);
-  const oldTier = getCombatAchievementTierReached(oldEstimatedPoints);
+  const oldTier = getCombatAchievementTierReached(oldEstimatedPoints, account);
 
   const newCompleted = decodeCombatAchievements(varps.newVarps);
-  const newPoints = calculateCombatAchievementPoints(newCompleted);
-  const newTier = getCombatAchievementTierReached(newPoints);
+  const newPoints = calculateCombatAchievementPoints(newCompleted, account);
+  const newTier = getCombatAchievementTierReached(newPoints, account);
 
   if (newTier !== null && newTier !== oldTier) {
     return [
@@ -256,19 +281,20 @@ export function checkCombatAchievementTaskCompletedEvents(
 export function checkCombatAchievementTierReachedEvents(
   oldVarps: Record<string, number> | null,
   newVarps: Record<string, number>,
+  account?: CombatAchievementAccount,
 ): CombatAchievementTierReachedEvent[] {
   const events: CombatAchievementTierReachedEvent[] = [];
 
   const oldCompleted = oldVarps ? decodeCombatAchievements(oldVarps) : [];
   const newCompleted = decodeCombatAchievements(newVarps);
 
-  const oldPoints = calculateCombatAchievementPoints(oldCompleted);
-  const newPoints = calculateCombatAchievementPoints(newCompleted);
+  const oldPoints = calculateCombatAchievementPoints(oldCompleted, account);
+  const newPoints = calculateCombatAchievementPoints(newCompleted, account);
 
   if (newPoints <= oldPoints) return events;
 
-  const oldTier = getCombatAchievementTierReached(oldPoints);
-  const newTier = getCombatAchievementTierReached(newPoints);
+  const oldTier = getCombatAchievementTierReached(oldPoints, account);
+  const newTier = getCombatAchievementTierReached(newPoints, account);
 
   if (newTier !== null && newTier !== oldTier) {
     events.push({

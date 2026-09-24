@@ -8,9 +8,12 @@ import {
   COMBAT_ACHIEVEMENT_TASKS,
   COMBAT_ACHIEVEMENT_TASK_TYPES,
   COMBAT_ACHIEVEMENT_TIERS,
-  COMBAT_ACHIEVEMENT_TIER_THRESHOLDS,
+  CombatAchievementAccount,
   decodeCombatAchievements,
+  getCombatAchievementTaskPoints,
+  getCombatAchievementTasksForAccount,
   getCombatAchievementTierReached,
+  getCombatAchievementTierThresholds,
 } from "@runeprofile/runescape";
 
 import { Profile } from "~/core/api";
@@ -39,6 +42,7 @@ type CombatAchievementsPanelProps = {
   combatAchievementTiers: Profile["combatAchievementTiers"];
   combatAchievementVarps: Profile["combatAchievementVarps"];
   totalPoints: Profile["totalCombatAchievementPoints"];
+  caAccount: CombatAchievementAccount;
   selectedTierId: number;
   onTierChange: (tierId: number) => void;
   viewMode: ViewMode;
@@ -63,15 +67,6 @@ type BossData = {
 };
 
 // --- Constants ---
-
-const TIER_POINTS: Record<number, number> = {
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-};
 
 const MONSTER_OPTIONS = (() => {
   const monsters = new Set<string>();
@@ -107,6 +102,7 @@ export function CombatAchievementsPanel({
   combatAchievementTiers,
   combatAchievementVarps,
   totalPoints,
+  caAccount,
   selectedTierId,
   onTierChange,
   viewMode,
@@ -133,37 +129,45 @@ export function CombatAchievementsPanel({
     return new Set(decodeCombatAchievements(combatAchievementVarps));
   }, [combatAchievementVarps]);
 
-  const allCompleted = completedSet.size >= COMBAT_ACHIEVEMENT_TASKS.length;
+  // Tasks exempt for the account (e.g. 5-scale tasks for smaller Group
+  // Ironman groups) are hidden, as they are in-game.
+  const tasks = React.useMemo(
+    () => getCombatAchievementTasksForAccount(caAccount),
+    [caAccount],
+  );
+  const thresholds = React.useMemo(
+    () => getCombatAchievementTierThresholds(caAccount),
+    [caAccount],
+  );
 
-  const completedTaskCount = completedSet.size;
-  const totalTaskCount = COMBAT_ACHIEVEMENT_TASKS.length;
+  const completedTaskCount = React.useMemo(
+    () => tasks.filter((t) => completedSet.has(t.index)).length,
+    [tasks, completedSet],
+  );
+  const totalTaskCount = tasks.length;
+  const allCompleted = completedTaskCount >= totalTaskCount;
 
   const currentPoints = totalPoints ?? 0;
 
-  const tierReached = getCombatAchievementTierReached(currentPoints);
+  const tierReached = getCombatAchievementTierReached(currentPoints, caAccount);
   const tierIcon = tierReached
     ? CombatAchievementTierIcons[
         tierReached as unknown as keyof typeof CombatAchievementTierIcons
       ]
     : CombatAchievementTierIcons[1];
 
-  const maxPoints =
-    COMBAT_ACHIEVEMENT_TIER_THRESHOLDS[
-      COMBAT_ACHIEVEMENT_TIER_THRESHOLDS.length - 1
-    ]?.points ?? 0;
+  const maxPoints = thresholds[thresholds.length - 1]?.points ?? 0;
   const pointsPercent =
     maxPoints > 0 ? Math.min(100, (currentPoints / maxPoints) * 100) : 0;
 
-  const nextThreshold = COMBAT_ACHIEVEMENT_TIER_THRESHOLDS.find(
-    (t) => t.points > currentPoints,
-  );
+  const nextThreshold = thresholds.find((t) => t.points > currentPoints);
   const pointsToNext = nextThreshold ? nextThreshold.points - currentPoints : 0;
 
   const bosses = React.useMemo(() => {
     const bossSet = new Set<string>(COMBAT_ACHIEVEMENT_BOSSES);
     const bossMap = new Map<string, { tasks: Task[] }>();
 
-    for (const task of COMBAT_ACHIEVEMENT_TASKS) {
+    for (const task of tasks) {
       if (!bossSet.has(task.monster)) continue;
       const existing = bossMap.get(task.monster);
       if (existing) {
@@ -189,7 +193,7 @@ export function CombatAchievementsPanel({
     }
 
     return bossList;
-  }, [completedSet, bossSearch]);
+  }, [tasks, completedSet, bossSearch]);
 
   const handleBossClick = React.useCallback(
     (bossName: string) => {
@@ -326,6 +330,7 @@ export function CombatAchievementsPanel({
             )}
           >
             <TasksView
+              tasks={tasks}
               completedSet={completedSet}
               selectedTierId={selectedTierId}
               onTierChange={onTierChange}
@@ -400,6 +405,7 @@ function PointsBar({
 }
 
 function TasksView({
+  tasks,
   completedSet,
   selectedTierId,
   onTierChange,
@@ -410,6 +416,7 @@ function TasksView({
   completionFilter,
   onCompletionFilterChange,
 }: {
+  tasks: Task[];
   completedSet: Set<number>;
   selectedTierId: number;
   onTierChange: (tierId: number) => void;
@@ -426,21 +433,25 @@ function TasksView({
   const tierFilterValue = selectedTierId === 0 ? "all" : String(selectedTierId);
 
   const filteredTasks = React.useMemo(() => {
-    return COMBAT_ACHIEVEMENT_TASKS.filter((task) => {
-      if (selectedTierId !== 0 && task.tierId !== selectedTierId) return false;
-      if (typeFilter !== "all" && task.type !== typeFilter) return false;
-      if (monsterFilter !== "all" && task.monster !== monsterFilter)
-        return false;
-      if (completionFilter === "completed" && !completedSet.has(task.index))
-        return false;
-      if (completionFilter === "incomplete" && completedSet.has(task.index))
-        return false;
-      return true;
-    }).sort((a, b) => {
-      if (a.tierId !== b.tierId) return a.tierId - b.tierId;
-      return a.monster.localeCompare(b.monster);
-    });
+    return tasks
+      .filter((task) => {
+        if (selectedTierId !== 0 && task.tierId !== selectedTierId)
+          return false;
+        if (typeFilter !== "all" && task.type !== typeFilter) return false;
+        if (monsterFilter !== "all" && task.monster !== monsterFilter)
+          return false;
+        if (completionFilter === "completed" && !completedSet.has(task.index))
+          return false;
+        if (completionFilter === "incomplete" && completedSet.has(task.index))
+          return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (a.tierId !== b.tierId) return a.tierId - b.tierId;
+        return a.monster.localeCompare(b.monster);
+      });
   }, [
+    tasks,
     selectedTierId,
     typeFilter,
     monsterFilter,
@@ -599,7 +610,7 @@ function TaskRow({
     CombatAchievementTierIcons[
       task.tierId as unknown as keyof typeof CombatAchievementTierIcons
     ];
-  const points = TIER_POINTS[task.tierId] ?? 0;
+  const points = getCombatAchievementTaskPoints(task);
 
   return (
     <div

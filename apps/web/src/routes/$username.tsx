@@ -222,6 +222,13 @@ export function ProfileContent({
   const showCaPanel =
     search["ca-panel"] === "cas" ||
     (search["ca-panel"] == null && activeTab === "cas");
+  const caAccount = React.useMemo(
+    () => ({
+      accountTypeId: profile.accountType.id,
+      gimGroupSize: profile.gimGroupSize,
+    }),
+    [profile.accountType.id, profile.gimGroupSize],
+  );
 
   const clogRankIcon = React.useMemo(() => {
     const obtainedCount = COLLECTION_LOG_ITEM_IDS.filter((id) =>
@@ -253,7 +260,7 @@ export function ProfileContent({
           quests={profile.quests}
           achievementDiaries={profile.achievementDiaryTiers}
           combatAchievements={profile.combatAchievementTiers}
-          accountTypeId={profile.accountType.id}
+          caAccount={caAccount}
           selectedCaTierId={selectedCaTierId}
           onCaTierChange={(caTier) => updateSearch({ "ca-tier": caTier })}
         />
@@ -266,6 +273,7 @@ export function ProfileContent({
               combatAchievementTiers={profile.combatAchievementTiers}
               combatAchievementVarps={profile.combatAchievementVarps}
               totalPoints={profile.totalCombatAchievementPoints}
+              caAccount={caAccount}
               selectedTierId={selectedCaTierId}
               onTierChange={(caTier) => updateSearch({ "ca-tier": caTier })}
               viewMode={search["ca-view"] ?? "tasks"}

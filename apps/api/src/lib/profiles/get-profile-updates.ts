@@ -7,6 +7,7 @@ import {
   COMBAT_ACHIEVEMENT_TIERS,
   QUESTS,
   SKILLS,
+  isGroupIronman,
 } from "@runeprofile/runescape";
 
 import {
@@ -27,6 +28,8 @@ export type UpdateProfileInput = {
   };
   eventSource?: string;
   groupName?: string;
+  // gim_groupsize varbit (plugin versions that report it)
+  gimGroupSize?: number;
   achievementDiaryTiers: Array<{
     areaId: number;
     tierIndex: number;
@@ -61,6 +64,10 @@ export type ProfileUpdates = {
     title: string;
   };
   groupName?: string;
+  // Undefined when the plugin didn't report it, so the stored value is kept.
+  gimGroupSize?: number | null;
+  // The value already on the account, for when the plugin didn't report one.
+  storedGimGroupSize: number | null;
   achievementDiaryTiers: Array<{
     areaId: number;
     tier: number;
@@ -112,10 +119,19 @@ export function isFullItemPayload(items: UpdateProfileInput["items"]): boolean {
 async function getProfileForDiff(
   db: Database,
   id: string,
-): Promise<{ diffProfile: DiffProfile; forceResync: boolean } | null> {
+): Promise<{
+  diffProfile: DiffProfile;
+  forceResync: boolean;
+  gimGroupSize: number | null;
+} | null> {
   const result = await db.query.accounts.findFirst({
     where: (fields, { eq }) => eq(fields.id, id),
-    columns: { username: true, updatedAt: true, forceResync: true },
+    columns: {
+      username: true,
+      updatedAt: true,
+      forceResync: true,
+      gimGroupSize: true,
+    },
     with: {
       achievementDiaryTiers: {
         columns: { areaId: true, tier: true, completedCount: true },
@@ -150,6 +166,7 @@ async function getProfileForDiff(
       skills: result.skills,
     },
     forceResync: result.forceResync,
+    gimGroupSize: result.gimGroupSize,
   };
 }
 
@@ -161,6 +178,7 @@ export async function getProfileUpdates(
   // Try KV cache first, fall back to lightweight DB query
   let diffProfile: DiffProfile | null = null;
   let forceResync = false;
+  let storedGimGroupSize: number | null = null;
 
   try {
     diffProfile = await getDiffProfileFromCache(kv, input.id);
@@ -176,6 +194,7 @@ export async function getProfileUpdates(
         .select({
           updatedAt: accounts.updatedAt,
           forceResync: accounts.forceResync,
+          gimGroupSize: accounts.gimGroupSize,
         })
         .from(accounts)
         .where(eq(accounts.id, input.id))
@@ -183,6 +202,7 @@ export async function getProfileUpdates(
 
       const dbRow = row[0];
       forceResync = dbRow?.forceResync ?? false;
+      storedGimGroupSize = dbRow?.gimGroupSize ?? null;
 
       if (!dbRow?.updatedAt || dbRow.updatedAt !== diffProfile.updatedAt) {
         // Cache is inconsistent with DB — discard and fetch fresh
@@ -206,6 +226,7 @@ export async function getProfileUpdates(
     if (result) {
       diffProfile = result.diffProfile;
       forceResync = result.forceResync;
+      storedGimGroupSize = result.gimGroupSize;
 
       try {
         await setDiffProfileCache(kv, input.id, diffProfile);
@@ -237,6 +258,8 @@ export async function getProfileUpdates(
     accountType: input.accountType,
     clan: input.clan,
     groupName: input.groupName,
+    gimGroupSize: normalizeGimGroupSize(input.accountType, input.gimGroupSize),
+    storedGimGroupSize,
     achievementDiaryTiers: getAchievementDiaryTierUpdates({
       newData: input.achievementDiaryTiers,
       oldData: diffProfile?.achievementDiaryTiers || [],
@@ -281,6 +304,28 @@ export async function getProfileUpdates(
     }),
     currentProfile: diffProfile,
   };
+}
+
+// Largest value stored; the column is a smallint and real groups max out at 5.
+const MAX_STORED_GIM_GROUP_SIZE = 255;
+
+/**
+ * The group size to store, or undefined to keep the stored one. The varbit
+ * only means something for Group Ironmen, so other accounts store null. 0 is
+ * kept as-is for GIMs (e.g. a player who left their group) and, as in-game,
+ * exempts nothing. Values that can't be a group size are ignored rather than
+ * failing the whole update.
+ */
+export function normalizeGimGroupSize(
+  accountType: number,
+  gimGroupSize: number | undefined,
+): number | null | undefined {
+  if (gimGroupSize === undefined) return undefined;
+  if (!isGroupIronman(accountType)) return null;
+  if (gimGroupSize < 0 || gimGroupSize > MAX_STORED_GIM_GROUP_SIZE) {
+    return undefined;
+  }
+  return gimGroupSize;
 }
 
 export function getAchievementDiaryTierUpdates({

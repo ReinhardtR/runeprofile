@@ -6,6 +6,7 @@ import {
   getItemUpdates,
   getQuestUpdates,
   getSkillUpdates,
+  normalizeGimGroupSize,
 } from "~/lib/profiles/get-profile-updates";
 
 describe("ACHIEVEMENT DIARY TIERS", () => {
@@ -884,5 +885,31 @@ describe("SKILLS", () => {
         ],
       }),
     ).toEqual([]);
+  });
+});
+
+describe("GIM GROUP SIZE", () => {
+  test("keeps the stored size when the plugin didn't report one", () => {
+    expect(normalizeGimGroupSize(4, undefined)).toBeUndefined();
+  });
+
+  test("stores the reported size for Group Ironmen", () => {
+    expect(normalizeGimGroupSize(4, 3)).toBe(3);
+    expect(normalizeGimGroupSize(5, 5)).toBe(5);
+    expect(normalizeGimGroupSize(6, 2)).toBe(2);
+  });
+
+  test("stores 0 for Group Ironmen without a group", () => {
+    expect(normalizeGimGroupSize(4, 0)).toBe(0);
+  });
+
+  test("stores null for other account types", () => {
+    expect(normalizeGimGroupSize(0, 0)).toBeNull();
+    expect(normalizeGimGroupSize(1, 3)).toBeNull();
+  });
+
+  test("ignores values that can't be a group size", () => {
+    expect(normalizeGimGroupSize(4, -1)).toBeUndefined();
+    expect(normalizeGimGroupSize(4, 40000)).toBeUndefined();
   });
 });

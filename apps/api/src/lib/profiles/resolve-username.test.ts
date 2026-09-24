@@ -109,6 +109,7 @@ beforeEach(async () => {
       clan_icon integer,
       clan_title text,
       group_name text,
+      gim_group_size smallint,
       default_clog_page text,
       force_resync boolean NOT NULL DEFAULT false,
       updated_at timestamp NOT NULL DEFAULT now(),

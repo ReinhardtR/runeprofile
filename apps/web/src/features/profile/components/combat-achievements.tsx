@@ -1,5 +1,6 @@
 import {
   COMBAT_ACHIEVEMENT_TIERS,
+  CombatAchievementAccount,
   getCombatAchievementTierTaskCount,
 } from "@runeprofile/runescape";
 
@@ -10,12 +11,12 @@ import { cn } from "~/shared/utils";
 
 export function CombatAchievements({
   data,
-  accountTypeId,
+  caAccount,
   selectedTierId,
   onTierClick,
 }: {
   data: Profile["combatAchievementTiers"];
-  accountTypeId: number;
+  caAccount: CombatAchievementAccount;
   selectedTierId: number;
   onTierClick: (tierId: number) => void;
 }) {
@@ -33,7 +34,7 @@ export function CombatAchievements({
       name: tier.name,
       tasksCount:
         tierData?.tasksCount ??
-        getCombatAchievementTierTaskCount(tier.id, accountTypeId) ??
+        getCombatAchievementTierTaskCount(tier.id, caAccount) ??
         0,
       completedCount: tierData?.completedCount ?? 0,
     });

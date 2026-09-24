@@ -21,6 +21,7 @@ import {
   COLLECTION_LOG_TABS,
   COMBAT_ACHIEVEMENT_TASKS,
   COMBAT_ACHIEVEMENT_TIERS,
+  CombatAchievementAccount,
   QUESTS,
   QuestState,
   QuestType,
@@ -33,6 +34,8 @@ import {
   getLevelFromXP,
   getVirtualLevelFromXP,
   getXPUntilNextLevel,
+  isCombatAchievementTaskExempt,
+  toCombatAchievementAccount,
 } from "@runeprofile/runescape";
 
 import { STATUS } from "~/lib/status";
@@ -97,6 +100,7 @@ async function getAccountByUsername(
       clanIcon: true,
       clanTitle: true,
       groupName: true,
+      gimGroupSize: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -177,20 +181,23 @@ function formatAchievementDiaries(
 
 function formatCombatAchievements(
   combatRows: { id: number; completedCount: number }[],
-  accountType: number,
+  caAccount: CombatAchievementAccount,
   varpData: Record<string, number> | null,
 ) {
   // Prefer the new varp-based data when available; fall back to the legacy
   // per-tier counts table otherwise. Mirrors get-profile.ts.
   const tierCounts = varpData
-    ? deriveCombatAchievementTierCounts(decodeCombatAchievements(varpData))
+    ? deriveCombatAchievementTierCounts(
+        decodeCombatAchievements(varpData),
+        caAccount,
+      )
     : combatRows;
   const combatMap = new Map(tierCounts.map((r) => [r.id, r.completedCount]));
   return COMBAT_ACHIEVEMENT_TIERS.map((tier) => ({
     id: tier.id,
     name: tier.name,
     completed: combatMap.get(tier.id) ?? 0,
-    total: getCombatAchievementTierTaskCount(tier.id, accountType) ?? 0,
+    total: getCombatAchievementTierTaskCount(tier.id, caAccount) ?? 0,
   }));
 }
 
@@ -514,7 +521,7 @@ export const accountsRouter = createV1App()
     // Combat achievements
     const combatAchievements = formatCombatAchievements(
       combatRows,
-      account.accountType,
+      toCombatAchievementAccount(account),
       varpRow?.varps ?? null,
     );
 
@@ -635,7 +642,7 @@ export const accountsRouter = createV1App()
       {
         data: formatCombatAchievements(
           combatRows,
-          account.accountType,
+          toCombatAchievementAccount(account),
           varpRow?.varps ?? null,
         ),
       },
@@ -661,13 +668,17 @@ export const accountsRouter = createV1App()
       columns: { varps: true },
     });
 
+    const caAccount = toCombatAchievementAccount(account);
     const completedSet = new Set(
       varpRow ? decodeCombatAchievements(varpRow.varps) : [],
     );
     const totalPoints = varpRow
-      ? calculateCombatAchievementPoints([...completedSet])
+      ? calculateCombatAchievementPoints([...completedSet], caAccount)
       : 0;
-    const tierReachedId = getCombatAchievementTierReached(totalPoints);
+    const tierReachedId = getCombatAchievementTierReached(
+      totalPoints,
+      caAccount,
+    );
     const tierReached =
       COMBAT_ACHIEVEMENT_TIERS.find((t) => t.id === tierReachedId)?.name ??
       null;
@@ -686,6 +697,7 @@ export const accountsRouter = createV1App()
       type: task.type,
       monster: task.monster,
       completed: completedSet.has(task.index),
+      exempt: isCombatAchievementTaskExempt(task, caAccount),
     }));
 
     return c.json({ totalPoints, tierReached, data }, STATUS.OK, CACHE_HEADER);
@@ -746,7 +758,7 @@ export const fullProfileRouter = createV1App().openapi(
         achievementDiaries: formatAchievementDiaries(diaryRows),
         combatAchievements: formatCombatAchievements(
           combatRows,
-          account.accountType,
+          toCombatAchievementAccount(account),
           varpRow?.varps ?? null,
         ),
         createdAt: account.createdAt,

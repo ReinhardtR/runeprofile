@@ -119,6 +119,9 @@ export async function updateProfile(
             clanTitle: clanName ? updates.clan?.title || null : null,
           }),
           groupName: updates.groupName ?? null,
+          ...(updates.gimGroupSize !== undefined && {
+            gimGroupSize: updates.gimGroupSize,
+          }),
           // Keep the flag armed until items have been force resynced, which
           // requires a full clog payload — partial autosyncs must not eat it.
           forceResync: updates.forceResync && !updates.itemsForceResynced,

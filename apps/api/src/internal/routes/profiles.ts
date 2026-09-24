@@ -261,6 +261,7 @@ export const profilesRouter = newRouter()
           .optional(),
         eventSource: z.string().optional(),
         groupName: z.string().optional(),
+        gimGroupSize: z.number().int().optional(),
         achievementDiaryTiers: z.array(
           z.object({
             areaId: z.number(),

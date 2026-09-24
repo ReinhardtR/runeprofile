@@ -22,6 +22,9 @@ export const accounts = t.pgTable(
     clanIcon: t.integer(),
     clanTitle: t.text(),
     groupName: t.text(),
+    // gim_groupsize varbit; decides which combat achievements are exempt.
+    // Null until a plugin version that reports it updates the profile.
+    gimGroupSize: t.smallint(),
     defaultClogPage: t.text(),
     forceResync: t.boolean().notNull().default(false),
     updatedAt,

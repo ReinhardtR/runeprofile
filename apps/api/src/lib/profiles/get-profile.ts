@@ -16,6 +16,7 @@ import {
   deriveCombatAchievementTierCounts,
   getCombatAchievementTierReached,
   getCombatAchievementTierTaskCount,
+  toCombatAchievementAccount,
 } from "@runeprofile/runescape";
 
 import { RuneProfileAccountNotFoundError } from "~/lib/errors";
@@ -151,14 +152,22 @@ async function getProfile(db: Database, condition: SQL) {
     tasksCount: number;
   }>;
 
+  const caAccount = toCombatAchievementAccount(profile);
+
   if (varpData) {
     const completedIndices = decodeCombatAchievements(varpData);
-    totalCombatAchievementPoints =
-      calculateCombatAchievementPoints(completedIndices);
+    totalCombatAchievementPoints = calculateCombatAchievementPoints(
+      completedIndices,
+      caAccount,
+    );
     combatAchievementTierReached = getCombatAchievementTierReached(
       totalCombatAchievementPoints,
+      caAccount,
     );
-    const derivedCounts = deriveCombatAchievementTierCounts(completedIndices);
+    const derivedCounts = deriveCombatAchievementTierCounts(
+      completedIndices,
+      caAccount,
+    );
     combatAchievementTiers = derivedCounts.map((derived) => {
       const tier = COMBAT_ACHIEVEMENT_TIERS.find((t) => t.id === derived.id);
       return {
@@ -166,8 +175,7 @@ async function getProfile(db: Database, condition: SQL) {
         name: tier?.name || "Unknown",
         completedCount: derived.completedCount,
         tasksCount:
-          getCombatAchievementTierTaskCount(derived.id, profile.accountType) ??
-          0,
+          getCombatAchievementTierTaskCount(derived.id, caAccount) ?? 0,
       };
     });
   } else {
@@ -181,10 +189,7 @@ async function getProfile(db: Database, condition: SQL) {
           name: tier?.name || "Unknown",
           completedCount: profileTier.completedCount,
           tasksCount:
-            getCombatAchievementTierTaskCount(
-              profileTier.id,
-              profile.accountType,
-            ) ?? 0,
+            getCombatAchievementTierTaskCount(profileTier.id, caAccount) ?? 0,
         };
       },
     );
@@ -231,6 +236,7 @@ async function getProfile(db: Database, condition: SQL) {
     accountType,
     clan,
     groupName: profile.groupName,
+    gimGroupSize: profile.gimGroupSize,
     defaultClogPage: profile.defaultClogPage,
 
     recentItems: recentItems as Array<

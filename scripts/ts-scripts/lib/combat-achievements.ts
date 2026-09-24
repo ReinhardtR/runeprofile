@@ -19,6 +19,10 @@ const CA_TASK_NAME = 1308 as cache.ParamID;
 const CA_TASK_DESCRIPTION = 1309 as cache.ParamID;
 const CA_TASK_TYPE = 1311 as cache.ParamID;
 const CA_TASK_MONSTER = 1312 as cache.ParamID;
+// Largest Group Ironman group size the task is disabled for. The game's
+// ca_task_is_disabled proc hides the task when 2 <= gim_groupsize <= 5 and
+// gim_groupsize <= this value (e.g. 4 on 5-scale tasks).
+const CA_TASK_GIM_EXEMPT_MAX_GROUP_SIZE = 1425 as cache.ParamID;
 
 // Enum 3971 maps monster category IDs to display names
 const CA_MONSTER_ENUM_ID = 3971;
@@ -41,6 +45,7 @@ export type CombatAchievementTask = {
   description: string;
   type: string;
   monster: string;
+  gimExemptMaxGroupSize?: number;
 };
 
 /**
@@ -84,8 +89,7 @@ export async function loadCombatAchievementVarps(
 
 /**
  * Reads every combat achievement task (sorted by varp index) and the boss
- * list from the game cache. Shared by the `scrape-ca` dump and the
- * `check-ca` sync.
+ * list from the game cache. Used by the `check-ca` / `update-ca` sync.
  */
 export async function loadCombatAchievements(
   provider: cache.CacheProvider,
@@ -167,6 +171,9 @@ export async function loadCombatAchievements(
       const varpIndex = taskStruct.params.get(CA_TASK_VARP_INDEX) as number;
       const typeId = taskStruct.params.get(CA_TASK_TYPE) as number;
       const monsterId = taskStruct.params.get(CA_TASK_MONSTER) as number;
+      const gimExemptMaxGroupSize = taskStruct.params.get(
+        CA_TASK_GIM_EXEMPT_MAX_GROUP_SIZE,
+      ) as number | undefined;
 
       if (name === undefined || varpIndex === undefined) {
         console.error(
@@ -185,6 +192,7 @@ export async function loadCombatAchievements(
         description: description || "",
         type: typeName,
         monster: monsterName,
+        ...(gimExemptMaxGroupSize !== undefined && { gimExemptMaxGroupSize }),
       });
     }
   }

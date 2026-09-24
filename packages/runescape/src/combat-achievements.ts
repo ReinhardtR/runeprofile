@@ -21,6 +21,11 @@ export type CombatAchievementTask = {
   description: string;
   type: CombatAchievementTaskType;
   monster: string;
+  /**
+   * Largest Group Ironman group size this task is disabled for (cache
+   * param_1425), e.g. 4 on 5-scale tasks. See isCombatAchievementTaskExempt.
+   */
+  gimExemptMaxGroupSize?: number;
 };
 
 export const COMBAT_ACHIEVEMENT_TASK_TYPES = [
@@ -51,23 +56,69 @@ const COMBAT_ACHIEVEMENT_TIER_POINTS: Record<number, number> = {
   6: 6, // Grandmaster
 };
 
-// Number of tasks excluded per tier for Group Ironman accounts
-const GIM_EXCLUDED_TASKS: Partial<Record<number, number>> = {
-  6: 1,
+// The account details that decide which tasks count. gimGroupSize is the
+// game's gim_groupsize varbit as reported by the plugin; null/undefined when
+// unknown (profiles last updated by older plugin versions).
+export type CombatAchievementAccount = {
+  accountTypeId: number;
+  gimGroupSize?: number | null;
 };
+
+// Builds the account from an accounts row (or anything shaped like one).
+export function toCombatAchievementAccount(account: {
+  accountType: number;
+  gimGroupSize?: number | null;
+}): CombatAchievementAccount {
+  return {
+    accountTypeId: account.accountType,
+    gimGroupSize: account.gimGroupSize,
+  };
+}
+
+const GIM_MAX_GROUP_SIZE = 5;
+
+/**
+ * Whether a task is disabled for this account, and so is left out of tier
+ * totals, points and thresholds. Mirrors the game's ca_task_is_disabled proc:
+ * Group Ironmen in a group of 2-5 skip tasks that need a bigger team.
+ *
+ * When the group size is unknown, only tasks disabled at every group size
+ * (e.g. the 8-player Tombs of Amascut speed task) are treated as exempt.
+ */
+export function isCombatAchievementTaskExempt(
+  task: CombatAchievementTask,
+  account?: CombatAchievementAccount,
+): boolean {
+  if (task.gimExemptMaxGroupSize === undefined) return false;
+  if (!account || !isGroupIronman(account.accountTypeId)) return false;
+
+  const groupSize = account.gimGroupSize;
+  if (groupSize === undefined || groupSize === null) {
+    return task.gimExemptMaxGroupSize >= GIM_MAX_GROUP_SIZE;
+  }
+  if (groupSize < 2 || groupSize > GIM_MAX_GROUP_SIZE) return false;
+  return groupSize <= task.gimExemptMaxGroupSize;
+}
+
+/**
+ * The tasks that count for this account, i.e. all tasks minus exempt ones.
+ */
+export function getCombatAchievementTasksForAccount(
+  account?: CombatAchievementAccount,
+): CombatAchievementTask[] {
+  return COMBAT_ACHIEVEMENT_TASKS.filter(
+    (task) => !isCombatAchievementTaskExempt(task, account),
+  );
+}
 
 export function getCombatAchievementTierTaskCount(
   id: number,
-  accountTypeId?: number,
+  account?: CombatAchievementAccount,
 ) {
-  const count = COMBAT_ACHIEVEMENT_TASKS.filter((t) => t.tierId === id).length;
+  const count = getCombatAchievementTasksForAccount(account).filter(
+    (t) => t.tierId === id,
+  ).length;
   if (count === 0) return undefined;
-
-  if (accountTypeId !== undefined && isGroupIronman(accountTypeId)) {
-    const excluded = GIM_EXCLUDED_TASKS[id] ?? 0;
-    return count - excluded;
-  }
-
   return count;
 }
 
@@ -112,21 +163,51 @@ export function decodeCombatAchievements(
   return completed;
 }
 
+export function getCombatAchievementTaskPoints(
+  task: Pick<CombatAchievementTask, "tierId">,
+): number {
+  return COMBAT_ACHIEVEMENT_TIER_POINTS[task.tierId] ?? 0;
+}
+
 /**
  * Calculates total combat achievement points from completed task indices.
+ * Tasks exempt for the account don't award points.
  */
 export function calculateCombatAchievementPoints(
   completedIndices: number[],
+  account?: CombatAchievementAccount,
 ): number {
-  const taskMap = new Map(COMBAT_ACHIEVEMENT_TASKS.map((t) => [t.index, t]));
   let points = 0;
   for (const index of completedIndices) {
-    const task = taskMap.get(index);
-    if (task) {
-      points += COMBAT_ACHIEVEMENT_TIER_POINTS[task.tierId] ?? 0;
+    const task = getCombatAchievementTaskByIndex(index);
+    if (task && !isCombatAchievementTaskExempt(task, account)) {
+      points += getCombatAchievementTaskPoints(task);
     }
   }
   return points;
+}
+
+/**
+ * Cumulative point thresholds to reach each tier reward. Group Ironmen need
+ * fewer points, as exempt tasks are left out of every tier they belong to.
+ */
+export function getCombatAchievementTierThresholds(
+  account?: CombatAchievementAccount,
+): Array<{ id: number; points: number }> {
+  const pointsPerTier = new Map<number, number>();
+  for (const task of getCombatAchievementTasksForAccount(account)) {
+    pointsPerTier.set(
+      task.tierId,
+      (pointsPerTier.get(task.tierId) ?? 0) +
+        getCombatAchievementTaskPoints(task),
+    );
+  }
+
+  let cumulative = 0;
+  return COMBAT_ACHIEVEMENT_TIERS.map((tier) => {
+    cumulative += pointsPerTier.get(tier.id) ?? 0;
+    return { id: tier.id, points: cumulative };
+  });
 }
 
 /**
@@ -134,9 +215,10 @@ export function calculateCombatAchievementPoints(
  */
 export function getCombatAchievementTierReached(
   totalPoints: number,
+  account?: CombatAchievementAccount,
 ): number | null {
   let reached: number | null = null;
-  for (const threshold of COMBAT_ACHIEVEMENT_TIER_THRESHOLDS) {
+  for (const threshold of getCombatAchievementTierThresholds(account)) {
     if (totalPoints >= threshold.points) {
       reached = threshold.id;
     }
@@ -146,18 +228,19 @@ export function getCombatAchievementTierReached(
 
 /**
  * Derives per-tier completed counts from a list of completed task indices.
+ * Tasks exempt for the account aren't counted.
  */
 export function deriveCombatAchievementTierCounts(
   completedIndices: number[],
+  account?: CombatAchievementAccount,
 ): Array<{ id: number; completedCount: number }> {
-  const taskMap = new Map(COMBAT_ACHIEVEMENT_TASKS.map((t) => [t.index, t]));
   const counts: Record<number, number> = {};
   for (const tier of COMBAT_ACHIEVEMENT_TIERS) {
     counts[tier.id] = 0;
   }
   for (const index of completedIndices) {
-    const task = taskMap.get(index);
-    if (task) {
+    const task = getCombatAchievementTaskByIndex(index);
+    if (task && !isCombatAchievementTaskExempt(task, account)) {
       counts[task.tierId] = (counts[task.tierId] ?? 0) + 1;
     }
   }
@@ -489,9 +572,9 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 191, tierId: 4, name: 'Nightmare (Solo) Speed-Trialist', description: 'Defeat the Nightmare (Solo) in less than 23 minutes.', type: 'Speed', monster: 'The Nightmare' },
   { index: 192, tierId: 5, name: 'Nightmare (Solo) Speed-Chaser', description: 'Defeat the Nightmare (Solo) in less than 19 minutes.', type: 'Speed', monster: 'The Nightmare' },
   { index: 193, tierId: 6, name: 'Nightmare (Solo) Speed-Runner', description: 'Defeat the Nightmare (Solo) in less than 16 minutes.', type: 'Speed', monster: 'The Nightmare' },
-  { index: 194, tierId: 4, name: 'Nightmare (5-Scale) Speed-Trialist', description: 'Defeat the Nightmare (5-scale) in less than 5 minutes.', type: 'Speed', monster: 'The Nightmare' },
-  { index: 195, tierId: 5, name: 'Nightmare (5-Scale) Speed-Chaser', description: 'Defeat the Nightmare (5-scale) in less than 4 minutes.', type: 'Speed', monster: 'The Nightmare' },
-  { index: 196, tierId: 6, name: 'Nightmare (5-Scale) Speed-Runner', description: 'Defeat the Nightmare (5-scale) in less than 3:30 minutes.', type: 'Speed', monster: 'The Nightmare' },
+  { index: 194, tierId: 4, name: 'Nightmare (5-Scale) Speed-Trialist', description: 'Defeat the Nightmare (5-scale) in less than 5 minutes.', type: 'Speed', monster: 'The Nightmare', gimExemptMaxGroupSize: 4 },
+  { index: 195, tierId: 5, name: 'Nightmare (5-Scale) Speed-Chaser', description: 'Defeat the Nightmare (5-scale) in less than 4 minutes.', type: 'Speed', monster: 'The Nightmare', gimExemptMaxGroupSize: 4 },
+  { index: 196, tierId: 6, name: 'Nightmare (5-Scale) Speed-Runner', description: 'Defeat the Nightmare (5-scale) in less than 3:30 minutes.', type: 'Speed', monster: 'The Nightmare', gimExemptMaxGroupSize: 4 },
   { index: 197, tierId: 2, name: 'Dagannoth Prime Champion', description: 'Kill Dagannoth Prime 10 times.', type: 'Kill Count', monster: 'Dagannoth Prime' },
   { index: 198, tierId: 3, name: 'Dagannoth Prime Adept', description: 'Kill Dagannoth Prime 25 times.', type: 'Kill Count', monster: 'Dagannoth Prime' },
   { index: 199, tierId: 4, name: 'Death to the Seer King', description: 'Kill Dagannoth Prime whilst under attack by Dagannoth Supreme and Dagannoth Rex.', type: 'Mechanical', monster: 'Dagannoth Prime' },
@@ -550,12 +633,12 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 252, tierId: 6, name: 'Morytania Only', description: 'Complete the Theatre of Blood without any member of the team equipping a non-barrows weapon (except Dawnbringer).', type: 'Restriction', monster: 'Theatre of Blood' },
   { index: 253, tierId: 5, name: 'Back in My Day...', description: 'Complete the Theatre of Blood without any member of the team equipping a Scythe of Vitur.', type: 'Restriction', monster: 'Theatre of Blood' },
   { index: 254, tierId: 6, name: 'Theatre (Duo) Speed-Runner', description: 'Complete the Theatre of Blood (Duo) in less than 26 minutes.', type: 'Speed', monster: 'Theatre of Blood' },
-  { index: 255, tierId: 5, name: 'Theatre (Trio) Speed-Chaser', description: 'Complete the Theatre of Blood (Trio) in less than 20 minutes.', type: 'Speed', monster: 'Theatre of Blood' },
-  { index: 256, tierId: 6, name: 'Theatre (Trio) Speed-Runner', description: 'Complete the Theatre of Blood (Trio) in less than 17 minutes and 30 seconds.', type: 'Speed', monster: 'Theatre of Blood' },
-  { index: 257, tierId: 5, name: 'Theatre (4-Scale) Speed-Chaser', description: 'Complete the Theatre of Blood (4-scale) in less than 17 minutes.', type: 'Speed', monster: 'Theatre of Blood' },
-  { index: 258, tierId: 6, name: 'Theatre (4-Scale) Speed-Runner', description: 'Complete the Theatre of Blood (4-scale) in less than 15 minutes.', type: 'Speed', monster: 'Theatre of Blood' },
-  { index: 259, tierId: 5, name: 'Theatre (5-Scale) Speed-Chaser', description: 'Complete the Theatre of Blood (5-scale) in less than 16 minutes.', type: 'Speed', monster: 'Theatre of Blood' },
-  { index: 260, tierId: 6, name: 'Theatre (5-Scale) Speed-Runner', description: 'Complete the Theatre of Blood (5-scale) in less than 14 minutes and 15 seconds.', type: 'Speed', monster: 'Theatre of Blood' },
+  { index: 255, tierId: 5, name: 'Theatre (Trio) Speed-Chaser', description: 'Complete the Theatre of Blood (Trio) in less than 20 minutes.', type: 'Speed', monster: 'Theatre of Blood', gimExemptMaxGroupSize: 2 },
+  { index: 256, tierId: 6, name: 'Theatre (Trio) Speed-Runner', description: 'Complete the Theatre of Blood (Trio) in less than 17 minutes and 30 seconds.', type: 'Speed', monster: 'Theatre of Blood', gimExemptMaxGroupSize: 2 },
+  { index: 257, tierId: 5, name: 'Theatre (4-Scale) Speed-Chaser', description: 'Complete the Theatre of Blood (4-scale) in less than 17 minutes.', type: 'Speed', monster: 'Theatre of Blood', gimExemptMaxGroupSize: 3 },
+  { index: 258, tierId: 6, name: 'Theatre (4-Scale) Speed-Runner', description: 'Complete the Theatre of Blood (4-scale) in less than 15 minutes.', type: 'Speed', monster: 'Theatre of Blood', gimExemptMaxGroupSize: 3 },
+  { index: 259, tierId: 5, name: 'Theatre (5-Scale) Speed-Chaser', description: 'Complete the Theatre of Blood (5-scale) in less than 16 minutes.', type: 'Speed', monster: 'Theatre of Blood', gimExemptMaxGroupSize: 4 },
+  { index: 260, tierId: 6, name: 'Theatre (5-Scale) Speed-Runner', description: 'Complete the Theatre of Blood (5-scale) in less than 14 minutes and 15 seconds.', type: 'Speed', monster: 'Theatre of Blood', gimExemptMaxGroupSize: 4 },
   { index: 261, tierId: 4, name: 'Thermonuclear Veteran', description: 'Kill the Thermonuclear Smoke Devil 20 times.', type: 'Kill Count', monster: 'Thermonuclear Smoke Devil' },
   { index: 262, tierId: 4, name: 'Hazard Prevention', description: 'Kill the Thermonuclear Smoke Devil without it hitting anyone.', type: 'Perfection', monster: 'Thermonuclear Smoke Devil' },
   { index: 263, tierId: 4, name: 'Spec\'d Out', description: 'Kill the Thermonuclear Smoke Devil using only special attacks.', type: 'Restriction', monster: 'Thermonuclear Smoke Devil' },
@@ -590,10 +673,10 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 292, tierId: 4, name: 'Dust Seeker', description: 'Complete a Chambers of Xeric Challenge mode raid in the target time.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
   { index: 293, tierId: 5, name: 'Chambers of Xeric: CM (Solo) Speed-Chaser', description: 'Complete a Chambers of Xeric: Challenge Mode (Solo) in less than 45 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
   { index: 294, tierId: 6, name: 'Chambers of Xeric: CM (Solo) Speed-Runner', description: 'Complete a Chambers of Xeric: Challenge Mode (Solo) in less than 38 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
-  { index: 295, tierId: 5, name: 'Chambers of Xeric: CM (5-Scale) Speed-Chaser', description: 'Complete a Chambers of Xeric: Challenge Mode (5-scale) in less than 30 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
-  { index: 296, tierId: 6, name: 'Chambers of Xeric: CM (5-Scale) Speed-Runner', description: 'Complete a Chambers of Xeric: Challenge Mode (5-scale) in less than 25 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
-  { index: 297, tierId: 5, name: 'Chambers of Xeric: CM (Trio) Speed-Chaser', description: 'Complete a Chambers of Xeric: Challenge Mode (Trio) in less than 35 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
-  { index: 298, tierId: 6, name: 'Chambers of Xeric: CM (Trio) Speed-Runner', description: 'Complete a Chambers of Xeric: Challenge Mode (Trio) in less than 27 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM' },
+  { index: 295, tierId: 5, name: 'Chambers of Xeric: CM (5-Scale) Speed-Chaser', description: 'Complete a Chambers of Xeric: Challenge Mode (5-scale) in less than 30 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM', gimExemptMaxGroupSize: 4 },
+  { index: 296, tierId: 6, name: 'Chambers of Xeric: CM (5-Scale) Speed-Runner', description: 'Complete a Chambers of Xeric: Challenge Mode (5-scale) in less than 25 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM', gimExemptMaxGroupSize: 4 },
+  { index: 297, tierId: 5, name: 'Chambers of Xeric: CM (Trio) Speed-Chaser', description: 'Complete a Chambers of Xeric: Challenge Mode (Trio) in less than 35 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM', gimExemptMaxGroupSize: 2 },
+  { index: 298, tierId: 6, name: 'Chambers of Xeric: CM (Trio) Speed-Runner', description: 'Complete a Chambers of Xeric: Challenge Mode (Trio) in less than 27 minutes.', type: 'Speed', monster: 'Chambers of Xeric: CM', gimExemptMaxGroupSize: 2 },
   { index: 299, tierId: 4, name: 'Chambers of Xeric Veteran', description: 'Complete the Chambers of Xeric 25 times.', type: 'Kill Count', monster: 'Chambers of Xeric' },
   { index: 300, tierId: 5, name: 'Chambers of Xeric Master', description: 'Complete the Chambers of Xeric 75 times.', type: 'Kill Count', monster: 'Chambers of Xeric' },
   { index: 301, tierId: 6, name: 'Chambers of Xeric Grandmaster', description: 'Complete the Chambers of Xeric 150 times.', type: 'Kill Count', monster: 'Chambers of Xeric' },
@@ -613,16 +696,16 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 315, tierId: 5, name: 'Playing with Lasers', description: 'Clear the Crystal Crabs room without wasting an orb after the first crystal has been activated.', type: 'Perfection', monster: 'Chambers of Xeric' },
   { index: 316, tierId: 4, name: 'Cryo No More', description: 'Receive kill-credit for the Ice Demon without taking any damage.', type: 'Perfection', monster: 'Chambers of Xeric' },
   { index: 317, tierId: 5, name: 'Perfect Olm (Solo)', description: 'Kill the Great Olm in a solo raid without taking damage from any of the following: Teleport portals, Fire Walls, Healing pools, Crystal Bombs, Crystal Burst or Prayer Orbs. You also cannot let his claws regenerate or take damage from the same acid pool back to back.', type: 'Perfection', monster: 'Chambers of Xeric' },
-  { index: 318, tierId: 5, name: 'Perfect Olm (Trio)', description: 'Kill the Great Olm in a trio raid without any team member taking damage from any of the following: Teleport portals, Fire Walls, Healing pools, Crystal Bombs, Crystal Burst or Prayer Orbs. You also cannot let his claws regenerate or take damage from the same acid pool back to back.', type: 'Perfection', monster: 'Chambers of Xeric' },
+  { index: 318, tierId: 5, name: 'Perfect Olm (Trio)', description: 'Kill the Great Olm in a trio raid without any team member taking damage from any of the following: Teleport portals, Fire Walls, Healing pools, Crystal Bombs, Crystal Burst or Prayer Orbs. You also cannot let his claws regenerate or take damage from the same acid pool back to back.', type: 'Perfection', monster: 'Chambers of Xeric', gimExemptMaxGroupSize: 2 },
   { index: 319, tierId: 5, name: 'Blind Spot', description: 'Kill Tekton without taking any damage.', type: 'Perfection', monster: 'Chambers of Xeric' },
   { index: 320, tierId: 4, name: 'Blizzard Dodger', description: 'Receive kill-credit for the Ice Demon without activating the Protect from Range prayer.', type: 'Restriction', monster: 'Chambers of Xeric' },
   { index: 321, tierId: 4, name: 'Kill It with Fire', description: 'Finish off the Ice Demon with a fire spell.', type: 'Restriction', monster: 'Chambers of Xeric' },
   { index: 322, tierId: 5, name: 'Chambers of Xeric (Solo) Speed-Chaser', description: 'Complete a Chambers of Xeric (Solo) in less than 21 minutes.', type: 'Speed', monster: 'Chambers of Xeric' },
   { index: 323, tierId: 6, name: 'Chambers of Xeric (Solo) Speed-Runner', description: 'Complete a Chambers of Xeric (Solo) in less than 17 minutes.', type: 'Speed', monster: 'Chambers of Xeric' },
-  { index: 324, tierId: 5, name: 'Chambers of Xeric (5-Scale) Speed-Chaser', description: 'Complete a Chambers of Xeric (5-scale) in less than 15 minutes.', type: 'Speed', monster: 'Chambers of Xeric' },
-  { index: 325, tierId: 6, name: 'Chambers of Xeric (5-Scale) Speed-Runner', description: 'Complete a Chambers of Xeric (5-scale) in less than 12 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric' },
-  { index: 326, tierId: 5, name: 'Chambers of Xeric (Trio) Speed-Chaser', description: 'Complete a Chambers of Xeric (Trio) in less than 16 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric' },
-  { index: 327, tierId: 6, name: 'Chambers of Xeric (Trio) Speed-Runner', description: 'Complete a Chambers of Xeric (Trio) in less than 14 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric' },
+  { index: 324, tierId: 5, name: 'Chambers of Xeric (5-Scale) Speed-Chaser', description: 'Complete a Chambers of Xeric (5-scale) in less than 15 minutes.', type: 'Speed', monster: 'Chambers of Xeric', gimExemptMaxGroupSize: 4 },
+  { index: 325, tierId: 6, name: 'Chambers of Xeric (5-Scale) Speed-Runner', description: 'Complete a Chambers of Xeric (5-scale) in less than 12 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric', gimExemptMaxGroupSize: 4 },
+  { index: 326, tierId: 5, name: 'Chambers of Xeric (Trio) Speed-Chaser', description: 'Complete a Chambers of Xeric (Trio) in less than 16 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric', gimExemptMaxGroupSize: 2 },
+  { index: 327, tierId: 6, name: 'Chambers of Xeric (Trio) Speed-Runner', description: 'Complete a Chambers of Xeric (Trio) in less than 14 minutes and 30 seconds.', type: 'Speed', monster: 'Chambers of Xeric', gimExemptMaxGroupSize: 2 },
   { index: 328, tierId: 4, name: 'Zalcano Veteran', description: 'Kill Zalcano 25 times.', type: 'Kill Count', monster: 'Zalcano' },
   { index: 329, tierId: 4, name: 'Perfect Zalcano', description: 'Kill Zalcano 5 times in a row without leaving or getting hit by the following: Falling rocks, rock explosions, Zalcano powering up, or standing in a red symbol.', type: 'Perfection', monster: 'Zalcano' },
   { index: 330, tierId: 4, name: 'Team Player', description: 'Receive imbued tephra from a golem.', type: 'Mechanical', monster: 'Zalcano' },
@@ -668,7 +751,7 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 370, tierId: 6, name: 'It Wasn\'t a Fluke', description: 'Complete TzHaar-Ket-Rak\'s fifth and sixth challenges back to back without failing.', type: 'Perfection', monster: 'TzHaar-Ket-Rak\'s Challenges' },
   { index: 371, tierId: 5, name: 'Multi-Style Specialist', description: 'Complete TzHaar-Ket-Rak\'s third challenge while using a different attack style for each JalTok-Jad.', type: 'Mechanical', monster: 'TzHaar-Ket-Rak\'s Challenges' },
   { index: 372, tierId: 6, name: 'Stop Right There!', description: 'Defeat the Maiden of Sugadinti in the Theatre of Blood: Hard Mode without letting blood spawns create more than 15 blood trails.', type: 'Mechanical', monster: 'Theatre of Blood: Hard Mode' },
-  { index: 373, tierId: 6, name: 'Personal Space', description: 'Defeat the Pestilent Bloat in the Theatre of Blood: Hard Mode with at least 3 people in the room, without anyone in your team standing on top of each other.', type: 'Mechanical', monster: 'Theatre of Blood: Hard Mode' },
+  { index: 373, tierId: 6, name: 'Personal Space', description: 'Defeat the Pestilent Bloat in the Theatre of Blood: Hard Mode with at least 3 people in the room, without anyone in your team standing on top of each other.', type: 'Mechanical', monster: 'Theatre of Blood: Hard Mode', gimExemptMaxGroupSize: 2 },
   { index: 374, tierId: 6, name: 'Royal Affairs', description: 'In the Theatre of Blood: Hard Mode, complete the Nylocas room without ever letting the Nylocas Prinkipas change styles.', type: 'Mechanical', monster: 'Theatre of Blood: Hard Mode' },
   { index: 375, tierId: 6, name: 'Harder Mode I', description: 'Defeat Sotetseg in the Theatre of Blood: Hard Mode without anyone sharing the ball with anyone, without anyone dying, and without anyone taking damage from any of its other attacks or stepping on the wrong tile in the maze.', type: 'Perfection', monster: 'Theatre of Blood: Hard Mode' },
   { index: 376, tierId: 6, name: 'Harder Mode II', description: 'Defeat Xarpus in the Theatre of Blood: Hard Mode after letting the exhumeds heal him to full health and without anyone in the team taking any damage.', type: 'Perfection', monster: 'Theatre of Blood: Hard Mode' },
@@ -677,9 +760,9 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 379, tierId: 6, name: 'Harder Mode III', description: 'Defeat Verzik Vitur in the Theatre of Blood: Hard Mode without anyone attacking her with a melee weapon during her third phase.', type: 'Restriction', monster: 'Theatre of Blood: Hard Mode' },
   { index: 380, tierId: 6, name: 'Pack Like a Yak', description: 'Complete the Theatre of Blood: Hard Mode within the challenge time, with no deaths and without anyone buying anything from a supply chest.', type: 'Restriction', monster: 'Theatre of Blood: Hard Mode' },
   { index: 381, tierId: 5, name: 'Hard Mode? Completed It', description: 'Complete the Theatre of Blood: Hard Mode within the challenge time.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode' },
-  { index: 382, tierId: 6, name: 'Theatre: HM (Trio) Speed-Runner', description: 'Complete the Theatre of Blood: Hard Mode (Trio) with an overall time of less than 23 minutes.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode' },
-  { index: 383, tierId: 6, name: 'Theatre: HM (4-Scale) Speed-Runner', description: '	Complete the Theatre of Blood: Hard Mode (4-scale) with an overall time of less than 21 minutes.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode' },
-  { index: 384, tierId: 6, name: 'Theatre: HM (5-Scale) Speed-Runner', description: 'Complete the Theatre of Blood: Hard Mode (5-scale) with an overall time of less than 19 minutes.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode' },
+  { index: 382, tierId: 6, name: 'Theatre: HM (Trio) Speed-Runner', description: 'Complete the Theatre of Blood: Hard Mode (Trio) with an overall time of less than 23 minutes.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode', gimExemptMaxGroupSize: 2 },
+  { index: 383, tierId: 6, name: 'Theatre: HM (4-Scale) Speed-Runner', description: '	Complete the Theatre of Blood: Hard Mode (4-scale) with an overall time of less than 21 minutes.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode', gimExemptMaxGroupSize: 3 },
+  { index: 384, tierId: 6, name: 'Theatre: HM (5-Scale) Speed-Runner', description: 'Complete the Theatre of Blood: Hard Mode (5-scale) with an overall time of less than 19 minutes.', type: 'Speed', monster: 'Theatre of Blood: Hard Mode', gimExemptMaxGroupSize: 4 },
   { index: 385, tierId: 6, name: 'Theatre of Blood: HM Grandmaster', description: 'Complete the Theatre of Blood: Hard Mode 50 times.', type: 'Kill Count', monster: 'Theatre of Blood: Hard Mode' },
   { index: 386, tierId: 4, name: 'Anticoagulants', description: 'Defeat the Maiden of Sugadinti in the Theatre of Blood: Entry Mode without letting any bloodspawn live for longer than 10 seconds.', type: 'Mechanical', monster: 'Theatre of Blood: Entry Mode' },
   { index: 387, tierId: 4, name: 'Appropriate Tools', description: 'Defeat the Pestilent Bloat in the Theatre of Blood: Entry Mode with everyone having a salve amulet equipped.', type: 'Mechanical', monster: 'Theatre of Blood: Entry Mode' },
@@ -718,7 +801,7 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 420, tierId: 5, name: 'Shadows Move...', description: 'Kill Nex without anyone being hit by the Shadow Smash attack.', type: 'Mechanical', monster: 'Nex' },
   { index: 421, tierId: 5, name: 'Tombs Speed Runner', description: 'Complete the Tombs of Amascut (normal) within 18 mins at any group size.', type: 'Speed', monster: 'Tombs of Amascut' },
   { index: 422, tierId: 6, name: 'Tombs Speed Runner II', description: 'Complete the Tombs of Amascut (expert) within 20 mins at any group size.', type: 'Speed', monster: 'Tombs of Amascut: Expert Mode' },
-  { index: 423, tierId: 6, name: 'Tombs Speed Runner III', description: 'Complete the Tombs of Amascut (expert) within 18 mins in a group of 8.', type: 'Speed', monster: 'Tombs of Amascut: Expert Mode' },
+  { index: 423, tierId: 6, name: 'Tombs Speed Runner III', description: 'Complete the Tombs of Amascut (expert) within 18 mins in a group of 8.', type: 'Speed', monster: 'Tombs of Amascut: Expert Mode', gimExemptMaxGroupSize: 5 },
   { index: 424, tierId: 5, name: 'You are not prepared', description: 'Complete a full Tombs of Amascut raid only using supplies given inside the tomb and without anyone dying.', type: 'Restriction', monster: 'Tombs of Amascut' },
   { index: 425, tierId: 4, name: 'Helpful spirit who?', description: 'Complete the Tombs of Amascut without using any supplies from the Helpful Spirit and without anyone dying. Honey locusts are included in this restriction.', type: 'Restriction', monster: 'Tombs of Amascut' },
   { index: 426, tierId: 5, name: 'Resourceful Raider', description: 'Complete the Tombs of Amascut with the "On a diet" and "Dehydration" invocations activated and without anyone dying.', type: 'Restriction', monster: 'Tombs of Amascut: Expert Mode' },
@@ -951,24 +1034,3 @@ export const COMBAT_ACHIEVEMENT_TASKS: CombatAchievementTask[] = [
   { index: 653, tierId: 2, name: 'Juggling Act', description: 'Kill the Mad Angel after attacking her between each bounce of the blast attack during her enrage phase.', type: 'Mechanical', monster: 'The Mad Angel' },
   { index: 654, tierId: 4, name: 'The Pen Is Mightier', description: 'Kill the Mad Angel without equipping any weapon.', type: 'Restriction', monster: 'The Mad Angel' },
 ] as const;
-
-// Cumulative point thresholds to reach each tier reward, derived from task list
-export const COMBAT_ACHIEVEMENT_TIER_THRESHOLDS: ReadonlyArray<{
-  id: number;
-  points: number;
-}> = (() => {
-  const pointsPerTier = new Map<number, number>();
-  for (const task of COMBAT_ACHIEVEMENT_TASKS) {
-    const tierPoints = COMBAT_ACHIEVEMENT_TIER_POINTS[task.tierId] ?? 0;
-    pointsPerTier.set(
-      task.tierId,
-      (pointsPerTier.get(task.tierId) ?? 0) + tierPoints,
-    );
-  }
-
-  let cumulative = 0;
-  return COMBAT_ACHIEVEMENT_TIERS.map((tier) => {
-    cumulative += pointsPerTier.get(tier.id) ?? 0;
-    return { id: tier.id, points: cumulative };
-  });
-})();
