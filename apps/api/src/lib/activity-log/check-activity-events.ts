@@ -27,7 +27,10 @@ import {
 import type { DiffProfile } from "~/lib/profiles/diff-cache";
 import { ProfileUpdates } from "~/lib/profiles/get-profile-updates";
 
-const TEMP_IGNORED_QUEST_COMPLETION_ACTIVITY_IDS = new Set([9643]);
+// Learning the Ropes (9643) was marked complete for every existing account
+// when it was released, and is done on Tutorial Island before a profile
+// exists, so a completion on an existing profile is never a real one.
+const IGNORED_QUEST_COMPLETION_ACTIVITY_IDS = new Set([9643]);
 
 /**
  * The account to judge combat achievement tiers against. Falls back to the
@@ -316,7 +319,7 @@ export function checkQuestCompletedEvents(
     if (questUpdate.oldState === QuestState.FINISHED) continue;
     // not completed
     if (questUpdate.state !== QuestState.FINISHED) continue;
-    if (TEMP_IGNORED_QUEST_COMPLETION_ACTIVITY_IDS.has(questUpdate.id)) {
+    if (IGNORED_QUEST_COMPLETION_ACTIVITY_IDS.has(questUpdate.id)) {
       continue;
     }
     // Quests not in our registry (e.g. brand-new releases before the quest
