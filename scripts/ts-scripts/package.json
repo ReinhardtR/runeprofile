@@ -6,7 +6,6 @@
   "scripts": {
     "check-clog": "tsx check-clog.ts",
     "update-clog": "tsx check-clog.ts --write",
-    "scrape-ca": "tsx scrape-combat-achievements.ts",
     "check-ca": "tsx check-combat-achievements.ts",
     "update-ca": "tsx check-combat-achievements.ts --write",
     "check-loot-sources": "tsx check-loot-sources.ts",
