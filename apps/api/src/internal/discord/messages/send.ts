@@ -54,6 +54,23 @@ export async function sendActivityMessages(params: {
 
   if (activities.length === 0) return;
 
+  // Cards are in beta, limited to the clans in the allow list; everyone
+  // else keeps the embeds.
+  const useCards = usesActivityCards(clanName);
+
+  // A card costs real CPU to draw and this runs inside the request that
+  // triggered it. Nothing caps how many events one sync can produce, and a
+  // player returning after months is a backlog, not a set of moments worth
+  // a card each - so a huge batch is dropped rather than posted.
+  if (useCards && activities.length > MAX_CARD_BATCH) {
+    console.log({
+      event: "discord_activity_messages_skipped",
+      reason: "too_many_activities",
+      activity_count: activities.length,
+    });
+    return;
+  }
+
   // Find channels watching this player or clan
   const condition = getWatchCondition({ accountId, clanName });
   if (!condition) {
@@ -86,18 +103,10 @@ export async function sendActivityMessages(params: {
 
   const discordApi = createDiscordApi(discordToken);
 
-  // Cards are in beta, limited to the clans in the allow list; everyone
-  // else keeps the embeds.
-  //
-  // A card costs real CPU to draw and this runs inside the request that
-  // triggered it, so a big batch goes out as embeds instead. Nothing caps
-  // how many events one sync can produce - level ups alone can be one per
-  // skill - and a player returning after months is a backlog to summarise,
-  // not a set of moments worth a card each.
-  const cards =
-    usesActivityCards(clanName) && activities.length <= MAX_CARD_BATCH
-      ? createCardRenderer({ bucket, activities, rsn, accountType })
-      : null;
+  // A batch bigger than one message is split across several.
+  const cards = useCards
+    ? createCardRenderer({ bucket, activities, rsn, accountType })
+    : null;
 
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
@@ -162,10 +171,11 @@ export async function sendActivityMessages(params: {
 }
 
 /**
- * Above this many activities in one batch, cards are skipped for embeds.
- * Ten is also what fits in a single Discord message.
+ * Above this many activities in one batch, a card player's batch is not
+ * posted at all. Roomy enough for an ordinary sync - a level up in every skill plus a few
+ * drops - while keeping the render inside the Worker's CPU budget.
  */
-const MAX_CARD_BATCH = MAX_CARDS_PER_MESSAGE;
+const MAX_CARD_BATCH = 50;
 
 type Card = { file: Uint8Array; alt: string };
 
