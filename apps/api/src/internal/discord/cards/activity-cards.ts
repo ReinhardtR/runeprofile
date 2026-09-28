@@ -343,13 +343,18 @@ export async function renderActivityCardPng(params: {
   // They render zero-width but still count as flex children, so a
   // space-between row distributes its free space around phantom gaps and
   // nothing sits flush with an edge. Collapse them away.
+  //
+  // The fonts load first: they are also what the layout measures text
+  // with, and building the markup before them measures the first card in
+  // a fresh isolate with a rough estimate that truncates text that fits.
+  const fonts = loadFonts();
   const html = buildCardHtml(params).replace(/>\s+</g, "><");
   return withoutInitNoise(async () => {
     const { ImageResponse } = await import("workers-og");
     const image = new ImageResponse(html, {
       width: CARD_WIDTH,
       height: CARD_HEIGHT,
-      fonts: loadFonts(),
+      fonts,
     });
     return new Uint8Array(await image.arrayBuffer());
   });
