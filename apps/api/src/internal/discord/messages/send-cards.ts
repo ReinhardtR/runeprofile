@@ -54,14 +54,25 @@ export async function postCardsMessage(params: {
     );
   }
 
-  const response = await fetch(
-    `https://discord.com/api/v10/channels/${channelId}/messages`,
-    {
+  const post = () =>
+    fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: "POST",
       headers: { Authorization: `Bot ${token}` },
       body: form,
-    },
-  );
+    });
+
+  // A big batch goes out as several messages back to back, which can trip
+  // the per-channel rate limit. Wait out a short limit once rather than
+  // dropping the rest of the batch.
+  let response = await post();
+  if (response.status === 429) {
+    const waitMs = Number(response.headers.get("retry-after") ?? 1) * 1000;
+    if (waitMs <= MAX_RATE_LIMIT_WAIT_MS) {
+      await response.body?.cancel();
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      response = await post();
+    }
+  }
   if (!response.ok) {
     throw new Error(
       `Discord message with attachments failed (${response.status}): ${await response.text()}`,
@@ -71,3 +82,6 @@ export async function postCardsMessage(params: {
 
 /** Discord accepts at most ten attachments, and so ten cards, per message. */
 export const MAX_CARDS_PER_MESSAGE = 10;
+
+/** Longest rate limit worth waiting out inside a request's waitUntil. */
+const MAX_RATE_LIMIT_WAIT_MS = 10_000;
