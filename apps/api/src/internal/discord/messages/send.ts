@@ -23,6 +23,7 @@ import { usesActivityCards } from "~/internal/discord/constants";
 import { createDiscordApi } from "~/internal/discord/factory";
 import { createActivityEmbed } from "~/internal/discord/messages/activity-embeds";
 import {
+  DiscordMessageError,
   MAX_CARDS_PER_MESSAGE,
   postCardsMessage,
 } from "~/internal/discord/messages/send-cards";
@@ -102,11 +103,36 @@ export async function sendActivityMessages(params: {
   }
 
   const discordApi = createDiscordApi(discordToken);
+  const startedAt = Date.now();
+  let messagesSent = 0;
+  let channelsFailed = 0;
 
-  // A batch bigger than one message is split across several.
   const cards = useCards
     ? createCardRenderer({ bucket, activities, rsn, accountType })
     : null;
+
+  const postEmbeds = async (
+    channelId: string,
+    batch: ActivityEvent[],
+    offset: number,
+  ) => {
+    const embeds = batch.map((activity, i) =>
+      createActivityEmbed({
+        activity,
+        discordApplicationId,
+        rsn,
+        accountType,
+        index: offset + i,
+      }),
+    );
+    const response = await discordApi(
+      "POST",
+      "/channels/{channel.id}/messages",
+      [channelId],
+      { embeds },
+    );
+    if (!response.ok) throw await DiscordMessageError.from(response);
+  };
 
   // Send messages to all watching channels, applying per-channel filters
   await Promise.allSettled(
@@ -118,56 +144,85 @@ export async function sendActivityMessages(params: {
       if (allowedActivities.length === 0) return;
 
       try {
-        if (cards) {
-          const rendered = await Promise.all(allowedActivities.map(cards));
-          const allowed = rendered.filter(
-            (card): card is NonNullable<typeof card> => card != null,
-          );
-          // Every card failing means the renderer is broken rather than one
-          // model being odd, so fall through to the embeds.
-          if (allowed.length === 0 && allowedActivities.length > 0) {
-            throw new Error("no activity cards could be rendered");
-          }
-          for (let i = 0; i < allowed.length; i += MAX_CARDS_PER_MESSAGE) {
-            await postCardsMessage({
-              token: discordToken,
-              channelId,
-              cards: allowed.slice(i, i + MAX_CARDS_PER_MESSAGE),
-            });
-          }
-          return;
-        }
+        // One message's worth at a time, and each message's cards drawn
+        // only once the one before it is out. Drawing a whole batch up
+        // front ran the Worker out of memory on 15 cards: the isolate is
+        // killed outright, so nothing was posted and nothing was logged.
+        // Both cards and embeds cap out at ten per message.
+        for (let i = 0; i < allowedActivities.length; i += PER_MESSAGE) {
+          const batch = allowedActivities.slice(i, i + PER_MESSAGE);
 
-        const embeds = allowedActivities.map((activity, index) =>
-          createActivityEmbed({
-            activity,
-            discordApplicationId,
-            rsn,
-            accountType,
-            index,
-          }),
-        );
+          if (cards) {
+            const rendered = (await Promise.all(batch.map(cards))).filter(
+              (card): card is Card => card != null,
+            );
+            if (rendered.length > 0) {
+              await postCardsMessage({
+                token: discordToken,
+                channelId,
+                cards: rendered,
+              });
+              messagesSent++;
+              continue;
+            }
+            // Every card in the message failing means the renderer is
+            // broken rather than one model being odd, so fall back to the
+            // embeds for it rather than posting nothing.
+          }
 
-        // Discord allows max 10 embeds per message
-        for (let i = 0; i < embeds.length; i += 10) {
-          await discordApi(
-            "POST",
-            "/channels/{channel.id}/messages",
-            [channelId],
-            { embeds: embeds.slice(i, i + 10) },
-          );
+          await postEmbeds(channelId, batch, i);
+          messagesSent++;
         }
       } catch (error) {
-        console.error(`Failed to send message to channel ${channelId}:`, error);
+        channelsFailed++;
+        console.error({
+          event: "discord_activity_message_failed",
+          channel_id: channelId,
+          format: cards ? "cards" : "embeds",
+          rsn,
+          ...describeError(error),
+        });
       }
     }),
   );
 
   console.log({
     event: "discord_activity_messages_sent",
+    format: cards ? "cards" : "embeds",
     channel_count: channelIds.length,
+    channels_failed: channelsFailed,
     activity_count: activities.length,
+    messages_sent: messagesSent,
+    ...cards?.stats(),
+    duration_ms: Date.now() - startedAt,
   });
+}
+
+/** Discord takes at most ten embeds, or ten attachments, per message. */
+const PER_MESSAGE = MAX_CARDS_PER_MESSAGE;
+
+/**
+ * An error as log fields. Handing an Error itself to console.error keeps
+ * only its stack in Workers Logs, which dropped the message and with it
+ * the one line that said why Discord refused a post.
+ */
+function describeError(error: unknown): Record<string, unknown> {
+  if (error instanceof DiscordMessageError) {
+    return {
+      error_name: error.name,
+      discord_status: error.status,
+      discord_code: error.code,
+      discord_body: error.body,
+    };
+  }
+  if (error instanceof Error) {
+    return {
+      error_name: error.name,
+      error_message: error.message,
+      error_stack: error.stack,
+    };
+  }
+  return { error_message: String(error) };
 }
 
 /**
@@ -188,6 +243,11 @@ type Card = { file: Uint8Array; alt: string };
  * than results, because channels are served concurrently and would
  * otherwise each start the same render.
  *
+ * Cards are drawn one at a time, however many channels are asking. Each
+ * render holds a full satori tree and resvg canvas, and wasm memory only
+ * ever grows to the peak - drawing a batch at once is what ran the Worker
+ * out of memory.
+ *
  * A card that fails resolves to null and that activity falls out of the
  * message: a missing model or a bad export should cost a nicer image, not
  * the player's activity feed.
@@ -197,33 +257,68 @@ function createCardRenderer(params: {
   activities: ActivityEvent[];
   rsn: string;
   accountType?: AccountType;
-}): (activity: ActivityEvent) => Promise<Card | null> {
+}): ((activity: ActivityEvent) => Promise<Card | null>) & {
+  stats: () => Record<string, number>;
+} {
   const { bucket, rsn, accountType } = params;
   let portrait: Promise<string> | null = null;
   const cards = new Map<ActivityEvent, Promise<Card | null>>();
+  let queue: Promise<unknown> = Promise.resolve();
+  let rendered = 0;
+  let failed = 0;
+  let renderMs = 0;
 
-  return (activity) => {
+  const render = async (activity: ActivityEvent): Promise<Card> => {
+    const startedAt = Date.now();
+    try {
+      portrait ??= renderAvatarDataUri(bucket, rsn);
+      return {
+        file: await renderActivityCardPng({
+          activity,
+          rsn,
+          accountType,
+          avatarDataUri: await portrait,
+        }),
+        alt: activityAltText(activity, rsn),
+      };
+    } finally {
+      renderMs += Date.now() - startedAt;
+    }
+  };
+
+  const renderer = (activity: ActivityEvent) => {
     let card = cards.get(activity);
     if (!card) {
-      card = (async () => {
-        portrait ??= renderAvatarDataUri(bucket, rsn);
-        return {
-          file: await renderActivityCardPng({
-            activity,
+      const next = queue.then(() => render(activity));
+      queue = next.catch(() => {});
+      card = next.then(
+        (result) => {
+          rendered++;
+          return result;
+        },
+        (error: unknown) => {
+          failed++;
+          console.error({
+            event: "discord_activity_card_render_failed",
             rsn,
-            accountType,
-            avatarDataUri: await portrait,
-          }),
-          alt: activityAltText(activity, rsn),
-        };
-      })().catch((error: unknown) => {
-        console.error(`Failed to render an activity card for ${rsn}:`, error);
-        return null;
-      });
+            activity_type: activity.type,
+            ...describeError(error),
+          });
+          return null;
+        },
+      );
       cards.set(activity, card);
     }
     return card;
   };
+
+  return Object.assign(renderer, {
+    stats: () => ({
+      cards_rendered: rendered,
+      cards_failed: failed,
+      render_ms: renderMs,
+    }),
+  });
 }
 
 function getWatchCondition(params: {

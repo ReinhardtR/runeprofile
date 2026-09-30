@@ -74,9 +74,38 @@ export async function postCardsMessage(params: {
     }
   }
   if (!response.ok) {
-    throw new Error(
-      `Discord message with attachments failed (${response.status}): ${await response.text()}`,
-    );
+    throw await DiscordMessageError.from(response);
+  }
+}
+
+/**
+ * A message Discord refused, with what it said about it.
+ *
+ * The status and body are fields rather than folded into the message
+ * because Workers Logs keeps only the stack of an Error handed to
+ * console.error - the message, and with it Discord's reason, was lost.
+ */
+export class DiscordMessageError extends Error {
+  constructor(
+    readonly status: number,
+    /** Discord's JSON error code, e.g. 50013 for missing permissions. */
+    readonly code: number | null,
+    readonly body: string,
+  ) {
+    super(`Discord message failed (${status}): ${body}`);
+    this.name = "DiscordMessageError";
+  }
+
+  static async from(response: Response): Promise<DiscordMessageError> {
+    const body = (await response.text()).slice(0, 500);
+    let code: number | null = null;
+    try {
+      const parsed = JSON.parse(body) as { code?: unknown };
+      if (typeof parsed.code === "number") code = parsed.code;
+    } catch {
+      // Not JSON - a proxy or gateway error page. The body says enough.
+    }
+    return new DiscordMessageError(response.status, code, body);
   }
 }
 
