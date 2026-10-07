@@ -501,8 +501,8 @@ importers:
   scripts/ts-scripts:
     devDependencies:
       '@abextm/cache2':
-        specifier: ^0.1.9
-        version: 0.1.9
+        specifier: ^0.1.10
+        version: 0.1.10
       '@aws-sdk/client-s3':
         specifier: ^3.750.0
         version: 3.984.0
@@ -527,8 +527,8 @@ importers:
 
 packages:
 
-  '@abextm/cache2@0.1.9':
-    resolution: {integrity: sha512-+IkaOnwtRLQqafm3+ss8+86tz3hpXZwSeem7T018s2ZQ/Kyz19w89BCGBsga/dbcSw/A3al05dAnlDUGUhvwsQ==}
+  '@abextm/cache2@0.1.10':
+    resolution: {integrity: sha512-0nCRd++VLiSeK3Ue2djjrlhtCf49rHawavtHEHDS4/GXf+pn8O+kc7HJOI2aULldFcjItC407ubEqWpGzEDoDw==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -6809,7 +6809,7 @@ packages:
 
 snapshots:
 
-  '@abextm/cache2@0.1.9':
+  '@abextm/cache2@0.1.10':
     dependencies:
       base64-arraybuffer-es6: 3.1.0
       fflate: 0.8.3

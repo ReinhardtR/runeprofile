@@ -62,6 +62,18 @@ jobs:
         id: cache
         run: pnpm script:check-data-cache ${{ inputs.force && '--force' || '' }}
 
+      # A game update can add cache fields an older @abextm/cache2 can't
+      # decode ("unknown opcode"), so always decode with the latest release.
+      # Setting the specifier and re-installing (rather than `pnpm up`) keeps
+      # the lockfile change to cache2 alone; it rides along in the PR below.
+      - name: Update cache decoder
+        if: steps.cache.outputs.new == 'true'
+        working-directory: scripts/ts-scripts
+        run: |
+          latest="$(npm view @abextm/cache2 version)"
+          npm pkg set "devDependencies.@abextm/cache2=^$latest"
+          pnpm install --no-frozen-lockfile
+
       # Each step regenerates one data file from the same pinned
       # abextm/osrs-cache commit and writes a /tmp/<name>-changes-summary.txt
       # only when it finds changes. Scripts exit non-zero on real errors so
