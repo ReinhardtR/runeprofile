@@ -7,11 +7,8 @@ export type FrontpageEvent = {
   purpleItemIds: number[];
   // ISO timestamp for the teaser countdown; null hides it.
   launchesAt: string | null;
-  // Where the hero art links to.
+  // Linked from the hero's "Watch the trailer" button.
   trailerUrl: string | null;
-  // Played muted behind the hero through YouTube's embed, looping back to
-  // startSeconds when it ends. null keeps the still art.
-  backgroundVideo: { youtubeId: string; startSeconds: number } | null;
 };
 
 // The themed event the frontpage hero shows, or null for the default hero.
@@ -21,7 +18,6 @@ export const FRONTPAGE_EVENT: FrontpageEvent | null = {
   // Assumes the usual 11:30 UK game update time (BST, so 10:30 UTC).
   launchesAt: "2026-10-20T10:30:00Z",
   trailerUrl: "https://www.youtube.com/watch?v=loH7UPjhWyw",
-  backgroundVideo: { youtubeId: "loH7UPjhWyw", startSeconds: 10 },
 };
 
 export function isFrontpageEventLive(event: FrontpageEvent): boolean {

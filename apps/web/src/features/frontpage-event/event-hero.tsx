@@ -6,8 +6,11 @@ import React from "react";
 
 import { FrontpageEvent, isFrontpageEventLive } from "@runeprofile/runescape";
 
-// Upscaled from the Raids 4 trailer thumbnail.
+// Upscaled from the trailer thumbnail; shown when the video can't play.
 import EventHeroImage from "~/core/assets/misc/fractured-archive-hero.webp";
+// The trailer from 0:10 to the end, muted, as AV1 with an H.264 fallback.
+import EventLoopAv1 from "~/core/assets/misc/fractured-archive-loop-av1.mp4";
+import EventLoopH264 from "~/core/assets/misc/fractured-archive-loop-h264.mp4";
 import Logo from "~/core/assets/misc/logo.png";
 import RuneLiteLogo from "~/core/assets/misc/runelite-logo.png";
 import { isSearchDialogOpenAtom } from "~/features/search";
@@ -30,19 +33,13 @@ export function EventHero({ event }: { event: FrontpageEvent }) {
     <div className="flex flex-1 flex-col">
       {/* The art runs edge to edge behind everything. */}
       <div className="absolute inset-0 z-20 overflow-hidden">
-        {event.backgroundVideo ? (
-          <VideoBackground
-            youtubeId={event.backgroundVideo.youtubeId}
-            startSeconds={event.backgroundVideo.startSeconds}
-            poster={EventHeroImage}
-          />
-        ) : (
-          <img
-            src={EventHeroImage}
-            alt={event.name}
-            className="h-full w-full object-cover object-right"
-          />
-        )}
+        <VideoBackground
+          sources={[
+            { src: EventLoopAv1, type: 'video/mp4; codecs="av01.0.08M.08"' },
+            { src: EventLoopH264, type: "video/mp4" },
+          ]}
+          poster={EventHeroImage}
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent via-40% to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent via-30% to-transparent" />
       </div>
