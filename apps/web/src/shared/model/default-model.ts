@@ -7,7 +7,7 @@ import defaultModelUrl from "~/core/assets/default-player-model.glb?url";
  */
 let defaultModelBytes: Promise<ArrayBuffer> | undefined;
 
-export async function loadDefaultModel(): Promise<LoadedModel> {
+export function loadDefaultModelBytes(): Promise<ArrayBuffer> {
   defaultModelBytes ??= fetch(defaultModelUrl).then((response) => {
     if (!response.ok) {
       // Cleared so a later attempt can retry rather than reusing the failure.
@@ -16,5 +16,9 @@ export async function loadDefaultModel(): Promise<LoadedModel> {
     }
     return response.arrayBuffer();
   });
-  return loadModel(await defaultModelBytes);
+  return defaultModelBytes;
+}
+
+export async function loadDefaultModel(): Promise<LoadedModel> {
+  return loadModel(await loadDefaultModelBytes());
 }
