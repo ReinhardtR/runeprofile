@@ -123,7 +123,12 @@ export const items = t.pgTable(
     quantity: t.integer().notNull(),
     createdAt,
   },
-  (table) => [t.primaryKey({ columns: [table.accountId, table.id] })],
+  (table) => [
+    t.primaryKey({ columns: [table.accountId, table.id] }),
+    // Item-first lookups (event leaderboards): the primary key leads with
+    // account_id, so "who owns these items" otherwise walks all of it.
+    t.index("items_id_index").on(table.id),
+  ],
 );
 export const itemsRelations = relations(items, ({ one }) => ({
   account: one(accounts, {
