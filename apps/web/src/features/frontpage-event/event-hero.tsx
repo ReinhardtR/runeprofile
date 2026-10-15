@@ -8,7 +8,8 @@ import { FrontpageEvent, isFrontpageEventLive } from "@runeprofile/runescape";
 
 // Upscaled from the trailer thumbnail; shown when the video can't play.
 import EventHeroImage from "~/core/assets/misc/fractured-archive-hero.webp";
-// The trailer from 0:10 to the end, muted, as AV1 with an H.264 fallback.
+// The trailer footage (0:13-1:46, no intro/outro black), muted, as AV1 with
+// an H.264 fallback.
 import EventLoopAv1 from "~/core/assets/misc/fractured-archive-loop-av1.mp4";
 import EventLoopH264 from "~/core/assets/misc/fractured-archive-loop-h264.mp4";
 import Logo from "~/core/assets/misc/logo.png";
