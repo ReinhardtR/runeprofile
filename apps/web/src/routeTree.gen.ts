@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsernameRouteImport } from './routes/$username'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ClanNameRouteImport } from './routes/clan/$name'
-import { Route as DevEventLeaderboardRouteImport } from './routes/dev/event-leaderboard'
 import { Route as GroupNameRouteImport } from './routes/group/$name'
 import { Route as InfoAliasRouteImport } from './routes/info/alias'
 import { Route as InfoDiscordBotRouteImport } from './routes/info/discord-bot'
@@ -40,11 +39,6 @@ const ApiSplatRoute = ApiSplatRouteImport.update({
 const ClanNameRoute = ClanNameRouteImport.update({
   id: '/clan/$name',
   path: '/clan/$name',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevEventLeaderboardRoute = DevEventLeaderboardRouteImport.update({
-  id: '/dev/event-leaderboard',
-  path: '/dev/event-leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupNameRoute = GroupNameRouteImport.update({
@@ -88,7 +82,6 @@ export interface FileRoutesByFullPath {
   '/$username': typeof UsernameRoute
   '/api/$': typeof ApiSplatRoute
   '/clan/$name': typeof ClanNameRoute
-  '/dev/event-leaderboard': typeof DevEventLeaderboardRoute
   '/group/$name': typeof GroupNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
@@ -102,7 +95,6 @@ export interface FileRoutesByTo {
   '/$username': typeof UsernameRoute
   '/api/$': typeof ApiSplatRoute
   '/clan/$name': typeof ClanNameRoute
-  '/dev/event-leaderboard': typeof DevEventLeaderboardRoute
   '/group/$name': typeof GroupNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
@@ -117,7 +109,6 @@ export interface FileRoutesById {
   '/$username': typeof UsernameRoute
   '/api/$': typeof ApiSplatRoute
   '/clan/$name': typeof ClanNameRoute
-  '/dev/event-leaderboard': typeof DevEventLeaderboardRoute
   '/group/$name': typeof GroupNameRoute
   '/info/alias': typeof InfoAliasRoute
   '/info/discord-bot': typeof InfoDiscordBotRoute
@@ -133,7 +124,6 @@ export interface FileRouteTypes {
     | '/$username'
     | '/api/$'
     | '/clan/$name'
-    | '/dev/event-leaderboard'
     | '/group/$name'
     | '/info/alias'
     | '/info/discord-bot'
@@ -147,7 +137,6 @@ export interface FileRouteTypes {
     | '/$username'
     | '/api/$'
     | '/clan/$name'
-    | '/dev/event-leaderboard'
     | '/group/$name'
     | '/info/alias'
     | '/info/discord-bot'
@@ -161,7 +150,6 @@ export interface FileRouteTypes {
     | '/$username'
     | '/api/$'
     | '/clan/$name'
-    | '/dev/event-leaderboard'
     | '/group/$name'
     | '/info/alias'
     | '/info/discord-bot'
@@ -176,7 +164,6 @@ export interface RootRouteChildren {
   UsernameRoute: typeof UsernameRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ClanNameRoute: typeof ClanNameRoute
-  DevEventLeaderboardRoute: typeof DevEventLeaderboardRoute
   GroupNameRoute: typeof GroupNameRoute
   InfoAliasRoute: typeof InfoAliasRoute
   InfoDiscordBotRoute: typeof InfoDiscordBotRoute
@@ -214,13 +201,6 @@ declare module '@tanstack/react-router' {
       path: '/clan/$name'
       fullPath: '/clan/$name'
       preLoaderRoute: typeof ClanNameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dev/event-leaderboard': {
-      id: '/dev/event-leaderboard'
-      path: '/dev/event-leaderboard'
-      fullPath: '/dev/event-leaderboard'
-      preLoaderRoute: typeof DevEventLeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/group/$name': {
@@ -280,7 +260,6 @@ const rootRouteChildren: RootRouteChildren = {
   UsernameRoute: UsernameRoute,
   ApiSplatRoute: ApiSplatRoute,
   ClanNameRoute: ClanNameRoute,
-  DevEventLeaderboardRoute: DevEventLeaderboardRoute,
   GroupNameRoute: GroupNameRoute,
   InfoAliasRoute: InfoAliasRoute,
   InfoDiscordBotRoute: InfoDiscordBotRoute,

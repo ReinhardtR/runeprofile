@@ -36,7 +36,7 @@ export function EventLeaderboards({
   );
 }
 
-export function LeaderboardPanel({
+function LeaderboardPanel({
   event,
   board,
   onBoardChange,
@@ -128,7 +128,7 @@ function LiveLeaderboard({
 
 // The podium's layout with silhouettes and bars where players will be,
 // until the item ids are filled in at launch.
-export function TeaserLeaderboard({
+function TeaserLeaderboard({
   event,
   board,
 }: {
