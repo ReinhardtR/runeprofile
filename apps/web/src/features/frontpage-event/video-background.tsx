@@ -8,8 +8,9 @@ const POSTER_FALLBACK_MS = 5000;
 
 /**
  * A muted, looping cover video. It fades in from black once it's actually
- * playing; visitors who prefer reduced motion, or whose browser won't
- * autoplay it, get the still poster instead.
+ * playing; if the browser won't autoplay it, the still poster shows instead.
+ * It plays regardless of prefers-reduced-motion, by choice: the trailer is
+ * the hero's whole look.
  *
  * Sources are tried in order, so put the most efficient codec first with a
  * widely supported fallback after it.
@@ -24,18 +25,14 @@ export function VideoBackground({
   className?: string;
 }) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  // The video is only rendered on the client: the reduced-motion check
-  // needs the browser, and React doesn't render the `muted` attribute
-  // during SSR, which mobile browsers require before they'll autoplay.
+  // The video is only rendered on the client: React doesn't render the
+  // `muted` attribute during SSR, which mobile browsers require before
+  // they'll autoplay.
   const [shouldPlay, setShouldPlay] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [showPoster, setShowPoster] = React.useState(false);
 
   React.useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setShowPoster(true);
-      return;
-    }
     setShouldPlay(true);
     const posterTimer = setTimeout(
       () => setShowPoster(true),
