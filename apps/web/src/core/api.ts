@@ -157,6 +157,15 @@ export async function getMetrics() {
   return await getResponseData(response);
 }
 
+export type EventLeaderboardEntry = Awaited<
+  ReturnType<typeof getEventLeaderboards>
+>["clog"][number];
+
+export async function getEventLeaderboards() {
+  const response = await api.metrics["event-leaderboards"].$get();
+  return await getResponseData(response);
+}
+
 export type Group = Awaited<ReturnType<typeof getGroup>>;
 
 export async function getGroup(params: { name: string }) {

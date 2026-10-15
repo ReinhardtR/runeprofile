@@ -5,6 +5,7 @@ export * from "./account-types";
 export * from "./achievement-diaries";
 export * from "./collection-log";
 export * from "./combat-achievements";
+export * from "./frontpage-event";
 export * from "./hiscores";
 export * from "./loot-sources";
 export * from "./quests";
