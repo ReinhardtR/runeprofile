@@ -15,8 +15,7 @@ export type FrontpageEvent = {
 export const FRONTPAGE_EVENT: FrontpageEvent | null = {
   name: "The Fractured Archive",
   purpleItemIds: [],
-  // Assumes the usual 11:30 UK game update time (BST, so 10:30 UTC).
-  launchesAt: "2026-10-20T10:30:00Z",
+  launchesAt: "2026-10-20T11:00:00Z",
   trailerUrl: "https://www.youtube.com/watch?v=loH7UPjhWyw",
 };
 
