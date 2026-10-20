@@ -472,6 +472,13 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         ],
       },
       {
+        name: "The Fractured Archive",
+        items: [
+          34646, 34717, 34681, 34727, 34719, 34679, 34675, 34677, 34673, 34671,
+          34669, 34722, 34659, 34661, 34663, 34665, 34667,
+        ],
+      },
+      {
         name: "Theatre of Blood",
         items: [
           22473, 22486, 22324, 22481, 22326, 22327, 22328, 22477, 22446, 22494,
@@ -2897,6 +2904,23 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   34410: "Water sapphire",
   34416: "Earth emerald",
   34422: "Fire ruby",
+  34646: "Orion",
+  34659: "Living record (tier 1)",
+  34661: "Living record (tier 2)",
+  34663: "Living record (tier 3)",
+  34665: "Living record (tier 4)",
+  34667: "Living record (tier 5)",
+  34669: "Ascension shards",
+  34671: "Fragment of living earth",
+  34673: "Fragment of deep water",
+  34675: "Fragment of whispering wind",
+  34677: "Fragment of burning fire",
+  34679: "Horn of Bran",
+  34681: "Ascension crossbows",
+  34717: "Obligator (uncharged)",
+  34719: "Rondache",
+  34722: "Archivist's folio (inert)",
+  34727: "Zorya's tome (uncharged)",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =
