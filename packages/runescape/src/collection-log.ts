@@ -477,6 +477,9 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           34646, 34717, 34681, 34727, 34719, 34679, 34675, 34677, 34673, 34671,
           34669, 34722, 34659, 34661, 34663, 34665, 34667,
         ],
+        hiscore: {
+          "The Fractured Archive": "Fractured Archive completions",
+        },
         aliases: ["tfa", "fred"],
       },
       {
