@@ -261,6 +261,7 @@ export const QUESTS = [
   { id: 41, name: "The Enchanted Key", points: 0, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MINI },
   { id: 43, name: "Enter the Abyss", points: 0, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MINI },
   { id: 49, name: "Family Pest", points: 0, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MINI },
+  { id: 17027, name: "The Fractured Archive", points: 0, difficulty: QuestDifficulty.GRANDMASTER, type: QuestType.MINI },
   { id: 164, name: "The Frozen Door", points: 0, difficulty: QuestDifficulty.MASTER, type: QuestType.MINI },
   { id: 59, name: "The General's Shadow", points: 0, difficulty: QuestDifficulty.EXPERIENCED, type: QuestType.MINI },
   { id: 3250, name: "His Faithful Servants", points: 0, difficulty: QuestDifficulty.EXPERIENCED, type: QuestType.MINI },

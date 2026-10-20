@@ -317,6 +317,7 @@ export const COMBAT_ACHIEVEMENT_BOSSES = [
   'Shellbane Gryphon',
   'Skotizo',
   'Tempoross',
+  'The Fractured Archive',
   'The Hueycoatl',
   'The Leviathan',
   'The Mad Angel',
