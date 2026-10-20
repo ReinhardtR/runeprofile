@@ -29,16 +29,6 @@ export const PODIUM_COLORS = [
   "text-[#CD7F32]",
 ];
 
-export function EmptyLeaderboard({ event }: { event: FrontpageEvent }) {
-  return (
-    <p className="py-24 text-center text-muted-foreground">
-      Nobody has logged a {event.name} purple yet.
-      <br />
-      Be the first!
-    </p>
-  );
-}
-
 export function Username({
   entry,
   rank,

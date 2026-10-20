@@ -7,7 +7,11 @@ import { FrontpageEvent, isFrontpageEventLive } from "@runeprofile/runescape";
 import CollectionLogIcon from "~/core/assets/icons/collection-log.png";
 import { cn } from "~/shared/utils";
 
-import { PodiumLeaderboard, PodiumTeaser } from "./leaderboard-designs";
+import {
+  PodiumLeaderboard,
+  PodiumTeaser,
+  RowsMessage,
+} from "./leaderboard-designs";
 import { Board } from "./leaderboard-parts";
 import { eventLeaderboardsQueryOptions } from "./queries";
 
@@ -117,7 +121,8 @@ function LiveLeaderboard({
   const { data } = useQuery(eventLeaderboardsQueryOptions());
 
   const entries = data?.[board];
-  if (!entries) return <div className="flex-1" />;
+  // Placeholders until the data arrives, so the board never flashes empty.
+  if (!entries) return <PodiumTeaser />;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col animate-in fade-in duration-700">
@@ -137,7 +142,7 @@ function TeaserLeaderboard({
 }) {
   return (
     <PodiumTeaser>
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-y-3 bg-gradient-to-b from-transparent via-background/60 to-transparent px-6 text-center">
+      <RowsMessage>
         <div className="flex size-14 items-center justify-center rounded-full border border-primary bg-black/75 shadow">
           <Lock className="size-6 text-primary" />
         </div>
@@ -149,7 +154,7 @@ function TeaserLeaderboard({
             ? "The race to collect every purple."
             : "Who will pull the most purples?"}
         </p>
-      </div>
+      </RowsMessage>
     </PodiumTeaser>
   );
 }
