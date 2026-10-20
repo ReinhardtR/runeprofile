@@ -10,7 +10,7 @@ export async function getEventLeaderboards(
   event: FrontpageEvent,
 ) {
   const [clog, purples] = await Promise.all([
-    getEventLeaderboard(db, event.purpleItemIds, "obtained"),
+    getEventLeaderboard(db, event.clogItemIds, "obtained"),
     getEventLeaderboard(db, event.purpleItemIds, "quantity"),
   ]);
 
