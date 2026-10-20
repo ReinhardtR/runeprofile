@@ -1,13 +1,11 @@
 import { ReactNode } from "react";
 
 import { EventLeaderboardEntry } from "~/core/api";
-import { ScrollArea } from "~/shared/components/ui/scroll-area";
 import { PlayerPortrait } from "~/shared/model/player-portrait";
 import { cn } from "~/shared/utils";
 
 import {
   BoardStat,
-  EmptyLeaderboard,
   EntryLink,
   EntryRow,
   LeaderboardDesignProps,
@@ -21,51 +19,113 @@ const PODIUM = [
   { rank: 3, color: "#CD7F32", yaw: 3.48, height: "h-32" },
 ];
 
-type PodiumSpotProps = (typeof PODIUM)[number] &
-  Pick<LeaderboardDesignProps, "event" | "board"> & {
-    entry: EventLeaderboardEntry;
-  };
+type PodiumSpot = (typeof PODIUM)[number];
 
-/** The top three in framed portrait cards with #1 raised, rows for the rest. */
+// Ranks 4-10 below the podium. Rough name lengths for their placeholders, so
+// the bars don't look stamped out.
+const ROW_PLACEHOLDER_WIDTHS = [46, 34, 52, 40, 30, 48, 38];
+
+/**
+ * The top three in framed portrait cards with #1 raised, rows for the rest.
+ * Every rank keeps its placeholder until someone takes it, so the board fills
+ * in as players log drops; an empty board says so over the rows.
+ */
 export function PodiumLeaderboard({
   event,
   board,
   entries,
 }: LeaderboardDesignProps) {
-  if (entries.length === 0) return <EmptyLeaderboard event={event} />;
-
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-y-2">
-      <div className="grid shrink-0 grid-cols-3 items-end gap-x-2 px-1 pt-2">
-        {PODIUM.map((spot) => {
-          const entry = entries[spot.rank - 1];
-          return entry ? (
-            <PodiumCard
-              key={spot.rank}
-              {...spot}
-              event={event}
-              board={board}
-              entry={entry}
-            />
-          ) : (
-            <div key={spot.rank} />
-          );
-        })}
-      </div>
-
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="flex flex-col gap-y-1">
-          {entries.slice(3).map((entry, index) => (
+    <PodiumLayout
+      spot={(spot) => {
+        const entry = entries[spot.rank - 1];
+        return entry ? (
+          <PodiumCard {...spot} event={event} board={board} entry={entry} />
+        ) : (
+          <PlaceholderSpot {...spot} />
+        );
+      }}
+      row={(index) => {
+        const entry = entries[index + 3];
+        return entry ? (
+          <div className="animate-in fade-in duration-700">
             <EntryRow
-              key={entry.username}
               event={event}
               board={board}
               entry={entry}
               rank={index + 4}
             />
+          </div>
+        ) : (
+          <PlaceholderRow index={index} />
+        );
+      }}
+    >
+      {entries.length === 0 && (
+        <RowsMessage>
+          <p className="text-xl font-bold text-secondary-foreground solid-text-shadow">
+            Nobody's on the board yet
+          </p>
+          <p className="max-w-xs text-sm text-osrs-light-gray drop-shadow-solid-sm">
+            The first {event.name} drops will take these spots.
+          </p>
+        </RowsMessage>
+      )}
+    </PodiumLayout>
+  );
+}
+
+/**
+ * The podium before launch: every spot a placeholder. Children are overlaid
+ * on the rows.
+ */
+export function PodiumTeaser({ children }: { children?: ReactNode }) {
+  return (
+    <PodiumLayout
+      spot={(spot) => <PlaceholderSpot {...spot} />}
+      row={(index) => <PlaceholderRow index={index} />}
+    >
+      {children}
+    </PodiumLayout>
+  );
+}
+
+/** Centered text over the rows, on a fade so it reads over the bars. */
+export function RowsMessage({ children }: { children: ReactNode }) {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-y-3 bg-gradient-to-b from-transparent via-background/60 to-transparent px-6 text-center">
+      {children}
+    </div>
+  );
+}
+
+function PodiumLayout({
+  spot,
+  row,
+  children,
+}: {
+  spot: (spot: PodiumSpot) => ReactNode;
+  row: (index: number) => ReactNode;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-y-2">
+      <div className="grid shrink-0 grid-cols-3 items-end gap-x-2 px-1 pt-2">
+        {PODIUM.map((podiumSpot) => (
+          <div key={podiumSpot.rank} className="flex min-w-0 flex-col">
+            {spot(podiumSpot)}
+          </div>
+        ))}
+      </div>
+
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-y-1">
+          {ROW_PLACEHOLDER_WIDTHS.map((_, index) => (
+            <div key={index}>{row(index)}</div>
           ))}
         </div>
-      </ScrollArea>
+        {children}
+      </div>
     </div>
   );
 }
@@ -78,13 +138,16 @@ function PodiumCard({
   color,
   yaw,
   height,
-}: PodiumSpotProps) {
+}: PodiumSpot &
+  Pick<LeaderboardDesignProps, "event" | "board"> & {
+    entry: EventLeaderboardEntry;
+  }) {
   return (
     <EntryLink
       event={event}
       board={board}
       entry={entry}
-      className="group flex min-w-0 flex-col items-center"
+      className="group flex min-w-0 flex-col items-center animate-in fade-in duration-700"
     >
       <div
         className={cn(
@@ -96,12 +159,7 @@ function PodiumCard({
           boxShadow: `0 0 18px -6px ${color}`,
         }}
       >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
-          style={{
-            background: `radial-gradient(closest-side, ${color}33, transparent)`,
-          }}
-        />
+        <SpotGlow color={color} strength="33" />
         <PlayerPortrait
           username={entry.username}
           yaw={yaw}
@@ -110,12 +168,7 @@ function PodiumCard({
           className="absolute inset-0"
         />
       </div>
-      <span
-        className="z-10 -mt-4 flex size-8 items-center justify-center rounded-full border-2 bg-background font-runescape text-lg font-bold solid-text-shadow"
-        style={{ borderColor: color, color }}
-      >
-        {rank}
-      </span>
+      <RankBadge rank={rank} color={color} />
       <Username
         entry={entry}
         rank={rank}
@@ -126,73 +179,67 @@ function PodiumCard({
   );
 }
 
-// Rough name lengths for the skeleton rows, so they don't look stamped out.
-const TEASER_NAME_WIDTHS = [46, 34, 52, 40, 30, 48, 38];
-
-/**
- * The podium before launch: the same frames holding blacked-out silhouettes
- * of the default character, with plain bars where names and stats will be.
- * Children are overlaid on the rows.
- */
-export function PodiumTeaser({ children }: { children?: ReactNode }) {
+// A blacked-out silhouette of the default character in the spot's frame,
+// with bars where the name and stat will be.
+function PlaceholderSpot({ rank, color, yaw, height }: PodiumSpot) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-y-2">
-      <div className="grid shrink-0 grid-cols-3 items-end gap-x-2 px-1 pt-2">
-        {PODIUM.map((spot) => (
-          <div key={spot.rank} className="flex min-w-0 flex-col items-center">
-            <div
-              className={cn(
-                "relative w-full overflow-hidden rounded-xl border-2 bg-gradient-to-b from-[#2a1342]/60 to-background/50",
-                spot.height,
-              )}
-              style={{ borderColor: `${spot.color}4d` }}
-            >
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
-                style={{
-                  background: `radial-gradient(closest-side, ${spot.color}2a, transparent)`,
-                }}
-              />
-              <PlayerPortrait
-                username={null}
-                yaw={spot.yaw}
-                cropTop={0.5}
-                headroomTop={0.1}
-                className="absolute inset-0 opacity-60 brightness-0"
-              />
-            </div>
-            <span
-              className="z-10 -mt-4 flex size-8 items-center justify-center rounded-full border-2 bg-background font-runescape text-lg font-bold solid-text-shadow"
-              style={{ borderColor: spot.color, color: spot.color }}
-            >
-              {spot.rank}
-            </span>
-            <div className="mt-2 h-4 w-20 animate-pulse rounded-full bg-white/[0.07]" />
-            <div className="mt-1.5 h-3 w-10 animate-pulse rounded-full bg-white/[0.07]" />
-          </div>
-        ))}
+    <div className="flex min-w-0 flex-col items-center">
+      <div
+        className={cn(
+          "relative w-full overflow-hidden rounded-xl border-2 bg-gradient-to-b from-[#2a1342]/60 to-background/50",
+          height,
+        )}
+        style={{ borderColor: `${color}4d` }}
+      >
+        <SpotGlow color={color} strength="2a" />
+        <PlayerPortrait
+          username={null}
+          yaw={yaw}
+          cropTop={0.5}
+          headroomTop={0.1}
+          className="absolute inset-0 opacity-60 brightness-0"
+        />
       </div>
-
-      <div className="relative min-h-0 flex-1 overflow-hidden">
-        <div className="flex flex-col gap-y-1">
-          {TEASER_NAME_WIDTHS.map((width, index) => (
-            <div
-              key={index}
-              className="flex min-h-12 flex-row items-center gap-x-3 rounded-lg bg-background/45 px-4 py-2"
-            >
-              <span className="w-7 shrink-0 font-runescape text-xl font-bold text-muted-foreground/60">
-                {index + 4}.
-              </span>
-              <div
-                className="h-4 animate-pulse rounded-full bg-white/[0.07]"
-                style={{ width: `${width}%` }}
-              />
-              <div className="ml-auto h-1.5 w-28 animate-pulse rounded-full bg-white/[0.07]" />
-            </div>
-          ))}
-        </div>
-        {children}
-      </div>
+      <RankBadge rank={rank} color={color} />
+      <div className="mt-2 h-4 w-20 animate-pulse rounded-full bg-white/[0.07]" />
+      <div className="mt-1.5 h-3 w-10 animate-pulse rounded-full bg-white/[0.07]" />
     </div>
+  );
+}
+
+function PlaceholderRow({ index }: { index: number }) {
+  return (
+    <div className="flex min-h-12 flex-row items-center gap-x-3 rounded-lg bg-background/45 px-4 py-2">
+      <span className="w-7 shrink-0 font-runescape text-xl font-bold text-muted-foreground/60">
+        {index + 4}.
+      </span>
+      <div
+        className="h-4 animate-pulse rounded-full bg-white/[0.07]"
+        style={{ width: `${ROW_PLACEHOLDER_WIDTHS[index]}%` }}
+      />
+      <div className="ml-auto h-1.5 w-28 animate-pulse rounded-full bg-white/[0.07]" />
+    </div>
+  );
+}
+
+function SpotGlow({ color, strength }: { color: string; strength: string }) {
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
+      style={{
+        background: `radial-gradient(closest-side, ${color}${strength}, transparent)`,
+      }}
+    />
+  );
+}
+
+function RankBadge({ rank, color }: { rank: number; color: string }) {
+  return (
+    <span
+      className="z-10 -mt-4 flex size-8 items-center justify-center rounded-full border-2 bg-background font-runescape text-lg font-bold solid-text-shadow"
+      style={{ borderColor: color, color }}
+    >
+      {rank}
+    </span>
   );
 }
