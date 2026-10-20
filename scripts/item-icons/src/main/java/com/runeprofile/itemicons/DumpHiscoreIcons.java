@@ -37,7 +37,7 @@ public class DumpHiscoreIcons
 
 		Map<String, String> icons = new LinkedHashMap<>();
 
-		try (Store store = new Store(new File(args[0])))
+		try (Store store = CacheStores.open(new File(args[0])))
 		{
 			store.load();
 
