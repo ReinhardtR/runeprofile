@@ -82,6 +82,7 @@ function PodiumCard({
   return (
     <EntryLink
       event={event}
+      board={board}
       entry={entry}
       className="group flex min-w-0 flex-col items-center"
     >

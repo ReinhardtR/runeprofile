@@ -103,7 +103,14 @@ export function ProgressBar({
   );
 }
 
-// The number a board ranks by: unique purples out of the set, or the total.
+// The items a board ranks by: the clog set for the race, the purples for
+// the most collected.
+export function boardItemIds(event: FrontpageEvent, board: Board) {
+  return board === "clog" ? event.clogItemIds : event.purpleItemIds;
+}
+
+// The number a board ranks by: unique items out of the clog set, or the
+// total purples.
 export function BoardStat({
   event,
   board,
@@ -115,7 +122,7 @@ export function BoardStat({
   entry: EventLeaderboardEntry;
   className?: string;
 }) {
-  const total = event.purpleItemIds.length;
+  const total = boardItemIds(event, board).length;
   const isComplete = board === "clog" && entry.obtained >= total;
 
   return (
@@ -133,15 +140,17 @@ export function BoardStat({
   );
 }
 
-// Links the wrapped element to the player's profile and shows every purple
-// they have on hover.
+// Links the wrapped element to the player's profile and shows the board's
+// items they have on hover.
 export function EntryLink({
   event,
+  board,
   entry,
   className,
   children,
 }: {
   event: FrontpageEvent;
+  board: Board;
   entry: EventLeaderboardEntry;
   className?: string;
   children: React.ReactNode;
@@ -158,7 +167,7 @@ export function EntryLink({
         </Link>
       </TooltipTrigger>
       <TooltipContent side="left" className="p-3">
-        <EntryItems event={event} entry={entry} />
+        <EntryItems event={event} board={board} entry={entry} />
       </TooltipContent>
     </Tooltip>
   );
@@ -166,15 +175,18 @@ export function EntryLink({
 
 function EntryItems({
   event,
+  board,
   entry,
 }: {
   event: FrontpageEvent;
+  board: Board;
   entry: EventLeaderboardEntry;
 }) {
   const quantities = new Map(
     entry.items.map((item) => [item.id, item.quantity]),
   );
-  const total = event.purpleItemIds.length;
+  const itemIds = boardItemIds(event, board);
+  const total = itemIds.length;
 
   return (
     <div className="flex w-64 flex-col gap-y-2">
@@ -188,7 +200,7 @@ function EntryItems({
       </div>
       <ProgressBar obtained={entry.obtained} total={total} />
       <div className="grid grid-cols-6 gap-1 rounded-md bg-black/40 p-1.5">
-        {event.purpleItemIds.map((id) => {
+        {itemIds.map((id) => {
           const quantity = quantities.get(id) ?? 0;
           return (
             <div
@@ -227,11 +239,12 @@ export function EntryRow({
   entry: EventLeaderboardEntry;
   rank: number;
 }) {
-  const total = event.purpleItemIds.length;
+  const total = boardItemIds(event, board).length;
 
   return (
     <EntryLink
       event={event}
+      board={board}
       entry={entry}
       className="flex min-h-12 flex-row items-center gap-x-3 rounded-lg bg-background/80 px-4 py-2 shadow transition-colors hover:bg-background"
     >
