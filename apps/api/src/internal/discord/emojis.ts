@@ -24,8 +24,7 @@ const ProdAccountTypeEmojis: AccountTypeEmojiMap = {
   4: "<:group_ironman:1460990295750742087>",
   5: "<:hardcore_group_ironman:1460990312527691786>",
   6: "<:unranked_group_ironman:1460990324607418453>",
-  // TODO: upload a hardcore_main application emoji and fill in its ID.
-  7: "",
+  7: "<:hardcore_main:1567230314827223231>",
 };
 
 function getAccountTypeEmojis(
