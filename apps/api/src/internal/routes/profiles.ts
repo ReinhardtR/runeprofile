@@ -3,7 +3,11 @@ import { rateLimiter } from "hono-rate-limiter";
 import { z } from "zod";
 
 import { accounts, drizzle, lower } from "@runeprofile/db";
-import { AccountTypes, ValuableDropEventSchema } from "@runeprofile/runescape";
+import {
+  AccountTypes,
+  ValuableDropEventSchema,
+  resolveAccountType,
+} from "@runeprofile/runescape";
 
 import { sendActivityMessages } from "~/internal/discord/messages/send";
 import { modelsRouter } from "~/internal/routes/models";
@@ -251,6 +255,8 @@ export const profilesRouter = newRouter()
         id: accountIdSchema,
         username: usernameSchema,
         accountType: z.number(),
+        // HC_MAIN varbit, from plugin versions that report it.
+        hardcoreMain: z.number().int().optional(),
         clan: z
           .object({
             name: z.string(),
@@ -284,7 +290,11 @@ export const profilesRouter = newRouter()
       const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
       const kv = c.env.KV;
-      const data = c.req.valid("json");
+      const { hardcoreMain, ...input } = c.req.valid("json");
+      const data = {
+        ...input,
+        accountType: resolveAccountType(input.accountType, hardcoreMain),
+      };
 
       logFields(c, {
         account_id: data.id,

@@ -8,6 +8,7 @@ import {
   MAX_TOTAL_LEVEL,
   SKILLS,
   getCombatLevelFromSkills,
+  getHiscoreLeaderboardForAccountType,
 } from "@runeprofile/runescape";
 
 import { getHiscoresData } from "~/core/api";
@@ -42,15 +43,17 @@ export function hiscoresQueryOptions(params: {
 
 export function Hiscores({
   username,
+  accountTypeId = 0,
   className,
 }: {
   username: string;
+  accountTypeId?: number;
   className?: string;
 }) {
   const hiscoresQuery = useSuspenseQuery(
     hiscoresQueryOptions({
       username,
-      leaderboard: "normal",
+      leaderboard: getHiscoreLeaderboardForAccountType(accountTypeId),
     }),
   );
 

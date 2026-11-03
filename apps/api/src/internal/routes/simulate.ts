@@ -27,7 +27,12 @@ const simulateBodySchema = z.object({
   channelId: z.string().min(1),
   activities: z.array(ActivityEventSchema).min(1).max(25),
   rsn: z.string().min(1).max(12),
-  accountType: z.number().int().min(0).max(6).optional(),
+  accountType: z
+    .number()
+    .int()
+    .min(0)
+    .max(AccountTypes.length - 1)
+    .optional(),
   format: z.enum(["embeds", "cards"]).default("embeds"),
 });
 
