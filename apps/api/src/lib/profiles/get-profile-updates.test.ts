@@ -548,6 +548,53 @@ describe("ITEMS", () => {
 });
 
 describe("QUESTS", () => {
+  describe("renamed quest (Daddy's Home 21 -> 17229)", () => {
+    test("already completed under the old id is not a new completion", () => {
+      expect(
+        getQuestUpdates({
+          newData: { 17229: 2 },
+          oldData: [{ id: 21, state: 2 }],
+        }),
+      ).toEqual([]);
+    });
+
+    test("progress under the old id carries over", () => {
+      expect(
+        getQuestUpdates({
+          newData: { 17229: 2 },
+          oldData: [{ id: 21, state: 1 }],
+        }),
+      ).toEqual([{ id: 17229, state: 2, oldState: 1 }]);
+    });
+
+    test("an outdated plugin sending the old id is stored under the new id", () => {
+      expect(
+        getQuestUpdates({
+          newData: { 21: 2 },
+          oldData: [{ id: 21, state: 1 }],
+        }),
+      ).toEqual([{ id: 17229, state: 2, oldState: 1 }]);
+    });
+
+    test("an outdated plugin is a no-op once migrated", () => {
+      expect(
+        getQuestUpdates({
+          newData: { 21: 2 },
+          oldData: [{ id: 17229, state: 2 }],
+        }),
+      ).toEqual([]);
+    });
+
+    test("the new id wins when both are sent", () => {
+      expect(
+        getQuestUpdates({
+          newData: { 21: 0, 17229: 2 },
+          oldData: [{ id: 17229, state: 1 }],
+        }),
+      ).toEqual([{ id: 17229, state: 2, oldState: 1 }]);
+    });
+  });
+
   test("no changes", () => {
     expect(
       getQuestUpdates({

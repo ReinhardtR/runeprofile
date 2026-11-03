@@ -450,6 +450,13 @@ export function getItemUpdates({
   return updates;
 }
 
+// Quests whose id changed, new id -> previous id. Daddy's Home went from a
+// miniquest (21) to a quest (17229). The previous id stands in for the new one
+// when it's missing, so outdated plugins still record progress, and profiles
+// whose stored or cached state predates the migration aren't treated as
+// completing the quest again.
+export const RENAMED_QUEST_IDS = new Map<number, number>([[17229, 21]]);
+
 export function getQuestUpdates({
   newData,
   oldData,
@@ -462,12 +469,20 @@ export function getQuestUpdates({
   const updates: ProfileUpdates["quests"] = [];
 
   for (const quest of QUESTS) {
-    const newState = newData[quest.id];
+    const previousId = RENAMED_QUEST_IDS.get(quest.id);
+
+    const newState =
+      newData[quest.id] ??
+      (previousId !== undefined ? newData[previousId] : undefined);
     if (newState === undefined) {
       continue;
     }
 
-    const oldQuest = oldData.find((q) => q.id === quest.id);
+    const oldQuest =
+      oldData.find((q) => q.id === quest.id) ??
+      (previousId !== undefined
+        ? oldData.find((q) => q.id === previousId)
+        : undefined);
     if (newState === 0 && !(forceResync && oldQuest)) {
       continue;
     }
