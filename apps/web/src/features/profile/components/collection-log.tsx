@@ -9,6 +9,7 @@ import {
   COLLECTION_LOG_TABS,
   COLLECTION_LOG_TO_CA_BOSS_MAP,
   COMBAT_ACHIEVEMENT_BOSSES,
+  getHiscoreLeaderboardForAccountType,
 } from "@runeprofile/runescape";
 
 import { Profile } from "~/core/api";
@@ -89,6 +90,7 @@ function getBulkImportTimestamps(items: Profile["items"]) {
 
 export function CollectionLog({
   username,
+  accountTypeId = 0,
   page,
   onPageChange,
   onNavigateToCaBoss,
@@ -98,6 +100,7 @@ export function CollectionLog({
   killCountDistribution,
 }: {
   username?: string;
+  accountTypeId?: number;
   page: string;
   onPageChange: (page: string) => void;
   onNavigateToCaBoss?: (bossName: string) => void;
@@ -111,7 +114,7 @@ export function CollectionLog({
   const hiscoresQuery = useQuery({
     ...hiscoresQueryOptions({
       username: username || "",
-      leaderboard: "normal",
+      leaderboard: getHiscoreLeaderboardForAccountType(accountTypeId),
     }),
     enabled: mode === "single" && !!username,
   });

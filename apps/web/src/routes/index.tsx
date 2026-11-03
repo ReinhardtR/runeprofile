@@ -100,7 +100,10 @@ function ProfileExample({
         search={search}
         updateSearch={updateSearch}
       />
-      <SidePanel username={profile.username} />
+      <SidePanel
+        username={profile.username}
+        accountTypeId={profile.accountType.id}
+      />
     </div>
   );
 }

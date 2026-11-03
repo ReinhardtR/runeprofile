@@ -22,6 +22,7 @@ import {
   COLLECTION_LOG_TABS,
   COMBAT_ACHIEVEMENT_TASKS,
   COMBAT_ACHIEVEMENT_TASK_TYPES,
+  getHiscoreLeaderboardForAccountType,
 } from "@runeprofile/runescape";
 
 import { Profile, RuneProfileApiError, getProfile } from "~/core/api";
@@ -111,21 +112,26 @@ export const Route = createFileRoute("/$username")({
       throw notFound();
     }
 
-    // Fire-and-forget warmup for the hiscores tab; the result isn't awaited,
-    // so on the server it would just be a wasted API call.
-    if (typeof window !== "undefined") {
-      context.queryClient.prefetchQuery(
-        hiscoresQueryOptions({
-          username: params.username,
-          leaderboard: "normal",
-        }),
-      );
-    }
-
     try {
-      return await context.queryClient.fetchQuery(
+      const profile = await context.queryClient.fetchQuery(
         profileQueryOptions(params.username),
       );
+
+      // Fire-and-forget warmup for the hiscores tab; the result isn't awaited,
+      // so on the server it would just be a wasted API call. Waits for the
+      // profile because the leaderboard depends on its account type.
+      if (typeof window !== "undefined") {
+        context.queryClient.prefetchQuery(
+          hiscoresQueryOptions({
+            username: params.username,
+            leaderboard: getHiscoreLeaderboardForAccountType(
+              profile.accountType.id,
+            ),
+          }),
+        );
+      }
+
+      return profile;
     } catch (error) {
       // Thrown as notFound() so it survives SSR serialization (loader errors
       // thrown on the server are redacted) and returns a real 404 status.
@@ -141,7 +147,8 @@ export const Route = createFileRoute("/$username")({
   head: ({ params, loaderData }) => {
     // loaderData has the canonical casing; the URL param is the fallback for
     // client-side navigations where head() re-runs before the loader.
-    const username = loaderData?.username ?? decodeURIComponent(params.username);
+    const username =
+      loaderData?.username ?? decodeURIComponent(params.username);
     const title = `${username} | RuneProfile`;
     const description = `View ${username}'s Old School RuneScape progress and achievements on RuneProfile.`;
     const ogImage = `https://runeprofile.com/og/${encodeURIComponent(username)}.png`;
@@ -199,7 +206,10 @@ function RouteComponent() {
           updateSearch={updateSearch}
         />
 
-        <SidePanel username={profile.username} />
+        <SidePanel
+          username={profile.username}
+          accountTypeId={profile.accountType.id}
+        />
       </div>
       <Footer />
     </>
@@ -304,6 +314,7 @@ export function ProfileContent({
           ) : (
             <CollectionLog
               username={profile.username}
+              accountTypeId={profile.accountType.id}
               page={page}
               onPageChange={(newPage) => updateSearch({ page: newPage })}
               onNavigateToCaBoss={(bossName) =>
@@ -379,7 +390,13 @@ function ErrorComponent(props: ErrorComponentProps) {
   return <ProfileNotFoundComponent />;
 }
 
-export function SidePanel({ username }: { username: string }) {
+export function SidePanel({
+  username,
+  accountTypeId = 0,
+}: {
+  username: string;
+  accountTypeId?: number;
+}) {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useAtom(
     isSearchDialogOpenAtom,
   );
@@ -389,7 +406,7 @@ export function SidePanel({ username }: { username: string }) {
   const hiscoresQuery = useQuery(
     hiscoresQueryOptions({
       username,
-      leaderboard: "normal",
+      leaderboard: getHiscoreLeaderboardForAccountType(accountTypeId),
     }),
   );
 
@@ -470,7 +487,11 @@ export function SidePanel({ username }: { username: string }) {
         <Sheet modal={false} open={isHiscoresOpen}>
           <SheetContent className="absolute p-0 right-16 max-w-[400px] backdrop-blur-md bg-card/50 z-40">
             <ScrollArea className="h-full shadow-2xl">
-              <Hiscores username={username} className="pr-2" />
+              <Hiscores
+                username={username}
+                accountTypeId={accountTypeId}
+                className="pr-2"
+              />
             </ScrollArea>
           </SheetContent>
         </Sheet>
