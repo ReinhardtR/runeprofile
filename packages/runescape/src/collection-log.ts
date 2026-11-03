@@ -2194,7 +2194,7 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   20997: "Twisted bow",
   21000: "Twisted buckler",
   21003: "Elder maul",
-  21009: "Dragon sword",
+  21009: "Dragon shortsword",
   21012: "Dragon hunter crossbow",
   21015: "Dinh's bulwark",
   21018: "Ancestral hat",
