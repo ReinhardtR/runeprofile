@@ -1,17 +1,10 @@
 import { and, eq, inArray } from "drizzle-orm";
 
 import { Database, accounts, lower } from "@runeprofile/db";
-import {
-  COLLECTION_LOG_TABS,
-  HISCORE_LEADERBOARDS,
-  HiscoreData,
-  getHiscoreLeaderboardForAccountType,
-  getLogCounters,
-} from "@runeprofile/runescape";
+import { COLLECTION_LOG_TABS, getLogCounters } from "@runeprofile/runescape";
 
 import {
   getBossRecords,
-  needsHiscores,
   resolvePageCounters,
 } from "~/lib/boss-records/boss-records";
 import {
@@ -84,41 +77,18 @@ export async function getCollectionLogPage(
   };
 }
 
-const HISCORE_TIMEOUT_MS = 2000;
-
+// Only what the plugin uploaded: no hiscores lookup, so !log stays fast and cheap.
 async function getPageCounters(
   db: Database,
-  account: { id: string; username: string; accountType: number },
+  account: { id: string },
   page: (typeof COLLECTION_LOG_TABS)[number]["pages"][number],
 ) {
   if (!page.counters?.length) return { counters: [], logCounters: [] };
 
   const records = await getBossRecords(db, account.id);
-  const hiscores = needsHiscores(page, records)
-    ? await fetchHiscores(account.username, account.accountType)
-    : null;
-
-  const counters = resolvePageCounters(page, records, hiscores);
+  const counters = resolvePageCounters(page, records);
   const logCounters = getLogCounters(page).map(
     (counter) => counters[page.counters!.indexOf(counter)]!,
   );
   return { counters, logCounters };
-}
-
-// Best effort: the page must still load when the hiscores are slow or down.
-async function fetchHiscores(
-  username: string,
-  accountType: number,
-): Promise<HiscoreData | null> {
-  const leaderboard = getHiscoreLeaderboardForAccountType(accountType);
-  const url = `${HISCORE_LEADERBOARDS[leaderboard].url}?player=${encodeURIComponent(username)}`;
-  try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(HISCORE_TIMEOUT_MS),
-    });
-    if (!response.ok) return null;
-    return (await response.json()) as HiscoreData;
-  } catch {
-    return null;
-  }
 }

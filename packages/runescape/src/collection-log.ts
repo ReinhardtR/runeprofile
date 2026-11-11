@@ -10,9 +10,9 @@
  * plugin: its RS-profile config groups "killcount" / "personalbest", keyed by
  * the boss name from the game's kill message, lowercased with colons removed
  * (e.g. "theatre of blood hard mode"). `keys` lists the candidates in order;
- * the first one the player has a value for wins. Kill counts can fall back to
- * the official hiscores via `hiscore` (an activity name from the hiscore
- * API). Personal bests are in seconds.
+ * the first one the player has a value for wins. `hiscore` (an activity name
+ * from the hiscore API) is for the website, which reads the hiscores itself;
+ * the API's page endpoint never calls them. Personal bests are in seconds.
  */
 export type CollectionLogCounter = {
   label: string;
