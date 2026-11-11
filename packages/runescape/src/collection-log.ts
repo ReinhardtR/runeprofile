@@ -1,14 +1,60 @@
 // The order of tabs, pages and items in this file
 // determine the order it's displayed on the website.
+/**
+ * One kill count or personal best line on a collection log page. The in-game
+ * page's lines come first, in its order (clientscript 2735 builds them); after
+ * them come extra lines the page doesn't show but Chat Commands records (raid
+ * and awakened personal bests, Phosani's, Jad and Zuk times, ...).
+ *
+ * Values come from what the plugin reads out of RuneLite's Chat Commands
+ * plugin: its RS-profile config groups "killcount" / "personalbest", keyed by
+ * the boss name from the game's kill message, lowercased with colons removed
+ * (e.g. "theatre of blood hard mode"). `keys` lists the candidates in order;
+ * the first one the player has a value for wins. Kill counts can fall back to
+ * the official hiscores via `hiscore` (an activity name from the hiscore
+ * API). Personal bests are in seconds.
+ */
+export type CollectionLogCounter = {
+  label: string;
+  /** Compact label for space-constrained output such as the in-game `!log` reply. Falls back to `label`. */
+  shortLabel?: string;
+  type: "kc" | "pb";
+  keys?: string[];
+  hiscore?: string;
+};
 export type CollectionLogPage = {
   name: string;
   items: number[];
-  // currently the app shows kill counts based on the hiscore data
-  // so this object maps the hiscore entries to the kill count entries
-  // key = hiscore entry name, value = kill count label
-  hiscore?: Record<string, string>;
+  counters?: CollectionLogCounter[];
+  /**
+   * Which kill counts the in-game `!log` reply shows, and in what order, by
+   * `shortLabel`. Unlike `counters` this is our own choice, e.g. normal mode
+   * before hard mode, and entry modes left out. Defaults to the page's kill
+   * counts in page order.
+   */
+  logCounters?: string[];
   aliases?: string[];
 };
+/** The page's kill counts that exist on the hiscores, as [hiscore name, label]. */
+export function getHiscoreKillCounts(
+  page: Pick<CollectionLogPage, "counters">,
+): Array<[hiscore: string, label: string]> {
+  return (page.counters ?? []).flatMap((counter) =>
+    counter.type === "kc" && counter.hiscore
+      ? [[counter.hiscore, counter.label] as [string, string]]
+      : [],
+  );
+}
+/** The counters the `!log` reply shows, in its order. */
+export function getLogCounters(
+  page: Pick<CollectionLogPage, "counters" | "logCounters">,
+): CollectionLogCounter[] {
+  const counters = page.counters ?? [];
+  if (!page.logCounters) return counters.filter((c) => c.type === "kc");
+  return page.logCounters.flatMap((shortLabel) =>
+    counters.filter((c) => c.shortLabel === shortLabel),
+  );
+}
 export type CollectionLogTab = {
   name: string;
   pages: CollectionLogPage[];
@@ -20,7 +66,15 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Abyssal Sire",
         items: [13262, 25624, 7979, 13274, 13275, 13276, 13277, 13265, 4151],
-        hiscore: { "Abyssal Sire": "Abyssal Sire kills" },
+        counters: [
+          {
+            label: "Abyssal Sire kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["abyssal sire"],
+            hiscore: "Abyssal Sire",
+          },
+        ],
         aliases: ["sire"],
       },
       {
@@ -29,13 +83,41 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           22746, 22966, 22988, 22983, 22971, 22973, 22969, 22804, 20849, 23064,
           23077,
         ],
-        hiscore: { "Alchemical Hydra": "Alchemical Hydra kills" },
+        counters: [
+          {
+            label: "Alchemical Hydra kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["alchemical hydra"],
+            hiscore: "Alchemical Hydra",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["alchemical hydra"],
+          },
+        ],
         aliases: ["hydra"],
       },
       {
         name: "Amoxliatl",
         items: [30154, 29889, 29892, 29895],
-        hiscore: { Amoxliatl: "Amoxliatl kills" },
+        counters: [
+          {
+            label: "Amoxliatl kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["amoxliatl"],
+            hiscore: "Amoxliatl",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["amoxliatl"],
+          },
+        ],
         aliases: ["amox"],
       },
       {
@@ -43,7 +125,21 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           29836, 29784, 29782, 29799, 29790, 29792, 29794, 29788, 29786, 29781,
         ],
-        hiscore: { Araxxor: "Araxxor kills" },
+        counters: [
+          {
+            label: "Araxxor kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["araxxor"],
+            hiscore: "Araxxor",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["araxxor"],
+          },
+        ],
         aliases: ["rax"],
       },
       {
@@ -53,86 +149,216 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           4757, 4738, 4714, 4722, 4730, 4751, 4759, 4734, 4710, 4718, 4726,
           4747, 4755, 4740,
         ],
-        hiscore: { "Barrows Chests": "Barrows Chests opened" },
+        counters: [
+          {
+            label: "Barrows Chests opened",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["barrows chests"],
+            hiscore: "Barrows Chests",
+          },
+        ],
         aliases: ["barrows"],
       },
       {
         name: "Brutus",
         items: [33124, 33101, 33091, 33093],
-        hiscore: { Brutus: "Brutus kills" },
+        counters: [
+          {
+            label: "Brutus kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["brutus"],
+            hiscore: "Brutus",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["brutus"],
+          },
+        ],
       },
       {
         name: "Bryophyta",
         items: [22372],
-        hiscore: { Bryophyta: "Bryophyta kills" },
+        counters: [
+          {
+            label: "Bryophyta kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["bryophyta"],
+            hiscore: "Bryophyta",
+          },
+        ],
         aliases: ["bryo"],
       },
       {
         name: "Callisto and Artio",
         items: [13178, 12603, 11920, 7158, 27667, 27681],
-        hiscore: { Callisto: "Callisto kills", Artio: "Artio kills" },
+        counters: [
+          {
+            label: "Artio kills",
+            shortLabel: "Artio KC",
+            type: "kc",
+            keys: ["artio"],
+            hiscore: "Artio",
+          },
+          {
+            label: "Callisto kills",
+            shortLabel: "Callisto KC",
+            type: "kc",
+            keys: ["callisto"],
+            hiscore: "Callisto",
+          },
+        ],
+        logCounters: ["Callisto KC", "Artio KC"],
         aliases: ["artio", "art", "cal", "callisto"],
       },
       {
         name: "Cerberus",
         items: [13247, 13227, 13229, 13231, 13245, 13233, 13249],
-        hiscore: { Cerberus: "Cerberus kills" },
+        counters: [
+          {
+            label: "Cerberus kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["cerberus"],
+            hiscore: "Cerberus",
+          },
+        ],
         aliases: ["cerb"],
       },
       {
         name: "Chaos Elemental",
         items: [11995, 11920, 7158],
-        hiscore: { "Chaos Elemental": "Chaos Elemental kills" },
+        counters: [
+          {
+            label: "Chaos Elemental kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["chaos elemental"],
+            hiscore: "Chaos Elemental",
+          },
+        ],
         aliases: ["chaos ele"],
       },
       {
         name: "Chaos Fanatic",
         items: [11995, 11928, 11931],
-        hiscore: { "Chaos Fanatic": "Chaos Fanatic kills" },
+        counters: [
+          {
+            label: "Chaos Fanatic kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["chaos fanatic"],
+            hiscore: "Chaos Fanatic",
+          },
+        ],
         aliases: ["fanatic"],
       },
       {
         name: "Commander Zilyana",
         items: [12651, 11785, 11814, 11838, 13256, 11818, 11820, 11822],
-        hiscore: { "Commander Zilyana": "Commander Zilyana kills" },
+        counters: [
+          {
+            label: "Commander Zilyana kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["commander zilyana"],
+            hiscore: "Commander Zilyana",
+          },
+        ],
         aliases: ["sara", "saradomin", "zilyana", "zily"],
       },
       {
         name: "Corporeal Beast",
         items: [12816, 12819, 12823, 12827, 12833, 12829, 25521],
-        hiscore: { "Corporeal Beast": "Corporeal Beast kills" },
+        counters: [
+          {
+            label: "Corporeal Beast kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["corporeal beast"],
+            hiscore: "Corporeal Beast",
+          },
+        ],
         aliases: ["corp", "corp beast"],
       },
       {
         name: "Crazy Archaeologist",
         items: [11929, 11932, 11990],
-        hiscore: { "Crazy Archaeologist": "Crazy Archaeologist kills" },
+        counters: [
+          {
+            label: "Crazy Archaeologist kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["crazy archaeologist"],
+            hiscore: "Crazy Archaeologist",
+          },
+        ],
         aliases: ["crazy arch"],
       },
       {
         name: "Dagannoth Kings",
         items: [12644, 12643, 12645, 6737, 6733, 6731, 6735, 6739, 6724, 6562],
-        hiscore: {
-          "Dagannoth Rex": "Dagannoth Rex kills",
-          "Dagannoth Prime": "Dagannoth Prime kills",
-          "Dagannoth Supreme": "Dagannoth Supreme kills",
-        },
+        counters: [
+          {
+            label: "Dagannoth Supreme kills",
+            shortLabel: "Supreme KC",
+            type: "kc",
+            keys: ["dagannoth supreme"],
+            hiscore: "Dagannoth Supreme",
+          },
+          {
+            label: "Dagannoth Prime kills",
+            shortLabel: "Prime KC",
+            type: "kc",
+            keys: ["dagannoth prime"],
+            hiscore: "Dagannoth Prime",
+          },
+          {
+            label: "Dagannoth Rex kills",
+            shortLabel: "Rex KC",
+            type: "kc",
+            keys: ["dagannoth rex"],
+            hiscore: "Dagannoth Rex",
+          },
+        ],
         aliases: ["dks"],
       },
       {
         name: "Deranged Archaeologist",
         items: [30895],
-        hiscore: {
-          "Deranged Archaeologist": "Deranged Archaeologist kills",
-        },
+        counters: [
+          {
+            label: "Deranged Archaeologist kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["deranged archaeologist"],
+            hiscore: "Deranged Archaeologist",
+          },
+        ],
         aliases: ["deranged arch"],
       },
       {
         name: "Doom of Mokhaiotl",
         items: [31130, 31088, 31115, 31109, 31099, 31111],
-        hiscore: {
-          "Doom of Mokhaiotl": "Deep delves",
-        },
+        counters: [
+          {
+            label: "Deep delves",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["doom of mokhaiotl"],
+            hiscore: "Doom of Mokhaiotl",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["doom of mokhaiotl"],
+          },
+        ],
         aliases: ["dom", "doom", "mokha"],
       },
       {
@@ -140,7 +366,33 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           28250, 28321, 26241, 26243, 26245, 28281, 28270, 28333, 28276, 28334,
         ],
-        hiscore: { "Duke Sucellus": "Duke Sucellus kills" },
+        counters: [
+          {
+            label: "Duke Sucellus kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["duke sucellus"],
+            hiscore: "Duke Sucellus",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["duke sucellus"],
+          },
+          {
+            label: "Duke Sucellus (awakened) kills",
+            shortLabel: "Awakened KC",
+            type: "kc",
+            keys: ["duke sucellus (awakened)"],
+          },
+          {
+            label: "Personal Best (awakened)",
+            shortLabel: "Awakened PB",
+            type: "pb",
+            keys: ["duke sucellus (awakened)"],
+          },
+        ],
         aliases: [
           "duke",
           "succ",
@@ -153,22 +405,81 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "The Fight Caves",
         items: [13225, 6570],
-        hiscore: { "TzTok-Jad": "TzTok-Jad kills" },
+        counters: [
+          {
+            label: "TzTok-Jad kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["tztok-jad"],
+            hiscore: "TzTok-Jad",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["tztok-jad"],
+          },
+        ],
         aliases: ["jad", "fight caves", "fc"],
       },
       {
         name: "Fortis Colosseum",
         items: [28960, 28947, 28936, 28939, 28933, 28942, 28919, 28924, 6571],
-        hiscore: { "Sol Heredit": "Sol Heredit kills" },
+        counters: [
+          {
+            label: "Sol Heredit kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["sol heredit"],
+            hiscore: "Sol Heredit",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["sol heredit"],
+          },
+          {
+            label: "Colosseum Glory",
+            shortLabel: "Glory",
+            type: "kc",
+            keys: ["colosseum glory"],
+          },
+        ],
         aliases: ["colo", "sol", "colosseum"],
       },
       {
         name: "The Gauntlet",
         items: [23757, 23956, 4207, 25859, 23859],
-        hiscore: {
-          "The Gauntlet": "Gauntlet completion count",
-          "The Corrupted Gauntlet": "Corrupted Gauntlet completion count",
-        },
+        counters: [
+          {
+            label: "Corrupted Gauntlet completion count",
+            shortLabel: "CG KC",
+            type: "kc",
+            keys: ["corrupted gauntlet"],
+            hiscore: "The Corrupted Gauntlet",
+          },
+          {
+            label: "Gauntlet completion count",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["gauntlet"],
+            hiscore: "The Gauntlet",
+          },
+          {
+            label: "Personal Best Corrupted",
+            shortLabel: "CG PB",
+            type: "pb",
+            keys: ["corrupted gauntlet"],
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["gauntlet"],
+          },
+        ],
+        logCounters: ["KC", "CG KC"],
         aliases: [
           "gaunt",
           "gauntlet",
@@ -181,67 +492,179 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "General Graardor",
         items: [12650, 11832, 11834, 11836, 11812, 11818, 11820, 11822],
-        hiscore: { "General Graardor": "General Graardor kills" },
+        counters: [
+          {
+            label: "General Graardor kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["general graardor"],
+            hiscore: "General Graardor",
+          },
+        ],
         aliases: ["bando", "bandos", "graardor"],
       },
       {
         name: "Giant Mole",
         items: [12646, 7418, 7416, 33382],
-        hiscore: { "Giant Mole": "Giant Mole kills" },
+        counters: [
+          {
+            label: "Giant Mole kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["giant mole"],
+            hiscore: "Giant Mole",
+          },
+        ],
         aliases: ["mole"],
       },
       {
         name: "Grotesque Guardians",
         items: [21748, 21730, 21736, 21739, 21742, 21745, 21726],
-        hiscore: { "Grotesque Guardians": "Grotesque Guardians kills" },
+        counters: [
+          {
+            label: "Grotesque Guardian kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["grotesque guardians"],
+            hiscore: "Grotesque Guardians",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["grotesque guardians"],
+          },
+        ],
         aliases: ["dusk", "dawn", "gargs", "ggs", "gg"],
       },
       {
         name: "Hespori",
         items: [22994, 22883, 22885, 22881],
-        hiscore: { Hespori: "Hespori kills" },
+        counters: [
+          {
+            label: "Hespori kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["hespori"],
+            hiscore: "Hespori",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["hespori"],
+          },
+        ],
         aliases: ["hesp"],
       },
       {
         name: "The Hueycoatl",
         items: [30152, 30070, 30066, 30068, 30085, 30088],
-        hiscore: { "The Hueycoatl": "Hueycoatl kills" },
+        counters: [
+          {
+            label: "Hueycoatl kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["hueycoatl", "the hueycoatl"],
+            hiscore: "The Hueycoatl",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["hueycoatl", "the hueycoatl"],
+          },
+        ],
         aliases: ["hueycoatl", "huey"],
       },
       {
         name: "The Inferno",
         items: [21291, 21295],
-        hiscore: { "TzKal-Zuk": "TzKal-Zuk kills" },
+        counters: [
+          {
+            label: "TzKal-Zuk kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["tzkal-zuk"],
+            hiscore: "TzKal-Zuk",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["tzkal-zuk"],
+          },
+        ],
         aliases: ["zuk", "inferno", "tzkal-zuk"],
       },
       {
         name: "Kalphite Queen",
         items: [12647, 7981, 12885, 7158, 3140, 11920],
-        hiscore: { "Kalphite Queen": "Kalphite Queen kills" },
+        counters: [
+          {
+            label: "Kalphite Queen kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["kalphite queen"],
+            hiscore: "Kalphite Queen",
+          },
+        ],
         aliases: ["kq"],
       },
       {
         name: "King Black Dragon",
         items: [12653, 7980, 11920, 11286],
-        hiscore: { "King Black Dragon": "King Black Dragon kills" },
+        counters: [
+          {
+            label: "King Black Dragon kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["king black dragon"],
+            hiscore: "King Black Dragon",
+          },
+        ],
         aliases: ["kbd"],
       },
       {
         name: "Kraken",
         items: [12655, 12004, 11905, 12007],
-        hiscore: { Kraken: "Kraken kills" },
+        counters: [
+          {
+            label: "Kraken kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["kraken"],
+            hiscore: "Kraken",
+          },
+        ],
         aliases: ["cave kraken"],
       },
       {
         name: "Kree'arra",
         items: [12649, 11826, 11828, 11830, 11810, 11818, 11820, 11822],
-        hiscore: { "Kree'Arra": "Kree'arra kills" },
+        counters: [
+          {
+            label: "Kree'arra kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["kree'arra"],
+            hiscore: "Kree'Arra",
+          },
+        ],
         aliases: ["arma", "kree", "kreearra", "armadyl"],
       },
       {
         name: "K'ril Tsutsaroth",
         items: [12652, 11791, 11824, 11787, 11816, 11818, 11820, 11822],
-        hiscore: { "K'ril Tsutsaroth": "K'ril Tsutsaroth kills" },
+        counters: [
+          {
+            label: "K'ril Tsutsaroth kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["k'ril tsutsaroth"],
+            hiscore: "K'ril Tsutsaroth",
+          },
+        ],
         aliases: ["zammy", "zamorak", "kril", "kril trutsaroth"],
       },
       {
@@ -249,18 +672,73 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           28252, 28325, 26241, 26243, 26245, 28283, 28274, 28332, 28276, 28334,
         ],
-        hiscore: { "The Leviathan": "Leviathan kills" },
+        counters: [
+          {
+            label: "Leviathan kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["leviathan", "the leviathan"],
+            hiscore: "The Leviathan",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["leviathan", "the leviathan"],
+          },
+          {
+            label: "Leviathan (awakened) kills",
+            shortLabel: "Awakened KC",
+            type: "kc",
+            keys: ["leviathan (awakened)"],
+          },
+          {
+            label: "Personal Best (awakened)",
+            shortLabel: "Awakened PB",
+            type: "pb",
+            keys: ["leviathan (awakened)"],
+          },
+        ],
         aliases: ["leviathan", "levi", "lev"],
       },
       {
         name: "The Mad Angel",
         items: [34042, 34027, 34033, 21726, 34030],
+        counters: [
+          {
+            label: "Mad Angel kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["mad angel", "the mad angel"],
+            hiscore: "Mad Angel",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["mad angel", "the mad angel"],
+          },
+        ],
         aliases: ["mad angel"],
       },
       {
         name: "Maggot King",
         items: [33642, 33631, 33634],
-        hiscore: { "Maggot King": "Maggot King kills" },
+        counters: [
+          {
+            label: "Maggot King kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["maggot king", "the maggot king"],
+            hiscore: "Maggot King",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["maggot king", "the maggot king"],
+          },
+        ],
         aliases: ["maggot"],
       },
       {
@@ -269,13 +747,35 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           29004, 29007, 29010, 29000, 29013, 29016, 29019, 28988, 29022, 29025,
           29028, 28997, 28991,
         ],
-        hiscore: { "Lunar Chests": "Lunar Chests opened" },
+        counters: [
+          {
+            label: "Lunar Chests opened",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["lunar chest", "lunar chests"],
+            hiscore: "Lunar Chests",
+          },
+        ],
         aliases: ["moons", "blood moon", "lunar moon", "eclipse moon"],
       },
       {
         name: "Nex",
         items: [26348, 26370, 26372, 26235, 26376, 26378, 26380, 26231],
-        hiscore: { Nex: "Nex kills" },
+        counters: [
+          {
+            label: "Nex kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["nex"],
+            hiscore: "Nex",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["nex"],
+          },
+        ],
       },
       {
         name: "The Nightmare",
@@ -283,10 +783,34 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           24491, 24417, 24419, 24420, 24421, 24422, 24514, 24511, 24517, 24495,
           25837, 25838,
         ],
-        hiscore: {
-          "Phosani's Nightmare": "Phosani's Nightmare kills",
-          Nightmare: "Nightmare kills",
-        },
+        counters: [
+          {
+            label: "Nightmare kills",
+            shortLabel: "Nightmare KC",
+            type: "kc",
+            keys: ["nightmare"],
+            hiscore: "Nightmare",
+          },
+          {
+            label: "Phosani's Nightmare kills",
+            shortLabel: "Phosani KC",
+            type: "kc",
+            keys: ["phosani's nightmare"],
+            hiscore: "Phosani's Nightmare",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["nightmare"],
+          },
+          {
+            label: "Personal Best (Phosani's)",
+            shortLabel: "Phosani PB",
+            type: "pb",
+            keys: ["phosani's nightmare"],
+          },
+        ],
         aliases: [
           "nightmare",
           "nm",
@@ -303,48 +827,130 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Obor",
         items: [20756],
-        hiscore: { Obor: "Obor kills" },
+        counters: [
+          {
+            label: "Obor kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["obor"],
+            hiscore: "Obor",
+          },
+        ],
         aliases: ["hill giant"],
       },
       {
         name: "Phantom Muspah",
         items: [27590, 27614, 27627, 27643, 27622, 27616],
-        hiscore: { "Phantom Muspah": "Phantom Muspah kills" },
+        counters: [
+          {
+            label: "Phantom Muspah kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["phantom muspah"],
+            hiscore: "Phantom Muspah",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["phantom muspah"],
+          },
+        ],
         aliases: ["mus", "muspah", "pm", "the grumbler"],
       },
       {
         name: "Royal Titans",
         items: [30622, 30626, 30627, 30637, 30628, 30631, 30640],
-        hiscore: { "The Royal Titans": "Royal Titans kills" },
+        counters: [
+          {
+            label: "Royal Titan kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["royal titans", "the royal titans", "royal titan"],
+            hiscore: "The Royal Titans",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["royal titans", "the royal titans", "royal titan"],
+          },
+        ],
         aliases: ["titans"],
       },
       {
         name: "Sarachnis",
         items: [23495, 23525, 23517, 23528, 33133],
-        hiscore: { Sarachnis: "Sarachnis kills" },
+        counters: [
+          {
+            label: "Sarachnis kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["sarachnis"],
+            hiscore: "Sarachnis",
+          },
+        ],
         aliases: ["saracha", "sarac", "saracnis"],
       },
       {
         name: "Scorpia",
         items: [13181, 11930, 11933, 7158],
-        hiscore: { Scorpia: "Scorpia kills" },
+        counters: [
+          {
+            label: "Scorpia kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["scorpia"],
+            hiscore: "Scorpia",
+          },
+        ],
       },
       {
         name: "Scurrius",
         items: [28801, 28798],
-        hiscore: { Scurrius: "Scurrius kills" },
+        counters: [
+          {
+            label: "Scurrius kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["scurrius"],
+            hiscore: "Scurrius",
+          },
+        ],
         aliases: ["scur", "scurius", "rat"],
       },
       {
         name: "Shellbane Gryphon",
         items: [31285, 32921, 31245, 31235],
-        hiscore: { "Shellbane Gryphon": "Shellbane Gryphon kills" },
+        counters: [
+          {
+            label: "Shellbane Gryphon kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["shellbane gryphon"],
+            hiscore: "Shellbane Gryphon",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["shellbane gryphon"],
+          },
+        ],
         aliases: ["shellbane", "gryphon", "gull"],
       },
       {
         name: "Skotizo",
         items: [21273, 19701, 21275, 19685, 6571, 19677],
-        hiscore: { Skotizo: "Skotizo kills" },
+        counters: [
+          {
+            label: "Skotizo kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["skotizo"],
+            hiscore: "Skotizo",
+          },
+        ],
         aliases: ["skotizos", "totems", "totem"],
       },
       {
@@ -353,15 +959,35 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           25602, 25559, 25592, 25594, 25596, 25598, 25576, 25578, 25580, 25582,
           21028, 25588,
         ],
-        hiscore: { Tempoross: "Tempoross kills" },
+        counters: [
+          {
+            label: "Tempoross kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["tempoross"],
+            hiscore: "Tempoross",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["tempoross"],
+          },
+        ],
         aliases: ["tempoross", "temp"],
       },
       {
         name: "Thermonuclear Smoke Devil",
         items: [12648, 12002, 11998, 3140, 25524],
-        hiscore: {
-          "Thermonuclear Smoke Devil": "Thermonuclear Smoke Devil kills",
-        },
+        counters: [
+          {
+            label: "Thermonuclear Smoke Devil kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["thermonuclear smoke devil"],
+            hiscore: "Thermonuclear Smoke Devil",
+          },
+        ],
         aliases: ["smoke devil", "smoke devils", "thermy", "thermey"],
       },
       {
@@ -369,22 +995,77 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           28248, 28319, 26241, 26243, 26245, 28285, 28268, 28330, 28276, 28334,
         ],
-        hiscore: { Vardorvis: "Vardorvis kills" },
+        counters: [
+          {
+            label: "Vardorvis kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["vardorvis"],
+            hiscore: "Vardorvis",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["vardorvis"],
+          },
+          {
+            label: "Vardorvis (awakened) kills",
+            shortLabel: "Awakened KC",
+            type: "kc",
+            keys: ["vardorvis (awakened)"],
+          },
+          {
+            label: "Personal Best (awakened)",
+            shortLabel: "Awakened PB",
+            type: "pb",
+            keys: ["vardorvis (awakened)"],
+          },
+        ],
         aliases: ["vard", "vardo"],
       },
       {
         name: "Venenatis and Spindel",
         items: [13177, 12605, 11920, 7158, 27670, 27687],
-        hiscore: { Venenatis: "Venenatis kills", Spindel: "Spindel kills" },
+        counters: [
+          {
+            label: "Spindel kills",
+            shortLabel: "Spindel KC",
+            type: "kc",
+            keys: ["spindel"],
+            hiscore: "Spindel",
+          },
+          {
+            label: "Venenatis kills",
+            shortLabel: "Venenatis KC",
+            type: "kc",
+            keys: ["venenatis"],
+            hiscore: "Venenatis",
+          },
+        ],
+        logCounters: ["Venenatis KC", "Spindel KC"],
         aliases: ["spin", "spindel", "vene", "venenatis"],
       },
       {
         name: "Vet'ion and Calvar'ion",
         items: [13179, 12601, 11920, 7158, 27673, 27684],
-        hiscore: {
-          "Vet'ion": "Vet'ion kills",
-          "Calvar'ion": "Calvar'ion kills",
-        },
+        counters: [
+          {
+            label: "Calvar'ion kills",
+            shortLabel: "Calvar'ion KC",
+            type: "kc",
+            keys: ["calvar'ion"],
+            hiscore: "Calvar'ion",
+          },
+          {
+            label: "Vet'ion kills",
+            shortLabel: "Vet'ion KC",
+            type: "kc",
+            keys: ["vet'ion"],
+            hiscore: "Vet'ion",
+          },
+        ],
+        logCounters: ["Vet'ion KC", "Calvar'ion KC"],
         aliases: [
           "calv",
           "calvarion",
@@ -399,7 +1080,21 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Vorkath",
         items: [21992, 21907, 11286, 22006, 22106, 22111],
-        hiscore: { Vorkath: "Vorkath kills" },
+        counters: [
+          {
+            label: "Vorkath kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["vorkath"],
+            hiscore: "Vorkath",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["vorkath"],
+          },
+        ],
         aliases: ["vork", "vorki"],
       },
       {
@@ -407,7 +1102,33 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           28246, 28323, 26241, 26243, 26245, 28279, 28272, 28331, 28276, 28334,
         ],
-        hiscore: { "The Whisperer": "Whisperer kills" },
+        counters: [
+          {
+            label: "Whisperer kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["whisperer", "the whisperer"],
+            hiscore: "The Whisperer",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["whisperer", "the whisperer"],
+          },
+          {
+            label: "Whisperer (awakened) kills",
+            shortLabel: "Awakened KC",
+            type: "kc",
+            keys: ["whisperer (awakened)"],
+          },
+          {
+            label: "Personal Best (awakened)",
+            shortLabel: "Awakened PB",
+            type: "pb",
+            keys: ["whisperer (awakened)"],
+          },
+        ],
         aliases: ["whisperer", "whisp", "wisp"],
       },
       {
@@ -415,7 +1136,15 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           20693, 20716, 20718, 20704, 20708, 20706, 20710, 20712, 20720, 6739,
         ],
-        hiscore: { Wintertodt: "Wintertodt kills" },
+        counters: [
+          {
+            label: "Wintertodt kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["wintertodt"],
+            hiscore: "Wintertodt",
+          },
+        ],
         aliases: ["wt", "todt"],
       },
       {
@@ -424,12 +1153,34 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           30888, 30775, 30765, 30750, 30753, 30756, 30759, 30806, 30763, 30805,
           30795,
         ],
-        hiscore: { Yama: "Yama kills" },
+        counters: [
+          {
+            label: "Yama kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["yama"],
+            hiscore: "Yama",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["yama"],
+          },
+        ],
       },
       {
         name: "Zalcano",
         items: [23760, 23953, 23908, 6571],
-        hiscore: { Zalcano: "Zalcano kills" },
+        counters: [
+          {
+            label: "Zalcano kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["zalcano"],
+            hiscore: "Zalcano",
+          },
+        ],
         aliases: ["zalc"],
       },
       {
@@ -437,7 +1188,21 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           12921, 13200, 13201, 12936, 12932, 12927, 12922, 12938, 6571, 12934,
         ],
-        hiscore: { Zulrah: "Zulrah kills" },
+        counters: [
+          {
+            label: "Zulrah kills",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["zulrah"],
+            hiscore: "Zulrah",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["zulrah"],
+          },
+        ],
         aliases: ["zul", "profit snake", "bjs"],
       },
     ],
@@ -452,11 +1217,35 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           21034, 21079, 21012, 21000, 21047, 21027, 6573, 24670, 22388, 22390,
           22392, 22394, 22396,
         ],
-        hiscore: {
-          "Chambers of Xeric": "Chambers of Xeric completions",
-          "Chambers of Xeric: Challenge Mode":
-            "Chambers of Xeric (CM) completions",
-        },
+        counters: [
+          {
+            label: "Chambers of Xeric (CM) completions",
+            shortLabel: "CM KC",
+            type: "kc",
+            keys: ["chambers of xeric challenge mode"],
+            hiscore: "Chambers of Xeric: Challenge Mode",
+          },
+          {
+            label: "Chambers of Xeric completions",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["chambers of xeric"],
+            hiscore: "Chambers of Xeric",
+          },
+          {
+            label: "Personal Best (Challenge Mode)",
+            shortLabel: "CM PB",
+            type: "pb",
+            keys: ["chambers of xeric challenge mode"],
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["chambers of xeric"],
+          },
+        ],
+        logCounters: ["KC", "CM KC"],
         aliases: [
           "cox",
           "xeric",
@@ -477,9 +1266,21 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           34646, 34717, 34681, 34727, 34719, 34679, 34675, 34677, 34673, 34671,
           34669, 34722, 34659, 34661, 34663, 34665, 34667,
         ],
-        hiscore: {
-          "The Fractured Archive": "Fractured Archive completions",
-        },
+        counters: [
+          {
+            label: "Fractured Archive completions",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["fractured archive"],
+            hiscore: "The Fractured Archive",
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["fractured archive"],
+          },
+        ],
         aliases: ["tfa", "fred"],
       },
       {
@@ -488,10 +1289,47 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           22473, 22486, 22324, 22481, 22326, 22327, 22328, 22477, 22446, 22494,
           22496, 22498, 22500, 22502, 25746, 25742, 25744,
         ],
-        hiscore: {
-          "Theatre of Blood": "Theatre of Blood completions",
-          "Theatre of Blood: Hard Mode": "Theatre of Blood (Hard) completions",
-        },
+        counters: [
+          {
+            label: "Theatre of Blood (Hard) completions",
+            shortLabel: "HMT KC",
+            type: "kc",
+            keys: ["theatre of blood hard mode"],
+            hiscore: "Theatre of Blood: Hard Mode",
+          },
+          {
+            label: "Theatre of Blood (Entry) completions",
+            shortLabel: "Entry KC",
+            type: "kc",
+            keys: ["theatre of blood entry mode"],
+          },
+          {
+            label: "Theatre of Blood completions",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["theatre of blood"],
+            hiscore: "Theatre of Blood",
+          },
+          {
+            label: "Personal Best (Hard Mode)",
+            shortLabel: "HMT PB",
+            type: "pb",
+            keys: ["theatre of blood hard mode"],
+          },
+          {
+            label: "Personal Best (Entry Mode)",
+            shortLabel: "Entry PB",
+            type: "pb",
+            keys: ["theatre of blood entry mode"],
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["theatre of blood"],
+          },
+        ],
+        logCounters: ["KC", "HMT KC"],
         aliases: [
           "tob",
           "theatre",
@@ -521,11 +1359,47 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           27285, 27289, 30893, 27255, 27248, 27372, 27293, 27257, 27259, 27261,
           27263, 27265, 27377, 27378, 27379, 27380, 27381,
         ],
-        hiscore: {
-          "Tombs of Amascut": "Tombs of Amascut completions",
-          "Tombs of Amascut: Expert Mode":
-            "Tombs of Amascut (Expert) completions",
-        },
+        counters: [
+          {
+            label: "Tombs of Amascut (Expert) completions",
+            shortLabel: "Expert KC",
+            type: "kc",
+            keys: ["tombs of amascut expert mode"],
+            hiscore: "Tombs of Amascut: Expert Mode",
+          },
+          {
+            label: "Tombs of Amascut (Entry) completions",
+            shortLabel: "Entry KC",
+            type: "kc",
+            keys: ["tombs of amascut entry mode"],
+          },
+          {
+            label: "Tombs of Amascut completions",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["tombs of amascut"],
+            hiscore: "Tombs of Amascut",
+          },
+          {
+            label: "Personal Best (Expert Mode)",
+            shortLabel: "Expert PB",
+            type: "pb",
+            keys: ["tombs of amascut expert mode"],
+          },
+          {
+            label: "Personal Best (Entry Mode)",
+            shortLabel: "Entry PB",
+            type: "pb",
+            keys: ["tombs of amascut entry mode"],
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["tombs of amascut"],
+          },
+        ],
+        logCounters: ["KC", "Expert KC"],
         aliases: ["toa", "tomb", "tombs", "raids 3", "tomb of amascut"],
       },
     ],
@@ -539,9 +1413,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           23285, 23288, 23291, 23294, 23297, 23300, 23303, 23306, 23309, 23312,
           23315, 23318, 23321, 23324, 23327, 12297,
         ],
-        hiscore: {
-          "Clue Scrolls (beginner)": "Beginner clues completed",
-        },
+        counters: [
+          {
+            label: "Beginner clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (beginner)",
+          },
+        ],
         aliases: [
           "begs",
           "beg clues",
@@ -571,9 +1450,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           23363, 10404, 10424, 10406, 10426, 10412, 10432, 10414, 10434, 10408,
           10428, 10410, 10430, 10366, 23354, 12297, 23360, 23357, 10280,
         ],
-        hiscore: {
-          "Clue Scrolls (easy)": "Easy clues completed",
-        },
+        counters: [
+          {
+            label: "Easy clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (easy)",
+          },
+        ],
         aliases: [
           "easy clues",
           "easy clue",
@@ -598,9 +1482,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           10422, 12315, 12339, 12317, 12341, 12347, 12343, 12349, 12345, 20275,
           10364, 10282,
         ],
-        hiscore: {
-          "Clue Scrolls (medium)": "Medium clues completed",
-        },
+        counters: [
+          {
+            label: "Medium clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (medium)",
+          },
+        ],
         aliases: [
           "meds",
           "med",
@@ -631,9 +1520,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           12514, 23224, 12518, 12520, 12522, 12524, 19918, 23206, 12379, 10354,
           10284,
         ],
-        hiscore: {
-          "Clue Scrolls (hard)": "Hard clues completed",
-        },
+        counters: [
+          {
+            label: "Hard clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (hard)",
+          },
+        ],
         aliases: [
           "hards",
           "hard clues",
@@ -652,9 +1546,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           12365, 12367, 12369, 23270, 23273, 12357, 12373, 12335, 19991, 19988,
           12540, 12430, 12355, 12432, 12353, 12337, 23246, 23252, 23255,
         ],
-        hiscore: {
-          "Clue Scrolls (elite)": "Elite clues completed",
-        },
+        counters: [
+          {
+            label: "Elite clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (elite)",
+          },
+        ],
         aliases: [
           "elites",
           "elite clues",
@@ -672,9 +1571,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           20086, 20089, 20083, 20125, 20116, 20113, 20122, 20119, 20020, 20023,
           20026, 20032, 20029, 19724, 20110, 20056, 20050, 20053, 20008,
         ],
-        hiscore: {
-          "Clue Scrolls (master)": "Master clues completed",
-        },
+        counters: [
+          {
+            label: "Master clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (master)",
+          },
+        ],
         aliases: [
           "masters",
           "master clues",
@@ -690,9 +1594,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           10348, 10350, 10352, 3481, 3483, 3485, 3486, 3488, 20146, 20149,
           20152, 20155, 20158, 20161,
         ],
-        hiscore: {
-          "Clue Scrolls (hard)": "Hard clues completed",
-        },
+        counters: [
+          {
+            label: "Hard clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (hard)",
+          },
+        ],
         aliases: [
           "hards rare",
           "hard clues rare",
@@ -712,9 +1621,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           3483, 3485, 3486, 3488, 20146, 20149, 20152, 20155, 20158, 20161,
           23258, 23261, 23264, 23267, 23276, 23279, 23282, 20005, 12371,
         ],
-        hiscore: {
-          "Clue Scrolls (elite)": "Elite clues completed",
-        },
+        counters: [
+          {
+            label: "Elite clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (elite)",
+          },
+        ],
         aliases: [
           "elites rare",
           "elite clues rare",
@@ -735,9 +1649,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           20146, 20149, 20152, 20155, 20158, 20161, 23258, 23261, 23264, 23267,
           23276, 23279, 23282, 20059, 20017,
         ],
-        hiscore: {
-          "Clue Scrolls (master)": "Master clues completed",
-        },
+        counters: [
+          {
+            label: "Master clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (master)",
+          },
+        ],
         aliases: [
           "master treasure trails rare",
           "masters rare",
@@ -760,9 +1679,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           12406, 12404, 12405, 12403, 12408, 12407, 12409, 12642, 12410, 21387,
           7329, 7330, 7331, 10326, 10327, 20238, 10476,
         ],
-        hiscore: {
-          "Clue Scrolls (all)": "Total clues completed",
-        },
+        counters: [
+          {
+            label: "Total clues completed",
+            shortLabel: "KC",
+            type: "kc",
+            hiscore: "Clue Scrolls (all)",
+          },
+        ],
         aliases: ["shared rewards", "shared clue", "shared clues", "shared"],
       },
       {
@@ -826,6 +1750,15 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
           26901, 26792, 26798, 26813, 26807, 26809, 26811, 26850, 26852, 26854,
           26856, 26815, 26822, 26820, 26908, 26912, 26910,
         ],
+        counters: [
+          {
+            label: "Rifts closed",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["guardians of the rift"],
+            hiscore: "Rifts closed",
+          },
+        ],
         aliases: [
           "guardian of the rift",
           "gotr",
@@ -840,6 +1773,20 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         items: [
           24711, 24719, 24721, 24723, 24725, 24727, 24731, 24729, 24733, 24740,
           24844, 24763, 24765, 24767, 24769, 24771,
+        ],
+        counters: [
+          {
+            label: "Grand Hallowed Coffins opened",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["hallowed sepulchre"],
+          },
+          {
+            label: "Personal Best",
+            shortLabel: "PB",
+            type: "pb",
+            keys: ["hallowed sepulchre"],
+          },
         ],
         aliases: ["hs", "sepc", "sepulchre"],
       },
@@ -1039,6 +1986,14 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
       {
         name: "Hunter Guild",
         items: [28962, 29309, 29263, 29265, 29267, 29269],
+        counters: [
+          {
+            label: "Rumours Completed",
+            shortLabel: "KC",
+            type: "kc",
+            keys: ["hunter rumours"],
+          },
+        ],
       },
       {
         name: "Lost Schematics",
