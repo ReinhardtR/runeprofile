@@ -47,15 +47,18 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function stubHiscores(response: () => Promise<Response>) {
-  const fetchMock = vi.fn((_input: RequestInfo | URL) => response());
+// The page must never reach out to the hiscores (or anything else).
+function stubFetch() {
+  const fetchMock = vi.fn(async (_input: RequestInfo | URL) => {
+    throw new Error("unexpected fetch");
+  });
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
 
 describe("getCollectionLogPage counters", () => {
   test("serves plugin values without asking the hiscores", async () => {
-    const fetchMock = stubHiscores(async () => new Response("{}"));
+    const fetchMock = stubFetch();
     await upsertBossRecords(db, ID, {
       killCounts: { zulrah: 1234 },
       personalBests: { zulrah: 54 },
@@ -71,41 +74,20 @@ describe("getCollectionLogPage counters", () => {
     expect(page).not.toHaveProperty("id");
   });
 
-  test("falls back to the hiscores for kill counts the plugin lacks", async () => {
-    const fetchMock = stubHiscores(
-      async () =>
-        new Response(
-          JSON.stringify({
-            skills: [],
-            activities: [
-              { id: 1, name: "Chambers of Xeric", rank: 5, score: 77 },
-            ],
-          }),
-        ),
-    );
+  test("leaves kill counts the plugin lacks unknown, even with a hiscore", async () => {
+    const fetchMock = stubFetch();
+    await upsertBossRecords(db, ID, {
+      killCounts: { "chambers of xeric": 77 },
+      personalBests: {},
+    });
 
     const page = await getCollectionLogPage(db, "Some Player", "cox");
 
-    expect(page.counters).toEqual([
-      {
-        label: "Chambers of Xeric (CM) completions",
-        shortLabel: "CM KC",
-        type: "kc",
-        value: null,
-      },
-      {
-        label: "Chambers of Xeric completions",
-        shortLabel: "KC",
-        type: "kc",
-        value: 77,
-      },
-      {
-        label: "Personal Best (Challenge Mode)",
-        shortLabel: "CM PB",
-        type: "pb",
-        value: null,
-      },
-      { label: "Personal Best", shortLabel: "PB", type: "pb", value: null },
+    expect(page.counters.map((c) => [c.shortLabel, c.value])).toEqual([
+      ["CM KC", null],
+      ["KC", 77],
+      ["CM PB", null],
+      ["PB", null],
     ]);
     // !log: normal mode first, no personal bests
     expect(page.logCounters).toEqual([
@@ -122,33 +104,17 @@ describe("getCollectionLogPage counters", () => {
         value: null,
       },
     ]);
-    expect(String(fetchMock.mock.calls[0]![0])).toContain(
-      "player=Some%20Player",
-    );
-  });
-
-  test("still serves the page when the hiscores are down", async () => {
-    stubHiscores(async () => {
-      throw new Error("network down");
-    });
-
-    const page = await getCollectionLogPage(db, "Some Player", "zulrah");
-
-    expect(page.items.length).toBeGreaterThan(0);
-    expect(page.counters.map((c) => c.value)).toEqual([null, null]);
-  });
-
-  test("pages without counters skip the lookup entirely", async () => {
-    const fetchMock = stubHiscores(async () => new Response("{}"));
-    const page = await getCollectionLogPage(db, "Some Player", "Random Events");
-    expect(page.counters).toEqual([]);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  test("pages without counters skip the lookup entirely", async () => {
+    stubFetch();
+    const page = await getCollectionLogPage(db, "Some Player", "Random Events");
+    expect(page.counters).toEqual([]);
+  });
+
   test("still serves the page when the records can't be read", async () => {
-    stubHiscores(async () => {
-      throw new Error("network down");
-    });
+    stubFetch();
     await client.exec("DROP TABLE boss_records");
     vi.spyOn(console, "error").mockImplementation(() => {});
 

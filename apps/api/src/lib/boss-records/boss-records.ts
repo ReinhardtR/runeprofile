@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { Database, bossRecords } from "@runeprofile/db";
-import { CollectionLogPage, HiscoreData } from "@runeprofile/runescape";
+import { CollectionLogPage } from "@runeprofile/runescape";
 
 // Chat Commands keys are lowercase boss names ("theatre of blood hard mode").
 // Bounded so a client can't grow the row without limit.
@@ -94,27 +94,18 @@ export type ResolvedCounter = {
 };
 
 /**
- * Resolves a page's kill count / personal best lines. Plugin-reported values
- * win; kill counts fall back to the hiscores (which only rank a boss past a
- * minimum kill count, so a missing hiscore entry stays unknown).
+ * Resolves a page's kill count / personal best lines from what the plugin
+ * uploaded. Lines it has no value for stay null.
  */
 export function resolvePageCounters(
   page: Pick<CollectionLogPage, "counters">,
   records: BossRecords | null,
-  hiscores: HiscoreData | null,
 ): ResolvedCounter[] {
   return (page.counters ?? []).map((counter) => {
     const stored =
       counter.type === "kc" ? records?.killCounts : records?.personalBests;
     const key = counter.keys?.find((k) => stored?.[k] !== undefined);
-    let value = key !== undefined ? stored![key]! : null;
-
-    if (value === null && counter.type === "kc" && counter.hiscore) {
-      const activity = hiscores?.activities.find(
-        (a) => a.name === counter.hiscore,
-      );
-      if (activity && activity.score >= 0) value = activity.score;
-    }
+    const value = key !== undefined ? stored![key]! : null;
 
     return {
       label: counter.label,
@@ -123,17 +114,4 @@ export function resolvePageCounters(
       value,
     };
   });
-}
-
-/** Whether any kill count line still needs the hiscores as a fallback. */
-export function needsHiscores(
-  page: Pick<CollectionLogPage, "counters">,
-  records: BossRecords | null,
-): boolean {
-  return (page.counters ?? []).some(
-    (counter) =>
-      counter.type === "kc" &&
-      counter.hiscore !== undefined &&
-      !counter.keys?.some((k) => records?.killCounts[k] !== undefined),
-  );
 }
