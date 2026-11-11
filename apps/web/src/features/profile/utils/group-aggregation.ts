@@ -1,4 +1,8 @@
-import { HiscoreData } from "@runeprofile/runescape";
+import {
+  CollectionLogPage,
+  HiscoreData,
+  getHiscoreKillCounts,
+} from "@runeprofile/runescape";
 
 import { Group } from "~/core/api";
 
@@ -67,9 +71,10 @@ export function mergeGroupItems(members: GroupMember[]) {
 
 export function aggregateGroupHiscores(
   hiscoresMap: Record<string, HiscoreData | null>,
-  page: { hiscore?: Record<string, string> },
+  page: Pick<CollectionLogPage, "counters">,
 ) {
-  if (!page.hiscore) {
+  const hiscoreKillCounts = getHiscoreKillCounts(page);
+  if (hiscoreKillCounts.length === 0) {
     return {
       killCounts: [],
       distribution: new Map<string, { username: string; count: number }[]>(),
@@ -85,7 +90,7 @@ export function aggregateGroupHiscores(
   const usernames = Object.keys(hiscoresMap).sort((a, b) => a.localeCompare(b));
 
   // For each KC label in the page
-  for (const [hiscoreName, kcLabel] of Object.entries(page.hiscore)) {
+  for (const [hiscoreName, kcLabel] of hiscoreKillCounts) {
     const distribution: { username: string; count: number }[] = [];
     let totalCount = 0;
 

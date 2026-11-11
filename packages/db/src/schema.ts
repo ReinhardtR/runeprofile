@@ -52,6 +52,7 @@ export const accountsRelations = relations(accounts, ({ many, one }) => ({
   achievementDiaryTiers: many(achievementDiaryTiers),
   combatAchievementTiers: many(combatAchievementTiers),
   combatAchievementVarps: one(combatAchievementVarps),
+  bossRecords: one(bossRecords),
   items: many(items),
   quests: many(quests),
   skills: many(skills),
@@ -114,6 +115,23 @@ export const combatAchievementVarpsRelations = relations(
     }),
   }),
 );
+
+// Kill counts and personal bests the plugin reads from RuneLite's Chat
+// Commands plugin (RS-profile config groups "killcount" / "personalbest").
+// Keyed by Chat Commands' lowercase boss name; personal bests in seconds.
+// Collection log pages map their lines to these keys (CollectionLogCounter).
+export const bossRecords = t.pgTable("boss_records", {
+  accountId: t.text().notNull().primaryKey().references(account),
+  killCounts: t.jsonb().notNull().$type<Record<string, number>>(),
+  personalBests: t.jsonb().notNull().$type<Record<string, number>>(),
+  updatedAt,
+});
+export const bossRecordsRelations = relations(bossRecords, ({ one }) => ({
+  account: one(accounts, {
+    fields: [bossRecords.accountId],
+    references: [accounts.id],
+  }),
+}));
 
 export const items = t.pgTable(
   "items",

@@ -9,6 +9,7 @@ import {
   COLLECTION_LOG_TABS,
   COLLECTION_LOG_TO_CA_BOSS_MAP,
   COMBAT_ACHIEVEMENT_BOSSES,
+  getHiscoreKillCounts,
   getHiscoreLeaderboardForAccountType,
 } from "@runeprofile/runescape";
 
@@ -170,11 +171,12 @@ export function CollectionLog({
   const itemsCount = items.length;
 
   const killCounts = React.useMemo(() => {
-    if (!currentPage.hiscore) return [];
+    const hiscoreKillCounts = getHiscoreKillCounts(currentPage);
+    if (hiscoreKillCounts.length === 0) return [];
 
     // If we have kill count distribution (group mode), use that
     if (killCountDistribution) {
-      return Object.entries(currentPage.hiscore).map(([, kcLabel]) => {
+      return hiscoreKillCounts.map(([, kcLabel]) => {
         const distribution = killCountDistribution.get(kcLabel);
         if (!distribution) {
           return {
@@ -198,7 +200,7 @@ export function CollectionLog({
     }
 
     // Single player mode - use hiscores query
-    return Object.entries(currentPage.hiscore).map(([hiscoreName, kcLabel]) => {
+    return hiscoreKillCounts.map(([hiscoreName, kcLabel]) => {
       const hiscoreEntry = hiscoresQuery.data?.activities.find(
         (activity) => activity.name === hiscoreName,
       );
@@ -216,7 +218,7 @@ export function CollectionLog({
         distribution: undefined,
       };
     });
-  }, [hiscoresQuery.data, currentPage.hiscore, killCountDistribution]);
+  }, [hiscoresQuery.data, currentPage, killCountDistribution]);
 
   const caBossName =
     COLLECTION_LOG_TO_CA_BOSS_MAP[currentPage.name] ?? currentPage.name;

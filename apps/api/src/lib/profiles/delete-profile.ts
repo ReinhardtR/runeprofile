@@ -5,6 +5,7 @@ import {
   accounts,
   achievementDiaryTiers,
   activities,
+  bossRecords,
   combatAchievementTiers,
   combatAchievementVarps,
   items,
@@ -42,6 +43,7 @@ export async function deleteProfile(
     db
       .delete(combatAchievementVarps)
       .where(eq(combatAchievementVarps.accountId, id)),
+    db.delete(bossRecords).where(eq(bossRecords.accountId, id)),
     db.delete(items).where(eq(items.accountId, id)),
     db.delete(quests).where(eq(quests.accountId, id)),
     db.delete(skills).where(eq(skills.accountId, id)),
