@@ -4,15 +4,10 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import * as schema from "@runeprofile/db";
 import { Database } from "@runeprofile/db";
-import {
-  COLLECTION_LOG_TABS,
-  CollectionLogPage,
-  HiscoreData,
-} from "@runeprofile/runescape";
+import { COLLECTION_LOG_TABS, CollectionLogPage } from "@runeprofile/runescape";
 
 import {
   getBossRecords,
-  needsHiscores,
   resolvePageCounters,
   upsertBossRecords,
 } from "~/lib/boss-records/boss-records";
@@ -85,17 +80,6 @@ describe("upsertBossRecords", () => {
 const page = (name: string): CollectionLogPage =>
   COLLECTION_LOG_TABS.flatMap((t) => t.pages).find((p) => p.name === name)!;
 
-const hiscores = (scores: Record<string, number>): HiscoreData =>
-  ({
-    skills: [],
-    activities: Object.entries(scores).map(([name, score], id) => ({
-      id,
-      name,
-      rank: 1,
-      score,
-    })),
-  }) as unknown as HiscoreData;
-
 describe("resolvePageCounters", () => {
   test("resolves every kill count and personal best on a multi-line page", () => {
     const records = {
@@ -103,7 +87,7 @@ describe("resolvePageCounters", () => {
       personalBests: { "corrupted gauntlet": 372.6, gauntlet: 580 },
     };
 
-    expect(resolvePageCounters(page("The Gauntlet"), records, null)).toEqual([
+    expect(resolvePageCounters(page("The Gauntlet"), records)).toEqual([
       {
         label: "Corrupted Gauntlet completion count",
         shortLabel: "CG KC",
@@ -126,28 +110,19 @@ describe("resolvePageCounters", () => {
     ]);
   });
 
-  test("prefers plugin values and falls back to the hiscores for kill counts", () => {
+  test("leaves lines without a plugin value unknown", () => {
     const records = { killCounts: { "dagannoth rex": 50 }, personalBests: {} };
-    const resolved = resolvePageCounters(
-      page("Dagannoth Kings"),
-      records,
-      hiscores({ "Dagannoth Rex": 999, "Dagannoth Prime": 20 }),
-    );
-
-    expect(resolved.map((c) => [c.label, c.value])).toEqual([
-      ["Dagannoth Supreme kills", null], // not ranked, no plugin value
-      ["Dagannoth Prime kills", 20],
+    expect(
+      resolvePageCounters(page("Dagannoth Kings"), records).map((c) => [
+        c.label,
+        c.value,
+      ]),
+    ).toEqual([
+      ["Dagannoth Supreme kills", null],
+      ["Dagannoth Prime kills", null],
       ["Dagannoth Rex kills", 50],
     ]);
-  });
-
-  test("leaves unranked hiscore entries unknown", () => {
-    const resolved = resolvePageCounters(
-      page("Zulrah"),
-      null,
-      hiscores({ Zulrah: -1 }),
-    );
-    expect(resolved).toEqual([
+    expect(resolvePageCounters(page("Zulrah"), null)).toEqual([
       { label: "Zulrah kills", shortLabel: "KC", type: "kc", value: null },
       { label: "Personal Best", shortLabel: "PB", type: "pb", value: null },
     ]);
@@ -159,21 +134,7 @@ describe("resolvePageCounters", () => {
       personalBests: { "royal titan": 95 },
     };
     expect(
-      resolvePageCounters(page("Royal Titans"), records, null).map(
-        (c) => c.value,
-      ),
+      resolvePageCounters(page("Royal Titans"), records).map((c) => c.value),
     ).toEqual([7, 95]);
-  });
-});
-
-describe("needsHiscores", () => {
-  test("only when a hiscore-backed kill count has no plugin value", () => {
-    const zulrah = page("Zulrah");
-    expect(needsHiscores(zulrah, null)).toBe(true);
-    expect(
-      needsHiscores(zulrah, { killCounts: { zulrah: 1 }, personalBests: {} }),
-    ).toBe(false);
-    // no hiscore entry for Sepulchre coffins, so nothing to fetch
-    expect(needsHiscores(page("Hallowed Sepulchre"), null)).toBe(false);
   });
 });
