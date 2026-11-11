@@ -141,6 +141,13 @@
       "when": 1792060839202,
       "tag": "0019_items_id_index",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794390378808,
+      "tag": "0020_boss_records",
+      "breakpoints": true
     }
   ]
 }

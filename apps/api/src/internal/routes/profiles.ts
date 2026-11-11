@@ -15,6 +15,10 @@ import { addActivities } from "~/lib/activity-log/add-activities";
 import { checkActivityEvents } from "~/lib/activity-log/check-activity-events";
 import { deleteActivity } from "~/lib/activity-log/delete-activity";
 import { getActivities } from "~/lib/activity-log/get-activities";
+import {
+  bossRecordsInputSchema,
+  upsertBossRecords,
+} from "~/lib/boss-records/boss-records";
 import { getCollectionLogPage } from "~/lib/collection-log/get-collection-log-page";
 import {
   RuneProfileAccountNotFoundError,
@@ -284,13 +288,16 @@ export const profilesRouter = newRouter()
         items: z.record(z.coerce.number(), z.number()),
         quests: z.record(z.coerce.number(), z.number()),
         skills: z.record(z.string(), z.number()),
+        // From RuneLite's Chat Commands plugin, on plugin versions that send it.
+        ...bossRecordsInputSchema,
       }),
     ),
     async (c) => {
       const db = drizzle(c.env.HYPERDRIVE);
       const bucket = c.env.BUCKET;
       const kv = c.env.KV;
-      const { hardcoreMain, ...input } = c.req.valid("json");
+      const { hardcoreMain, killCounts, personalBests, ...input } =
+        c.req.valid("json");
       const data = {
         ...input,
         accountType: resolveAccountType(input.accountType, hardcoreMain),
@@ -341,6 +348,13 @@ export const profilesRouter = newRouter()
         }
         const { updates, resolution, activities, updatedAt } = result;
         created = updates.currentProfile === null;
+
+        // Outside the profile transaction: losing these must never fail a sync.
+        try {
+          await upsertBossRecords(db, data.id, { killCounts, personalBests });
+        } catch (err) {
+          console.error("Failed to store boss records:", err);
+        }
         logFields(c, {
           username: updates.username,
           profile_created: created,
@@ -405,6 +419,31 @@ export const profilesRouter = newRouter()
       }
 
       return c.json({ message: "Profile updated", created }, STATUS.OK);
+    },
+  )
+  // The plugin pushes the sender's latest values right before a "!log"
+  // message goes out, so everyone looking the page up sees them.
+  .post(
+    "/boss-records",
+    validator(
+      "json",
+      z.object({ id: accountIdSchema, ...bossRecordsInputSchema }),
+    ),
+    async (c) => {
+      const db = drizzle(c.env.HYPERDRIVE);
+      const { id, killCounts, personalBests } = c.req.valid("json");
+
+      const account = await db.query.accounts.findFirst({
+        where: eq(accounts.id, id),
+        columns: { id: true },
+      });
+      if (!account) {
+        throw RuneProfileAccountNotFoundError;
+      }
+
+      await upsertBossRecords(db, id, { killCounts, personalBests });
+
+      return c.json({ message: "Boss records updated" }, STATUS.OK);
     },
   )
   .post(
