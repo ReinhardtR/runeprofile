@@ -35,7 +35,7 @@ export async function getCollectionLogPage(
 
   const account = await db.query.accounts.findFirst({
     where: eq(lower(accounts.username), username.toLowerCase()),
-    columns: { id: true, username: true, accountType: true },
+    columns: { id: true },
   });
 
   if (!account) {
