@@ -480,7 +480,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         hiscore: {
           "The Fractured Archive": "Fractured Archive completions",
         },
-        aliases: ["tfa", "fred"],
+        aliases: ["tfa", "fred", "fractured archive"],
       },
       {
         name: "Theatre of Blood",
