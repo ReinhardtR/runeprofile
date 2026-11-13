@@ -152,7 +152,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         counters: [
           {
             label: "Barrows Chests opened",
-            shortLabel: "KC",
+            shortLabel: "Chests",
             type: "kc",
             keys: ["barrows chests"],
             hiscore: "Barrows Chests",
@@ -347,7 +347,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         counters: [
           {
             label: "Deep delves",
-            shortLabel: "KC",
+            shortLabel: "Deep delves",
             type: "kc",
             keys: ["doom of mokhaiotl"],
             hiscore: "Doom of Mokhaiotl",
@@ -750,7 +750,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         counters: [
           {
             label: "Lunar Chests opened",
-            shortLabel: "KC",
+            shortLabel: "Chests",
             type: "kc",
             keys: ["lunar chest", "lunar chests"],
             hiscore: "Lunar Chests",
@@ -1753,7 +1753,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         counters: [
           {
             label: "Rifts closed",
-            shortLabel: "KC",
+            shortLabel: "Rifts",
             type: "kc",
             keys: ["guardians of the rift"],
             hiscore: "Rifts closed",
@@ -1777,7 +1777,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         counters: [
           {
             label: "Grand Hallowed Coffins opened",
-            shortLabel: "KC",
+            shortLabel: "Coffins",
             type: "kc",
             keys: ["hallowed sepulchre"],
           },
@@ -1989,7 +1989,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         counters: [
           {
             label: "Rumours Completed",
-            shortLabel: "KC",
+            shortLabel: "Rumours",
             type: "kc",
             keys: ["hunter rumours"],
           },
