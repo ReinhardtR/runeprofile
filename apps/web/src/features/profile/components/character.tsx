@@ -215,6 +215,73 @@ const MODEL_SCALE = 0.028;
 const CANVAS_DPR: [number, number] = [1, 2];
 
 /**
+ * Asks the browser for the integrated GPU where there is a choice. A low-poly
+ * model needs nothing more, and on dual-GPU machines the default
+ * ("high-performance") wakes the discrete GPU, and the switch stutters every
+ * other window on the system.
+ */
+const CANVAS_GL = { alpha: true, powerPreference: "low-power" } as const;
+
+/**
+ * How often a moving scene is redrawn. Left to itself the canvas draws at the
+ * display's refresh rate, 120-144 times a second on many monitors, for a
+ * gentle turntable that looks the same at 30. Capping it cuts the GPU load
+ * to a fraction, and with it the lag in other tabs and windows.
+ */
+const ANIMATION_FPS = 30;
+
+/**
+ * Longest step a single frame may advance the animation by. In demand mode a
+ * frame's delta is the whole time since the previous one, so coming back after
+ * being scrolled away would otherwise jump the model forward.
+ */
+const MAX_FRAME_DELTA = 0.1;
+
+/**
+ * Redraws a demand-mode canvas at ANIMATION_FPS while `active`, and only while
+ * the canvas is actually on screen. Scrolled away (to the collection log, say)
+ * it draws nothing at all. Hidden tabs already get no animation frames.
+ */
+function FrameDriver({ active }: { active: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+  const canvas = useThree((state) => state.gl.domElement);
+
+  React.useEffect(() => {
+    if (!active) return;
+
+    const interval = 1000 / ANIMATION_FPS;
+    let frame = 0;
+    let last = 0;
+    let visible = false;
+
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick);
+      // A millisecond of slack, so a 60Hz display lands on every second frame
+      // instead of drifting to every third.
+      if (now - last < interval - 1) return;
+      last = now;
+      invalidate();
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      const isVisible = !!entry?.isIntersecting;
+      if (isVisible === visible) return;
+      visible = isVisible;
+      cancelAnimationFrame(frame);
+      if (visible) frame = requestAnimationFrame(tick);
+    });
+    observer.observe(canvas);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [active, invalidate, canvas]);
+
+  return null;
+}
+
+/**
  * The soft blob under a character's feet.
  *
  * One texture for the whole page. It is identical every time, so building a
@@ -275,14 +342,15 @@ function PlayerModelScene({
 }) {
   return (
     <Canvas
-      gl={{ alpha: true }}
+      gl={CANVAS_GL}
       dpr={CANVAS_DPR}
       flat
-      // Paused means nothing moves - not the turntable and not the animated
-      // textures - so there is no reason to keep redrawing an identical frame.
-      // Anything that does change while paused invalidates explicitly.
-      frameloop={isAnimating ? "always" : "demand"}
+      // Only ever draws when asked. FrameDriver asks at a capped rate while the
+      // model is animating and on screen; paused, nothing moves, so nothing
+      // redraws. Anything that does change while paused invalidates explicitly.
+      frameloop="demand"
     >
+      <FrameDriver active={isAnimating} />
       <Model username={username} isAnimating={isAnimating} />
     </Canvas>
   );
@@ -346,8 +414,9 @@ const Model = React.memo(
       };
     }, [username, animator, invalidate]);
 
-    useFrame((state, delta) => {
+    useFrame((state, frameDelta) => {
       if (!playerMeshRef.current) return;
+      const delta = Math.min(frameDelta, MAX_FRAME_DELTA);
 
       if (isAnimating) {
         animationTimeRef.current += delta;
@@ -470,7 +539,9 @@ export function GroupCharacters(props: { members: Group["members"] }) {
  * a still camera settles to doing nothing after the first frame.
  */
 function SceneAnimator({ animator }: { animator: ModelAnimator }) {
-  useFrame((state, delta) => animator.update(state.camera, delta));
+  useFrame((state, delta) =>
+    animator.update(state.camera, Math.min(delta, MAX_FRAME_DELTA)),
+  );
   return null;
 }
 
@@ -570,9 +641,10 @@ function GroupCharactersScene({ members }: { members: Group["members"] }) {
         </div>
       )}
 
-      {/* Left drawing continuously: these models do not spin, but a fire cape's
-          texture still scrolls, and there is no pause control here. */}
-      <Canvas gl={{ alpha: true }} dpr={CANVAS_DPR} flat>
+      {/* Kept animating: these models do not spin, but a fire cape's texture
+          still scrolls, and there is no pause control here. */}
+      <Canvas gl={CANVAS_GL} dpr={CANVAS_DPR} flat frameloop="demand">
+        <FrameDriver active />
         <SceneAnimator animator={animator} />
         <Center>
           {!loading && (
