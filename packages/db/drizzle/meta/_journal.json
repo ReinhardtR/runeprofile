@@ -148,6 +148,13 @@
       "when": 1794390378808,
       "tag": "0020_boss_records",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795436270774,
+      "tag": "0021_discord_watches_lower_target_index",
+      "breakpoints": true
     }
   ]
 }

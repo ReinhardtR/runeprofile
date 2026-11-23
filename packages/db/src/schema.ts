@@ -278,6 +278,11 @@ export const discordWatches = t.pgTable(
     t
       .index("discord_watches_target_index")
       .on(table.targetType, table.targetId),
+    // Clan watches match on lower(target_id); without this the per-activity
+    // watch lookup read ~1.6k index entries per row returned.
+    t
+      .index("discord_watches_target_type_lower_target_id_index")
+      .on(table.targetType, sql`lower(${table.targetId})`),
   ],
 );
 

@@ -4,7 +4,9 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { Database } from "@runeprofile/db";
 
-import { getEventLeaderboard } from "~/lib/metrics/get-event-leaderboards";
+import { FrontpageEvent } from "@runeprofile/runescape";
+
+import { getEventLeaderboards } from "~/lib/metrics/get-event-leaderboards";
 
 const client = new PGlite();
 const db = pgliteDrizzle(client, {
@@ -13,6 +15,29 @@ const db = pgliteDrizzle(client, {
 
 const EVENT_ITEMS = [100, 101, 102];
 const OTHER_ITEM = 999;
+
+function event(
+  clogItemIds: number[],
+  purpleItemIds: number[] = clogItemIds,
+): FrontpageEvent {
+  return {
+    name: "Test",
+    clogItemIds,
+    purpleItemIds,
+    launchesAt: null,
+    trailerUrl: null,
+  };
+}
+
+// The old per-board signature, kept so the ranking tests read the same.
+async function getEventLeaderboard(
+  db: Database,
+  itemIds: number[],
+  rankBy: "obtained" | "quantity",
+) {
+  const boards = await getEventLeaderboards(db, event(itemIds));
+  return rankBy === "obtained" ? boards.clog : boards.purples;
+}
 
 // In-memory Postgres with just the columns the leaderboard query touches.
 async function seedAccount(
@@ -53,7 +78,7 @@ beforeEach(async () => {
   `);
 });
 
-describe("getEventLeaderboard", () => {
+describe("getEventLeaderboards", () => {
   test("returns nothing without item ids, skipping the query", async () => {
     await seedAccount("alice", [{ id: 100, quantity: 1 }]);
     expect(await getEventLeaderboard(db, [], "obtained")).toEqual([]);
@@ -127,5 +152,32 @@ describe("getEventLeaderboard", () => {
     ]);
     expect(Object.keys(entry!)).not.toContain("accountId");
     expect(JSON.stringify(entry)).not.toContain("0000alice");
+  });
+
+  test("ranks each board by its own items in a single query", async () => {
+    // clog = Orion + purples; purples board only counts the purples.
+    const boards = event([200, 100, 101], [100, 101]);
+    await seedAccount("collector", [
+      { id: 200, quantity: 1 },
+      { id: 100, quantity: 1 },
+      { id: 101, quantity: 1 },
+    ]);
+    await seedAccount("farmer", [{ id: 100, quantity: 7 }]);
+    await seedAccount("petonly", [{ id: 200, quantity: 1 }]);
+
+    const { clog, purples } = await getEventLeaderboards(db, boards);
+
+    expect(clog.map((e) => [e.username, e.obtained])).toEqual([
+      ["collector", 3],
+      ["farmer", 1],
+      ["petonly", 1],
+    ]);
+    expect(purples.map((e) => [e.username, e.quantity])).toEqual([
+      ["farmer", 7],
+      ["collector", 2],
+    ]);
+    // Each board only carries its own items.
+    expect(clog[0]!.items.map((i) => i.id)).toEqual([200, 100, 101]);
+    expect(purples[1]!.items.map((i) => i.id)).toEqual([100, 101]);
   });
 });
