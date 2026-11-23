@@ -22,7 +22,9 @@ export function EventLeaderboards({
   event: FrontpageEvent;
   className?: string;
 }) {
-  const [board, setBoard] = React.useState<Board>("clog");
+  // Purples first: once the event is live, who's pulling the most is the
+  // more interesting race.
+  const [board, setBoard] = React.useState<Board>("purples");
 
   return (
     <LeaderboardPanel
@@ -66,18 +68,18 @@ function LeaderboardPanel({
 
       <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/40 p-1">
         <BoardTab
-          active={board === "clog"}
-          onClick={() => onBoardChange("clog")}
-        >
-          <img src={CollectionLogIcon} alt="" className="size-5" />
-          Collection Log
-        </BoardTab>
-        <BoardTab
           active={board === "purples"}
           onClick={() => onBoardChange("purples")}
         >
           <span className="size-3 rounded-full bg-[#A855F7] shadow-[0_0_8px_#A855F7]" />
           Purples
+        </BoardTab>
+        <BoardTab
+          active={board === "clog"}
+          onClick={() => onBoardChange("clog")}
+        >
+          <img src={CollectionLogIcon} alt="" className="size-5" />
+          Collection Log
         </BoardTab>
       </div>
 
