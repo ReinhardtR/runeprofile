@@ -53,7 +53,7 @@ export default {
       case "15 4 * * *":
         ctx.waitUntil(sweepStalePendingNames(db, env.BUCKET, env.KV));
         break;
-      case "*/15 * * * *":
+      case "*/10 * * * *":
         ctx.waitUntil(refreshEventLeaderboards(db, env.KV, FRONTPAGE_EVENT));
         break;
     }

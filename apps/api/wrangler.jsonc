@@ -14,7 +14,7 @@
   // leaderboards refresh into KV (src/lib/metrics/get-event-leaderboards.ts).
   // Both dispatched by cron string in the scheduled handler in src/index.ts.
   "triggers": {
-    "crons": ["15 4 * * *", "*/15 * * * *"]
+    "crons": ["15 4 * * *", "*/10 * * * *"]
   },
   "routes": [
     {
