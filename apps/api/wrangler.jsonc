@@ -10,9 +10,11 @@
     "region": "aws:us-east-1"
   },
   // Daily sweep of pending usernames whose holder has gone stale
-  // (src/lib/profiles/sweep-stale-names.ts via the scheduled handler).
+  // (src/lib/profiles/sweep-stale-names.ts), and the frontpage event
+  // leaderboards refresh into KV (src/lib/metrics/get-event-leaderboards.ts).
+  // Both dispatched by cron string in the scheduled handler in src/index.ts.
   "triggers": {
-    "crons": ["15 4 * * *"]
+    "crons": ["15 4 * * *", "*/15 * * * *"]
   },
   "routes": [
     {

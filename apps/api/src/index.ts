@@ -1,6 +1,7 @@
 import { cors } from "hono/cors";
 
 import { drizzle } from "@runeprofile/db";
+import { FRONTPAGE_EVENT } from "@runeprofile/runescape";
 
 import { clansRouter } from "~/internal/routes/clans";
 import { discordRouter } from "~/internal/routes/discord";
@@ -12,6 +13,7 @@ import { profilesRouter } from "~/internal/routes/profiles";
 import { simulateRouter } from "~/internal/routes/simulate";
 import { errorHandler, newRouter } from "~/lib/helpers";
 import { wideEventLogger } from "~/lib/logging";
+import { refreshEventLeaderboards } from "~/lib/metrics/get-event-leaderboards";
 import { sweepStalePendingNames } from "~/lib/profiles/sweep-stale-names";
 import { publicApiV1 } from "~/public/v1/index";
 
@@ -44,9 +46,16 @@ export const app = newRouter()
 
 export default {
   fetch: app.fetch,
-  scheduled(_event, env, ctx) {
-    ctx.waitUntil(
-      sweepStalePendingNames(drizzle(env.HYPERDRIVE), env.BUCKET, env.KV),
-    );
+  scheduled(event, env, ctx) {
+    const db = drizzle(env.HYPERDRIVE);
+    // Must match the cron strings in wrangler.jsonc.
+    switch (event.cron) {
+      case "15 4 * * *":
+        ctx.waitUntil(sweepStalePendingNames(db, env.BUCKET, env.KV));
+        break;
+      case "*/15 * * * *":
+        ctx.waitUntil(refreshEventLeaderboards(db, env.KV, FRONTPAGE_EVENT));
+        break;
+    }
   },
 } satisfies ExportedHandler<Env>;

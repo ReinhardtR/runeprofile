@@ -3,7 +3,10 @@ import { FRONTPAGE_EVENT, isFrontpageEventLive } from "@runeprofile/runescape";
 
 import { newRouter } from "~/lib/helpers";
 import { edgeCache } from "~/lib/logging";
-import { getEventLeaderboards } from "~/lib/metrics/get-event-leaderboards";
+import {
+  EventLeaderboards,
+  eventLeaderboardsKvKey,
+} from "~/lib/metrics/get-event-leaderboards";
 import { getMetrics } from "~/lib/metrics/get-metrics";
 import { STATUS } from "~/lib/status";
 
@@ -25,23 +28,26 @@ export const metricsRouter = newRouter()
       return c.json(metrics, STATUS.OK);
     },
   )
-  .get(
-    "/event-leaderboards",
-    edgeCache({
-      // Namespaced by event and live state so the empty teaser response
-      // cached before launch isn't served after the launch deploy.
-      cacheName: `event-leaderboards-${FRONTPAGE_EVENT?.name}-${FRONTPAGE_EVENT && isFrontpageEventLive(FRONTPAGE_EVENT) ? "live" : "teaser"}`,
-      cacheControl: "public, max-age=900",
-    }),
-    async (c) => {
-      if (!FRONTPAGE_EVENT || !isFrontpageEventLive(FRONTPAGE_EVENT)) {
-        return c.json({ clog: [], purples: [] }, STATUS.OK);
-      }
+  .get("/event-leaderboards", async (c) => {
+    const empty: EventLeaderboards = { clog: [], purples: [] };
 
-      const db = drizzle(c.env.HYPERDRIVE);
+    if (!FRONTPAGE_EVENT || !isFrontpageEventLive(FRONTPAGE_EVENT)) {
+      return c.json(empty, STATUS.OK);
+    }
 
-      const leaderboards = await getEventLeaderboards(db, FRONTPAGE_EVENT);
+    // Filled by the */15 cron (refreshEventLeaderboards) — never computed per
+    // request. Until the first run after launch the boards are empty, which
+    // is also what they'd show minutes into an event anyway.
+    const leaderboards = await c.env.KV.get<EventLeaderboards>(
+      eventLeaderboardsKvKey(FRONTPAGE_EVENT),
+      { type: "json", cacheTtl: 300 },
+    );
 
-      return c.json(leaderboards, STATUS.OK);
-    },
-  );
+    if (!leaderboards) {
+      c.header("Cache-Control", "no-store");
+      return c.json(empty, STATUS.OK);
+    }
+
+    c.header("Cache-Control", "public, max-age=300");
+    return c.json(leaderboards, STATUS.OK);
+  });

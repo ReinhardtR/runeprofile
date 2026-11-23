@@ -13,15 +13,18 @@ export type FrontpageEvent = {
 };
 
 // The themed event the frontpage hero shows, or null for the default hero.
-export const FRONTPAGE_EVENT: FrontpageEvent | null = {
-  name: "The Fractured Archive",
-  // Orion and the purples.
-  clogItemIds: [34646, 34717, 34681, 34727, 34719, 34679],
-  // Obligator, Ascension crossbows, Zorya's tome, Rondache, Horn of Bran.
-  purpleItemIds: [34717, 34681, 34727, 34719, 34679],
-  launchesAt: "2026-10-20T11:00:00Z",
-  trailerUrl: "https://www.youtube.com/watch?v=loH7UPjhWyw",
-};
+export const FRONTPAGE_EVENT: FrontpageEvent | null = null;
+
+// Last event, kept as a template for the next one:
+// {
+//   name: "The Fractured Archive",
+//   // Orion and the purples.
+//   clogItemIds: [34646, 34717, 34681, 34727, 34719, 34679],
+//   // Obligator, Ascension crossbows, Zorya's tome, Rondache, Horn of Bran.
+//   purpleItemIds: [34717, 34681, 34727, 34719, 34679],
+//   launchesAt: "2026-10-20T11:00:00Z",
+//   trailerUrl: "https://www.youtube.com/watch?v=loH7UPjhWyw",
+// }
 
 export function isFrontpageEventLive(event: FrontpageEvent): boolean {
   return event.purpleItemIds.length > 0;

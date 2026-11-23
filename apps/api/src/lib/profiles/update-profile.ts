@@ -161,8 +161,14 @@ export async function updateProfile(
             ]),
           }),
       ),
-      // Upsert combat achievement varps if present (new plugin clients)
-      ...(updates.combatAchievementVarps.newVarps
+      // Upsert combat achievement varps if present (new plugin clients) and
+      // changed — every sync sends them, so writing unconditionally rewrote
+      // the row ~500k times a day for nothing.
+      ...(updates.combatAchievementVarps.newVarps &&
+      !varpsEqual(
+        updates.combatAchievementVarps.newVarps,
+        updates.combatAchievementVarps.oldVarps,
+      )
         ? [
             tx
               .insert(combatAchievementVarps)
@@ -241,4 +247,14 @@ export async function updateProfile(
   }
 
   return { updatedAt: resultUpdatedAt ?? new Date().toISOString() };
+}
+
+function varpsEqual(
+  a: Record<string, number>,
+  b: Record<string, number> | null,
+): boolean {
+  if (!b) return false;
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((key) => b[key] === a[key]);
 }
