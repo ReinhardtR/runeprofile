@@ -13,7 +13,7 @@ const LEADERBOARD_SIZE = 10;
 // compute them per request — on a small Postgres instance one run is several
 // seconds of random heap reads, and the per-colo edge cache multiplied that
 // into ~20% of all database time during The Fractured Archive.
-export const EVENT_LEADERBOARDS_REFRESH_SECONDS = 15 * 60;
+export const EVENT_LEADERBOARDS_REFRESH_SECONDS = 10 * 60;
 
 export function eventLeaderboardsKvKey(event: FrontpageEvent) {
   return `event-leaderboards:${event.name}`;
@@ -30,6 +30,13 @@ export type EventLeaderboardEntry = {
 export type EventLeaderboards = {
   clog: EventLeaderboardEntry[];
   purples: EventLeaderboardEntry[];
+};
+
+// What the cron stores and the route serves: the boards plus when they were
+// computed, for the frontpage's "Updated x mins ago" note. null until the
+// first cron run.
+export type CachedEventLeaderboards = EventLeaderboards & {
+  updatedAt: string | null;
 };
 
 type Row = {
@@ -139,7 +146,10 @@ export async function refreshEventLeaderboards(
 ) {
   if (!event || !isFrontpageEventLive(event)) return;
 
-  const leaderboards = await getEventLeaderboards(db, event);
+  const leaderboards: CachedEventLeaderboards = {
+    ...(await getEventLeaderboards(db, event)),
+    updatedAt: new Date().toISOString(),
+  };
 
   await kv.put(eventLeaderboardsKvKey(event), JSON.stringify(leaderboards), {
     // Outlives a couple of missed cron runs, but not a finished event.

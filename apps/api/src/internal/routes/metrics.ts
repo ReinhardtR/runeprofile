@@ -4,7 +4,7 @@ import { FRONTPAGE_EVENT, isFrontpageEventLive } from "@runeprofile/runescape";
 import { newRouter } from "~/lib/helpers";
 import { edgeCache } from "~/lib/logging";
 import {
-  EventLeaderboards,
+  CachedEventLeaderboards,
   eventLeaderboardsKvKey,
 } from "~/lib/metrics/get-event-leaderboards";
 import { getMetrics } from "~/lib/metrics/get-metrics";
@@ -29,18 +29,22 @@ export const metricsRouter = newRouter()
     },
   )
   .get("/event-leaderboards", async (c) => {
-    const empty: EventLeaderboards = { clog: [], purples: [] };
+    const empty: CachedEventLeaderboards = {
+      clog: [],
+      purples: [],
+      updatedAt: null,
+    };
 
     if (!FRONTPAGE_EVENT || !isFrontpageEventLive(FRONTPAGE_EVENT)) {
       return c.json(empty, STATUS.OK);
     }
 
-    // Filled by the */15 cron (refreshEventLeaderboards) — never computed per
+    // Filled by the */10 cron (refreshEventLeaderboards) — never computed per
     // request. Until the first run after launch the boards are empty, which
     // is also what they'd show minutes into an event anyway.
-    const leaderboards = await c.env.KV.get<EventLeaderboards>(
+    const leaderboards = await c.env.KV.get<CachedEventLeaderboards>(
       eventLeaderboardsKvKey(FRONTPAGE_EVENT),
-      { type: "json", cacheTtl: 300 },
+      { type: "json", cacheTtl: 60 },
     );
 
     if (!leaderboards) {
@@ -48,6 +52,7 @@ export const metricsRouter = newRouter()
       return c.json(empty, STATUS.OK);
     }
 
-    c.header("Cache-Control", "public, max-age=300");
-    return c.json(leaderboards, STATUS.OK);
+    c.header("Cache-Control", "public, max-age=60");
+    // Entries written before updatedAt existed lack it.
+    return c.json({ ...leaderboards, updatedAt: leaderboards.updatedAt ?? null }, STATUS.OK);
   });

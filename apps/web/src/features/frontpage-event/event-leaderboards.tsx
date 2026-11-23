@@ -5,7 +5,7 @@ import React from "react";
 import { FrontpageEvent, isFrontpageEventLive } from "@runeprofile/runescape";
 
 import CollectionLogIcon from "~/core/assets/icons/collection-log.png";
-import { cn } from "~/shared/utils";
+import { cn, formatRelativeTime } from "~/shared/utils";
 
 import {
   PodiumLeaderboard,
@@ -129,7 +129,28 @@ function LiveLeaderboard({
   return (
     <div className="flex min-h-0 flex-1 flex-col animate-in fade-in duration-700">
       <PodiumLeaderboard event={event} board={board} entries={entries} />
+      {data.updatedAt && <UpdatedAt date={data.updatedAt} />}
     </div>
+  );
+}
+
+// "Updated 3 mins ago" under the board. Client-only so SSR and hydration
+// don't disagree on the relative time, and re-rendered every 30s so it
+// doesn't go stale while the page sits open.
+function UpdatedAt({ date }: { date: string }) {
+  const [label, setLabel] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const update = () => setLabel(formatRelativeTime(date));
+    update();
+    const interval = setInterval(update, 30_000);
+    return () => clearInterval(interval);
+  }, [date]);
+
+  return (
+    <p className="pt-1 text-center text-xs text-muted-foreground">
+      {label ? `Updated ${label} · refreshes every 10 mins` : "\u00a0"}
+    </p>
   );
 }
 
