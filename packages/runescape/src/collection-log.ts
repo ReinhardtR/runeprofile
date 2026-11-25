@@ -2038,6 +2038,10 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         aliases: ["ocean encounter"],
       },
       {
+        name: "Prison of Ræun",
+        items: [35033, 35027, 35029],
+      },
+      {
         name: "Random Events",
         items: [
           6654, 6655, 6656, 6180, 6181, 6182, 7592, 7593, 7594, 7595, 7596,
@@ -2063,7 +2067,7 @@ export const COLLECTION_LOG_TABS: CollectionLogTab[] = [
         name: "Sailing Miscellaneous",
         items: [
           31996, 31406, 31916, 31946, 31952, 31954, 31959, 31961, 31949, 32115,
-          31989, 33074,
+          31989, 33074, 35031,
         ],
         aliases: ["sailing misc"],
       },
@@ -3880,6 +3884,10 @@ export const COLLECTION_LOG_ITEMS: Record<number, string> = {
   34719: "Rondache",
   34722: "Archivist's folio (inert)",
   34727: "Zorya's tome (uncharged)",
+  35027: "Fremennik graceful ornament kit",
+  35029: "Fremennik sail fabric",
+  35031: "Ghostly sail fabric",
+  35033: "Sunken treasure",
 };
 
 export const COLLECTION_LOG_ITEM_IDS =

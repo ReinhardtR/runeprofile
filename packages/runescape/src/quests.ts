@@ -158,6 +158,7 @@ export const QUESTS = [
   { id: 63, name: "The Giant Dwarf", points: 2, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MEMBERS },
   { id: 65, name: "The Golem", points: 1, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MEMBERS },
   { id: 66, name: "The Grand Tree", points: 5, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MEMBERS },
+  { id: 17328, name: "The Graveyard", points: 3, difficulty: QuestDifficulty.MASTER, type: QuestType.MEMBERS },
   { id: 67, name: "The Great Brain Robbery", points: 2, difficulty: QuestDifficulty.EXPERIENCED, type: QuestType.MEMBERS },
   { id: 68, name: "Grim Tales", points: 1, difficulty: QuestDifficulty.MASTER, type: QuestType.MEMBERS },
   { id: 69, name: "The Hand in the Sand", points: 1, difficulty: QuestDifficulty.INTERMEDIATE, type: QuestType.MEMBERS },
